@@ -1,16 +1,16 @@
-#version 120
+#version 410
 
 uniform mat4 MVP;
 uniform mat4 M;
 uniform mat4 Mit;
-attribute vec3 vNorm;
-attribute vec3 vPos;
-attribute vec3 vTan;
-attribute vec2 vTc;
-varying vec3 normal;
-varying vec3 tang;
-varying vec3 pos;
-varying vec2 tc;
+in vec3 vNorm;
+in vec3 vPos;
+in vec3 vTan;
+in vec2 vTc;
+out vec3 normal;
+out vec3 tang;
+out vec3 pos;
+out vec2 tc;
 
 void main() {
 	gl_Position = MVP * vec4(vPos, 1.0);

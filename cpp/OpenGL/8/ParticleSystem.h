@@ -6,6 +6,7 @@
 #include "Mat4.h"
 #include "GLProgram.h"
 #include "GLBuffer.h"
+#include "GLArray.h"
 #include "GLTexture2D.h"
 
 class Particle {
@@ -48,7 +49,7 @@ public:
 					const Vec3& acceleration, const Vec3& minPos, const Vec3& maxPos,
 					float maxAge, float pointSize, const Vec3& color=RANDOM_COLOR);
 
-	void render(const Mat4& v, const Mat4& p) const;
+	void render(const Mat4& v, const Mat4& p);
 	void update(float deltaT);
 	
 	void setCenter(const Vec3& center);
@@ -81,6 +82,8 @@ private:
 	float pointSize;
 	Vec3 color;
 	float maxAge;
+	GLArray particleArray;
+	GLBuffer vbPosColor;
 	
 	Vec3 computeCenter() const;
 	Vec3 computeDirection() const;

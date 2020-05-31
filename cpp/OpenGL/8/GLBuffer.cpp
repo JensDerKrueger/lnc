@@ -18,12 +18,12 @@ GLBuffer::~GLBuffer()  {
 	glDeleteBuffers(1, &bufferID);
 }
 
-void GLBuffer::setData(const std::vector<float>& data, size_t valuesPerElement) {
+void GLBuffer::setData(const std::vector<float>& data, size_t valuesPerElement, GLenum usage) {
 	elemSize = sizeof(data[0]);
 	stride = valuesPerElement*elemSize;
 	type = GL_FLOAT;
 	glBindBuffer(target, bufferID);
-	glBufferData(target, elemSize*data.size(), data.data(), GL_STATIC_DRAW); 	
+	glBufferData(target, elemSize*data.size(), data.data(), usage); 	
 }
 
 void GLBuffer::setData(const std::vector<GLuint>& data) {

@@ -71,25 +71,25 @@ std::vector<uint8_t> spritePixel{
 };
 
 std::string vsString{
-"#version 120\n"
+"#version 410\n"
 "uniform mat4 MVP;\n"
-"attribute vec3 vPos;\n"
-"attribute vec4 vColor;\n"
-"varying vec4 color;\n"
+"layout (location = 0) in vec3 vPos;\n"
+"layout (location = 1) in vec4 vColor;\n"
+"out vec4 color;\n"
 "void main() {\n"
 "	gl_Position = MVP * vec4(vPos, 1.0);\n"
-"    color = vColor;\n"
+"   color = vColor;\n"
 "}\n"};
 
 std::string fsString{
-"#version 120\n"
+"#version 410\n"
 "uniform sampler2D sprite;\n"
-"varying vec4 color;\n"
+"in vec4 color;\n"
+"out vec4 FragColor;\n"
 "void main() {\n"
-"    vec4 texValue = texture2D(sprite, gl_PointCoord).rgbr;\n"
-"    gl_FragColor = vec4(color*texValue)*color.a;\n"
+"    vec4 texValue = texture(sprite, gl_PointCoord).rgbr;\n"
+"    FragColor = vec4(color*texValue)*color.a;\n"
 "}\n"};
-
 
 ParticleSystem::ParticleSystem(	uint32_t particleCount, const Vec3& center, float spreadRadius,
 								float initialSpeed, 
@@ -108,21 +108,33 @@ ParticleSystem::ParticleSystem(	uint32_t particleCount, const Vec3& center, floa
 	acceleration(acceleration),
 	pointSize{pointSize},
 	color(color),
-	maxAge(maxAge)
-{	
+	maxAge(maxAge),
+	particleArray{},
+	vbPosColor{GL_ARRAY_BUFFER}
+{
 	// setup shader
 	mvpLocation = prog.getUniformLocation("MVP");
-	posLocation = prog.getAttributeLocation("vPos");
-	colLocation = prog.getAttributeLocation("vColor");
 	texLocation = prog.getUniformLocation("sprite"); 
 
 	// setup texture
 	sprite.setData(spritePixel);
 	
+	
 	for (uint32_t i = 0;i<particleCount;++i) {
 		Particle p{computeCenter(), computeDirection(), acceleration, computeColor(), 1.0f, maxAge*Rand::rand01(), minPos, maxPos, true};
 		particles.push_back(p);		
 	}
+	
+	std::vector<float> data;
+	for (const Particle& p : particles) {
+		std::vector<float> pData{p.getData()};			
+		data.insert(data.end(), pData.begin(), pData.end());
+	}	
+	vbPosColor.setData(data,7,GL_DYNAMIC_DRAW);	
+
+	// setup geometry
+	particleArray.connectVertexAttrib(vbPosColor, prog, "vPos", 3);
+	particleArray.connectVertexAttrib(vbPosColor, prog, "vColor", 4, 3);
 }
 
 void ParticleSystem::setBounce(bool bounce) {
@@ -131,7 +143,7 @@ void ParticleSystem::setBounce(bool bounce) {
 	}	
 }
 
-void ParticleSystem::render(const Mat4& v, const Mat4& p) const {
+void ParticleSystem::render(const Mat4& v, const Mat4& p) {
 	prog.enable();
 	prog.setUniform(mvpLocation, v*p);
 	prog.setTexture(texLocation, sprite, 0);		
@@ -139,10 +151,7 @@ void ParticleSystem::render(const Mat4& v, const Mat4& p) const {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE, GL_ONE);
 	glBlendEquation(GL_FUNC_ADD);
-	
-	
 	glDisable(GL_CULL_FACE);
-
 	glDepthMask(GL_FALSE);
 			
 	glPointSize(pointSize);
@@ -153,12 +162,11 @@ void ParticleSystem::render(const Mat4& v, const Mat4& p) const {
 		data.insert(data.end(), pData.begin(), pData.end());
 	}	
 	
-	GLBuffer vbPosColor{GL_ARRAY_BUFFER};
-	vbPosColor.setData(data,7);	
-	vbPosColor.connectVertexAttrib(posLocation, 3);
-	vbPosColor.connectVertexAttrib(colLocation, 4, 3);
 		
 	glEnable(GL_POINT_SPRITE);
+	
+	particleArray.bind();
+	vbPosColor.setData(data,7,GL_DYNAMIC_DRAW);	
 
 	glDrawArrays(GL_POINTS, 0, particles.size());
 	

@@ -10,6 +10,7 @@
 #include "GLEnv.h"
 #include "GLProgram.h"
 #include "GLBuffer.h"
+#include "GLArray.h"
 #include "GLTexture2D.h"
 #include "ParticleSystem.h"
 
@@ -53,7 +54,7 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
 } 
 
 int main(int agrc, char ** argv) {
-    GLEnv gl{640,480,4,"Interactive Late Night Coding Teil 5", true};
+    GLEnv gl{640,480,4,"Interactive Late Night Coding Teil 8", true, true, 4, 1, true};
     gl.setKeyCallback(keyCallback);
 
     // generate ball resources and load textures
@@ -118,15 +119,25 @@ int main(int agrc, char ** argv) {
     const GLint mLocationNormalMap = progNormalMap.getUniformLocation("M");
     const GLint mitLocationNormalMap = progNormalMap.getUniformLocation("Mit");
     const GLint invVLocationNormalMap = progNormalMap.getUniformLocation("invV");
-    const GLint posLocationNormalMap = progNormalMap.getAttributeLocation("vPos");
-    const GLint tanLocationNormalMap = progNormalMap.getAttributeLocation("vTan");
-    const GLint tcLocationNormalMap = progNormalMap.getAttributeLocation("vTc");
-    const GLint normLocationNormalMap = progNormalMap.getAttributeLocation("vNorm");
     const GLint lpLocationNormalMap  = progNormalMap.getUniformLocation("vLightPos");
     const GLint texRescaleLocationNormalMap = progNormalMap.getUniformLocation("texRescale");
     const GLint texLocationNormalMap  = progNormalMap.getUniformLocation("textureSampler"); 
     const GLint normMapLocationNormalMap  = progNormalMap.getUniformLocation("normalSampler");  
    
+    GLArray ballArray;
+    ballArray.connectVertexAttrib(vbBallPos,progNormalMap,"vPos",3);
+    ballArray.connectVertexAttrib(vbBallNorm,progNormalMap,"vNorm",3);
+    ballArray.connectVertexAttrib(vbBallTan,progNormalMap,"vTan",3);
+    ballArray.connectVertexAttrib(vbBallTc,progNormalMap,"vTc",2);
+    ballArray.connectIndexBuffer(ibBall);
+    
+    GLArray wallArray;
+    wallArray.connectVertexAttrib(vbWallPos,progNormalMap,"vPos",3);
+    wallArray.connectVertexAttrib(vbWallNorm,progNormalMap,"vNorm",3);
+    wallArray.connectVertexAttrib(vbWallTan,progNormalMap,"vTan",3);
+    wallArray.connectVertexAttrib(vbWallTc,progNormalMap,"vTc",2);
+    wallArray.connectIndexBuffer(ibWall);
+
     // setup basic OpenGL states that do not change during the frame
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);    
@@ -142,6 +153,8 @@ int main(int agrc, char ** argv) {
     
     float t0 = glfwGetTime();
     float deltaT = 0;
+    
+    
     do {                
         // setup viewport and clear buffers
         const Dimensions dim{gl.getFramebufferSize()};    
@@ -162,11 +175,7 @@ int main(int agrc, char ** argv) {
         progNormalMap.setTexture(texLocationNormalMap,ballAlbedo,1);
 
         // bind geometry
-        vbBallPos.connectVertexAttrib(posLocationNormalMap, 3);
-        vbBallNorm.connectVertexAttrib(normLocationNormalMap, 3);
-        vbBallTan.connectVertexAttrib(tanLocationNormalMap, 3);
-        vbBallTc.connectVertexAttrib(tcLocationNormalMap, 2);
-        ibBall.bind();
+        ballArray.bind();
         
         // setup transformations
         const Mat4 mBall{Mat4::translation({0.0f,0.0f,0.8f})*Mat4::rotationX(glfwGetTime()*157)*Mat4::translation({0.8f,0.0f,0.0f})*Mat4::rotationY(glfwGetTime()*47)};
@@ -187,11 +196,7 @@ int main(int agrc, char ** argv) {
         progNormalMap.setTexture(texLocationNormalMap,brickWallAlbedo,1);
 
         // bind geometry
-        vbWallPos.connectVertexAttrib(posLocationNormalMap, 3);
-        vbWallNorm.connectVertexAttrib(normLocationNormalMap, 3);
-        vbWallTan.connectVertexAttrib(tanLocationNormalMap, 3);
-        vbWallTc.connectVertexAttrib(tcLocationNormalMap, 2);
-        ibWall.bind();
+        wallArray.bind();
 
         const Mat4 mLeftWall{Mat4::rotationY(90)*Mat4::translation(-2.0f,0.0f,0.0f)};
         progNormalMap.setUniform(mvpLocationNormalMap, {mLeftWall*v*p});
@@ -248,12 +253,13 @@ int main(int agrc, char ** argv) {
         glDrawElements(GL_TRIANGLES, square.getIndices().size(), GL_UNSIGNED_INT, (void*)0);
 
         // ************* particles
+        
         if (!particleSystem)
             particleSystem = std::make_shared<ParticleSystem>(2000, mBall * Vec3(0.0f,0.0f,0.0f), 0.4f, 0.1f, accelerations[currentAcceleration], Vec3{-1.9f,-1.9f,-1.9f}, Vec3{1.9,1.9,1.9}, ages[currentAge], 100);
 
         particleSystem->setSize(dim.height/30);
         particleSystem->setCenter(mBall * Vec3(0.0f,0.0f,0.0f));
-        
+
         particleSystem->render(v,p);
         particleSystem->update(deltaT);
 

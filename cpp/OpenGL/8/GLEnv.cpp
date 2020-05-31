@@ -12,7 +12,7 @@ void GLEnv::errorCallback(int error, const char* description) {
 	throw GLException{s.str()};	
 }
 
-GLEnv::GLEnv(uint32_t w, uint32_t h, uint32_t s, const std::string& title, bool fpsCounter, bool sync, int major, int minor) :
+GLEnv::GLEnv(uint32_t w, uint32_t h, uint32_t s, const std::string& title, bool fpsCounter, bool sync, int major, int minor, bool core) :
 	window(nullptr),
 	title(title),
 	fpsCounter(fpsCounter)
@@ -22,13 +22,11 @@ GLEnv::GLEnv(uint32_t w, uint32_t h, uint32_t s, const std::string& title, bool 
 		throw GLException{"GLFW Init Failed"};
 
 	glfwWindowHint(GLFW_SAMPLES, s);
-	
-	glfwWindowHint(GLFW_SAMPLES, 4);
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, major);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, minor);
 	
-	if (major > 4 || (major == 3 && minor >= 2)) {
+	if (core) {
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);	
 	}

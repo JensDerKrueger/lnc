@@ -3,7 +3,7 @@ CFLAGS=-c -Wall -std=c++17 -Wunreachable-code
 LFLAGS= -lglfw -lglew -framework OpenGL
 LIBS=
 INCLUDES=-I. 
-SRC = ParticleSystem.cpp GLTexture2D.cpp Tesselation.cpp GLBuffer.cpp GLEnv.cpp GLProgram.cpp main.cpp Mat4.cpp Vec3.cpp Rand.cpp
+SRC = GLArray.cpp ParticleSystem.cpp GLTexture2D.cpp Tesselation.cpp GLBuffer.cpp GLEnv.cpp GLProgram.cpp main.cpp Mat4.cpp Vec3.cpp Rand.cpp
 OBJ = $(SRC:.cpp=.o)
 TARGET = opengl
 
