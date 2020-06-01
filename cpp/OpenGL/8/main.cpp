@@ -7,16 +7,15 @@
 #include <GLFW/glfw3.h>  
 
 #include "bmp.h"
+#include "Mat4.h"
 #include "GLEnv.h"
 #include "GLProgram.h"
+#include "Tesselation.h"
 #include "GLBuffer.h"
 #include "GLArray.h"
 #include "GLTexture2D.h"
 #include "ParticleSystem.h"
-
-#include "Mat4.h"
-#include "Tesselation.h"
-
+#include "FresnelVisualizer.h"
 
 bool bounce = true;
 std::shared_ptr<ParticleSystem> particleSystem = nullptr;
@@ -160,17 +159,8 @@ int main(int agrc, char ** argv) {
     wallArray.connectIndexBuffer(ibWall);
 
 
-    // setup Fresnel-Frame visualization shader
-    const GLProgram progFFVis = GLProgram::createFromFile("progFFVisVertex.glsl", "progFFVisFragment.glsl", "progFFVisGeometry.glsl");
-    const GLint pFFVisMap = progFFVis.getUniformLocation("P");
-    const GLint mvFFVisMap = progFFVis.getUniformLocation("MV");
-    const GLint mvitFFVisMap = progFFVis.getUniformLocation("MVit");
-
-    GLArray ffVisArray;
-    ffVisArray.connectVertexAttrib(vbBallPos,progFFVis,  "vPos",3);
-    ffVisArray.connectVertexAttrib(vbBallNorm,progFFVis, "vNorm",3);
-    ffVisArray.connectVertexAttrib(vbBallTan,progFFVis,  "vTan",3);
-    
+    // setup Fresnel-Frame visualization
+    FresnelVisualizer fresnel(vbBallPos,vbBallNorm,vbBallTan,sphere.getVertices().size()/3);
 
     // setup basic OpenGL states that do not change during the frame
     glEnable(GL_CULL_FACE);
@@ -198,6 +188,7 @@ int main(int agrc, char ** argv) {
         progNormalMap.enable();
         Vec3 lightPos{Mat4::rotationY(t0*55)*Vec3{0,0,1}};
         progNormalMap.setUniform(lpLocationNormalMap, lightPos);
+
 
         // ************* the ball
         
@@ -293,24 +284,8 @@ int main(int agrc, char ** argv) {
         particleSystem->render(v,p);
         particleSystem->update(t0);
 
-        if (showFresnelFrame) {
-            glDisable(GL_DEPTH_TEST);
-
-            // bind geometry
-            ffVisArray.bind();
-            
-            // setup transformations
-            progFFVis.enable();      
-                              
-            progFFVis.setUniform(pFFVisMap, p);
-            progFFVis.setUniform(mvFFVisMap, mBall*v);
-            progFFVis.setUniform(mvitFFVisMap, Mat4::inverse(mBall*v), true);
-
-            // render geometry
-            glDrawArrays(GL_POINTS, 0, sphere.getVertices().size()/3);
-            
-            glEnable(GL_DEPTH_TEST);
-        }
+        // ************* particles
+        if (showFresnelFrame) fresnel.render(mBall*v,p);
 
         gl.endOfFrame();        
         float t1 = glfwGetTime();
