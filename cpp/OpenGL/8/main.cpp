@@ -253,7 +253,7 @@ int main(int agrc, char ** argv) {
         glDrawElements(GL_TRIANGLES, square.getIndices().size(), GL_UNSIGNED_INT, (void*)0);
 
         // ************* particles
-        
+      
         if (!particleSystem)
             particleSystem = std::make_shared<ParticleSystem>(2000, mBall * Vec3(0.0f,0.0f,0.0f), 0.4f, 0.1f, accelerations[currentAcceleration], Vec3{-1.9f,-1.9f,-1.9f}, Vec3{1.9,1.9,1.9}, ages[currentAge], 100);
 

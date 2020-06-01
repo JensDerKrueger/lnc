@@ -4,22 +4,29 @@
 
 #include "GLProgram.h"
 
-GLProgram::GLProgram(const GLchar** vertexShaderTexts, GLsizei vsCount, const GLchar** framentShaderTexts, GLsizei fsCount) :
+GLuint GLProgram::createShader(GLenum type, const GLchar** src, GLsizei count) {
+	if (count==0) return 0;
+	GLuint s = glCreateShader(type); checkAndThrow();
+	glShaderSource(s, count, src, NULL); checkAndThrow();
+	glCompileShader(s); checkAndThrowShader(s);
+	return s;
+}
+
+GLProgram::GLProgram(const GLchar** vertexShaderTexts, GLsizei vsCount, const GLchar** framentShaderTexts, GLsizei fsCount, const GLchar** geometryShaderTexts, GLsizei gsCount) :
 	glVertexShader(0),
 	glFragmentShader(0),
+	glGeometryShader(0),
 	glProgram(0)
 {
-	glVertexShader = glCreateShader(GL_VERTEX_SHADER); checkAndThrow();
-	glShaderSource(glVertexShader, vsCount, vertexShaderTexts, NULL); checkAndThrow();
-	glCompileShader(glVertexShader); checkAndThrowShader(glVertexShader);
 	
-	glFragmentShader = glCreateShader(GL_FRAGMENT_SHADER); checkAndThrow();
-	glShaderSource(glFragmentShader, fsCount, framentShaderTexts, NULL); checkAndThrow();
-	glCompileShader(glFragmentShader); checkAndThrowShader(glFragmentShader);
+	glVertexShader = createShader(GL_VERTEX_SHADER, vertexShaderTexts, vsCount);
+	glFragmentShader = createShader(GL_FRAGMENT_SHADER, framentShaderTexts, fsCount);
+	glGeometryShader = createShader(GL_GEOMETRY_SHADER, geometryShaderTexts, gsCount);
 
 	glProgram = glCreateProgram(); checkAndThrow();
-	glAttachShader(glProgram, glVertexShader); checkAndThrow();
-	glAttachShader(glProgram, glFragmentShader); checkAndThrow();
+	if (glVertexShader) glAttachShader(glProgram, glVertexShader); checkAndThrow();
+	if (glFragmentShader) glAttachShader(glProgram, glFragmentShader); checkAndThrow();
+	if (glGeometryShader) glAttachShader(glProgram, glGeometryShader); checkAndThrow();
 	glLinkProgram(glProgram); checkAndThrowProgram(glProgram);
 }
 
@@ -29,7 +36,7 @@ GLProgram::~GLProgram() {
 	glDeleteProgram(glProgram);
 }
 
-GLProgram GLProgram::createFromFiles(const std::vector<std::string>& vs, const std::vector<std::string>& fs) {
+GLProgram GLProgram::createFromFiles(const std::vector<std::string>& vs, const std::vector<std::string>& fs, const std::vector<std::string>& gs) {
 	std::vector<std::string> vsTexts;
 	for (const std::string f : vs) {
 		vsTexts.push_back(loadFile(f));
@@ -38,29 +45,38 @@ GLProgram GLProgram::createFromFiles(const std::vector<std::string>& vs, const s
 	for (const std::string f : fs) {
 		fsTexts.push_back(loadFile(f));
 	}
-	return createFromStrings(vsTexts,fsTexts);
+	std::vector<std::string> gsTexts;
+	for (const std::string f : gs) {
+		if (!f.empty())		
+			gsTexts.push_back(loadFile(f));
+	}
+	return createFromStrings(vsTexts,fsTexts,{});
 }
 
-GLProgram GLProgram::createFromStrings(const std::vector<std::string>& vs, const std::vector<std::string>& fs) {
-	std::vector<const GLchar*> vertexShaderTexts(vs.size());
-	std::vector<const GLchar*> framentShaderTexts(fs.size());
+GLProgram GLProgram::createFromStrings(const std::vector<std::string>& vs, const std::vector<std::string>& fs, const std::vector<std::string>& gs) {
+	std::vector<const GLchar*> vertexShaderTexts;
+	for (const std::string& s : vs)
+		vertexShaderTexts.push_back(s.c_str());
+
+	std::vector<const GLchar*> framentShaderTexts;
+	for (const std::string& s : fs)
+		framentShaderTexts.push_back(s.c_str());
 		
-	for (size_t i = 0;i<vs.size();++i) {
-		vertexShaderTexts[i] = vs[i].c_str();
-	}
-	for (size_t i = 0;i<fs.size();++i) {
-		framentShaderTexts[i] = fs[i].c_str();
-	}
+	std::vector<const GLchar*> geometryShaderTexts;
+	for (const std::string& s : gs)
+		if (!s.empty())
+			geometryShaderTexts.push_back(s.c_str());
+
 	
-	return {vertexShaderTexts.data(), GLsizei(vs.size()), framentShaderTexts.data(), GLsizei(fs.size())};
+	return {vertexShaderTexts.data(), GLsizei(vertexShaderTexts.size()), framentShaderTexts.data(), GLsizei(framentShaderTexts.size()), geometryShaderTexts.data(), GLsizei(geometryShaderTexts.size())};
 }
 
-GLProgram GLProgram::createFromFile(const std::string& vs, const std::string& fs) {
-	return createFromFiles(std::vector<std::string>{vs}, std::vector<std::string>{fs});
+GLProgram GLProgram::createFromFile(const std::string& vs, const std::string& fs, const std::string& gs) {
+	return createFromFiles(std::vector<std::string>{vs}, std::vector<std::string>{fs}, std::vector<std::string>{gs});
 }
 
-GLProgram GLProgram::createFromString(const std::string& vs, const std::string& fs) {
-	return createFromStrings(std::vector<std::string>{vs}, std::vector<std::string>{fs});
+GLProgram GLProgram::createFromString(const std::string& vs, const std::string& fs, const std::string& gs) {
+	return createFromStrings(std::vector<std::string>{vs}, std::vector<std::string>{fs}, std::vector<std::string> {gs});
 }
 
 std::string GLProgram::loadFile(const std::string& filename) {
