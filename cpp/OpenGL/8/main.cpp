@@ -24,7 +24,7 @@ std::vector<Vec3> colors{RANDOM_COLOR,RAINBOW_COLOR,{1,0,0},{0,1,0},{0,0,1},{1,1
 uint32_t currentColor{0};
 std::vector<Vec3> accelerations{Vec3{0,0,0},Vec3{0,-5,0},Vec3{0,5,0}};
 uint32_t currentAcceleration{0};
-std::vector<float> ages{0,0.4,1,4,10};
+std::vector<float> ages{0,0.4,1,4,10,20};
 uint32_t currentAge{0};
 bool showFresnelFrame = false;
 bool animate = true;
