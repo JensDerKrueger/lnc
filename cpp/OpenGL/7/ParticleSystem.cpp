@@ -170,7 +170,7 @@ void ParticleSystem::setAcceleration(const Vec3& acceleration) {
 }
 
 Vec3 ParticleSystem::computeCenter() const {
-	return center+Vec3::randomPointInDisc()*spreadRadius;
+	return center+Vec3::randomPointInSphere()*spreadRadius;
 }
 
 Vec3 ParticleSystem::computeDirection() const {
