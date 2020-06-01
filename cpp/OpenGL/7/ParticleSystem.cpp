@@ -157,7 +157,6 @@ void ParticleSystem::update() {
 	}	
 }
 	
-	
 void ParticleSystem::setCenter(const Vec3& center) {
 	this->center = center;
 }
