@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include "ParticleSystem.h"
 #include "Rand.h"
 
@@ -70,7 +68,7 @@ std::vector<uint8_t> spritePixel{
 	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,2,2,2,4,4,4,5,5,5,6,6,6,6,6,6,5,5,5,5,5,5,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,3,3,3,3,3,3,2,2,2,2,2,2,2,2,2,2,2,2,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 };
 
-std::string vsString{
+static std::string vsString{
 "#version 410\n"
 "uniform mat4 MVP;\n"
 "layout (location = 0) in vec3 vPos;\n"
@@ -81,7 +79,7 @@ std::string vsString{
 "   color = vColor;\n"
 "}\n"};
 
-std::string fsString{
+static std::string fsString{
 "#version 410\n"
 "uniform sampler2D sprite;\n"
 "in vec4 color;\n"
