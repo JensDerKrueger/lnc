@@ -20,7 +20,7 @@
 
 bool bounce = true;
 std::shared_ptr<ParticleSystem> particleSystem = nullptr;
-std::vector<Vec3> colors{RANDOM_COLOR,{1,0,0},{0,1,0},{0,0,1},{1,1,0},{0,1,1},{1,0,1}};
+std::vector<Vec3> colors{RANDOM_COLOR,RAINBOW_COLOR,{1,0,0},{0,1,0},{0,0,1},{1,1,0},{0,1,1},{1,0,1}};
 uint32_t currentColor{0};
 std::vector<Vec3> accelerations{Vec3{0,0,0},Vec3{0,-5,0},Vec3{0,5,0}};
 uint32_t currentAcceleration{0};
@@ -28,8 +28,16 @@ std::vector<float> ages{0,0.4,1,4,10};
 uint32_t currentAge{0};
 bool showFresnelFrame = false;
 bool animate = true;
+float t0{0.0f};
+float viewAngle{0.0f};
   
 static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {  
+    if (key == GLFW_KEY_LEFT && action == GLFW_REPEAT)
+        viewAngle -= 1.0f;
+
+    if (key == GLFW_KEY_RIGHT && action == GLFW_REPEAT)
+        viewAngle += 1.0f;
+
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GL_TRUE);
 
@@ -57,8 +65,11 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
         if (particleSystem) particleSystem->setMaxAge(ages[currentAge]);
     }
 
-    if (key == GLFW_KEY_N && action == GLFW_PRESS) {
+    if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
         animate = !animate;
+        if (animate) {
+            glfwSetTime(t0);
+        }
     }
                
 } 
@@ -168,18 +179,15 @@ int main(int agrc, char ** argv) {
     glDepthFunc(GL_LESS);    
     glClearDepth(1.0f);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    
-    const Vec3 lookFromVec{0,0,5};
-    const Vec3 lookAtVec{0,0,0};
-    const Vec3 upVec{0,1,0};
-    const Mat4 v{Mat4::lookAt(lookFromVec,lookAtVec,upVec)};
-    
-    float t0 = 0;
-    glfwSetTime(0);
-    float deltaT = 0;
-    
+        
+    glfwSetTime(0);    
     
     do {                
+        const Vec3 lookFromVec{Mat4::rotationY(viewAngle)*Vec3{0,0,5}};
+        const Vec3 lookAtVec{0,0,0};
+        const Vec3 upVec{0,1,0};
+        const Mat4 v{Mat4::lookAt(lookFromVec,lookAtVec,upVec)};
+        
         // setup viewport and clear buffers
         const Dimensions dim{gl.getFramebufferSize()};    
         glViewport(0, 0, dim.width, dim.height);
@@ -277,13 +285,13 @@ int main(int agrc, char ** argv) {
         // ************* particles
       
         if (!particleSystem)
-            particleSystem = std::make_shared<ParticleSystem>(2000, mBall * Vec3(0.0f,0.0f,0.0f), 0.4f, 0.1f, accelerations[currentAcceleration], Vec3{-1.9f,-1.9f,-1.9f}, Vec3{1.9,1.9,1.9}, ages[currentAge], 100);
+            particleSystem = std::make_shared<ParticleSystem>(5000, mBall * Vec3(0.0f,0.0f,0.0f), 0.2f, 0.1f, accelerations[currentAcceleration], Vec3{-1.9f,-1.9f,-1.9f}, Vec3{1.9,1.9,1.9}, ages[currentAge], 100);
 
         particleSystem->setSize(dim.height/30);
         particleSystem->setCenter(mBall * Vec3(0.0f,0.0f,0.0f));
 
         particleSystem->render(v,p);
-        particleSystem->update(deltaT);
+        particleSystem->update(t0);
 
         if (showFresnelFrame) {
             glDisable(GL_DEPTH_TEST);
@@ -306,7 +314,6 @@ int main(int agrc, char ** argv) {
 
         gl.endOfFrame();        
         float t1 = glfwGetTime();
-        deltaT = t1-t0;
         if (animate) t0 = t1;
     } while (!gl.shouldClose());  
   

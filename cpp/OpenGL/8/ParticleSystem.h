@@ -41,6 +41,7 @@ private:
 };
 
 const Vec3 RANDOM_COLOR{-1.0f,-1.0f,-1.0f};
+const Vec3 RAINBOW_COLOR{-2.0f,-2.0f,-2.0f};
 
 class ParticleSystem {
 public:
@@ -50,7 +51,7 @@ public:
 					float maxAge, float pointSize, const Vec3& color=RANDOM_COLOR);
 
 	void render(const Mat4& v, const Mat4& p);
-	void update(float deltaT);
+	void update(float t);
 	
 	void setCenter(const Vec3& center);
 	void setSize(float pointSize) {this->pointSize = pointSize;}
@@ -84,6 +85,7 @@ private:
 	float maxAge;
 	GLArray particleArray;
 	GLBuffer vbPosColor;
+	float lastT;
 	
 	Vec3 computeCenter() const;
 	Vec3 computeDirection() const;
