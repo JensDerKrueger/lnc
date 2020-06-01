@@ -50,6 +50,8 @@ class Vec3 {
 		static Vec3 randomPointInSphere();
 		static Vec3 randomPointInDisc();
 		static Vec3 randomUnitVector();
+		
+		static Vec3 hsvToRgb(const Vec3& other);
 			
 	private:
 		std::array<float, 3> e;

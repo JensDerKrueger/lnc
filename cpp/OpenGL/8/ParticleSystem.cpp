@@ -273,38 +273,9 @@ void Particle::update(float deltaT) {
 	position = nextPosition;
 	direction = direction + acceleration*deltaT;	
 }
-
-
-Vec3 hsvToRgb(float h, float s, float v) {
-		// Make sure our arguments stay in-range
-	h = float(int(h) % 360);
-	s = std::max(0.0f, std::min(1.0f, s));
-	v = std::max(0.0f, std::min(1.0f, v));
-
-	if(s == 0) {
-		// Achromatic (grey)
-		return Vec3(v,v,v);
-	}
-
-	h /= 60; // sector 0 to 5
-	int i = int(floor(h));
-	float f = h - i; // factorial part of h
-	float p = v * (1 - s);
-	float q = v * (1 - s * f);
-	float t = v * (1 - s * (1 - f));
-
-	switch(i) {
-		case 0: return {v,t,p};
-		case 1: return {q,v,p};
-		case 2: return {p,v,t};
-		case 3: return {p,q,v};
-		case 4: return {t,p,v};
-		default: return {v,p,q};
-	}
-}
 	
 std::vector<float> Particle::getData() const {
-	Vec3 c = color == RAINBOW_COLOR ? hsvToRgb(age*100,1.0,1.0) : color;
+	Vec3 c = color == RAINBOW_COLOR ? Vec3::hsvToRgb({age*100,1.0,1.0}) : color;
 	return {position.x(), position.y(), position.z(), c.x(), c.y(), c.z(), opacity*((maxAge-age)/maxAge)};
 }
 

@@ -155,3 +155,27 @@ Vec3 Vec3::randomUnitVector() {
 
 	return Vec3{r*cosf(a), r*sinf(a), z};
 }
+
+Vec3 Vec3::hsvToRgb(const Vec3& other) {
+	// Make sure our arguments stay in-range
+	const float h = float(int(other.x()) % 360) / 60;
+	const float s = std::max(0.0f, std::min(1.0f, other.y()));
+	const float v = std::max(0.0f, std::min(1.0f, other.z()));
+
+	if(s == 0) return {v,v,v}; // Achromatic (grey)
+
+	const int i = int(floor(h));
+	const float f = h - i; 
+	const float p = v * (1 - s);
+	const float q = v * (1 - s * f);
+	const float t = v * (1 - s * (1 - f));
+
+	switch(i) {
+		case 0: return {v,t,p};
+		case 1: return {q,v,p};
+		case 2: return {p,v,t};
+		case 3: return {p,q,v};
+		case 4: return {t,p,v};
+		default: return {v,p,q};
+	}
+}
