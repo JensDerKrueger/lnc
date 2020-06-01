@@ -50,7 +50,7 @@ GLProgram GLProgram::createFromFiles(const std::vector<std::string>& vs, const s
 		if (!f.empty())		
 			gsTexts.push_back(loadFile(f));
 	}
-	return createFromStrings(vsTexts,fsTexts,{});
+	return createFromStrings(vsTexts,fsTexts,gsTexts);
 }
 
 GLProgram GLProgram::createFromStrings(const std::vector<std::string>& vs, const std::vector<std::string>& fs, const std::vector<std::string>& gs) {

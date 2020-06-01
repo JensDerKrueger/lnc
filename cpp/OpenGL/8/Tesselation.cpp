@@ -48,7 +48,7 @@ Tesselation Tesselation::genSphere(const Vec3& center, const float radius, const
 			tess.tangents.push_back(tCorr.x());
 			tess.tangents.push_back(tCorr.y());
 			tess.tangents.push_back(tCorr.z());
-
+			
 			// vertex tex coord (s, t) range between [0, 1]
 			tess.texCoords.push_back((float)j / sectorCount);
 			tess.texCoords.push_back((float)i / stackCount);

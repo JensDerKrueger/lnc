@@ -26,29 +26,39 @@ std::vector<Vec3> accelerations{Vec3{0,0,0},Vec3{0,-5,0},Vec3{0,5,0}};
 uint32_t currentAcceleration{0};
 std::vector<float> ages{0,0.4,1,4,10};
 uint32_t currentAge{0};
+bool showFresnelFrame = false;
+bool animate = true;
   
 static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {  
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GL_TRUE);
+
+    if (key == GLFW_KEY_F && action == GLFW_PRESS) {
+        showFresnelFrame = !showFresnelFrame;
+    }
         
     if (key == GLFW_KEY_B && action == GLFW_PRESS) {
         bounce = !bounce;
-        particleSystem->setBounce(bounce); 
+        if (particleSystem) particleSystem->setBounce(bounce); 
     }
 
     if (key == GLFW_KEY_C && action == GLFW_PRESS) {
         currentColor = (currentColor + 1)%colors.size();
-        particleSystem->setColor(colors[currentColor]); 
+        if (particleSystem) particleSystem->setColor(colors[currentColor]); 
     }
 
     if (key == GLFW_KEY_G && action == GLFW_PRESS) {
         currentAcceleration = (currentAcceleration + 1)%accelerations.size();
-        particleSystem->setAcceleration(accelerations[currentAcceleration]); 
+        if (particleSystem) particleSystem->setAcceleration(accelerations[currentAcceleration]); 
     }
 
     if (key == GLFW_KEY_A && action == GLFW_PRESS) {
         currentAge = (currentAge + 1)%ages.size();
-        particleSystem->setMaxAge(ages[currentAge]);
+        if (particleSystem) particleSystem->setMaxAge(ages[currentAge]);
+    }
+
+    if (key == GLFW_KEY_N && action == GLFW_PRESS) {
+        animate = !animate;
     }
                
 } 
@@ -58,7 +68,7 @@ int main(int agrc, char ** argv) {
     gl.setKeyCallback(keyCallback);
 
     // generate ball resources and load textures
-    Tesselation sphere{Tesselation::genSphere({0,0,0}, 0.4f, 50, 50)};
+    Tesselation sphere{Tesselation::genSphere({0,0,0}, 0.4f, 10, 10)};
     GLBuffer vbBallPos{GL_ARRAY_BUFFER};
     vbBallPos.setData(sphere.getVertices(),3);
     GLBuffer vbBallNorm{GL_ARRAY_BUFFER};
@@ -138,20 +148,34 @@ int main(int agrc, char ** argv) {
     wallArray.connectVertexAttrib(vbWallTc,progNormalMap,"vTc",2);
     wallArray.connectIndexBuffer(ibWall);
 
+
+    // setup Fresnel-Frame visualization shader
+    const GLProgram progFFVis = GLProgram::createFromFile("progFFVisVertex.glsl", "progFFVisFragment.glsl", "progFFVisGeometry.glsl");
+    const GLint pFFVisMap = progFFVis.getUniformLocation("P");
+    const GLint mvFFVisMap = progFFVis.getUniformLocation("MV");
+    const GLint mvitFFVisMap = progFFVis.getUniformLocation("MVit");
+
+    GLArray ffVisArray;
+    ffVisArray.connectVertexAttrib(vbBallPos,progFFVis,  "vPos",3);
+    ffVisArray.connectVertexAttrib(vbBallNorm,progFFVis, "vNorm",3);
+    ffVisArray.connectVertexAttrib(vbBallTan,progFFVis,  "vTan",3);
+    
+
     // setup basic OpenGL states that do not change during the frame
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);    
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);    
     glClearDepth(1.0f);
-    glClearColor(0.5f, 0.5f, 1.0f, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     
     const Vec3 lookFromVec{0,0,5};
     const Vec3 lookAtVec{0,0,0};
     const Vec3 upVec{0,1,0};
     const Mat4 v{Mat4::lookAt(lookFromVec,lookAtVec,upVec)};
     
-    float t0 = glfwGetTime();
+    float t0 = 0;
+    glfwSetTime(0);
     float deltaT = 0;
     
     
@@ -164,8 +188,7 @@ int main(int agrc, char ** argv) {
 
         // animate lightpos
         progNormalMap.enable();
-
-        Vec3 lightPos{Mat4::rotationY(glfwGetTime()*55)*Vec3{0,0,1}};
+        Vec3 lightPos{Mat4::rotationY(t0*55)*Vec3{0,0,1}};
         progNormalMap.setUniform(lpLocationNormalMap, lightPos);
 
         // ************* the ball
@@ -178,7 +201,7 @@ int main(int agrc, char ** argv) {
         ballArray.bind();
         
         // setup transformations
-        const Mat4 mBall{Mat4::translation({0.0f,0.0f,0.8f})*Mat4::rotationX(glfwGetTime()*157)*Mat4::translation({0.8f,0.0f,0.0f})*Mat4::rotationY(glfwGetTime()*47)};
+        const Mat4 mBall{Mat4::translation({0.0f,0.0f,0.8f})*Mat4::rotationX(t0*157)*Mat4::translation({0.8f,0.0f,0.0f})*Mat4::rotationY(t0*47)};
         progNormalMap.setUniform(texRescaleLocationNormalMap, 1.0f);
         progNormalMap.setUniform(mvpLocationNormalMap, {mBall*v*p});
         progNormalMap.setUniform(mLocationNormalMap, mBall);
@@ -186,9 +209,8 @@ int main(int agrc, char ** argv) {
         progNormalMap.setUniform(invVLocationNormalMap, Mat4::inverse(v));
                 
         // render geometry
-        glDrawElements(GL_TRIANGLES, sphere.getIndices().size(), GL_UNSIGNED_INT, (void*)0);
-        
-        
+        glDrawElements(GL_TRIANGLES, sphere.getIndices().size(), GL_UNSIGNED_INT, (void*)0);        
+       
         // ************* the left wall
         
         // setup texures (shader is already active)
@@ -263,11 +285,29 @@ int main(int agrc, char ** argv) {
         particleSystem->render(v,p);
         particleSystem->update(deltaT);
 
-        gl.endOfFrame();
-        
+        if (showFresnelFrame) {
+            glDisable(GL_DEPTH_TEST);
+
+            // bind geometry
+            ffVisArray.bind();
+            
+            // setup transformations
+            progFFVis.enable();      
+                              
+            progFFVis.setUniform(pFFVisMap, p);
+            progFFVis.setUniform(mvFFVisMap, mBall*v);
+            progFFVis.setUniform(mvitFFVisMap, Mat4::inverse(mBall*v), true);
+
+            // render geometry
+            glDrawArrays(GL_POINTS, 0, sphere.getVertices().size()/3);
+            
+            glEnable(GL_DEPTH_TEST);
+        }
+
+        gl.endOfFrame();        
         float t1 = glfwGetTime();
         deltaT = t1-t0;
-        t0 = t1;
+        if (animate) t0 = t1;
     } while (!gl.shouldClose());  
   
     return EXIT_SUCCESS;
