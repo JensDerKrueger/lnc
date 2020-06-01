@@ -68,7 +68,7 @@ int main(int agrc, char ** argv) {
     gl.setKeyCallback(keyCallback);
 
     // generate ball resources and load textures
-    Tesselation sphere{Tesselation::genSphere({0,0,0}, 0.4f, 10, 10)};
+    Tesselation sphere{Tesselation::genSphere({0,0,0}, 0.4f, 100, 100)};
     GLBuffer vbBallPos{GL_ARRAY_BUFFER};
     vbBallPos.setData(sphere.getVertices(),3);
     GLBuffer vbBallNorm{GL_ARRAY_BUFFER};
