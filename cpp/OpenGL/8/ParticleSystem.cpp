@@ -102,7 +102,7 @@ ParticleSystem::ParticleSystem(	uint32_t particleCount, const Vec3& center, floa
 	posLocation{0},
 	colLocation{0},
 	texLocation{0},
-	sprite{64,64,3, GL_LINEAR, GL_LINEAR},
+	sprite{GL_LINEAR, GL_LINEAR},
 	acceleration(acceleration),
 	pointSize{pointSize},
 	color(color),
@@ -116,7 +116,7 @@ ParticleSystem::ParticleSystem(	uint32_t particleCount, const Vec3& center, floa
 	texLocation = prog.getUniformLocation("sprite"); 
 
 	// setup texture
-	sprite.setData(spritePixel);
+	sprite.setData(spritePixel, 64, 64 , 3);
 	
 	
 	for (uint32_t i = 0;i<particleCount;++i) {
