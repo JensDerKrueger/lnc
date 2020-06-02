@@ -1,11 +1,7 @@
 #include "GLTexture2D.h"
 
 
-GLTexture2D::GLTexture2D(uint32_t width, uint32_t height, uint32_t componentCount, GLint magFilter,
-						 GLint minFilter, GLint wrapX, GLint wrapY) :
-	width(width),
-	height(height),
-	componentCount(componentCount),
+GLTexture2D::GLTexture2D(GLint magFilter, GLint minFilter, GLint wrapX, GLint wrapY) :
 	id(0),
 	internalformat(0),
 	format(0),
@@ -13,10 +9,6 @@ GLTexture2D::GLTexture2D(uint32_t width, uint32_t height, uint32_t componentCoun
 {
 	glGenTextures(1, &id);
 	glBindTexture(GL_TEXTURE_2D, id);
-
-	glPixelStorei(GL_PACK_ALIGNMENT ,1);
-	glPixelStorei(GL_UNPACK_ALIGNMENT ,1);
-
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapX);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapY);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
@@ -32,10 +24,16 @@ const GLint GLTexture2D::getId() const {
 	return id;
 }
 
-void GLTexture2D::setData(const std::vector<GLubyte>& data) {
+void GLTexture2D::setData(const std::vector<GLubyte>& data, uint32_t width, uint32_t height, uint32_t componentCount) {
 	if (data.size() != componentCount*width*height) {
 		throw GLException{"Data size and texure dimensions do not match."};
 	}
+	
+	glBindTexture(GL_TEXTURE_2D, id);
+
+	glPixelStorei(GL_PACK_ALIGNMENT ,1);
+	glPixelStorei(GL_UNPACK_ALIGNMENT ,1);
+	
 	
 	type = GL_UNSIGNED_BYTE;	
 	switch (componentCount) {
@@ -57,9 +55,5 @@ void GLTexture2D::setData(const std::vector<GLubyte>& data) {
 			break;
 	} 
 	
-	glPixelStorei(GL_PACK_ALIGNMENT ,1);
-	glPixelStorei(GL_UNPACK_ALIGNMENT ,1);
-
-	glBindTexture(GL_TEXTURE_2D, id);
 	glTexImage2D(GL_TEXTURE_2D, 0, internalformat, GLuint(width), GLuint(height), 0, format, type, (GLvoid*)data.data());
 }

@@ -6,19 +6,14 @@
 
 class GLTexture2D {
 public:
-	GLTexture2D(uint32_t width, uint32_t height, uint32_t componentCount=4,
-				GLint magFilter=GL_NEAREST, GLint minFilter=GL_NEAREST,
+	GLTexture2D(GLint magFilter=GL_NEAREST, GLint minFilter=GL_NEAREST,
 				GLint wrapX=GL_REPEAT, GLint wrapY=GL_REPEAT);
 	~GLTexture2D();
 	
 	const GLint getId() const;	
-	void setData(const std::vector<GLubyte>& data);
+	void setData(const std::vector<GLubyte>& data, uint32_t width, uint32_t height, uint32_t componentCount=4);
 		
 private:
-	uint32_t width;
-	uint32_t height;
-	uint32_t componentCount;
-	
 	GLuint id;
 	GLenum internalformat;
 	GLenum format;
