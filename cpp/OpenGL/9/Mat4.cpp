@@ -351,5 +351,5 @@ Mat4 Mat4::mirror(const Vec3& p, const Vec3& n) {
 	return {1-2*n.x()*n.x(),-2*n.y()*n.x(),-2*n.z()*n.x(),0,
 			-2*n.x()*n.y(),1-2*n.y()*n.y(),-2*n.z()*n.y(),0,
 			-2*n.x()*n.z(),-2*n.y()*n.z(),1-2*n.z()*n.z(),0,
-			-2*k*n.x(),-2*k*n.y(),-2*k*n.z(),1};
+			2*k*n.x(),2*k*n.y(),2*k*n.z(),1};
 }

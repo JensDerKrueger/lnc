@@ -3,7 +3,7 @@
 #include "bmp.h"
 
 Scene::Scene() :
-	sphere{Tesselation::genSphere({0,0,0}, 0.4f, 100, 100)},
+	sphere{Tesselation::genSphere({0,0,0}, 0.4f, 10, 10)},
 	vbBallPos{GL_ARRAY_BUFFER},
 	vbBallNorm{GL_ARRAY_BUFFER},
 	vbBallTan{GL_ARRAY_BUFFER},
@@ -124,7 +124,7 @@ void Scene::render(float t0, const Mat4& v, const Mat4& p, const Dimensions& dim
 		
 	// render geometry
 	glDrawElements(GL_TRIANGLES, sphere.getIndices().size(), GL_UNSIGNED_INT, (void*)0);        
-       
+
 	// ************* the left wall
 	
 	// setup texures (shader is already active)

@@ -1,4 +1,4 @@
-#version 410
+#version 410 core
 
 uniform mat4 MVP;
 uniform mat4 M;
