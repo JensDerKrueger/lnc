@@ -41,6 +41,7 @@ class GLEnv {
 		std::string title;
 		bool fpsCounter;
 		std::chrono::high_resolution_clock::time_point last;
+		size_t frameCount;
 		
 		static void errorCallback(int error, const char* description);		
 };

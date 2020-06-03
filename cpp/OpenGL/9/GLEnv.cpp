@@ -1,5 +1,9 @@
 #include <sstream>
 #include <iomanip>
+#include <chrono>
+#include <iostream>
+#include <cmath>
+
 typedef std::chrono::high_resolution_clock Clock;
 
 
@@ -15,7 +19,8 @@ void GLEnv::errorCallback(int error, const char* description) {
 GLEnv::GLEnv(uint32_t w, uint32_t h, uint32_t s, const std::string& title, bool fpsCounter, bool sync, int major, int minor, bool core) :
 	window(nullptr),
 	title(title),
-	fpsCounter(fpsCounter)
+	fpsCounter(fpsCounter),
+	last(Clock::now())
 {
 	glfwSetErrorCallback(errorCallback);  
 	if (!glfwInit())
@@ -74,16 +79,17 @@ void GLEnv::endOfFrame() {
 	glfwPollEvents();
 	
 	if (fpsCounter) {
-		
+		frameCount++;
 		auto now = Clock::now();
-		
-		double fps = 1.0/((std::chrono::duration_cast<std::chrono::microseconds>(now - last).count())/1000000.0);
-		last = now;		
-
-		std::stringstream s;
-		s << title << " (" << uint64_t(fps+0.5) << " fps)";		
-		glfwSetWindowTitle(window, s.str().c_str());
-		
+		auto diff = std::chrono::duration_cast<std::chrono::microseconds>(now - last);
+		if(diff.count() > 1e6) {
+		    auto fps = static_cast<double>(frameCount)/diff.count()*1.e6;
+            std::stringstream s;
+            s << title << " (" << static_cast<int>(std::ceil(fps)) << " fps)";
+            glfwSetWindowTitle(window, s.str().c_str());
+            frameCount = 0;
+            last = now;
+        }
 	}
 	
 }
