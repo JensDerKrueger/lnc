@@ -5,7 +5,7 @@
 #include "bmp.h"
 
 Scene::Scene() :
-	sphere{Tesselation::genSphere({0,0,0}, 0.4f, 10, 10)},
+	sphere{Tesselation::genSphere({0,0,0}, 0.4f, 50, 50)},
 	vbBallPos{GL_ARRAY_BUFFER},
 	vbBallNorm{GL_ARRAY_BUFFER},
 	vbBallTan{GL_ARRAY_BUFFER},
