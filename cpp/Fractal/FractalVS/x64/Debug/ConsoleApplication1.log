@@ -1,3 +1,0 @@
-﻿  fractal.cpp
-Z:\online\lnc\cpp\fractal.cpp(82,20): warning C4018: "<": Konflikt zwischen "signed" und "unsigned"
-  ConsoleApplication1.vcxproj -> Z:\online\lnc\cpp\Fractal\FractalVS\x64\Debug\Fraktal.exe

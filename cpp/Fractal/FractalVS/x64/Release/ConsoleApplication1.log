@@ -1,8 +1,0 @@
-﻿  fractal.cpp
-Z:\online\lnc\cpp\fractal.cpp(82,20): warning C4018: "<": Konflikt zwischen "signed" und "unsigned"
-  Code wird generiert.
-  62 of 200 functions (31.0%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
-    8 functions had inline decision re-evaluated but remain unchanged
-  Codegenerierung ist abgeschlossen.
-  ConsoleApplication1.vcxproj -> Z:\online\lnc\cpp\Fractal\FractalVS\x64\Release\Fraktal.exe

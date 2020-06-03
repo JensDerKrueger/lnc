@@ -1,2 +1,0 @@
-Z:\online\lnc\cpp\Fractal\FractalVS\x64\Debug\Fraktal.exe
-Z:\online\lnc\cpp\Fractal\FractalVS\x64\Debug\Fraktal.pdb
