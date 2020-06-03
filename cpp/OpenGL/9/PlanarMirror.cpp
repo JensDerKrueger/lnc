@@ -14,7 +14,7 @@ static std::string fsString{
 "#version 410\n"
 "out vec4 FragColor;\n"
 "void main() {\n"
-"    FragColor = vec4(1.0,1.0,0.0,0.2);\n"
+"    FragColor = vec4(1.0,1.0,0.0,0.5);\n"
 "}\n"};
 
 void checkGLError(const std::string& id) {

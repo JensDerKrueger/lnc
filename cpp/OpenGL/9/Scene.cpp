@@ -5,7 +5,7 @@
 #include "bmp.h"
 
 Scene::Scene() :
-	sphere{Tesselation::genSphere({0,0,0}, 0.4f, 100, 100)},
+	sphere{Tesselation::genSphere({0,0,0}, 0.4f, 10, 10)},
 	vbBallPos{GL_ARRAY_BUFFER},
 	vbBallNorm{GL_ARRAY_BUFFER},
 	vbBallTan{GL_ARRAY_BUFFER},
@@ -207,7 +207,7 @@ void Scene::renderWorld(float t0, const Mat4& m, const Mat4& v, const Mat4& p, c
 
 void Scene::render(float t0, const Mat4& v, const Mat4& p, const Dimensions& dim) {
 	mirror.start(v*p);
-	Mat4 m{Mat4::scaling({-1,1,1})*Mat4::translation({4,0,0})};   // quick hack: should be mirror.getMirrorMatrix();
+	Mat4 m{mirror.getMirrorMatrix()};
 	renderWorld(t0, m, v, p, dim);
 	mirror.end(v*p);
 	renderWorld(t0, Mat4{}, v, p, dim);
