@@ -1,7 +1,6 @@
 #include <sstream>
 #include <iomanip>
 #include <chrono>
-#include <iostream>
 #include <cmath>
 
 typedef std::chrono::high_resolution_clock Clock;
