@@ -9,11 +9,17 @@ TARGET = tetris
 
 all: $(TARGET)
 
+
 release: CFLAGS += -O3 -DNDEBUG
 release: $(TARGET)
 
-$(TARGET): $(OBJ)
+../Utils/libutils.a:
+	cd ../Utils && make
+
+
+$(TARGET): $(OBJ) ../Utils/libutils.a
 	$(CC) $(INCLUDES) $(LFLAGS) $(LIBS) $^ -o $@
+
 
 %.o: %.cpp
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@
@@ -21,3 +27,5 @@ $(TARGET): $(OBJ)
 clean:
 	-rm -rf $(OBJ) $(TARGET) core
 
+mrproper: clean
+	cd ../Utils && make clean

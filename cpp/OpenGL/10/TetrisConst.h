@@ -5,6 +5,9 @@
 #include <Vec3.h>
 #include <Vec2.h>
 
+
+std::array<Vec2,4> test{Vec2{-1,0},Vec2{0,0},Vec2{1,0},Vec2{2,0}};
+
 std::vector<std::vector<std::vector<Vec2>>> tetrominos{	
 		{{Vec2{-1,0},Vec2{0,0},Vec2{1,0},Vec2{2,0}},
 		 {Vec2{1,-1},Vec2{1,0},Vec2{1,1},Vec2{1,2}},
