@@ -3,34 +3,34 @@
 #include <vector>
 #include <array>
 #include <Vec3.h>
-#include <Vec2.h>
+#include <Vec2i.h>
 
-const std::vector<std::vector<std::array<Vec2,4>>> tetrominos{	
-		{{Vec2{-1,0},Vec2{0,0},Vec2{1,0},Vec2{2,0}},
-		 {Vec2{1,-1},Vec2{1,0},Vec2{1,1},Vec2{1,2}},
-		 {Vec2{-1,1},Vec2{0,1},Vec2{1,1},Vec2{2,1}},
-		 {Vec2{0,-1},Vec2{0,0},Vec2{0,1},Vec2{0,2}}},		// I, 4 orientations
-		{{Vec2{-1,0},Vec2{0,0},Vec2{-1,1},Vec2{0,1}}},		// O, 1 orientation
-		{{Vec2{-1,0},Vec2{0,0},Vec2{1,0},Vec2{0,1}},
-		 {Vec2{-1,0},Vec2{0,0},Vec2{0,-1},Vec2{0,1}},
-		 {Vec2{-1,0},Vec2{0,0},Vec2{1,0},Vec2{0,-1}},
-		 {Vec2{1,0},Vec2{0,0},Vec2{0,-1},Vec2{0,1}}},		// T, 4 orientations
-		{{Vec2{-1,0},Vec2{0,0},Vec2{1,0},Vec2{1,1}},
-		 {Vec2{-1,1},Vec2{0,0},Vec2{0,-1},Vec2{0,1}},
-		 {Vec2{-1,0},Vec2{0,0},Vec2{1,0},Vec2{-1,-1}},
-		 {Vec2{1,-1},Vec2{0,0},Vec2{0,-1},Vec2{0,1}}},		// J, 4 orientations
-		{{Vec2{-1,0},Vec2{0,0},Vec2{1,0},Vec2{-1,1}},
-		 {Vec2{0,-1},Vec2{0,0},Vec2{0,1},Vec2{-1,-1}},
-		 {Vec2{-1,0},Vec2{0,0},Vec2{1,0},Vec2{1,-1}},
-		 {Vec2{0,-1},Vec2{0,0},Vec2{0,1},Vec2{1,1}}},		// L, 4 orientations
-		{{Vec2{-1,1},Vec2{0,1},Vec2{0,0},Vec2{1,0}},
-		 {Vec2{-1,-1},Vec2{-1,0},Vec2{0,0},Vec2{0,1}},
-		 {Vec2{-1,0},Vec2{0,0},Vec2{0,-1},Vec2{1,-1}},
-		 {Vec2{0,-1},Vec2{0,0},Vec2{1,0},Vec2{1,1}}},		// S, 4 orientations
-		{{Vec2{-1,0},Vec2{0,0},Vec2{0,1},Vec2{1,1}},
-		 {Vec2{0,-1},Vec2{0,0},Vec2{-1,0},Vec2{-1,1}},
-		 {Vec2{-1,-1},Vec2{0,-1},Vec2{0,0},Vec2{1,0}},
-		 {Vec2{1,-1},Vec2{1,0},Vec2{0,0},Vec2{0,1}}}  		 // Z, 4 orientations
+const std::vector<std::vector<std::array<Vec2i,4>>> tetrominos{	
+		{{Vec2i{-1,0},Vec2i{0,0},Vec2i{1,0},Vec2i{2,0}},
+		 {Vec2i{1,-1},Vec2i{1,0},Vec2i{1,1},Vec2i{1,2}},
+		 {Vec2i{-1,1},Vec2i{0,1},Vec2i{1,1},Vec2i{2,1}},
+		 {Vec2i{0,-1},Vec2i{0,0},Vec2i{0,1},Vec2i{0,2}}},		// I, 4 orientations
+		{{Vec2i{-1,0},Vec2i{0,0},Vec2i{-1,1},Vec2i{0,1}}},		// O, 1 orientation
+		{{Vec2i{-1,0},Vec2i{0,0},Vec2i{1,0},Vec2i{0,1}},
+		 {Vec2i{-1,0},Vec2i{0,0},Vec2i{0,-1},Vec2i{0,1}},
+		 {Vec2i{-1,0},Vec2i{0,0},Vec2i{1,0},Vec2i{0,-1}},
+		 {Vec2i{1,0},Vec2i{0,0},Vec2i{0,-1},Vec2i{0,1}}},		// T, 4 orientations
+		{{Vec2i{-1,0},Vec2i{0,0},Vec2i{1,0},Vec2i{1,1}},
+		 {Vec2i{-1,1},Vec2i{0,0},Vec2i{0,-1},Vec2i{0,1}},
+		 {Vec2i{-1,0},Vec2i{0,0},Vec2i{1,0},Vec2i{-1,-1}},
+		 {Vec2i{1,-1},Vec2i{0,0},Vec2i{0,-1},Vec2i{0,1}}},		// J, 4 orientations
+		{{Vec2i{-1,0},Vec2i{0,0},Vec2i{1,0},Vec2i{-1,1}},
+		 {Vec2i{0,-1},Vec2i{0,0},Vec2i{0,1},Vec2i{-1,-1}},
+		 {Vec2i{-1,0},Vec2i{0,0},Vec2i{1,0},Vec2i{1,-1}},
+		 {Vec2i{0,-1},Vec2i{0,0},Vec2i{0,1},Vec2i{1,1}}},		// L, 4 orientations
+		{{Vec2i{-1,1},Vec2i{0,1},Vec2i{0,0},Vec2i{1,0}},
+		 {Vec2i{-1,-1},Vec2i{-1,0},Vec2i{0,0},Vec2i{0,1}},
+		 {Vec2i{-1,0},Vec2i{0,0},Vec2i{0,-1},Vec2i{1,-1}},
+		 {Vec2i{0,-1},Vec2i{0,0},Vec2i{1,0},Vec2i{1,1}}},		// S, 4 orientations
+		{{Vec2i{-1,0},Vec2i{0,0},Vec2i{0,1},Vec2i{1,1}},
+		 {Vec2i{0,-1},Vec2i{0,0},Vec2i{-1,0},Vec2i{-1,1}},
+		 {Vec2i{-1,-1},Vec2i{0,-1},Vec2i{0,0},Vec2i{1,0}},
+		 {Vec2i{1,-1},Vec2i{1,0},Vec2i{0,0},Vec2i{0,1}}}  		 // Z, 4 orientations
 };
 
 const Vec3 cyan{0,1,1};

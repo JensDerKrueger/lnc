@@ -8,7 +8,7 @@ Vec2i::Vec2i() :
 	e{0,0}
 {}
 
-Vec2i::Vec2i(uint32_t x, uint32_t y) :  
+Vec2i::Vec2i(int32_t x, int32_t y) :  
 	e{x,y}
 {}
 	
@@ -22,11 +22,11 @@ const std::string Vec2i::toString() const {
 	return s.str();
 }
 
-uint32_t Vec2i::x() const {
+int32_t Vec2i::x() const {
 	return e[0];
 }
 
-uint32_t Vec2i::y() const {
+int32_t Vec2i::y() const {
 	return e[1];
 }
 
@@ -50,12 +50,12 @@ Vec2i Vec2i::operator/(const Vec2i& val) const {
 				e[1]/val.e[1]};
 }
 
-Vec2i Vec2i::operator*(const uint32_t& val) const {
+Vec2i Vec2i::operator*(const int32_t& val) const {
 	return Vec2i{e[0]*val,
 				e[1]*val};
 }
 
-Vec2i Vec2i::operator/(const uint32_t& val) const {
+Vec2i Vec2i::operator/(const int32_t& val) const {
 	return Vec2i{e[0]/val,
 				e[1]/val};
 }

@@ -3,7 +3,9 @@
 #include "Renderer.h"
 
 class TextRenderer : public Renderer {
-public:	
+public:
+	TextRenderer(uint32_t width, uint32_t height) : Renderer(width,height) {}
+	virtual ~TextRenderer() {}
 	virtual void render(const std::vector<Vec3>& grid);
 	
 private:

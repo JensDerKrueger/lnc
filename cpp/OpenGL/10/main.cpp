@@ -7,6 +7,7 @@
 #include <GLEnv.h>
 
 #include "Scene.h"
+#include "TextRenderer.h"
 
 std::unique_ptr<Scene> scene{nullptr};
 
@@ -15,7 +16,7 @@ bool animate{true};
 static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {  
     if (action == GLFW_REPEAT || action == GLFW_PRESS) {
         switch (key) {
-            case GLFW_KEY_LEFT : 
+      /*      case GLFW_KEY_LEFT : 
                 scene->shiftLeft();
                 break;
             case GLFW_KEY_RIGHT :
@@ -23,7 +24,7 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
                 break;
             case GLFW_KEY_DOWN :
                 scene->dropOne();
-                break;
+                break;*/
             case GLFW_KEY_ESCAPE :
                 glfwSetWindowShouldClose(window, GL_TRUE);
                 break;
@@ -34,7 +35,9 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
 int main(int agrc, char ** argv) {
     GLEnv gl{640,480,4,"OpenGL Tetris Teil 9", true, true, 4, 1, true};
         
-    scene = std::make_unique<Scene>();
+    std::shared_ptr<Renderer> renderer = std::make_shared<TextRenderer>(10,20);    
+    Grid grid(renderer);
+    scene = std::make_unique<Scene>(grid);
     gl.setKeyCallback(keyCallback);
 
     // setup basic OpenGL states that do not change during the frame
