@@ -4,15 +4,15 @@
 #include "TetrisConst.h"
 #include "Renderer.h"
 
-void Scene::left(){
+void Scene::shiftLeft(){
 	
 }
 
-void Scene::right(){
+void Scene::shiftRight(){
 	
 }
 
-void Scene::down() {
+void Scene::dropOne() {
 	
 }
 

@@ -16,13 +16,13 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
     if (action == GLFW_REPEAT || action == GLFW_PRESS) {
         switch (key) {
             case GLFW_KEY_LEFT : 
-                scene->left();
+                scene->shiftLeft();
                 break;
             case GLFW_KEY_RIGHT :
-                scene->right();
+                scene->shiftRight();
                 break;
             case GLFW_KEY_DOWN :
-                scene->down();
+                scene->dropOne();
                 break;
             case GLFW_KEY_ESCAPE :
                 glfwSetWindowShouldClose(window, GL_TRUE);

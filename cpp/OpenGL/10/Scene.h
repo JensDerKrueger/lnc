@@ -2,9 +2,9 @@
 
 class Scene {
 public:
-	void left();
-	void right();
-	void down();	
+	void shiftLeft();
+	void shiftRight();
+	void dropOne();
 	void render();
 		
 };
