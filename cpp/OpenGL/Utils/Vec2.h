@@ -27,9 +27,6 @@ class Vec2 {
 		bool operator == ( const Vec2& other ) const;
 		bool operator != ( const Vec2& other ) const;
 
-		float length() const;
-		float sqlength() const;
-		
 		operator float*(void) {return e.data();}
 		operator const float*(void) const  {return e.data();}
 							
