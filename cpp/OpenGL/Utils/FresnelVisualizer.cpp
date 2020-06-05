@@ -16,7 +16,7 @@ static std::string vsString{
 "	gl_Position = MV * vec4(vPos, 1.0);\n"
 "	normal = MVit * vec4(normalize(vNorm),0.0);\n"
 "   tang   = MVit * vec4(normalize(vTan),0.0);\n"
-"   binorm = MVit * vec4(cross(normalize(vTan),normalize(vNorm)),0.0);\n"
+"   binorm = MVit * vec4(cross(normalize(vNorm),normalize(vTan)),0.0);\n"
 "}"};
 
 static std::string gsString{
@@ -60,13 +60,14 @@ static std::string fsString{
 "}\n"};
 
 
-FresnelVisualizer::FresnelVisualizer(const GLBuffer& pos, const GLBuffer& norm, const GLBuffer& tang, uint32_t count) :
+FresnelVisualizer::FresnelVisualizer(const GLBuffer& pos, const GLBuffer& norm, const GLBuffer& tang, uint32_t count, uint32_t start) :
 	visArray{},
 	visProg(GLProgram::createFromString(vsString, fsString, gsString)),
 	pLoc{visProg.getUniformLocation("P")},
 	mvLoc{visProg.getUniformLocation("MV")},
 	mvitLoc{visProg.getUniformLocation("MVit")},
-	count(count)
+	count(count),
+	start(start)
 {	
 	visArray.bind();
 	visArray.connectVertexAttrib(pos,  visProg, "vPos",3);
@@ -88,7 +89,7 @@ void FresnelVisualizer::render(const Mat4& mv, const Mat4& p) const {
 	visProg.setUniform(mvitLoc, Mat4::inverse(mv), true);
 
 	// render geometry
-	glDrawArrays(GL_POINTS, 0, count);
+	glDrawArrays(GL_POINTS, start, count);
 
 	glEnable(GL_DEPTH_TEST);
 }

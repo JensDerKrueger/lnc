@@ -13,7 +13,7 @@
 
 class FresnelVisualizer {
 public:
-	FresnelVisualizer(const GLBuffer& pos, const GLBuffer& norm, const GLBuffer& tang, uint32_t count);
+	FresnelVisualizer(const GLBuffer& pos, const GLBuffer& norm, const GLBuffer& tang, uint32_t count, uint32_t start=0);
 	void render(const Mat4& mv, const Mat4& p) const;
 	
 private:
@@ -23,5 +23,5 @@ private:
 	GLint mvLoc;
 	GLint mvitLoc;
 	uint32_t count;
-	
+	uint32_t start;
 };
