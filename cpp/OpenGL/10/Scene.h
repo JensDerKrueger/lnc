@@ -13,7 +13,7 @@ public:
 	void moveRight();
 	bool advance();
 	void fullDrop();
-	void render();
+	void render(double t);
 	
 private:
 	Grid grid;
@@ -23,6 +23,7 @@ private:
 	Vec2i position;
 	uint32_t score;
 	uint32_t clearedRows;
+	double lastAdvance;
 		
 	
 	static size_t genRandTetrominoIndex();

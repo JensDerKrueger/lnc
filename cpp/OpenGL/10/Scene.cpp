@@ -14,7 +14,8 @@ Scene::Scene(Grid& grid) :
 	rotationIndex{0},
 	position{int32_t(grid.getWidth())/2,0},
 	score{0},
-	clearedRows{0}
+	clearedRows{0},
+	lastAdvance{-1}
 {
 	grid.clear();
 }
@@ -75,22 +76,23 @@ void Scene::fullDrop() {
 	while (validateTransform(rotationIndex,nextPosition)) {
 		position = nextPosition;
 		nextPosition = Vec2i{position.x(), position.y()+1};
-	}	
+	}
+	advance();
 }
 
 
-void Scene::render() {
-	std::vector<SpritePixel> spritePixels;
-	std::array<Vec2i,4> tetrominoPos{transformTetromino(current, rotationIndex, position)};
-	for (const Vec2i& p : tetrominoPos) {
-		spritePixels.push_back(SpritePixel{p,colors[current],1});
-	}
+void Scene::render(double t) {
+	if (lastAdvance < 0) lastAdvance = t;
+	
+	std::array<Vec2i,4> transformedCurrent{transformTetromino(current, rotationIndex, position)};
+	std::array<Vec2i,4> transformedNext{transformTetromino(next, 0, Vec2i{0,0})};
 
-	tetrominoPos = transformTetromino(next, 0, Vec2i{2,0});
-	for (const Vec2i& p : tetrominoPos) {
-		spritePixels.push_back(SpritePixel{p,colors[next],0.2});
+	grid.render(transformedCurrent, colors[current], transformedNext, colors[next]);
+
+	if (getDelay() * 0.01 < t-lastAdvance) {
+		advance();
+		lastAdvance = t;
 	}
-	grid.render(spritePixels);
 }
 
 
@@ -144,7 +146,6 @@ void Scene::applyCollision() {
 
 std::array<Vec2i,4> Scene::transformTetromino(size_t tetIndex, uint32_t rot, const Vec2i& pos) const {
 	std::array<Vec2i,4> transformedTetromino = tetrominos[tetIndex][rot%tetrominos[tetIndex].size()];
-
 	for (uint32_t i = 0;i<transformedTetromino.size();++i) {
 		transformedTetromino[i] = transformedTetromino[i] + pos;
 		if (transformedTetromino[i].y() < 0) { // when the tetromino collides with the top of the grid then try to lower it by one
@@ -152,9 +153,7 @@ std::array<Vec2i,4> Scene::transformTetromino(size_t tetIndex, uint32_t rot, con
 			break;
 		}
 	}
-		
-	return transformedTetromino;	
-	
+	return transformedTetromino;
 }
 
 uint32_t Scene::getLevel() const {

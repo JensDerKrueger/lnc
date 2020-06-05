@@ -145,7 +145,6 @@ Tesselation Tesselation::genRectangle(const Vec3& a, const Vec3& b, const Vec3& 
 Tesselation Tesselation::genBrick(const Vec3& center, const Vec3& size) {
 	Tesselation tess{};
 
-
 	const Vec3 E = center-size/2.0f;
 	const Vec3 C = center+size/2.0f;
 

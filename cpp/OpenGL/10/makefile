@@ -3,7 +3,7 @@ CFLAGS=-c -Wall -std=c++17 -Wunreachable-code
 LFLAGS= -lglfw -lglew -framework OpenGL -L../Utils -lutils 
 LIBS=
 INCLUDES=-I. -I../Utils
-SRC = Grid.cpp Scene.cpp main.cpp TextRenderer.cpp
+SRC = OpenGLRenderer.cpp Grid.cpp Scene.cpp main.cpp TextRenderer.cpp
 OBJ = $(SRC:.cpp=.o)
 TARGET = tetris
 
