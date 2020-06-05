@@ -2,10 +2,10 @@
 
 #include "Scene.h"
 
-#include "bmp.h"
+#include <bmp.h>
 
 Scene::Scene() :
-	sphere{Tesselation::genSphere({0,0,0}, 0.4f, 50, 50)},
+	sphere{Tesselation::genSphere({0,0,0}, 0.4f, 30, 30)},
 	vbBallPos{GL_ARRAY_BUFFER},
 	vbBallNorm{GL_ARRAY_BUFFER},
 	vbBallTan{GL_ARRAY_BUFFER},
@@ -69,7 +69,7 @@ Scene::Scene() :
 	vbWallTc.setData(square.getTexCoords(),2);
 	ibWall.setData(square.getIndices());
 	
-	// load brick wall textures (sides
+	// load brick wall textures (sides)
 	BMP::Image brickWallAlbedoImage{BMP::load("brickWallAlbedo.bmp")};
 	brickWallAlbedo.setData(brickWallAlbedoImage.data,brickWallAlbedoImage.width, brickWallAlbedoImage.height, brickWallAlbedoImage.componentCount);
 	BMP::Image brickWallNormalImage{BMP::load("brickWallNormal.bmp")};

@@ -4,17 +4,17 @@
 #include <memory>
 #include <string>
 
-#include "Vec3.h"
-#include "Mat4.h"
-#include "GLEnv.h"
-#include "GLProgram.h"
-#include "Tesselation.h"
-#include "GLBuffer.h"
-#include "GLArray.h"
-#include "GLTexture2D.h"
-#include "ParticleSystem.h"
-#include "FresnelVisualizer.h"
-#include "PlanarMirror.h"
+#include <Vec3.h>
+#include <Mat4.h>
+#include <GLEnv.h>
+#include <GLProgram.h>
+#include <Tesselation.h>
+#include <GLBuffer.h>
+#include <GLArray.h>
+#include <GLTexture2D.h>
+#include <ParticleSystem.h>
+#include <FresnelVisualizer.h>
+#include <PlanarMirror.h>
 
 class Scene {
 public:

@@ -1,9 +1,9 @@
 CC=g++
 CFLAGS=-c -Wall -std=c++17 -Wunreachable-code
-LFLAGS= -lglfw -lglew -framework OpenGL
+LFLAGS= -lglfw -lglew -framework OpenGL -L../Utils -lutils 
 LIBS=
-INCLUDES=-I. 
-SRC = PlanarMirror.cpp Scene.cpp FresnelVisualizer.cpp GLArray.cpp ParticleSystem.cpp GLTexture2D.cpp Tesselation.cpp GLBuffer.cpp GLEnv.cpp GLProgram.cpp main.cpp Mat4.cpp Vec3.cpp Rand.cpp
+INCLUDES=-I. -I../Utils
+SRC = Scene.cpp main.cpp
 OBJ = $(SRC:.cpp=.o)
 TARGET = opengl
 
@@ -12,7 +12,10 @@ all: $(TARGET)
 release: CFLAGS += -O3 -DNDEBUG
 release: $(TARGET)
 
-$(TARGET): $(OBJ)
+../Utils/libutils.a:
+	cd ../Utils && make
+
+$(TARGET): $(OBJ) ../Utils/libutils.a
 	$(CC) $(INCLUDES) $(LFLAGS) $(LIBS) $^ -o $@
 
 %.o: %.cpp
@@ -21,3 +24,5 @@ $(TARGET): $(OBJ)
 clean:
 	-rm -rf $(OBJ) $(TARGET) core
 
+mrproper: clean
+	cd ../Utils && make clean

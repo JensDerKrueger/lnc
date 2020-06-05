@@ -26,16 +26,16 @@ int main(int agrc, char ** argv) {
     Tesselation sphere{Tesselation::genSphere({0,0,0}, 0.7f, 100, 100)};
 
     GLBuffer vbPos{GL_ARRAY_BUFFER};
-    vbPos.setData(sphere.vertices,3);
+    vbPos.setData(sphere.getVertices(),3);
 
     GLBuffer vbNorm{GL_ARRAY_BUFFER};
-    vbNorm.setData(sphere.normals,3);
+    vbNorm.setData(sphere.getNormals(),3);
 
     GLBuffer vbTc{GL_ARRAY_BUFFER};
-    vbTc.setData(sphere.texCoords,2);
+    vbTc.setData(sphere.getTexCoords(),2);
 
     GLBuffer ib{GL_ELEMENT_ARRAY_BUFFER};
-    ib.setData(sphere.indices);
+    ib.setData(sphere.getIndices());
     
     const GLProgram prog = GLProgram::createFromFiles("vertex.glsl", "fragment.glsl");
     const GLint mvpLocation = prog.getUniformLocation("MVP");
@@ -74,7 +74,7 @@ int main(int agrc, char ** argv) {
         prog.setUniform(mitLocation, Mat4::inverse(m), true);
         prog.setUniform(lpLocation, {0,1,1});
                 
-        glDrawElements(GL_TRIANGLES, sphere.indices.size(), GL_UNSIGNED_INT, (void*)0);
+        glDrawElements(GL_TRIANGLES, sphere.getIndices().size(), GL_UNSIGNED_INT, (void*)0);
 
         gl.endOfFrame();
     } while (!gl.shouldClose());  

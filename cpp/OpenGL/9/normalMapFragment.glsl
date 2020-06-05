@@ -19,7 +19,7 @@ void main() {
     vec3 lightDir = normalize(vLightPos-pos);
     vec3 nNormal = normalize(normal);
     vec3 nTangent = normalize(tang);
-    vec3 nBinorm = normalize(cross(nTangent,nNormal));
+    vec3 nBinorm = normalize(cross(nNormal,nTangent));
     
     nNormal = (normalize(mat3(nTangent,nBinorm,nNormal) * ((texture(normalSampler, tc*texRescale ).rgb-0.5)*2.0)));
     
