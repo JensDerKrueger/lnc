@@ -32,3 +32,6 @@ float Rand::rand0Pi() {
     return disPi(gen);
 }
 
+int32_t Rand::rand(int32_t a, int32_t b) {
+    return a+int32_t(rand01()*(b-a));
+}

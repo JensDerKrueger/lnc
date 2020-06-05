@@ -16,15 +16,18 @@ bool animate{true};
 static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {  
     if (action == GLFW_REPEAT || action == GLFW_PRESS) {
         switch (key) {
-      /*      case GLFW_KEY_LEFT : 
-                scene->shiftLeft();
+            case GLFW_KEY_LEFT : 
+                scene->moveLeft();
                 break;
             case GLFW_KEY_RIGHT :
-                scene->shiftRight();
+                scene->moveRight();
                 break;
             case GLFW_KEY_DOWN :
-                scene->dropOne();
-                break;*/
+                scene->advance();
+                break;
+            case GLFW_KEY_UP :
+                scene->rotateCW();
+                break;
             case GLFW_KEY_ESCAPE :
                 glfwSetWindowShouldClose(window, GL_TRUE);
                 break;

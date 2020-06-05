@@ -38,7 +38,7 @@ const Vec3 yellow{1,1,0};
 const Vec3 magenta{1,0,1};
 const Vec3 blue{0,0,1};
 const Vec3 brown{0.6,0.15,0};
-const Vec3 green{0,1,1};
+const Vec3 green{0,1,0};
 const Vec3 red{1,0,0};
 const Vec3 black{0,0,0};
 

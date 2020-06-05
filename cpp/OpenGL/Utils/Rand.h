@@ -9,6 +9,7 @@ public:
     static float rand01();
     static float rand11();
     static float rand0Pi();
+    static int32_t rand(int32_t a, int32_t b);
 private:
     static std::random_device rd;
     static std::mt19937 gen;

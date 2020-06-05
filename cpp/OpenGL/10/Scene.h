@@ -22,7 +22,6 @@ private:
 	size_t rotationIndex;
 	Vec2i position;
 	uint32_t score;
-	uint32_t level;
 	uint32_t clearedRows;
 		
 	
@@ -31,7 +30,7 @@ private:
 	bool validateTransform(uint32_t rot, const Vec2i& pos) const;
 	void clearRow(uint32_t r);
 	void applyCollision();
-	std::array<Vec2i,4> computeGridPositions(size_t tet, uint32_t rot, const Vec2i& pos) const;
+	std::array<Vec2i,4> transformTetromino(size_t tetIndex, uint32_t rot, const Vec2i& pos) const;
 	uint32_t getLevel() const;
 	uint32_t getDelay() const;
 	void updateScore(size_t rowCount);
