@@ -127,9 +127,9 @@ std::vector<uint32_t> Scene::checkRows() const {
 bool Scene::validateTransform(uint32_t rot, const Vec2i& pos) const {
 	std::array<Vec2i,4> transformedTetromino = transformTetromino(current, rot, pos);
 	for (const Vec2i& brick : transformedTetromino) {
-		if (brick.y() >= grid.getHeight()) return false;
-		if (brick.x() >= grid.getWidth()) return false;
-		if (brick.x() < 0) return false;		
+		if (brick.x() < 0) return false;
+		if (brick.y() >= int64_t(grid.getHeight())) return false;
+		if (brick.x() >= int64_t(grid.getWidth())) return false;
 		if (grid.getPixel(brick.x(), brick.y()) >= 0) return false;
 	}
 	return true;
