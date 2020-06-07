@@ -3,7 +3,6 @@
 uniform mat4 invV;
 
 uniform vec3 vLightPos;
-uniform float texRescale;
 
 uniform sampler2D textureSampler;
 uniform sampler2D normalSampler;
@@ -23,14 +22,14 @@ void main() {
     vec3 nTangent = normalize(tang);
     vec3 nBinorm = normalize(cross(nNormal,nTangent));
     
-    nNormal = (normalize(mat3(nTangent,nBinorm,nNormal) * ((texture(normalSampler, tc*texRescale ).rgb-0.5)*2.0)));
+    nNormal = (normalize(mat3(nTangent,nBinorm,nNormal) * ((texture(normalSampler, tc ).rgb-0.5)*2.0)));
     
     
     vec3 eyePos = (invV * vec4(0.0,0.0,0.0,1.0)).xyz;
     
     vec3 eyeDir = normalize(eyePos-pos);
 
-    vec3 texValue = color * texture(textureSampler, tc*texRescale ).rgb;
+    vec3 texValue = color * texture(textureSampler, tc ).rgb;
     vec3 r = reflect(-lightDir, nNormal);
     
     vec3 specular = vec3(1.0,1.0,1.0) * pow(max(0.0,dot(eyeDir,r)),12.0);
