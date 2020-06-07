@@ -81,7 +81,7 @@ Vec2i Scene::fullDropPosition() const {
 
 void Scene::fullDrop() {
 	position = fullDropPosition();
-	applyCollision();
+	advance();
 }
 
 
