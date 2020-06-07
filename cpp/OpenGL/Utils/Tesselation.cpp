@@ -142,7 +142,7 @@ Tesselation Tesselation::genRectangle(const Vec3& a, const Vec3& b, const Vec3& 
 //   | / E   | /
 //   |/      |/
 //   A ----- B
-Tesselation Tesselation::genBrick(const Vec3& center, const Vec3& size) {
+Tesselation Tesselation::genBrick(const Vec3& center, const Vec3& size, const Vec3& texScale) {
 	Tesselation tess{};
 
 	const Vec3 E = center-size/2.0f;
@@ -272,39 +272,39 @@ Tesselation Tesselation::genBrick(const Vec3& center, const Vec3& size) {
 	tess.texCoords = std::vector<float>{
 		// front
 		0.0f, 0.0f,
-		1.0f, 0.0f,
-		1.0f, 1.0f,
-		0.0f, 1.0f,
+		texScale.x(), 0.0f,
+		texScale.x(), texScale.y(),
+		0.0f, texScale.y(),
 
 		// back
 		0.0f, 0.0f,
-		1.0f, 0.0f,
-		1.0f, 1.0f,
-		0.0f, 1.0f,
+		texScale.x(), 0.0f,
+		texScale.x(), texScale.y(),
+		0.0f, texScale.y(),
 
 		// left
 		0.0f, 0.0f,
-		1.0f, 0.0f,
-		1.0f, 1.0f,
-		0.0f, 1.0f,
+		texScale.z(), 0.0f,
+		texScale.z(), texScale.y(),
+		0.0f, texScale.y(),
 
 		// right
 		0.0f, 0.0f,
-		1.0f, 0.0f,
-		1.0f, 1.0f,
-		0.0f, 1.0f,
+		texScale.z(), 0.0f,
+		texScale.z(), texScale.y(),
+		0.0f, texScale.y(),
 
 		// top
 		0.0f, 0.0f,
-		1.0f, 0.0f,
-		1.0f, 1.0f,
-		0.0f, 1.0f,
+		texScale.x(), 0.0f,
+		texScale.x(), texScale.z(),
+		0.0f, texScale.z(),
 
 		// bottom
 		0.0f, 0.0f,
-		1.0f, 0.0f,
-		1.0f, 1.0f,
-		0.0f, 1.0f
+		texScale.x(), 0.0f,
+		texScale.x(), texScale.z(),
+		0.0f, texScale.z()
 	};
 
 	tess.indices = std::vector<uint32_t>{
