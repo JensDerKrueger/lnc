@@ -31,6 +31,15 @@ private:
 	GLTexture2D brickAlbedo;
 	GLTexture2D brickNormalMap;
 
+	Tesselation background;
+	GLBuffer vbBackgroundPos;
+	GLBuffer vbBackgroundNorm;
+	GLBuffer vbBackgroundTan;
+	GLBuffer vbBackgroundTc;
+	GLBuffer ibBackground;
+	GLArray backgroundArray;
+	GLTexture2D backgroundAlbedo;
+	GLTexture2D backgroundNormalMap;
 
 	const GLProgram progNormalMap;
 	const GLint mvpLocationNormalMap;
@@ -38,13 +47,14 @@ private:
 	const GLint mitLocationNormalMap;
 	const GLint invVLocationNormalMap;
 	const GLint lpLocationNormalMap;
-	const GLint texRescaleLocationNormalMap;
 	const GLint texLocationNormalMap;
 	const GLint normMapLocationNormalMap;
 	const GLint colorLocation;
 	const GLint opacityLocation;
 	
 	Dimensions dim;
+	
+	Vec3 pos2Coord(const Vec2i& pos, float dist) const;
 };
 	
 	
