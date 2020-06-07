@@ -1,4 +1,5 @@
 #include <fstream>
+#include <iostream>
 #include <exception>
 #include <string>
 #include <sstream>
@@ -147,11 +148,14 @@ namespace BMP {
 		if (!file.read((char*)texture.data.data(), biSizeImage))
 			throw BMPException("Error loading file");
 		file.close();
+		
 		// swap red and blue (bgr -> rgb)
-		for (int32_t i = 0; i < biSizeImage; i += 3) {
-			const uint8_t temp = texture.data[i];
-			texture.data[i] = texture.data[i + 2];
-			texture.data[i + 2] = temp;
+		if (texture.componentCount > 2) {
+			for (int32_t i = 0; i < biSizeImage; i += texture.componentCount) {
+				const uint8_t temp = texture.data[i];
+				texture.data[i] = texture.data[i + 2];
+				texture.data[i + 2] = temp;
+			}
 		}
 		
 		return texture;	
