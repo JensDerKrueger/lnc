@@ -1,6 +1,7 @@
 CC=g++
 CFLAGS=-c -Wall -std=c++17 -Wunreachable-code
-LFLAGS= -lglfw -lglew -framework OpenGL -L../Utils -lutils 
+LFLAGS=-lglfw -lGLEW -framework OpenGL -L../Utils -lutils 
+# for linux use this line LFLAGS=-lglfw -lGLEW -lGL -L../Utils -lutils
 LIBS=
 INCLUDES=-I. -I../Utils
 SRC = OpenGLRenderer.cpp Grid.cpp Scene.cpp main.cpp TextRenderer.cpp
