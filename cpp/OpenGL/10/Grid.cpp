@@ -15,13 +15,15 @@ renderer{renderer}
 	clear();
 }
 
-void Grid::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3& currentColor, const std::array<Vec2i,4>& nextTetrominoPos, const Vec3& nextColor) const {
+void Grid::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3& currentColor, 
+				  const std::array<Vec2i,4>& nextTetrominoPos, const Vec3& nextColor,
+				  const std::array<Vec2i,4>& targerTetrominoPos) const {
 	
 	std::vector<Vec3> colorData(width*height);
 	std::transform(data.begin(), data.end(), colorData.begin(), 
 					[](int8_t v) -> Vec3 { return v == -1 ? Vec3(-1,-1,-1) : colors[v]; });
 
-	renderer->render(tetrominoPos, currentColor, nextTetrominoPos, nextColor, colorData);
+	renderer->render(tetrominoPos, currentColor, nextTetrominoPos, nextColor, targerTetrominoPos, colorData);
 }
 
 void Grid::clear() {

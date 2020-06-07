@@ -24,7 +24,8 @@ OpenGLRenderer::OpenGLRenderer(uint32_t width, uint32_t height) :
 	texRescaleLocationNormalMap{progNormalMap.getUniformLocation("texRescale")},
 	texLocationNormalMap{progNormalMap.getUniformLocation("textureSampler")},
 	normMapLocationNormalMap{progNormalMap.getUniformLocation("normalSampler")},
-	colorLocation{progNormalMap.getUniformLocation("color")}
+	colorLocation{progNormalMap.getUniformLocation("color")},
+	opacityLocation{progNormalMap.getUniformLocation("opacity")}
 {
 	vbBrickPos.setData(brick.getVertices(),3);
 	vbBrickNorm.setData(brick.getNormals(),3);
@@ -46,6 +47,7 @@ OpenGLRenderer::OpenGLRenderer(uint32_t width, uint32_t height) :
 
 void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3& currentColor,
 							const std::array<Vec2i,4>& nextTetrominoPos, const Vec3& nextColor,
+							const std::array<Vec2i,4>& targerTetrominoPos,
 							const std::vector<Vec3>& colorData) {
 								
 	// setup basic OpenGL states that do not change during the frame
@@ -56,7 +58,7 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 	glClearDepth(1.0f);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	
-	const Vec3 lookFromVec{Vec3{0,0,-5}};
+	const Vec3 lookFromVec{Vec3{0,0,5}};
 	const Vec3 lookAtVec{0,0,0};
 	const Vec3 upVec{0,1,0};
 	const Mat4 v{Mat4::lookAt(lookFromVec,lookAtVec,upVec)};
@@ -72,6 +74,7 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 	progNormalMap.setUniform(lpLocationNormalMap, lightPos);
 	progNormalMap.setTexture(normMapLocationNormalMap,brickNormalMap,0);
 	progNormalMap.setTexture(texLocationNormalMap,brickAlbedo,1);
+	progNormalMap.setUniform(opacityLocation, 1.0f);
 	
 	brickArray.bind();
 
@@ -82,7 +85,7 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 			
 			if (c.r() < 0) continue; // empty spaces
 			
-			const Mat4 m{Mat4::translation({float(width()-x)-float(width())/2,float(height()-y)-float(height()/2), 20.0f})};
+			const Mat4 m{Mat4::translation({float(x)-float(width())/2,float(height()-y)-float(height()/2), -20.0f})};
 			progNormalMap.setUniform(texRescaleLocationNormalMap, 1.0f);
 			progNormalMap.setUniform(mvpLocationNormalMap, m*v*p);
 			progNormalMap.setUniform(mLocationNormalMap, m);
@@ -95,7 +98,7 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 	
 	
 	for (const Vec2i& pos : tetrominoPos) {
-		const Mat4 m{Mat4::translation({float(width()-pos.x())-float(width())/2,float(height()-pos.y())-float(height()/2), 20.0f})};
+		const Mat4 m{Mat4::translation({float(pos.x())-float(width())/2,float(height()-pos.y())-float(height()/2), -20.0f})};
 		progNormalMap.setUniform(texRescaleLocationNormalMap, 1.0f);
 		progNormalMap.setUniform(mvpLocationNormalMap, m*v*p);
 		progNormalMap.setUniform(mLocationNormalMap, m);
@@ -104,64 +107,35 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 		progNormalMap.setUniform(colorLocation, currentColor);
 		glDrawElements(GL_TRIANGLES, brick.getIndices().size(), GL_UNSIGNED_INT, (void*)0);
 	}	
-	
-							
-}
-							
-/*
 
-struct SpritePixel {
-	SpritePixel(Vec2i pos, const Vec3& rgb, float alpha) :
-		pos{pos},
-		rgb(rgb),
-		alpha(alpha)
-	{}
-	
-	Vec2i pos;
-	Vec3 rgb;
-	float alpha;
-};
-
-void TextRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3& currentColor,
-						  const std::array<Vec2i,4>& nextTetrominoPos, const Vec3& nextColor,
-						  const std::vector<Vec3>& colorDataIn) {
-							
-	std::vector<Vec3> colorData{colorDataIn};
-	
-	std::vector<SpritePixel> spritePixels;
-	for (const Vec2i& p : tetrominoPos) {
-		spritePixels.push_back(SpritePixel{p,currentColor,1});
+	for (const Vec2i& pos : nextTetrominoPos) {
+		const Mat4 m{Mat4::translation({float(pos.x())-float(width())/2+13,float(height()-pos.y())-float(height()/2)-17, -20.0f})};
+		progNormalMap.setUniform(texRescaleLocationNormalMap, 1.0f);
+		progNormalMap.setUniform(mvpLocationNormalMap, m*v*p);
+		progNormalMap.setUniform(mLocationNormalMap, m);
+		progNormalMap.setUniform(mitLocationNormalMap, Mat4::inverse(m), true);
+		progNormalMap.setUniform(invVLocationNormalMap, Mat4::inverse(v));
+		progNormalMap.setUniform(colorLocation, nextColor);
+		glDrawElements(GL_TRIANGLES, brick.getIndices().size(), GL_UNSIGNED_INT, (void*)0);
 	}	
-	for (const Vec2i& p : nextTetrominoPos) {
-		spritePixels.push_back(SpritePixel{p,nextColor,0.2});
-	}	
-
-	for (const auto& p : spritePixels) {
-		if (p.pos.y() < 0 || p.pos.x() < 0 || p.pos.y() >= height() || p.pos.x() >= width()) continue;
-		size_t index = gridIndex(p.pos.x(), p.pos.y());
-		colorData[index] = colorData.at(index) * (1-p.alpha) + p.rgb * p.alpha;
-	}
 	
-	
-	std::cout << "\033[2J\033[;H";
-	uint32_t i{0};
-	for (uint32_t y = 0;y < height();++y) {
-		for (uint32_t x = 0;x < width();++x) {
-			setColor(colorData[i++]);
-			std::cout << "  ";
-		}
-		setColor(Vec3{0,0,0});
-		std::cout << "\n";
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glBlendEquation(GL_FUNC_ADD);
+	glDepthMask(GL_FALSE);
+		
+	for (const Vec2i& pos : targerTetrominoPos) {
+		const Mat4 m{Mat4::translation({float(pos.x())-float(width())/2,float(height()-pos.y())-float(height()/2), -20.0f})};
+		progNormalMap.setUniform(texRescaleLocationNormalMap, 1.0f);
+		progNormalMap.setUniform(mvpLocationNormalMap, m*v*p);
+		progNormalMap.setUniform(mLocationNormalMap, m);
+		progNormalMap.setUniform(mitLocationNormalMap, Mat4::inverse(m), true);
+		progNormalMap.setUniform(invVLocationNormalMap, Mat4::inverse(v));
+		progNormalMap.setUniform(colorLocation, currentColor);
+		progNormalMap.setUniform(opacityLocation, 0.2f);
+		glDrawElements(GL_TRIANGLES, brick.getIndices().size(), GL_UNSIGNED_INT, (void*)0);
 	}
-	std::cout << std::flush;
-}
 
-void TextRenderer::setColor(const Vec3& color) {
-	const uint32_t index = 16 + uint32_t(color.r()*5) + 
-							6 * uint32_t(color.g()*5) + 
-						   36 * uint32_t(color.b()*5);
-							
-	std::cout << "\033[48;5;" << index << "m";
+	glDepthMask(GL_TRUE);
+	glDisable(GL_BLEND);
 }
-
-*/

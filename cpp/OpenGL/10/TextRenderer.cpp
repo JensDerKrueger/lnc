@@ -17,6 +17,7 @@ struct SpritePixel {
 
 void TextRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3& currentColor,
 						  const std::array<Vec2i,4>& nextTetrominoPos, const Vec3& nextColor,
+						  const std::array<Vec2i,4>& targerTetrominoPos,
 						  const std::vector<Vec3>& colorDataIn) {
 							
 	std::vector<Vec3> colorData{colorDataIn};
@@ -25,7 +26,12 @@ void TextRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3& c
 	for (const Vec2i& p : tetrominoPos) {
 		spritePixels.push_back(SpritePixel{p,currentColor,1});
 	}	
+
 	for (const Vec2i& p : nextTetrominoPos) {
+		spritePixels.push_back(SpritePixel{p,nextColor,0.2});
+	}	
+
+	for (const Vec2i& p : targerTetrominoPos) {
 		spritePixels.push_back(SpritePixel{p,nextColor,0.2});
 	}	
 

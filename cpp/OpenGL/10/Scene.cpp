@@ -62,7 +62,7 @@ bool Scene::advance() {
 		next = genRandTetrominoIndex();
 		rotationIndex = 0;
 		position = Vec2i{int32_t(grid.getWidth())/2,0};
-		if (validateTransform(rotationIndex,position)) 
+		if (!validateTransform(rotationIndex,position)) 
 			return false;
 		
 	} else {
@@ -71,28 +71,37 @@ bool Scene::advance() {
 	return true;
 }
 
-void Scene::fullDrop() {
-	Vec2i nextPosition{position.x(), position.y()+1};
-	while (validateTransform(rotationIndex,nextPosition)) {
-		position = nextPosition;
-		nextPosition = Vec2i{position.x(), position.y()+1};
+Vec2i Scene::fullDropPosition() const {
+	Vec2i fullDropPosition{position.x(), position.y()+1};
+	while (validateTransform(rotationIndex,fullDropPosition)) {
+		fullDropPosition = Vec2i{fullDropPosition.x(), fullDropPosition.y()+1};
 	}
-	advance();
+	return Vec2i{fullDropPosition.x(), fullDropPosition.y()-1};
+}
+
+void Scene::fullDrop() {
+	position = fullDropPosition();
+	applyCollision();
 }
 
 
-void Scene::render(double t) {
+bool Scene::render(double t) {
 	if (lastAdvance < 0) lastAdvance = t;
 	
 	std::array<Vec2i,4> transformedCurrent{transformTetromino(current, rotationIndex, position)};
 	std::array<Vec2i,4> transformedNext{transformTetromino(next, 0, Vec2i{0,0})};
+	std::array<Vec2i,4> transformedTarget{transformTetromino(current, rotationIndex, fullDropPosition())};
 
-	grid.render(transformedCurrent, colors[current], transformedNext, colors[next]);
+	grid.render(transformedCurrent, colors[current], transformedNext, colors[next], transformedTarget);
 
 	if (getDelay() * 0.01 < t-lastAdvance) {
-		advance();
+		if (!advance()) {
+			std::cout << "Score: " << score << std::endl;
+			return false;
+		}
 		lastAdvance = t;
 	}
+	return true;
 }
 
 

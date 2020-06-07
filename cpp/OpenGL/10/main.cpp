@@ -28,11 +28,11 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
             case GLFW_KEY_DOWN :
                 scene->advance();
                 break;
+            case GLFW_KEY_UP :
             case GLFW_KEY_Q :
                 scene->rotateCCW();
                 break;
             case GLFW_KEY_W :
-            case GLFW_KEY_UP :
                 scene->rotateCW();
                 break;
             case GLFW_KEY_ESCAPE :
@@ -53,7 +53,9 @@ int main(int agrc, char ** argv) {
     glfwSetTime(0);        
     do {
         renderer->setViewport(Dimensions{gl.getFramebufferSize()});        
-        scene->render(glfwGetTime());
+        if (!scene->render(glfwGetTime())) {
+            break;
+        }
         gl.endOfFrame();        
     } while (!gl.shouldClose());  
   

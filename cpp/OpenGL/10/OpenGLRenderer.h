@@ -13,7 +13,8 @@ public:
 	OpenGLRenderer(uint32_t width, uint32_t height);
 	virtual ~OpenGLRenderer() {}
 	virtual void render(const std::array<Vec2i,4>& tetrominoPos, const Vec3& currentColor, 
-						const std::array<Vec2i,4>& nextTetrominoPos, const Vec3& nextColor, 
+						const std::array<Vec2i,4>& nextTetrominoPos, const Vec3& nextColor,
+						const std::array<Vec2i,4>& targerTetrominoPos,
 						const std::vector<Vec3>& colorData);
 	
 	void setViewport(const Dimensions& dim) {this->dim = dim;}
@@ -41,6 +42,7 @@ private:
 	const GLint texLocationNormalMap;
 	const GLint normMapLocationNormalMap;
 	const GLint colorLocation;
+	const GLint opacityLocation;
 	
 	Dimensions dim;
 };

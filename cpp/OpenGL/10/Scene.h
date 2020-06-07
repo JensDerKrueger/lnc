@@ -13,7 +13,7 @@ public:
 	void moveRight();
 	bool advance();
 	void fullDrop();
-	void render(double t);
+	bool render(double t);
 	
 private:
 	Grid grid;
@@ -35,5 +35,6 @@ private:
 	uint32_t getLevel() const;
 	uint32_t getDelay() const;
 	void updateScore(size_t rowCount);
+	Vec2i fullDropPosition() const;
 		
 };

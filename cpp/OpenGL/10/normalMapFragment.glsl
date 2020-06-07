@@ -8,6 +8,7 @@ uniform float texRescale;
 uniform sampler2D textureSampler;
 uniform sampler2D normalSampler;
 uniform vec3 color;
+uniform float opacity;
 
 in vec3 normal;
 in vec3 pos;
@@ -36,5 +37,5 @@ void main() {
     vec3 diffuse  = texValue * max(0.0,dot(lightDir,nNormal));
     vec3 ambient  = texValue * vec3(0.2,0.2,0.2);
     
-    FragColor = vec4(specular+diffuse+ambient, 1.0);
+    FragColor = vec4(specular+diffuse+ambient, opacity);
 }
