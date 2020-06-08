@@ -80,7 +80,7 @@ Vec3 OpenGLRenderer::pos2Coord(const Vec2i& pos, float dist) const {
 void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3& currentColor,
 							const std::array<Vec2i,4>& nextTetrominoPos, const Vec3& nextColor,
 							const std::array<Vec2i,4>& targerTetrominoPos,
-							const std::vector<Vec3>& colorData) {
+							const std::vector<Vec3>& colorData, float time) {
 								
 	// setup basic OpenGL states that do not change during the frame
 	glEnable(GL_CULL_FACE);
@@ -99,9 +99,9 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 	glViewport(0, 0, dim.width, dim.height);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	const Mat4 p{Mat4::perspective(45, dim.aspect(), 0.0001, 1000)};
-
+	
 	progNormalMap.enable();
-	Vec3 lightPos{Vec3{0,0,-4}};
+	Vec3 lightPos{Mat4::rotationZ(time*20) * Vec3{0,10,-4}};
 	progNormalMap.setUniform(lpLocationNormalMap, lightPos);
 	progNormalMap.setTexture(normMapLocationNormalMap,backgroundNormalMap,0);
 	progNormalMap.setTexture(texLocationNormalMap,backgroundAlbedo,1);
@@ -148,32 +148,36 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 		glDrawElements(GL_TRIANGLES, brick.getIndices().size(), GL_UNSIGNED_INT, (void*)0);
 	}	
 
-	for (const Vec2i& pos : nextTetrominoPos) {
-		const Mat4 m{Mat4::translation(pos2Coord(pos+Vec2i(13,17), 20.0f))};
-		progNormalMap.setUniform(mvpLocationNormalMap, m*v*p);
-		progNormalMap.setUniform(mLocationNormalMap, m);
-		progNormalMap.setUniform(mitLocationNormalMap, Mat4::inverse(m), true);
-		progNormalMap.setUniform(invVLocationNormalMap, Mat4::inverse(v));
-		progNormalMap.setUniform(colorLocation, nextColor);
-		glDrawElements(GL_TRIANGLES, brick.getIndices().size(), GL_UNSIGNED_INT, (void*)0);
-	}	
-	
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glBlendEquation(GL_FUNC_ADD);
-	glDepthMask(GL_FALSE);
-		
-	for (const Vec2i& pos : targerTetrominoPos) {
-		const Mat4 m{Mat4::translation(pos2Coord(pos, 20.0f))};
-		progNormalMap.setUniform(mvpLocationNormalMap, m*v*p);
-		progNormalMap.setUniform(mLocationNormalMap, m);
-		progNormalMap.setUniform(mitLocationNormalMap, Mat4::inverse(m), true);
-		progNormalMap.setUniform(invVLocationNormalMap, Mat4::inverse(v));
-		progNormalMap.setUniform(colorLocation, currentColor);
-		progNormalMap.setUniform(opacityLocation, 0.2f);
-		glDrawElements(GL_TRIANGLES, brick.getIndices().size(), GL_UNSIGNED_INT, (void*)0);
+	if (getShowPreview()) {
+		for (const Vec2i& pos : nextTetrominoPos) {
+			const Mat4 m{Mat4::translation(pos2Coord(pos+Vec2i(13,17), 20.0f))};
+			progNormalMap.setUniform(mvpLocationNormalMap, m*v*p);
+			progNormalMap.setUniform(mLocationNormalMap, m);
+			progNormalMap.setUniform(mitLocationNormalMap, Mat4::inverse(m), true);
+			progNormalMap.setUniform(invVLocationNormalMap, Mat4::inverse(v));
+			progNormalMap.setUniform(colorLocation, nextColor);
+			glDrawElements(GL_TRIANGLES, brick.getIndices().size(), GL_UNSIGNED_INT, (void*)0);
+		}	
 	}
+	
+	if (getShowTarget()) {
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glBlendEquation(GL_FUNC_ADD);
+		glDepthMask(GL_FALSE);
+			
+		for (const Vec2i& pos : targerTetrominoPos) {
+			const Mat4 m{Mat4::translation(pos2Coord(pos, 20.0f))};
+			progNormalMap.setUniform(mvpLocationNormalMap, m*v*p);
+			progNormalMap.setUniform(mLocationNormalMap, m);
+			progNormalMap.setUniform(mitLocationNormalMap, Mat4::inverse(m), true);
+			progNormalMap.setUniform(invVLocationNormalMap, Mat4::inverse(v));
+			progNormalMap.setUniform(colorLocation, currentColor);
+			progNormalMap.setUniform(opacityLocation, 0.2f);
+			glDrawElements(GL_TRIANGLES, brick.getIndices().size(), GL_UNSIGNED_INT, (void*)0);
+		}
 
-	glDepthMask(GL_TRUE);
-	glDisable(GL_BLEND);
+		glDepthMask(GL_TRUE);
+		glDisable(GL_BLEND);
+	}
 }
