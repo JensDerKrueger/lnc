@@ -16,6 +16,12 @@ bool animate{true};
 static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {  
     if (action == GLFW_REPEAT || action == GLFW_PRESS) {
         switch (key) {
+            case GLFW_KEY_P :
+                scene->setShowPreview(!scene->getShowPreview());
+                break;
+            case GLFW_KEY_T:
+                scene->setShowTarget(!scene->getShowTarget());
+                break;
             case GLFW_KEY_SPACE :
                 scene->fullDrop();
                 break;

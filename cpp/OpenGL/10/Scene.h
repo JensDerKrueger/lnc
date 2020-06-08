@@ -17,6 +17,13 @@ public:
 	void fullDrop();
 	bool render(double t);
 	
+	void setShowPreview(bool showPreview) {grid.getRenderer()->setShowPreview(showPreview);}
+	bool getShowPreview () const {return grid.getRenderer()->getShowPreview();}
+
+	void setShowTarget(bool showTarget) {grid.getRenderer()->setShowTarget(showTarget);}
+	bool getShowTarget () const {return grid.getRenderer()->getShowTarget();}
+	
+	
 private:
 	std::vector<size_t> nextTetrominos;
 	Grid grid;
