@@ -12,7 +12,7 @@ vec2 mulC(vec2 a, vec2 b) {
 
 float fractal(vec2 tc) {
     float zoom = 1.0;
-    float xs = -2.1;
+    float xs = -1.9;
     float ys = -1.3;
 
     float dx = (2.6/zoom);
