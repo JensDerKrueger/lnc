@@ -41,6 +41,11 @@ private:
 	GLTexture2D backgroundAlbedo;
 	GLTexture2D backgroundNormalMap;
 
+	const GLProgram progBrick;
+	const GLint mvpBrick;
+	const GLint colorBrickLocation;
+	const GLint opacityBrickLocation;
+
 	const GLProgram progNormalMap;
 	const GLint mvpLocationNormalMap;
 	const GLint mLocationNormalMap;

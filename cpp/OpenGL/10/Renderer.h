@@ -9,8 +9,8 @@ public:
 	Renderer(uint32_t width, uint32_t height) :
 		w(width),
 		h(height),
-		showPreview{false},
-		showTarget{false}
+		showPreview{true},
+		showTarget{true}
 	{}	
 	virtual void render(const std::array<Vec2i,4>& tetrominoPos, const Vec3& currentColor, 
 						const std::array<Vec2i,4>& nextTetrominoPos, const Vec3& nextColor,

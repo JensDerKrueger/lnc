@@ -109,7 +109,7 @@ bool Scene::render(double t) {
 size_t Scene::genRandTetrominoIndex() {
 	if (nextTetrominos.empty()) {
 		for (size_t i = 0;i<tetrominos.size()*3;++i) {
-			nextTetrominos.push_back(i%tetrominos.size());			
+			nextTetrominos.push_back(i%tetrominos.size());
 		}
 		Rand::shuffle(nextTetrominos);
 	}	

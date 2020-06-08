@@ -22,6 +22,7 @@ GLProgram::GLProgram(const GLchar** vertexShaderTexts, GLsizei vsCount, const GL
 	glVertexShader = createShader(GL_VERTEX_SHADER, vertexShaderTexts, vsCount);
 	glFragmentShader = createShader(GL_FRAGMENT_SHADER, framentShaderTexts, fsCount);
 	glGeometryShader = createShader(GL_GEOMETRY_SHADER, geometryShaderTexts, gsCount);
+	
 
 	glProgram = glCreateProgram(); checkAndThrow();
 	if (glVertexShader) glAttachShader(glProgram, glVertexShader); checkAndThrow();
