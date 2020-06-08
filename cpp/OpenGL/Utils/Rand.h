@@ -1,6 +1,7 @@
 #pragma once
 
 #include <random>
+#include <algorithm>
 
 class Rand {    
 public:
@@ -9,7 +10,15 @@ public:
     static float rand01();
     static float rand11();
     static float rand0Pi();
-    static int32_t rand(int32_t a, int32_t b);
+    template <typename T> static T rand(T a, T b) {
+        return a+T(rand01()*(b-a));
+    }
+    template <typename T> static void shuffle(std::vector<T>& a) {
+        for (size_t i=0;i<a.size();++i) {
+            size_t r = rand<T>(0,i+1);
+            std::swap(a[i], a[r]);
+        }
+    }
 private:
     static std::random_device rd;
     static std::mt19937 gen;
