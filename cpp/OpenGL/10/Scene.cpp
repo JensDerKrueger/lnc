@@ -9,14 +9,16 @@
 
 Scene::Scene(Grid& grid) : 
 	grid{grid},
-	current{genRandTetrominoIndex()},
-	next{genRandTetrominoIndex()},
+	current{0},
+	next{0},
 	rotationIndex{0},
 	position{int32_t(grid.getWidth())/2,0},
 	score{0},
 	clearedRows{0},
 	lastAdvance{-1}
 {
+	current = genRandTetrominoIndex();
+	next = genRandTetrominoIndex();
 	grid.clear();
 }
 
@@ -104,9 +106,16 @@ bool Scene::render(double t) {
 	return true;
 }
 
-
 size_t Scene::genRandTetrominoIndex() {
-	return size_t(Rand::rand(0,tetrominos.size()));
+	if (nextTetrominos.empty()) {
+		for (size_t i = 0;i<tetrominos.size()*3;++i) {
+			nextTetrominos.push_back(i%tetrominos.size());			
+		}
+		Rand::shuffle(nextTetrominos);
+	}	
+	size_t v = nextTetrominos.back();
+	nextTetrominos.pop_back();
+	return v;
 }
 
 std::vector<uint32_t> Scene::checkRows() const {

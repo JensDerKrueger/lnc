@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 #include "TetrisConst.h"
 #include "Grid.h"
 
@@ -16,6 +18,7 @@ public:
 	bool render(double t);
 	
 private:
+	std::vector<size_t> nextTetrominos;
 	Grid grid;
 	size_t current;
 	size_t next;
@@ -24,9 +27,8 @@ private:
 	uint32_t score;
 	uint32_t clearedRows;
 	double lastAdvance;
-		
 	
-	static size_t genRandTetrominoIndex();
+	size_t genRandTetrominoIndex();
 	std::vector<uint32_t> checkRows() const;
 	bool validateTransform(uint32_t rot, const Vec2i& pos) const;
 	void clearRow(uint32_t r);
