@@ -9,7 +9,7 @@ public:
 	virtual void render(const std::array<Vec2i,4>& tetrominoPos, const Vec3& currentColor, 
 						const std::array<Vec2i,4>& nextTetrominoPos, const Vec3& nextColor,
 						const std::array<Vec2i,4>& targerTetrominoPos,
-						const std::vector<Vec3>& colorData);
+						const std::vector<Vec3>& colorData, float time);
 	
 private:
 	static void setColor(const Vec3& color);
