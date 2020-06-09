@@ -68,6 +68,7 @@ private:
 	std::unique_ptr<FresnelVisualizer> fresnelBall;
 	
 	PlanarMirror mirror;
+	std::shared_ptr<SphereStart> starter;
 	ParticleSystem particleSystem;
 	
 	

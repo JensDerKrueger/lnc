@@ -43,7 +43,9 @@ Scene::Scene() :
 	
 	fresnelBall{nullptr},
 	mirror{Vec3(2.0f,-2.0f,-2.0f),Vec3(2.0f,-2.0f,2.0f),Vec3(2.0f,2.0f,2.0f),Vec3(2.0f,2.0f,-2.0f)},
-	particleSystem{5000, Vec3(0.0f,0.0f,0.0f), 0.2f, 0.1f, {0,0,0}, Vec3{-1.9f,-1.9f,-1.9f}, Vec3{1.9,1.9,1.9}, 1, 100},
+		
+	starter(std::make_shared<SphereStart>(Vec3{0,0,0},0.2f)),
+	particleSystem{5000, starter, 0.1f, {0,0,0}, Vec3{-1.9f,-1.9f,-1.9f}, Vec3{1.9,1.9,1.9}, 1, 100},
 	
 	showFresnelFrame{false}
 
@@ -195,7 +197,9 @@ void Scene::renderWorld(float t0, const Mat4& m, const Mat4& v, const Mat4& p, c
 	// ************* particles
 
 	particleSystem.setSize(dim.height/30);
-	particleSystem.setCenter(mBall * Vec3(0.0f,0.0f,0.0f));
+	
+	starter->setStart(mBall * Vec3(0.0f,0.0f,0.0f), 0.2);
+	
 
 	particleSystem.render(m*v,p);
 	particleSystem.update(t0);
