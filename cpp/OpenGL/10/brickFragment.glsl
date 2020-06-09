@@ -20,7 +20,7 @@ vec2 mulC(vec2 a, vec2 b) {
 float fractal(vec2 tc) {
     vec2 start = vec2(-3.0, -2.0);
     vec2 end   = vec2( 3.0,  2.0);
-    vec2 delta  = end-start;
+    vec2 delta = end-start;
 
     float r = 0.9;
     vec2 z = start+delta*tc;

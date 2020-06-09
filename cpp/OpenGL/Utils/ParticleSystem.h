@@ -85,9 +85,9 @@ const Vec3 RAINBOW_COLOR{-2.0f,-2.0f,-2.0f};
 class ParticleSystem {
 public:
 	ParticleSystem(	uint32_t particleCount, std::shared_ptr<StartVolume> starter,
-					float initialSpeed, 
+					float initialSpeedMin, float initialSpeedMax, 
 					const Vec3& acceleration, const Vec3& minPos, const Vec3& maxPos,
-					float maxAge, float pointSize, const Vec3& color=RANDOM_COLOR);
+					float maxAge, float pointSize, const Vec3& color=RANDOM_COLOR, bool autorestart=true);
 
 	void render(const Mat4& v, const Mat4& p);
 	void update(float t);
@@ -99,7 +99,7 @@ public:
 	
 	void setAutRestart(bool autorestart) {this->autorestart = autorestart;}
 	
-	void restartParticles();
+	void restart(size_t count);
 	
 	void setBounce(bool bounce);
 	void setAcceleration(const Vec3& acceleration);
@@ -109,7 +109,8 @@ private:
 	ParticleSystem(const ParticleSystem&);
 	
 	std::shared_ptr<StartVolume> starter;
-	float initialSpeed;
+	float initialSpeedMin;
+	float initialSpeedMax;
 	std::vector<Particle> particles;
 	
 	GLProgram prog;

@@ -56,9 +56,12 @@ bool Scene::advance() {
 	if (!validateTransform(rotationIndex,nextPosition)) {
 		applyCollision();
 		const std::vector<uint32_t> fullRows = checkRows();
-		updateScore(fullRows.size());
-		for (uint32_t row : fullRows) {
-			clearRow(row);
+		if (!fullRows.empty()) {
+			updateScore(fullRows.size());
+			grid.getRenderer()->clearRows(fullRows);
+			for (uint32_t row : fullRows) {
+				clearRow(row);
+			}
 		}
 		current = next;
 		next = genRandTetrominoIndex();
@@ -153,7 +156,7 @@ void Scene::clearRow(uint32_t row) {
 	}
 	for (uint32_t x = 0;x<grid.getWidth();++x) {
 		grid.setPixel(x,0,-1);
-	}
+	}	
 }
 
 void Scene::applyCollision() {

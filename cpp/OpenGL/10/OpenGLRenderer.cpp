@@ -42,7 +42,9 @@ OpenGLRenderer::OpenGLRenderer(uint32_t width, uint32_t height) :
 	texLocationNormalMap{progNormalMap.getUniformLocation("textureSampler")},
 	normMapLocationNormalMap{progNormalMap.getUniformLocation("normalSampler")},
 	colorLocation{progNormalMap.getUniformLocation("color")},
-	opacityLocation{progNormalMap.getUniformLocation("opacity")}
+	opacityLocation{progNormalMap.getUniformLocation("opacity")},
+	starter(std::make_shared<BrickStart>(Vec3{0,0,0},Vec3{0,0,0})),
+	particleSystem{8000, starter, 5.0f, 10.0f, {0,0,20}, Vec3{-100.0f,-100.0f,-100.0f}, Vec3{100.0f,100.0f,100.0f}, 5.0f, 80.0f, RAINBOW_COLOR, false}
 {
 	vbBrickPos.setData(brick.getVertices(),3);
 	vbBrickNorm.setData(brick.getNormals(),3);
@@ -79,6 +81,17 @@ Vec3 OpenGLRenderer::pos2Coord(const Vec2i& pos, float dist) const {
 	return {float(pos.x())-float(width())/2+0.5f,
 			float(height()-pos.y())-float(height()/2)-0.5f,
 			-dist};
+}
+
+
+void OpenGLRenderer::clearRows(const std::vector<uint32_t>& rows) {
+	const size_t particlesPerRow{((1<<rows.size())*200)/rows.size()};
+	
+	for (uint32_t row : rows) {
+		Vec3 coord{pos2Coord(Vec2i(width()/2.0,row), 20.0f)};
+		starter->setStart(coord, Vec3(width(),1.0f,1.0f));
+		particleSystem.restart(particlesPerRow);
+	}
 }
 
 void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3& currentColor,
@@ -182,4 +195,8 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 		glDepthMask(GL_TRUE);
 		glDisable(GL_BLEND);
 	}
+	
+	particleSystem.setSize(dim.height/30);		
+	particleSystem.render(v,p);
+	particleSystem.update(time);
 }

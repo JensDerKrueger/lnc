@@ -90,11 +90,12 @@ static std::string fsString{
 "}\n"};
 
 ParticleSystem::ParticleSystem(	uint32_t particleCount, std::shared_ptr<StartVolume> starter,
-								float initialSpeed, 
+								float initialSpeedMin, float initialSpeedMax, 
 								const Vec3& acceleration, const Vec3& minPos, const Vec3& maxPos, 
-								float maxAge, float pointSize, const Vec3& color) :
+								float maxAge, float pointSize, const Vec3& color, bool autorestart) :
 	starter(starter),
-	initialSpeed(initialSpeed),
+	initialSpeedMin(initialSpeedMin),
+	initialSpeedMax(initialSpeedMax),
 	particles{},
 	prog{GLProgram::createFromString(vsString, fsString)},
 	mvpLocation{0},
@@ -109,7 +110,7 @@ ParticleSystem::ParticleSystem(	uint32_t particleCount, std::shared_ptr<StartVol
 	particleArray{},
 	vbPosColor{GL_ARRAY_BUFFER},
 	lastT{0},
-	autorestart(true)
+	autorestart(autorestart)
 {
 
 	// setup shader
@@ -121,7 +122,7 @@ ParticleSystem::ParticleSystem(	uint32_t particleCount, std::shared_ptr<StartVol
 	
 	
 	for (uint32_t i = 0;i<particleCount;++i) {
-		Particle p{computeStart(), computeDirection(), acceleration, computeColor(), 1.0f, maxAge*Rand::rand01(), minPos, maxPos, true};
+		Particle p{computeStart(), computeDirection(), acceleration, computeColor(), 1.0f, autorestart ? maxAge*Rand::rand01() : 0, minPos, maxPos, true};
 		particles.push_back(p);		
 	}
 	
@@ -174,9 +175,13 @@ void ParticleSystem::render(const Mat4& v, const Mat4& p) {
 	glDepthMask(GL_TRUE);
 }
 
-void ParticleSystem::restartParticles() {
+void ParticleSystem::restart(size_t count) {	
 	for (Particle& p : particles) {
-		p.restart(computeStart(), computeDirection(), acceleration, computeColor(), 1.0f, maxAge*Rand::rand01());
+		if (p.isDead()) {
+			p.restart(computeStart(), computeDirection(), acceleration, computeColor(), 1.0f, maxAge*Rand::rand01());
+			count--;
+			if (count == 0) break;
+		}
 	}	
 }
 
@@ -208,7 +213,9 @@ Vec3 ParticleSystem::computeStart() const {
 }
 
 Vec3 ParticleSystem::computeDirection() const {
-	return {Rand::rand11()*initialSpeed,Rand::rand11()*initialSpeed,Rand::rand11()*initialSpeed};
+	Vec3 direction{Vec3::normalize(Vec3::randomPointInSphere())};
+	float speed = initialSpeedMin + (initialSpeedMax - initialSpeedMin) * Rand::rand01();
+	return direction*speed;
 }
 
 Vec3 ParticleSystem::computeColor() const {

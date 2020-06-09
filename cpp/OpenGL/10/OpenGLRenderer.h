@@ -7,6 +7,7 @@
 #include <GLBuffer.h>
 #include <GLArray.h>
 #include <GLTexture2D.h>
+#include <ParticleSystem.h>
 
 class OpenGLRenderer : public Renderer {
 public:
@@ -19,7 +20,7 @@ public:
 	
 	void setViewport(const Dimensions& dim) {this->dim = dim;}
 		
-	
+	void clearRows(const std::vector<uint32_t>& rows);
 private:	
 	Tesselation brick;
 	GLBuffer vbBrickPos;
@@ -62,6 +63,9 @@ private:
 	const GLint opacityLocation;
 	
 	Dimensions dim;
+	
+	std::shared_ptr<BrickStart> starter;
+	ParticleSystem particleSystem;
 		
 	Vec3 pos2Coord(const Vec2i& pos, float dist) const;
 };

@@ -28,6 +28,7 @@ public:
 	void setShowTarget(bool showTarget) {this->showTarget = showTarget;}
 	bool getShowTarget () const {return showTarget;}
 
+	virtual void clearRows(const std::vector<uint32_t>& rows) = 0;
 	
 private:
 	uint32_t w;
