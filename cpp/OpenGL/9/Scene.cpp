@@ -45,7 +45,7 @@ Scene::Scene() :
 	mirror{Vec3(2.0f,-2.0f,-2.0f),Vec3(2.0f,-2.0f,2.0f),Vec3(2.0f,2.0f,2.0f),Vec3(2.0f,2.0f,-2.0f)},
 		
 	starter(std::make_shared<SphereStart>(Vec3{0,0,0},0.2f)),
-	particleSystem{5000, starter, 0.1f, 0.1f, {0,0,0}, Vec3{-1.9f,-1.9f,-1.9f}, Vec3{1.9,1.9,1.9}, 1, 100},
+	particleSystem{5000, starter, {-0.1f,-0.1f,-0.1f}, {0.1f,0.1f,0.1f}, {0,0,0}, Vec3{-1.9f,-1.9f,-1.9f}, Vec3{1.9,1.9,1.9}, 1, 100},
 	
 	showFresnelFrame{false}
 
@@ -62,7 +62,6 @@ Scene::Scene() :
 	ballNormalMap.setData(ballNormalImage.data, ballNormalImage.width, ballNormalImage.height, ballNormalImage.componentCount);
 
 	fresnelBall = std::make_unique<FresnelVisualizer>(vbBallPos,vbBallNorm,vbBallTan,sphere.getVertices().size()/3);
-
 	
 	// generate wall geoemtry (for all 5 walls)	
 	vbWallPos.setData(square.getVertices(),3);

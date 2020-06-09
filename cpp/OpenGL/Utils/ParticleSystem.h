@@ -85,7 +85,7 @@ const Vec3 RAINBOW_COLOR{-2.0f,-2.0f,-2.0f};
 class ParticleSystem {
 public:
 	ParticleSystem(	uint32_t particleCount, std::shared_ptr<StartVolume> starter,
-					float initialSpeedMin, float initialSpeedMax, 
+					const Vec3& initialSpeedMin, const Vec3& initialSpeedMax, 
 					const Vec3& acceleration, const Vec3& minPos, const Vec3& maxPos,
 					float maxAge, float pointSize, const Vec3& color=RANDOM_COLOR, bool autorestart=true);
 
@@ -104,13 +104,17 @@ public:
 	void setBounce(bool bounce);
 	void setAcceleration(const Vec3& acceleration);
 	void setMaxAge(float maxAge) {this->maxAge = maxAge;}
+	void setInitialSpeed(const Vec3& initialSpeedMin, const Vec3& initialSpeedMax) {
+		this->initialSpeedMin = initialSpeedMin;
+		this->initialSpeedMax = initialSpeedMax;
+	}
 
 private:
 	ParticleSystem(const ParticleSystem&);
 	
 	std::shared_ptr<StartVolume> starter;
-	float initialSpeedMin;
-	float initialSpeedMax;
+	Vec3 initialSpeedMin;
+	Vec3 initialSpeedMax;
 	std::vector<Particle> particles;
 	
 	GLProgram prog;

@@ -44,7 +44,7 @@ OpenGLRenderer::OpenGLRenderer(uint32_t width, uint32_t height) :
 	colorLocation{progNormalMap.getUniformLocation("color")},
 	opacityLocation{progNormalMap.getUniformLocation("opacity")},
 	starter(std::make_shared<BrickStart>(Vec3{0,0,0},Vec3{0,0,0})),
-	particleSystem{8000, starter, 5.0f, 10.0f, {0,0,20}, Vec3{-100.0f,-100.0f,-100.0f}, Vec3{100.0f,100.0f,100.0f}, 5.0f, 80.0f, RAINBOW_COLOR, false}
+	particleSystem{8000, starter, {-10,-10,5}, {10,10,10}, {0,0,20}, Vec3{-100.0f,-100.0f,-100.0f}, Vec3{100.0f,100.0f,100.0f}, 5.0f, 80.0f, RAINBOW_COLOR, false}
 {
 	vbBrickPos.setData(brick.getVertices(),3);
 	vbBrickNorm.setData(brick.getNormals(),3);

@@ -90,7 +90,7 @@ static std::string fsString{
 "}\n"};
 
 ParticleSystem::ParticleSystem(	uint32_t particleCount, std::shared_ptr<StartVolume> starter,
-								float initialSpeedMin, float initialSpeedMax, 
+								const Vec3& initialSpeedMin, const Vec3& initialSpeedMax, 
 								const Vec3& acceleration, const Vec3& minPos, const Vec3& maxPos, 
 								float maxAge, float pointSize, const Vec3& color, bool autorestart) :
 	starter(starter),
@@ -213,9 +213,7 @@ Vec3 ParticleSystem::computeStart() const {
 }
 
 Vec3 ParticleSystem::computeDirection() const {
-	Vec3 direction{Vec3::normalize(Vec3::randomPointInSphere())};
-	float speed = initialSpeedMin + (initialSpeedMax - initialSpeedMin) * Rand::rand01();
-	return direction*speed;
+	return initialSpeedMin + (initialSpeedMax - initialSpeedMin) * Vec3{Rand::rand01(),Rand::rand01(),Rand::rand01()};
 }
 
 Vec3 ParticleSystem::computeColor() const {

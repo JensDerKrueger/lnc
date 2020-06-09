@@ -140,6 +140,14 @@ Vec3 Vec3::randomPointInSphere() {
 	}
 }
 
+Vec3 Vec3::randomPointInHemisphere() {
+	while (true) {
+		Vec3 p{Rand::rand01(),Rand::rand01(),Rand::rand01()};
+		if (p.sqlength() > 1) continue;
+		return p;
+	}
+}
+
 Vec3 Vec3::randomPointInDisc() {
 	while (true) {
 		Vec3 p{Rand::rand01(),Rand::rand01(),0};

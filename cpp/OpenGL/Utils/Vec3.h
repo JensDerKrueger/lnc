@@ -48,6 +48,7 @@ class Vec3 {
 		
 		static Vec3 random();		
 		static Vec3 randomPointInSphere();
+		static Vec3 randomPointInHemisphere();
 		static Vec3 randomPointInDisc();
 		static Vec3 randomUnitVector();
 		
