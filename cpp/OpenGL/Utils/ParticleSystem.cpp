@@ -89,12 +89,11 @@ static std::string fsString{
 "    FragColor = vec4(color*texValue)*color.a;\n"
 "}\n"};
 
-ParticleSystem::ParticleSystem(	uint32_t particleCount, const Vec3& center, float spreadRadius,
+ParticleSystem::ParticleSystem(	uint32_t particleCount, std::shared_ptr<StartVolume> starter,
 								float initialSpeed, 
 								const Vec3& acceleration, const Vec3& minPos, const Vec3& maxPos, 
 								float maxAge, float pointSize, const Vec3& color) :
-	center(center),
-	spreadRadius(spreadRadius),
+	starter(starter),
 	initialSpeed(initialSpeed),
 	particles{},
 	prog{GLProgram::createFromString(vsString, fsString)},
@@ -109,7 +108,8 @@ ParticleSystem::ParticleSystem(	uint32_t particleCount, const Vec3& center, floa
 	maxAge(maxAge),
 	particleArray{},
 	vbPosColor{GL_ARRAY_BUFFER},
-	lastT{0}
+	lastT{0},
+	autorestart(true)
 {
 
 	// setup shader
@@ -121,7 +121,7 @@ ParticleSystem::ParticleSystem(	uint32_t particleCount, const Vec3& center, floa
 	
 	
 	for (uint32_t i = 0;i<particleCount;++i) {
-		Particle p{computeCenter(), computeDirection(), acceleration, computeColor(), 1.0f, maxAge*Rand::rand01(), minPos, maxPos, true};
+		Particle p{computeStart(), computeDirection(), acceleration, computeColor(), 1.0f, maxAge*Rand::rand01(), minPos, maxPos, true};
 		particles.push_back(p);		
 	}
 	
@@ -174,21 +174,26 @@ void ParticleSystem::render(const Mat4& v, const Mat4& p) {
 	glDepthMask(GL_TRUE);
 }
 
+void ParticleSystem::restartParticles() {
+	for (Particle& p : particles) {
+		p.restart(computeStart(), computeDirection(), acceleration, computeColor(), 1.0f, maxAge*Rand::rand01());
+	}	
+}
+
 void ParticleSystem::update(float t) {
 	const float deltaT = t-lastT;
 	lastT = t;
 	
 	for (Particle& p : particles) {
 		p.update(deltaT);
-		if (p.isDead()) {
-			p.restart(computeCenter(), computeDirection(), acceleration, computeColor(), 1.0f, maxAge*Rand::rand01());
+		if (p.isDead() && autorestart) {
+			p.restart(computeStart(), computeDirection(), acceleration, computeColor(), 1.0f, maxAge*Rand::rand01());
 		}
 	}	
 }
 	
-	
-void ParticleSystem::setCenter(const Vec3& center) {
-	this->center = center;
+void ParticleSystem::setStarter(const std::shared_ptr<StartVolume> starter) {
+	this->starter = starter;
 }
 
 void ParticleSystem::setAcceleration(const Vec3& acceleration) {
@@ -198,8 +203,8 @@ void ParticleSystem::setAcceleration(const Vec3& acceleration) {
 	}
 }
 
-Vec3 ParticleSystem::computeCenter() const {
-	return center+Vec3::randomPointInSphere()*spreadRadius;
+Vec3 ParticleSystem::computeStart() const {
+	return starter->getPosition();
 }
 
 Vec3 ParticleSystem::computeDirection() const {
