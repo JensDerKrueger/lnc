@@ -1,7 +1,6 @@
 #version 410
 
 uniform mat4 invV;
-
 uniform vec3 vLightPos;
 
 uniform sampler2D textureSampler;

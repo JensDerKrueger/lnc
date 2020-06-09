@@ -42,9 +42,13 @@ private:
 	GLTexture2D backgroundNormalMap;
 
 	const GLProgram progBrick;
-	const GLint mvpBrick;
+	const GLint mvpLocationBrick;
+	const GLint mLocationBrick;
+	const GLint mitLocationBrick;
+	const GLint invVLocationBrick;	
 	const GLint colorBrickLocation;
 	const GLint opacityBrickLocation;
+	const GLint fractalAnimationLocation;
 
 	const GLProgram progNormalMap;
 	const GLint mvpLocationNormalMap;

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cmath>
 
 #include "OpenGLRenderer.h"
 
@@ -25,9 +26,13 @@ OpenGLRenderer::OpenGLRenderer(uint32_t width, uint32_t height) :
 	backgroundAlbedo{GL_LINEAR, GL_LINEAR},
 	backgroundNormalMap{GL_LINEAR, GL_LINEAR},
 	progBrick{GLProgram::createFromFile("brickVertex.glsl", "brickFragment.glsl")},
-	mvpBrick{progBrick.getUniformLocation("MVP")},
+	mvpLocationBrick{progBrick.getUniformLocation("MVP")},
+	mLocationBrick{progBrick.getUniformLocation("M")},
+	mitLocationBrick{progBrick.getUniformLocation("Mit")},
+	invVLocationBrick{progBrick.getUniformLocation("invV")},
 	colorBrickLocation{progBrick.getUniformLocation("color")},
 	opacityBrickLocation{progBrick.getUniformLocation("opacity")},
+	fractalAnimationLocation{progBrick.getUniformLocation("animation")},	
 	progNormalMap{GLProgram::createFromFile("backgroundVertex.glsl", "backgroundFragment.glsl")},
 	mvpLocationNormalMap{progNormalMap.getUniformLocation("MVP")},
 	mLocationNormalMap{progNormalMap.getUniformLocation("M")},
@@ -47,6 +52,7 @@ OpenGLRenderer::OpenGLRenderer(uint32_t width, uint32_t height) :
 	
 	brickArray.bind();
 	brickArray.connectVertexAttrib(vbBrickPos,progBrick,"vPos",3);
+	brickArray.connectVertexAttrib(vbBrickNorm,progBrick,"vNorm",3);
 	brickArray.connectVertexAttrib(vbBrickTc,progBrick,"vTc",2);	
 	brickArray.connectIndexBuffer(ibBrick);	
 
@@ -111,13 +117,15 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 	progNormalMap.setUniform(mvpLocationNormalMap, m*v*p);
 	progNormalMap.setUniform(mLocationNormalMap, m);
 	progNormalMap.setUniform(mitLocationNormalMap, Mat4::inverse(m), true);
-	progNormalMap.setUniform(invVLocationNormalMap, Mat4::inverse(v));
+	progNormalMap.setUniform(invVLocationNormalMap, Mat4::inverse(v)); 
 	progNormalMap.setUniform(colorLocation, Vec3{0.5,0.5,0.5});
 	glDrawElements(GL_TRIANGLES, brick.getIndices().size(), GL_UNSIGNED_INT, (void*)0);
 
 	progBrick.enable();
 	brickArray.bind();
 	progBrick.setUniform(opacityBrickLocation, 1.0f);
+	progBrick.setUniform(invVLocationBrick, Mat4::inverse(v)); 
+	progBrick.setUniform(fractalAnimationLocation, time);
 
 	uint32_t i{0};
 	for (uint32_t y = 0;y < height();++y) {
@@ -127,7 +135,9 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 			if (c.r() < 0) continue; // empty spaces
 			
 			const Mat4 m{Mat4::translation(pos2Coord(Vec2i(x,y), 20.0f))};
-			progBrick.setUniform(mvpBrick, m*v*p);
+			progBrick.setUniform(mvpLocationBrick, m*v*p);
+			progBrick.setUniform(mLocationBrick, m);
+			progBrick.setUniform(mitLocationBrick, Mat4::inverse(m), true);			
 			progBrick.setUniform(colorBrickLocation, c);
 			glDrawElements(GL_TRIANGLES, brick.getIndices().size(), GL_UNSIGNED_INT, (void*)0);
 		}
@@ -135,7 +145,9 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 	
 	for (const Vec2i& pos : tetrominoPos) {
 		const Mat4 m{Mat4::translation(pos2Coord(pos, 20.0f))};
-		progBrick.setUniform(mvpBrick, m*v*p);
+		progBrick.setUniform(mvpLocationBrick, m*v*p);
+		progBrick.setUniform(mLocationBrick, m);
+		progBrick.setUniform(mitLocationBrick, Mat4::inverse(m), true);			
 		progBrick.setUniform(colorBrickLocation, currentColor);
 		glDrawElements(GL_TRIANGLES, brick.getIndices().size(), GL_UNSIGNED_INT, (void*)0);
 	}	
@@ -143,7 +155,9 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 	if (getShowPreview()) {
 		for (const Vec2i& pos : nextTetrominoPos) {
 			const Mat4 m{Mat4::translation(pos2Coord(pos+Vec2i(13,17), 20.0f))};
-			progBrick.setUniform(mvpBrick, m*v*p);
+			progBrick.setUniform(mvpLocationBrick, m*v*p);
+			progBrick.setUniform(mLocationBrick, m);
+			progBrick.setUniform(mitLocationBrick, Mat4::inverse(m), true);			
 			progBrick.setUniform(colorBrickLocation, nextColor);
 			glDrawElements(GL_TRIANGLES, brick.getIndices().size(), GL_UNSIGNED_INT, (void*)0);
 		}	
@@ -157,7 +171,9 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 			
 		for (const Vec2i& pos : targerTetrominoPos) {
 			const Mat4 m{Mat4::translation(pos2Coord(pos, 20.0f))};
-			progBrick.setUniform(mvpBrick, m*v*p);
+			progBrick.setUniform(mvpLocationBrick, m*v*p);
+			progBrick.setUniform(mLocationBrick, m);
+			progBrick.setUniform(mitLocationBrick, Mat4::inverse(m), true);			
 			progBrick.setUniform(colorBrickLocation, currentColor);
 			progBrick.setUniform(opacityBrickLocation, 0.2f);
 			glDrawElements(GL_TRIANGLES, brick.getIndices().size(), GL_UNSIGNED_INT, (void*)0);
