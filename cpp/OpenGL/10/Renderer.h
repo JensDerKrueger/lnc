@@ -29,6 +29,7 @@ public:
 	bool getShowTarget () const {return showTarget;}
 
 	virtual void clearRows(const std::vector<uint32_t>& rows) = 0;
+	virtual void actionCam(const std::array<Vec2i,4>& source, const std::array<Vec2i,4>& target) = 0;
 	
 private:
 	uint32_t w;

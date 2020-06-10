@@ -15,6 +15,10 @@ Vec2::Vec2(float x, float y) :
 Vec2::Vec2(const Vec2& other) :
 	e{other.e}
 {}
+
+Vec2::Vec2(const Vec2i& other) :
+	e{float(other.x()), float(other.y())}
+{}
 	
 const std::string Vec2::toString() const {
 	std::stringstream s;

@@ -49,7 +49,7 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
 } 
 
 int main(int agrc, char ** argv) {
-    GLEnv gl{640,480,4,"OpenGL Tetris Teil 9", true, true, 4, 1, true};
+    GLEnv gl{640,480,4,"OpenGL Tetris Teil 10", true, true, 4, 1, true};
         
     std::shared_ptr<OpenGLRenderer> renderer = std::make_shared<OpenGLRenderer>(10,20);    
     Grid grid(renderer);

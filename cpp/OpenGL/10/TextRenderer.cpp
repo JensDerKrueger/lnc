@@ -41,7 +41,6 @@ void TextRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3& c
 		colorData[index] = colorData.at(index) * (1-p.alpha) + p.rgb * p.alpha;
 	}
 	
-	
 	std::cout << "\033[2J\033[;H";
 	uint32_t i{0};
 	for (uint32_t y = 0;y < height();++y) {

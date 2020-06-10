@@ -16,7 +16,7 @@ OpenGLRenderer::OpenGLRenderer(uint32_t width, uint32_t height) :
 	brickArray{},
 	brickAlbedo{GL_LINEAR, GL_LINEAR},
 	brickNormalMap{GL_LINEAR, GL_LINEAR},
-	background{Tesselation::genBrick({0,0,0}, {float(width),float(height),1}, {float(width/10),float(height/10),1})},
+	background{Tesselation::genBrick({0,0,0}, {float(width),float(height),1}, {float(width/10),float(height/10),1.0f/10})},
 	vbBackgroundPos{GL_ARRAY_BUFFER},
 	vbBackgroundNorm{GL_ARRAY_BUFFER},
 	vbBackgroundTan{GL_ARRAY_BUFFER},
@@ -25,6 +25,15 @@ OpenGLRenderer::OpenGLRenderer(uint32_t width, uint32_t height) :
 	backgroundArray{},
 	backgroundAlbedo{GL_LINEAR, GL_LINEAR},
 	backgroundNormalMap{GL_LINEAR, GL_LINEAR},
+	pillar{Tesselation::genBrick({0,0,0}, {1,float(height),2}, {1.0f/10.f,float(height/10),1.0f/10})},
+	vbPillarPos{GL_ARRAY_BUFFER},
+	vbPillarNorm{GL_ARRAY_BUFFER},
+	vbPillarTan{GL_ARRAY_BUFFER},
+	vbPillarTc{GL_ARRAY_BUFFER},
+	ibPillar{GL_ELEMENT_ARRAY_BUFFER},
+	pillarArray{},
+	pillarAlbedo{GL_LINEAR, GL_LINEAR},
+	pillarNormalMap{GL_LINEAR, GL_LINEAR},
 	progBrick{GLProgram::createFromFile("brickVertex.glsl", "brickFragment.glsl")},
 	mvpLocationBrick{progBrick.getUniformLocation("MVP")},
 	mLocationBrick{progBrick.getUniformLocation("M")},
@@ -44,7 +53,7 @@ OpenGLRenderer::OpenGLRenderer(uint32_t width, uint32_t height) :
 	colorLocation{progNormalMap.getUniformLocation("color")},
 	opacityLocation{progNormalMap.getUniformLocation("opacity")},
 	starter(std::make_shared<BrickStart>(Vec3{0,0,0},Vec3{0,0,0})),
-	particleSystem{8000, starter, {-10,-10,5}, {10,10,10}, {0,0,20}, Vec3{-100.0f,-100.0f,-100.0f}, Vec3{100.0f,100.0f,100.0f}, 5.0f, 80.0f, RAINBOW_COLOR, false}
+	particleSystem{8000, starter, {-10,-10,50}, {10,10,55}, {0,0,0}, Vec3{-100.0f,-100.0f,-100.0f}, Vec3{100.0f,100.0f,100.0f}, 5.0f, 80.0f, RAINBOW_COLOR, false}
 {
 	vbBrickPos.setData(brick.getVertices(),3);
 	vbBrickNorm.setData(brick.getNormals(),3);
@@ -75,9 +84,27 @@ OpenGLRenderer::OpenGLRenderer(uint32_t width, uint32_t height) :
 	backgroundArray.connectVertexAttrib(vbBackgroundTc,progNormalMap,"vTc",2);
 	backgroundArray.connectIndexBuffer(ibBackground);
 
+	vbPillarPos.setData(pillar.getVertices(),3);
+	vbPillarNorm.setData(pillar.getNormals(),3);
+	vbPillarTan.setData(pillar.getTangents(),3);
+	vbPillarTc.setData(pillar.getTexCoords(),2);	
+	ibPillar.setData(pillar.getIndices());
+	BMP::Image pillarAlbedoImage{BMP::load("BackgroundAlbedo.bmp")};
+	pillarAlbedo.setData(pillarAlbedoImage.data, pillarAlbedoImage.width, pillarAlbedoImage.height, pillarAlbedoImage.componentCount);
+	BMP::Image pillarNormalImage{BMP::load("BackgroundNormal.bmp")};
+	pillarNormalMap.setData(pillarNormalImage.data, pillarNormalImage.width, pillarNormalImage.height, pillarNormalImage.componentCount);	
+	
+	pillarArray.bind();
+	pillarArray.connectVertexAttrib(vbPillarPos,progNormalMap,"vPos",3);
+	pillarArray.connectVertexAttrib(vbPillarNorm,progNormalMap,"vNorm",3);
+	pillarArray.connectVertexAttrib(vbPillarTan,progNormalMap,"vTan",3);
+	pillarArray.connectVertexAttrib(vbPillarTc,progNormalMap,"vTc",2);
+	pillarArray.connectIndexBuffer(ibPillar);
+
+
 }
 
-Vec3 OpenGLRenderer::pos2Coord(const Vec2i& pos, float dist) const {
+Vec3 OpenGLRenderer::pos2Coord(const Vec2& pos, float dist) const {
 	return {float(pos.x())-float(width())/2+0.5f,
 			float(height()-pos.y())-float(height()/2)-0.5f,
 			-dist};
@@ -94,10 +121,19 @@ void OpenGLRenderer::clearRows(const std::vector<uint32_t>& rows) {
 	}
 }
 
+void OpenGLRenderer::actionCam(const std::array<Vec2i,4>& source, const std::array<Vec2i,4>& target) {
+	animationStart = source[0];
+	animationCurrent = animationStart;
+	animationTarget = target[0];
+	animationStartTime = currentTime;
+}
+
 void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3& currentColor,
 							const std::array<Vec2i,4>& nextTetrominoPos, const Vec3& nextColor,
 							const std::array<Vec2i,4>& targerTetrominoPos,
 							const std::vector<Vec3>& colorData, float time) {
+								
+	currentTime = time;
 								
 	// setup basic OpenGL states that do not change during the frame
 	glEnable(GL_CULL_FACE);
@@ -107,10 +143,30 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 	glClearDepth(1.0f);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	
-	const Vec3 lookFromVec{Vec3{0,0,5}};
-	const Vec3 lookAtVec{0,0,0};
-	const Vec3 upVec{0,1,0};
-	const Mat4 v{Mat4::lookAt(lookFromVec,lookAtVec,upVec)};
+	Vec3 lookAtVec;
+	Vec3 lookFromVec;
+	Vec3 upVec;
+	Mat4 v;
+
+
+	if (animationCurrent == animationTarget) {
+		lookFromVec = Vec3{0,0,5};
+		lookAtVec = Vec3{0,0,0};
+		upVec = Vec3{0,1,0};
+		v = Mat4{Mat4::lookAt(lookFromVec,lookAtVec,upVec)};
+	} else {
+		const float totalTime = float(animationTarget.y() - animationStart.y())*0.08;
+		float a = (currentTime - animationStartTime)/totalTime;
+		if (a < 1)
+			animationCurrent = Vec2(animationStart) * (1-a) + Vec2(animationTarget) * a;
+		else 
+			animationCurrent = animationTarget;
+
+		lookFromVec = Vec3{pos2Coord(animationCurrent, 20.0f)};
+		lookAtVec = lookFromVec+Vec3(0,-10,0);
+		upVec = Vec3{0,0,1};
+		v = Mat4{Mat4::lookAt(lookFromVec,lookAtVec,upVec)};
+	}
 
 	// setup viewport and clear buffers
 	glViewport(0, 0, dim.width, dim.height);
@@ -126,13 +182,37 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 	
 	backgroundArray.bind();
 	
-	const Mat4 m{Mat4::translation(Vec3{0,0,-21.0f })};
+	Mat4 m{Mat4::translation(Vec3{0,0,-21.0f })};
 	progNormalMap.setUniform(mvpLocationNormalMap, m*v*p);
 	progNormalMap.setUniform(mLocationNormalMap, m);
 	progNormalMap.setUniform(mitLocationNormalMap, Mat4::inverse(m), true);
 	progNormalMap.setUniform(invVLocationNormalMap, Mat4::inverse(v)); 
 	progNormalMap.setUniform(colorLocation, Vec3{0.5,0.5,0.5});
 	glDrawElements(GL_TRIANGLES, brick.getIndices().size(), GL_UNSIGNED_INT, (void*)0);
+
+
+	pillarArray.bind();
+
+	
+	m = Mat4{Mat4::translation(Vec3{float(width())/2.0f+0.5f,0,-20.0f })};
+	progNormalMap.setUniform(mvpLocationNormalMap, m*v*p);
+	progNormalMap.setUniform(mLocationNormalMap, m);
+	progNormalMap.setUniform(mitLocationNormalMap, Mat4::inverse(m), true);
+	progNormalMap.setUniform(invVLocationNormalMap, Mat4::inverse(v)); 
+	progNormalMap.setUniform(colorLocation, Vec3{0.5,0.5,0.5});
+
+	glDrawElements(GL_TRIANGLES, brick.getIndices().size(), GL_UNSIGNED_INT, (void*)0);
+
+	m = Mat4{Mat4::translation(Vec3{-(float(width())/2.0f+0.5f),0,-20.0f })};
+	progNormalMap.setUniform(mvpLocationNormalMap, m*v*p);
+	progNormalMap.setUniform(mLocationNormalMap, m);
+	progNormalMap.setUniform(mitLocationNormalMap, Mat4::inverse(m), true);
+	progNormalMap.setUniform(invVLocationNormalMap, Mat4::inverse(v)); 
+	progNormalMap.setUniform(colorLocation, Vec3{0.5,0.5,0.5});
+
+	glDrawElements(GL_TRIANGLES, brick.getIndices().size(), GL_UNSIGNED_INT, (void*)0);
+
+
 
 	progBrick.enable();
 	brickArray.bind();

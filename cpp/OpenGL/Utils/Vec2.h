@@ -4,11 +4,14 @@
 #include <string>
 #include <array>
 
+#include "Vec2i.h"
+
 class Vec2 {
 	public:
 		Vec2();
 		Vec2(float x, float y);
 		Vec2(const Vec2& other);
+		Vec2(const Vec2i& other);
 		
 		friend std::ostream& operator<<(std::ostream &os, const Vec2& v) {os << v.toString() ; return os;}
 		const std::string toString() const;

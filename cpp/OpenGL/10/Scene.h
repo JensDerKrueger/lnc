@@ -31,6 +31,7 @@ private:
 	size_t next;
 	size_t rotationIndex;
 	Vec2i position;
+	Vec2i prevPosition;
 	uint32_t score;
 	uint32_t clearedRows;
 	double lastAdvance;
@@ -45,5 +46,6 @@ private:
 	uint32_t getDelay() const;
 	void updateScore(size_t rowCount);
 	Vec2i fullDropPosition() const;
+	bool evaluateState(const Vec2i& nextPosition);
 		
 };

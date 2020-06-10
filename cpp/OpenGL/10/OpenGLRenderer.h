@@ -2,6 +2,8 @@
 
 #include "Renderer.h"
 
+#include <Vec2.h>
+#include <Vec2i.h>
 #include <GLProgram.h>
 #include <Tesselation.h>
 #include <GLBuffer.h>
@@ -21,6 +23,8 @@ public:
 	void setViewport(const Dimensions& dim) {this->dim = dim;}
 		
 	void clearRows(const std::vector<uint32_t>& rows);
+	void actionCam(const std::array<Vec2i,4>& source, const std::array<Vec2i,4>& target);
+	
 private:	
 	Tesselation brick;
 	GLBuffer vbBrickPos;
@@ -41,6 +45,16 @@ private:
 	GLArray backgroundArray;
 	GLTexture2D backgroundAlbedo;
 	GLTexture2D backgroundNormalMap;
+
+	Tesselation pillar;
+	GLBuffer vbPillarPos;
+	GLBuffer vbPillarNorm;
+	GLBuffer vbPillarTan;
+	GLBuffer vbPillarTc;
+	GLBuffer ibPillar;
+	GLArray pillarArray;
+	GLTexture2D pillarAlbedo;
+	GLTexture2D pillarNormalMap;
 
 	const GLProgram progBrick;
 	const GLint mvpLocationBrick;
@@ -66,8 +80,14 @@ private:
 	
 	std::shared_ptr<BrickStart> starter;
 	ParticleSystem particleSystem;
+	
+	Vec2i animationStart;
+	Vec2 animationCurrent;
+	Vec2i animationTarget;
+	double animationStartTime;
+	double currentTime;
 		
-	Vec3 pos2Coord(const Vec2i& pos, float dist) const;
+	Vec3 pos2Coord(const Vec2& pos, float dist) const;
 };
 	
 	

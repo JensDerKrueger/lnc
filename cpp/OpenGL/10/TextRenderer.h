@@ -12,6 +12,7 @@ public:
 						const std::vector<Vec3>& colorData, float time);
 	
 	virtual void clearRows(const std::vector<uint32_t>& ) {}
+	virtual void actionCam(const std::array<Vec2i,4>& source, const std::array<Vec2i,4>& target) {}
 
 private:
 	static void setColor(const Vec3& color);

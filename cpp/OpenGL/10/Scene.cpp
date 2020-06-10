@@ -13,6 +13,7 @@ Scene::Scene(Grid& grid) :
 	next{0},
 	rotationIndex{0},
 	position{int32_t(grid.getWidth())/2,0},
+	prevPosition{position},
 	score{0},
 	clearedRows{0},
 	lastAdvance{-1}
@@ -37,6 +38,7 @@ void Scene::rotateCCW(){
 }
 
 void Scene::moveLeft(){
+	prevPosition = position;
 	Vec2i nextPosition{position.x()-1, position.y()};
 	if (validateTransform(rotationIndex,nextPosition)) {
 		position = nextPosition;
@@ -44,15 +46,14 @@ void Scene::moveLeft(){
 }
 
 void Scene::moveRight(){
+	prevPosition = position;
 	Vec2i nextPosition{position.x()+1, position.y()};
 	if (validateTransform(rotationIndex,nextPosition)) {
 		position = nextPosition;
 	}	
 }
 
-bool Scene::advance() {
-	Vec2i nextPosition{position.x(), position.y()+1};
-	
+bool Scene::evaluateState(const Vec2i& nextPosition) {
 	if (!validateTransform(rotationIndex,nextPosition)) {
 		applyCollision();
 		const std::vector<uint32_t> fullRows = checkRows();
@@ -62,18 +63,24 @@ bool Scene::advance() {
 			for (uint32_t row : fullRows) {
 				clearRow(row);
 			}
+			if (fullRows.size() == 4) 
+				grid.getRenderer()->actionCam(transformTetromino(current, rotationIndex, prevPosition), transformTetromino(current, rotationIndex, position));
 		}
 		current = next;
 		next = genRandTetrominoIndex();
 		rotationIndex = 0;
 		position = Vec2i{int32_t(grid.getWidth())/2,0};
-		if (!validateTransform(rotationIndex,position)) 
-			return false;
-		
+		if (!validateTransform(rotationIndex,position)) return false;	
 	} else {
 		position = nextPosition;
 	}
-	return true;
+	return true;	
+}
+
+bool Scene::advance() {
+	prevPosition = position;
+	Vec2i nextPosition{position.x(), position.y()+1};
+	return evaluateState(nextPosition);
 }
 
 Vec2i Scene::fullDropPosition() const {
@@ -85,10 +92,10 @@ Vec2i Scene::fullDropPosition() const {
 }
 
 void Scene::fullDrop() {
+	prevPosition = position;
 	position = fullDropPosition();
-	advance();
+	evaluateState(position+Vec2i(0,1));
 }
-
 
 bool Scene::render(double t) {
 	if (lastAdvance < 0) lastAdvance = t;
