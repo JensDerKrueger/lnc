@@ -17,7 +17,7 @@ release: $(TARGET)
 	cd ../Utils && make
 
 $(TARGET): $(OBJ) ../Utils/libutils.a
-	$(CC) $(INCLUDES) $(LFLAGS) $(LIBS) $^ -o $@
+	$(CC) $(INCLUDES) $^ $(LFLAGS) $(LIBS) -o $@
 
 
 %.o: %.cpp
