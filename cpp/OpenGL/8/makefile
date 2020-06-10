@@ -13,7 +13,7 @@ release: CFLAGS += -O3 -DNDEBUG
 release: $(TARGET)
 
 $(TARGET): $(OBJ)
-	$(CC) $(INCLUDES) $(LFLAGS) $(LIBS) $^ -o $@
+	$(CC) $(INCLUDES) $^ $(LFLAGS) $(LIBS) -o $@
 
 %.o: %.cpp
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@
