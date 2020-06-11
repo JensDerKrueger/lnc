@@ -149,13 +149,11 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 	Vec3 lookAtVec;
 	Vec3 lookFromVec;
 	Vec3 upVec;
-	Mat4 v;
 
 	if (animationCurrent == animationTarget) {
 		lookFromVec = Vec3{0,0,5};
 		lookAtVec = Vec3{0,0,0};
 		upVec = Vec3{0,1,0};
-		v = Mat4{Mat4::lookAt(lookFromVec,lookAtVec,upVec)};
 	} else {
 		const float totalTime = float(animationTarget.y() - animationStart.y())*0.08;
 		float a = (currentTime - animationStartTime)/totalTime;
@@ -167,8 +165,9 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 		lookFromVec = Vec3{pos2Coord(animationCurrent, 20.0f)};
 		lookAtVec = lookFromVec+Vec3(0,-10,0);
 		upVec = Vec3{0,0,1};
-		v = Mat4{Mat4::lookAt(lookFromVec,lookAtVec,upVec)};
 	}
+	
+	Mat4 v{Mat4::lookAt(lookFromVec,lookAtVec,upVec)};
 
 	// setup viewport and clear buffers
 	glViewport(0, 0, dim.width, dim.height);
