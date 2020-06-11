@@ -11,7 +11,7 @@ public:
 						const std::array<Vec2i,4>& targerTetrominoPos, float time);
 	
 	virtual void clearRows(const std::vector<uint32_t>& ) {}
-	virtual void actionCam(const std::array<Vec2i,4>& source, const std::array<Vec2i,4>& target) {}
+	virtual void dropAnimation(const std::array<Vec2i,4>& source, const Vec3& sourceColor, const std::array<Vec2i,4>& target, size_t rowCount) {}
 	virtual bool isAnimating() const {return false;}
 
 private:

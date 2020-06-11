@@ -63,8 +63,8 @@ bool Scene::evaluateState(const Vec2i& nextPosition) {
 			for (uint32_t row : fullRows) {
 				clearRow(row);
 			}
-			if (fullRows.size() == 4) 
-				grid.getRenderer()->actionCam(transformTetromino(current, rotationIndex, prevPosition), transformTetromino(current, rotationIndex, position));
+			grid.getRenderer()->dropAnimation(transformTetromino(current, rotationIndex, prevPosition), colors[current],
+											  transformTetromino(current, rotationIndex, position), fullRows.size());
 		}
 		current = next;
 		next = genRandTetrominoIndex();

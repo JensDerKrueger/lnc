@@ -32,7 +32,7 @@ public:
 	bool getShowTarget () const {return showTarget;}
 
 	virtual void clearRows(const std::vector<uint32_t>& rows) = 0;
-	virtual void actionCam(const std::array<Vec2i,4>& source, const std::array<Vec2i,4>& target) = 0;
+	virtual void dropAnimation(const std::array<Vec2i,4>& source, const Vec3& sourceColor, const std::array<Vec2i,4>& target, size_t rowCount) = 0;
 	virtual bool isAnimating() const = 0;
 	
 	

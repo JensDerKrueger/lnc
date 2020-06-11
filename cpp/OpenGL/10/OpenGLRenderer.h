@@ -23,7 +23,7 @@ public:
 	void setViewport(const Dimensions& dim) {this->dim = dim;}
 		
 	void clearRows(const std::vector<uint32_t>& rows);
-	void actionCam(const std::array<Vec2i,4>& source, const std::array<Vec2i,4>& target);
+	void dropAnimation(const std::array<Vec2i,4>& source, const Vec3& sourceColor, const std::array<Vec2i,4>& target, size_t rowCount);
 	bool isAnimating() const;
 	
 private:	
@@ -87,6 +87,9 @@ private:
 	Vec2i animationTarget;
 	double animationStartTime;
 	double currentTime;
+	std::array<Vec2i,4> droppedTetromino;
+	Vec3 droppedTetrominoColor;
+	size_t rowCount;
 		
 	Vec3 pos2Coord(const Vec2& pos, float dist) const;
 };
