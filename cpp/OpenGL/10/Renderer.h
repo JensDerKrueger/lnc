@@ -12,10 +12,13 @@ public:
 		showPreview{true},
 		showTarget{true}
 	{}	
+	
+	void setObstacles(const std::vector<Vec3>& obstacleData) {this->obstacleData = obstacleData;}
+	std::vector<Vec3> getObstacles() {return obstacleData;}
+	
 	virtual void render(const std::array<Vec2i,4>& tetrominoPos, const Vec3& currentColor, 
 						const std::array<Vec2i,4>& nextTetrominoPos, const Vec3& nextColor,
-						const std::array<Vec2i,4>& targerTetrominoPos,
-						const std::vector<Vec3>& colorData, float time) = 0;
+						const std::array<Vec2i,4>& targerTetrominoPos, float time) = 0;
 	
 	uint32_t width() const {return w;}
 	uint32_t height() const {return h;}
@@ -30,6 +33,9 @@ public:
 
 	virtual void clearRows(const std::vector<uint32_t>& rows) = 0;
 	virtual void actionCam(const std::array<Vec2i,4>& source, const std::array<Vec2i,4>& target) = 0;
+	virtual bool isAnimating() const = 0;
+	
+	
 	
 private:
 	uint32_t w;
@@ -37,6 +43,8 @@ private:
 	
 	bool showPreview;
 	bool showTarget;
+
+	std::vector<Vec3> obstacleData;
 
 };
 

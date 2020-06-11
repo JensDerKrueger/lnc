@@ -106,7 +106,7 @@ bool Scene::render(double t) {
 
 	grid.render(transformedCurrent, colors[current], transformedNext, colors[next], transformedTarget, t);
 
-	if (getDelay() * 0.01 < t-lastAdvance) {
+	if (getDelay() * 0.01 < t-lastAdvance && !grid.getRenderer()->isAnimating()) {
 		if (!advance()) {
 			std::cout << "Score: " << score << std::endl;
 			return false;

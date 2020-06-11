@@ -18,12 +18,13 @@ renderer{renderer}
 void Grid::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3& currentColor, 
 				  const std::array<Vec2i,4>& nextTetrominoPos, const Vec3& nextColor,
 				  const std::array<Vec2i,4>& targerTetrominoPos, float time) const {
-	
-	std::vector<Vec3> colorData(width*height);
-	std::transform(data.begin(), data.end(), colorData.begin(), 
-					[](int8_t v) -> Vec3 { return v == -1 ? Vec3(-1,-1,-1) : colors[v]; });
-
-	renderer->render(tetrominoPos, currentColor, nextTetrominoPos, nextColor, targerTetrominoPos, colorData, time);
+	if (!renderer->isAnimating()) {
+		std::vector<Vec3> colorData(width*height);
+		std::transform(data.begin(), data.end(), colorData.begin(), 
+						[](int8_t v) -> Vec3 { return v == -1 ? Vec3(-1,-1,-1) : colors[v]; });
+		renderer->setObstacles(colorData);
+	}
+	renderer->render(tetrominoPos, currentColor, nextTetrominoPos, nextColor, targerTetrominoPos, time);
 }
 
 void Grid::clear() {

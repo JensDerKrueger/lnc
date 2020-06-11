@@ -15,15 +15,16 @@ class OpenGLRenderer : public Renderer {
 public:
 	OpenGLRenderer(uint32_t width, uint32_t height);
 	virtual ~OpenGLRenderer() {}
+			
 	virtual void render(const std::array<Vec2i,4>& tetrominoPos, const Vec3& currentColor, 
 						const std::array<Vec2i,4>& nextTetrominoPos, const Vec3& nextColor,
-						const std::array<Vec2i,4>& targerTetrominoPos,
-						const std::vector<Vec3>& colorData, float time);
+						const std::array<Vec2i,4>& targerTetrominoPos, float time);
 	
 	void setViewport(const Dimensions& dim) {this->dim = dim;}
 		
 	void clearRows(const std::vector<uint32_t>& rows);
 	void actionCam(const std::array<Vec2i,4>& source, const std::array<Vec2i,4>& target);
+	bool isAnimating() const;
 	
 private:	
 	Tesselation brick;

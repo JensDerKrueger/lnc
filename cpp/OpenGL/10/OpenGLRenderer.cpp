@@ -128,10 +128,13 @@ void OpenGLRenderer::actionCam(const std::array<Vec2i,4>& source, const std::arr
 	animationStartTime = currentTime;
 }
 
+bool OpenGLRenderer::isAnimating() const {
+	return animationCurrent != animationTarget;
+}
+
 void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3& currentColor,
 							const std::array<Vec2i,4>& nextTetrominoPos, const Vec3& nextColor,
-							const std::array<Vec2i,4>& targerTetrominoPos,
-							const std::vector<Vec3>& colorData, float time) {
+							const std::array<Vec2i,4>& targerTetrominoPos, float time) {
 								
 	currentTime = time;
 								
@@ -147,7 +150,6 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 	Vec3 lookFromVec;
 	Vec3 upVec;
 	Mat4 v;
-
 
 	if (animationCurrent == animationTarget) {
 		lookFromVec = Vec3{0,0,5};
@@ -223,7 +225,7 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 	uint32_t i{0};
 	for (uint32_t y = 0;y < height();++y) {
 		for (uint32_t x = 0;x < width();++x) {
-			const Vec3 c = colorData[i++];
+			const Vec3 c = getObstacles()[i++];
 			
 			if (c.r() < 0) continue; // empty spaces
 			
