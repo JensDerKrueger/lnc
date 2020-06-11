@@ -35,6 +35,14 @@ Mat4::Mat4(const Mat4& other) :
 {	
 }
 
+Mat4::Mat4(const Vec3& e1, float e14, const Vec3& e2, float e24, const Vec3& e3, float e34, const Vec3& e4, float e44) :
+	Mat4(e1.x(),e1.y(),e1.z(),e14,
+		 e2.x(),e2.y(),e2.z(),e24,
+		 e3.x(),e3.y(),e3.z(),e34,
+		 e4.x(),e4.y(),e4.z(),e44)
+{
+}
+
 const std::string Mat4::toString() const {
 	std::stringstream s;
 	s << "[" << e[0] << ", " << e[1] << ", " << e[2] << ", " << e[3] << std::endl <<

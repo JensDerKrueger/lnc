@@ -14,6 +14,10 @@ public:
       float m31, float m32, float m33, float m34,
       float m41, float m42, float m43, float m44);
   Mat4(const std::array<float, 16>& m);
+  Mat4(const Vec3& e1, float e14,
+       const Vec3& e2, float e24,
+       const Vec3& e3, float e34,
+       const Vec3& e4=Vec3(0,0,0), float e44=1);
   Mat4(const Mat4& other);
   
   const std::string toString() const;
