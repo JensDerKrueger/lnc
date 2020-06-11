@@ -100,8 +100,6 @@ OpenGLRenderer::OpenGLRenderer(uint32_t width, uint32_t height) :
 	pillarArray.connectVertexAttrib(vbPillarTan,progNormalMap,"vTan",3);
 	pillarArray.connectVertexAttrib(vbPillarTc,progNormalMap,"vTc",2);
 	pillarArray.connectIndexBuffer(ibPillar);
-
-
 }
 
 Vec3 OpenGLRenderer::pos2Coord(const Vec2& pos, float dist) const {
@@ -122,9 +120,14 @@ void OpenGLRenderer::clearRows(const std::vector<uint32_t>& rows) {
 }
 
 void OpenGLRenderer::actionCam(const std::array<Vec2i,4>& source, const std::array<Vec2i,4>& target) {
-	animationStart = source[0];
+	size_t i = 1;
+	size_t maxIndex = 0;
+	for (;i<source.size();++i) {
+		if (source[i].y() > source[maxIndex].y()) maxIndex = i;
+	}
+	animationStart = source[maxIndex];
 	animationCurrent = animationStart;
-	animationTarget = target[0];
+	animationTarget = target[maxIndex];
 	animationStartTime = currentTime;
 }
 
@@ -148,14 +151,17 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 	
 	Vec3 lookAtVec;
 	Vec3 lookFromVec;
-	Vec3 upVec;
+	Vec3 upVec;	
+	Vec3 lightPos;
+
 
 	if (animationCurrent == animationTarget) {
 		lookFromVec = Vec3{0,0,5};
 		lookAtVec = Vec3{0,0,0};
 		upVec = Vec3{0,1,0};
+		lightPos = Mat4::rotationZ(time*20) * Vec3{0,10,-4};		
 	} else {
-		const float totalTime = float(animationTarget.y() - animationStart.y())*0.08;
+		const float totalTime = float(animationTarget.y() - animationStart.y())*0.8;
 		float a = (currentTime - animationStartTime)/totalTime;
 		if (a < 1)
 			animationCurrent = Vec2(animationStart) * (1-a) + Vec2(animationTarget) * a;
@@ -165,6 +171,7 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 		lookFromVec = Vec3{pos2Coord(animationCurrent, 20.0f)};
 		lookAtVec = lookFromVec+Vec3(0,-10,0);
 		upVec = Vec3{0,0,1};
+		lightPos = lookFromVec;
 	}
 	
 	Mat4 v{Mat4::lookAt(lookFromVec,lookAtVec,upVec)};
@@ -175,7 +182,6 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 	const Mat4 p{Mat4::perspective(45, dim.aspect(), 0.0001, 1000)};
 	
 	progNormalMap.enable();
-	Vec3 lightPos{Mat4::rotationZ(time*20) * Vec3{0,10,-4}};
 	progNormalMap.setUniform(lpLocationNormalMap, lightPos);
 	progNormalMap.setTexture(normMapLocationNormalMap,backgroundNormalMap,0);
 	progNormalMap.setTexture(texLocationNormalMap,backgroundAlbedo,1);
@@ -213,13 +219,12 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 
 	glDrawElements(GL_TRIANGLES, brick.getIndices().size(), GL_UNSIGNED_INT, (void*)0);
 
-
-
 	progBrick.enable();
 	brickArray.bind();
 	progBrick.setUniform(opacityBrickLocation, 1.0f);
 	progBrick.setUniform(invVLocationBrick, Mat4::inverse(v)); 
 	progBrick.setUniform(fractalAnimationLocation, time);
+	progBrick.setUniform(lpLocationNormalMap, lightPos);
 
 	uint32_t i{0};
 	for (uint32_t y = 0;y < height();++y) {
@@ -257,7 +262,7 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 		}	
 	}
 	
-	if (getShowTarget()) {
+	if (getShowTarget() && !isAnimating()) {
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glBlendEquation(GL_FUNC_ADD);
