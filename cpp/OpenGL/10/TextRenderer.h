@@ -10,8 +10,7 @@ public:
 						const std::array<Vec2i,4>& nextTetrominoPos, const Vec3& nextColor,
 						const std::array<Vec2i,4>& targerTetrominoPos, float time);
 	
-	virtual void clearRows(const std::vector<uint32_t>& ) {}
-	virtual void dropAnimation(const std::array<Vec2i,4>& source, const Vec3& sourceColor, const std::array<Vec2i,4>& target, size_t rowCount) {}
+	virtual void dropAnimation(const std::array<Vec2i,4>& source, const Vec3& sourceColor, const std::array<Vec2i,4>& target, const std::vector<uint32_t>& clearedRows) {}
 	virtual bool isAnimating() const {return false;}
 
 private:

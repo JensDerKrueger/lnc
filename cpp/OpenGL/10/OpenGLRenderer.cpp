@@ -53,8 +53,7 @@ OpenGLRenderer::OpenGLRenderer(uint32_t width, uint32_t height) :
 	colorLocation{progNormalMap.getUniformLocation("color")},
 	opacityLocation{progNormalMap.getUniformLocation("opacity")},
 	starter(std::make_shared<BrickStart>(Vec3{0,0,0},Vec3{0,0,0})),
-	particleSystem{8000, starter, {-10,-10,50}, {10,10,55}, {0,0,0}, Vec3{-100.0f,-100.0f,-100.0f}, Vec3{100.0f,100.0f,100.0f}, 5.0f, 80.0f, RAINBOW_COLOR, false},
-	rowCount{0}
+	particleSystem{8000, starter, {-10,-10,50}, {10,10,55}, {0,0,0}, Vec3{-100.0f,-100.0f,-100.0f}, Vec3{100.0f,100.0f,100.0f}, 5.0f, 80.0f, RAINBOW_COLOR, false}
 {
 	vbBrickPos.setData(brick.getVertices(),3);
 	vbBrickNorm.setData(brick.getNormals(),3);
@@ -110,17 +109,19 @@ Vec3 OpenGLRenderer::pos2Coord(const Vec2& pos, float dist) const {
 }
 
 
-void OpenGLRenderer::clearRows(const std::vector<uint32_t>& rows) {
-	const size_t particlesPerRow{((1<<rows.size())*200)/rows.size()};
+void OpenGLRenderer::clearRows() {
+	if (clearedRows.empty()) return; 
 	
-	for (uint32_t row : rows) {
+	const size_t particlesPerRow{((1<<clearedRows.size())*200)/clearedRows.size()};
+	
+	for (uint32_t row : clearedRows) {
 		Vec3 coord{pos2Coord(Vec2i(width()/2.0,row), 20.0f)};
 		starter->setStart(coord, Vec3(width(),1.0f,1.0f));
 		particleSystem.restart(particlesPerRow);
 	}
 }
 
-void OpenGLRenderer::dropAnimation(const std::array<Vec2i,4>& source, const Vec3& sourceColor, const std::array<Vec2i,4>& target, size_t rowCount) {
+void OpenGLRenderer::dropAnimation(const std::array<Vec2i,4>& source, const Vec3& sourceColor, const std::array<Vec2i,4>& target, const std::vector<uint32_t>& clearedRows) {
 	size_t i = 1;
 	size_t maxIndex = 0;
 	for (;i<source.size();++i) {
@@ -131,13 +132,13 @@ void OpenGLRenderer::dropAnimation(const std::array<Vec2i,4>& source, const Vec3
 	animationTarget = target[maxIndex];
 	droppedTetromino = source;
 	droppedTetrominoColor = sourceColor;
-	this->rowCount = rowCount;
+	this->clearedRows = clearedRows;
 	
 	animationStartTime = currentTime;
 }
 
 bool OpenGLRenderer::isAnimating() const {
-	return rowCount != 0;
+	return animationCurrent != animationTarget;
 }
 
 void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3& currentColor,
@@ -161,50 +162,42 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 	std::array<Vec2,4> activeTetrominoPos;
 	Vec3 activeTetrominoColor;
 	
-	switch (rowCount) {
-		case 0:
-			lookFromVec = Vec3{0,0,5};
-			lookAtVec = Vec3{0,0,0};
-			upVec = Vec3{0,1,0};
-			lightPos = Mat4::rotationZ(time*20) * Vec3{0,10,-4};
-			for (size_t i = 0;i<tetrominoPos.size();++i)
-				activeTetrominoPos[i] = tetrominoPos[i];
-			activeTetrominoColor = currentColor;
-			break;
-		case 1:
-		case 2:
-		case 3: {
-			lookFromVec = Vec3{0,0,5};
-			lookAtVec = Vec3{0,0,0};
-			upVec = Vec3{0,1,0};
-			lightPos = Mat4::rotationZ(time*20) * Vec3{0,10,-4};
-			const float totalTime = float(animationTarget.y() - animationStart.y())*0.02;
-			float a = (currentTime - animationStartTime)/totalTime;
-			if (a>=1) rowCount = 0;
-			for (size_t i = 0;i<tetrominoPos.size();++i) {
-				Vec2 temp{float(droppedTetromino[i].x()), float(droppedTetromino[i].y()) + (animationTarget.y()-animationStart.y()) * a};
-				activeTetrominoPos[i] = temp;
-			}
-			activeTetrominoColor = droppedTetrominoColor;
-			break;
-		}
-		default: {
+	lookFromVec = Vec3{0,0,5};
+	lookAtVec = Vec3{0,0,0};
+	upVec = Vec3{0,1,0};
+	lightPos = Mat4::rotationZ(time*20) * Vec3{0,10,-4};
+
+	if (isAnimating()) {
+		if (clearedRows.size() == 4) {
 			const float totalTime = float(animationTarget.y() - animationStart.y())*0.08;
 			float a = (currentTime - animationStartTime)/totalTime;
 			if (a < 1)
 				animationCurrent = Vec2(animationStart) * (1-a) + Vec2(animationTarget) * a;
 			else {
 				animationCurrent = animationTarget;
-				rowCount = 0;
 			}
 			lookFromVec = Vec3{pos2Coord(animationCurrent, 20.0f)};
 			lookAtVec = lookFromVec+Vec3(0,-10,0);
 			upVec = Vec3{0,0,1};
-			lightPos = lookFromVec;
-			break;
+			lightPos = lookFromVec;		
+		} else {
+			const float totalTime = float(animationTarget.y() - animationStart.y())*0.02;
+			float a = (currentTime - animationStartTime)/totalTime;
+			if (a>=1) {
+				animationCurrent = animationTarget;
+			}
+			for (size_t i = 0;i<tetrominoPos.size();++i) {
+				Vec2 temp{float(droppedTetromino[i].x()), float(droppedTetromino[i].y()) + (animationTarget.y()-animationStart.y()) * a};
+				activeTetrominoPos[i] = temp;
+			}
+			activeTetrominoColor = droppedTetrominoColor;		
 		}
+		if (!isAnimating()) clearRows();
+	} else {
+		for (size_t i = 0;i<tetrominoPos.size();++i)
+			activeTetrominoPos[i] = tetrominoPos[i];
+		activeTetrominoColor = currentColor;		
 	}
-
 	
 	Mat4 v{Mat4::lookAt(lookFromVec,lookAtVec,upVec)};
 

@@ -59,13 +59,12 @@ bool Scene::evaluateState(const Vec2i& nextPosition) {
 		const std::vector<uint32_t> fullRows = checkRows();
 		if (!fullRows.empty()) {
 			updateScore(fullRows.size());
-			grid.getRenderer()->clearRows(fullRows);
 			for (uint32_t row : fullRows) {
 				clearRow(row);
 			}
-			grid.getRenderer()->dropAnimation(transformTetromino(current, rotationIndex, prevPosition), colors[current],
-											  transformTetromino(current, rotationIndex, position), fullRows.size());
 		}
+		grid.getRenderer()->dropAnimation(transformTetromino(current, rotationIndex, prevPosition), colors[current],
+										  transformTetromino(current, rotationIndex, position), fullRows);
 		current = next;
 		next = genRandTetrominoIndex();
 		rotationIndex = 0;
