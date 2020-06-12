@@ -83,6 +83,8 @@ private:
 	const GLint invVLocationBackground;
 	const GLint lpLocationBackground;
 	const GLint animationBackgroundLocation;
+	const GLint fractalParamBackgroundLocation;
+	float fractalParam;
 	
 	Dimensions dim;
 	
