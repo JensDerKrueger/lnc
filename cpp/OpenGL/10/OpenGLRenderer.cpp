@@ -16,7 +16,7 @@ OpenGLRenderer::OpenGLRenderer(uint32_t width, uint32_t height) :
 	brickArray{},
 	brickAlbedo{GL_LINEAR, GL_LINEAR},
 	brickNormalMap{GL_LINEAR, GL_LINEAR},
-	background{Tesselation::genBrick({0,0,0}, {float(width),float(height),1}, {float(width/10),float(height/10),1.0f/10})},
+	background{Tesselation::genBrick({0,0,0}, {float(width),float(height),1}, {1,1,1})},
 	vbBackgroundPos{GL_ARRAY_BUFFER},
 	vbBackgroundNorm{GL_ARRAY_BUFFER},
 	vbBackgroundTan{GL_ARRAY_BUFFER},
@@ -52,6 +52,15 @@ OpenGLRenderer::OpenGLRenderer(uint32_t width, uint32_t height) :
 	normMapLocationNormalMap{progNormalMap.getUniformLocation("normalSampler")},
 	colorLocation{progNormalMap.getUniformLocation("color")},
 	opacityLocation{progNormalMap.getUniformLocation("opacity")},
+
+	progBackground{GLProgram::createFromFile("fractalVertex.glsl", "fractalFragment.glsl")},
+	mvpLocationBackground{progBackground.getUniformLocation("MVP")},
+	mLocationBackground{progBackground.getUniformLocation("M")},
+	mitLocationBackground{progBackground.getUniformLocation("Mit")},
+	invVLocationBackground{progBackground.getUniformLocation("invV")},
+	lpLocationBackground{progBackground.getUniformLocation("vLightPos")},
+	animationBackgroundLocation{progBackground.getUniformLocation("animation")},	
+	
 	starter(std::make_shared<BrickStart>(Vec3{0,0,0},Vec3{0,0,0})),
 	particleSystem{8000, starter, {-10,-10,50}, {10,10,55}, {0,0,0}, Vec3{-100.0f,-100.0f,-100.0f}, Vec3{100.0f,100.0f,100.0f}, 5.0f, 80.0f, RAINBOW_COLOR, false}
 {
@@ -181,10 +190,11 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 			upVec = Vec3{0,0,1};
 			lightPos = lookFromVec;		
 		} else {
-			const float totalTime = float(animationTarget.y() - animationStart.y())*0.02;
+			const float totalTime = float(animationTarget.y() - animationStart.y())*0.01;
 			float a = (currentTime - animationStartTime)/totalTime;
 			if (a>=1) {
 				animationCurrent = animationTarget;
+				a = 1;
 			}
 			for (size_t i = 0;i<tetrominoPos.size();++i) {
 				Vec2 temp{float(droppedTetromino[i].x()), float(droppedTetromino[i].y()) + (animationTarget.y()-animationStart.y()) * a};
@@ -205,33 +215,31 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 	glViewport(0, 0, dim.width, dim.height);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	const Mat4 p{Mat4::perspective(45, dim.aspect(), 0.0001, 1000)};
-	
-	progNormalMap.enable();
-	progNormalMap.setUniform(lpLocationNormalMap, lightPos);
-	progNormalMap.setTexture(normMapLocationNormalMap,backgroundNormalMap,0);
-	progNormalMap.setTexture(texLocationNormalMap,backgroundAlbedo,1);
-	progNormalMap.setUniform(opacityLocation, 1.0f);
-	
+
+	Mat4 m{Mat4::translation(Vec3{0,0,-21.0f })};
 	backgroundArray.bind();
 	
-	Mat4 m{Mat4::translation(Vec3{0,0,-21.0f })};
-	progNormalMap.setUniform(mvpLocationNormalMap, m*v*p);
-	progNormalMap.setUniform(mLocationNormalMap, m);
-	progNormalMap.setUniform(mitLocationNormalMap, Mat4::inverse(m), true);
-	progNormalMap.setUniform(invVLocationNormalMap, Mat4::inverse(v)); 
-	progNormalMap.setUniform(colorLocation, Vec3{0.5,0.5,0.5});
+	progBackground.enable();
+	progBackground.setUniform(lpLocationBackground, lightPos);
+	progBackground.setUniform(mvpLocationBackground, m*v*p);
+	progBackground.setUniform(mLocationBackground, m);
+	progBackground.setUniform(mitLocationBackground, Mat4::inverse(m), true);
+	progBackground.setUniform(invVLocationBackground, Mat4::inverse(v)); 
+	progBackground.setUniform(animationBackgroundLocation, time);
+
 	glDrawElements(GL_TRIANGLES, brick.getIndices().size(), GL_UNSIGNED_INT, (void*)0);
 
-
 	pillarArray.bind();
-
-	
+	progNormalMap.enable();	
 	m = Mat4{Mat4::translation(Vec3{float(width())/2.0f+0.5f,0,-20.0f })};
 	progNormalMap.setUniform(mvpLocationNormalMap, m*v*p);
 	progNormalMap.setUniform(mLocationNormalMap, m);
 	progNormalMap.setUniform(mitLocationNormalMap, Mat4::inverse(m), true);
 	progNormalMap.setUniform(invVLocationNormalMap, Mat4::inverse(v)); 
 	progNormalMap.setUniform(colorLocation, Vec3{0.5,0.5,0.5});
+	progNormalMap.setUniform(lpLocationNormalMap, lightPos);
+	progNormalMap.setTexture(normMapLocationNormalMap,backgroundNormalMap,0);
+	progNormalMap.setTexture(texLocationNormalMap,backgroundAlbedo,1);
 
 	glDrawElements(GL_TRIANGLES, brick.getIndices().size(), GL_UNSIGNED_INT, (void*)0);
 

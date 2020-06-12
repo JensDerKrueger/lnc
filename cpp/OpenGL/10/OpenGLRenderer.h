@@ -76,6 +76,14 @@ private:
 	const GLint colorLocation;
 	const GLint opacityLocation;
 	
+	const GLProgram progBackground;
+	const GLint mvpLocationBackground;
+	const GLint mLocationBackground;
+	const GLint mitLocationBackground;
+	const GLint invVLocationBackground;
+	const GLint lpLocationBackground;
+	const GLint animationBackgroundLocation;
+	
 	Dimensions dim;
 	
 	std::shared_ptr<BrickStart> starter;
