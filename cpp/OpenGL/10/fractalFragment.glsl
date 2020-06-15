@@ -34,7 +34,7 @@ float fractal(vec2 tc) {
 }
 
 vec3 colorMap(float f) {
-    return fract(vec3(f*19,f*37,f*25));
+    return fract(vec3(f*29,f*37,f*5));
 }
 
 void main() {

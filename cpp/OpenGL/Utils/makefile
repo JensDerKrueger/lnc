@@ -4,7 +4,7 @@ ARFLAGS= rcs
 CFLAGS=-c -Wall -std=c++17 -Wunreachable-code
 LIBS=
 INCLUDES=-I.
-SRC = PlanarMirror.cpp FresnelVisualizer.cpp GLArray.cpp ParticleSystem.cpp GLTexture2D.cpp Tesselation.cpp GLBuffer.cpp GLEnv.cpp GLProgram.cpp Mat4.cpp Vec3.cpp Vec2.cpp Vec2i.cpp Rand.cpp
+SRC = PlanarMirror.cpp FresnelVisualizer.cpp GLArray.cpp ParticleSystem.cpp AbstractParticleSystem.cpp GLTexture2D.cpp Tesselation.cpp GLBuffer.cpp GLEnv.cpp GLProgram.cpp Mat4.cpp Vec3.cpp Vec2.cpp Vec2i.cpp Rand.cpp
 OBJ = $(SRC:.cpp=.o)
 TARGET = libutils.a
 

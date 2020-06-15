@@ -1,15 +1,11 @@
 #pragma once
 
+#include "AbstractParticleSystem.h"
+
 #include <vector>
 #include <memory>
 
 #include "Rand.h"
-#include "Vec3.h"
-#include "Mat4.h"
-#include "GLProgram.h"
-#include "GLBuffer.h"
-#include "GLArray.h"
-#include "GLTexture2D.h"
 
 class StartVolume {
 public:
@@ -80,26 +76,19 @@ private:
 	Vec3 maxPos;
 };
 
-const Vec3 RANDOM_COLOR{-1.0f,-1.0f,-1.0f};
-const Vec3 RAINBOW_COLOR{-2.0f,-2.0f,-2.0f};
-
-class ParticleSystem {
+class ParticleSystem : public AbstractParticleSystem {
 public:
 	ParticleSystem(	uint32_t particleCount, std::shared_ptr<StartVolume> starter,
 					const Vec3& initialSpeedMin, const Vec3& initialSpeedMax, 
 					const Vec3& acceleration, const Vec3& minPos, const Vec3& maxPos,
 					float maxAge, float pointSize, const Vec3& color=RANDOM_COLOR, bool autorestart=true);
 
-	void render(const Mat4& v, const Mat4& p);
 	void update(float t);
 	
 	void setStarter(const std::shared_ptr<StartVolume> starter);
-	void setSize(float pointSize) {this->pointSize = pointSize;}
 	
 	void setColor(const Vec3& color);
-	
-	void setAutRestart(bool autorestart) {this->autorestart = autorestart;}
-	
+		
 	void restart(size_t count);
 	
 	void setBounce(bool bounce);
@@ -109,6 +98,9 @@ public:
 		this->initialSpeedMin = initialSpeedMin;
 		this->initialSpeedMax = initialSpeedMax;
 	}
+	
+	virtual std::vector<float> getData() const;
+	virtual size_t getParticleCount() const {return particles.size();}
 
 private:
 	ParticleSystem(const ParticleSystem&);
@@ -117,24 +109,12 @@ private:
 	Vec3 initialSpeedMin;
 	Vec3 initialSpeedMax;
 	std::vector<Particle> particles;
-	
-	GLProgram prog;
-	GLint mvpLocation;
-	GLint posLocation;
-	GLint colLocation;
-	GLint texLocation;
-	
-	GLTexture2D sprite;
-	
+		
 	Vec3 acceleration;
 	
-	float pointSize;
 	Vec3 color;
 	float maxAge;
-	GLArray particleArray;
-	GLBuffer vbPosColor;
 	float lastT;
-	bool autorestart;
 	
 	Vec3 computeStart() const;
 	Vec3 computeDirection() const;
