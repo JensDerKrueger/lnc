@@ -33,12 +33,24 @@ float fractal(vec2 tc) {
     return float(i)/255;
 }
 
-vec3 colorMap(float f) {
-    return fract(vec3(f*29,f*37,f*5));
+vec3 astroIntensity(float t) {
+    t = pow(t, 0.4);
+    float pi = 3.1415926;
+    float s = 2.1;
+    float r = 1.53;
+    float h = 2.0;
+    float g = 1.0;
+    float p1 = pow(t, g);
+    float psi = 2.0*pi * (s/3.0 + r*t);
+    float a = h*p1*(1.0-p1)/2.0;
+    float cospsi = cos(psi);
+    float sinpsi = sin(psi);
+    vec3 result = vec3(-0.14861*cospsi + 1.78277*sinpsi, -0.29227*cospsi -0.90649*sinpsi, 1.97294*cospsi);
+    return p1+a*result;
 }
 
 void main() {
-    vec3 texValue = colorMap(fractal(tc*vec2(1,2)-vec2(0,0.5)));
+    vec3 texValue = astroIntensity(fractal(tc*vec2(1, 2)-vec2(0, 0.5)));
     
     vec3 lightDir = normalize(vLightPos-pos);
     vec3 nNormal = normalize(normal);
