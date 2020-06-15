@@ -107,7 +107,7 @@ bool Scene::render(double t) {
 
 	if (getDelay() * 0.01 < t-lastAdvance && !grid.getRenderer()->isAnimating()) {
 		if (!advance()) {
-			std::cout << "Score: " << score << std::endl;
+			std::cout << "Score: " << score << " at level " << getLevel() << std::endl;
 			return false;
 		}
 		lastAdvance = t;
@@ -199,12 +199,17 @@ uint32_t Scene::getDelay() const {
 		case 6 : return scale*18;
 		case 7 : return scale*13;
 		case 8 : return scale* 8;
-		case 9 : return scale* 6;
+		case 9 :
+		case 10:
+		case 11: return scale* 6;
 		case 12: return scale* 5;
+		case 13:
+		case 14:
 		case 15: return scale* 4;
+		case 16:
+		case 17:
 		case 18: return scale* 3;
-		case 28: return scale* 2;
-		default: return scale* 1;
+		default: return scale* 2;
 	}
 }
 
