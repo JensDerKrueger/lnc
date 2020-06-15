@@ -64,7 +64,8 @@ OpenGLRenderer::OpenGLRenderer(uint32_t width, uint32_t height) :
 	fractalParam{0.9f},	
 	
 	starter(std::make_shared<BrickStart>(Vec3{0,0,0},Vec3{0,0,0})),
-	particleSystem{8000, starter, {-10,-10,50}, {10,10,55}, {0,0,0}, Vec3{-100.0f,-100.0f,-100.0f}, Vec3{100.0f,100.0f,100.0f}, 5.0f, 80.0f, RAINBOW_COLOR, false}
+	particleSystem{8000, starter, {-10,-10,50}, {10,10,55}, {0,0,0}, Vec3{-100.0f,-100.0f,-100.0f}, Vec3{100.0f,100.0f,100.0f}, 5.0f, 80.0f, RAINBOW_COLOR, false},
+	viewerPos{0,0,5}
 {
 	vbBrickPos.setData(brick.getVertices(),3);
 	vbBrickNorm.setData(brick.getNormals(),3);
@@ -89,10 +90,9 @@ OpenGLRenderer::OpenGLRenderer(uint32_t width, uint32_t height) :
 	backgroundNormalMap.setData(backgroundNormalImage.data, backgroundNormalImage.width, backgroundNormalImage.height, backgroundNormalImage.componentCount);	
 	
 	backgroundArray.bind();
-	backgroundArray.connectVertexAttrib(vbBackgroundPos,progNormalMap,"vPos",3);
-	backgroundArray.connectVertexAttrib(vbBackgroundNorm,progNormalMap,"vNorm",3);
-	backgroundArray.connectVertexAttrib(vbBackgroundTan,progNormalMap,"vTan",3);
-	backgroundArray.connectVertexAttrib(vbBackgroundTc,progNormalMap,"vTc",2);
+	backgroundArray.connectVertexAttrib(vbBackgroundPos,progBackground,"vPos",3);
+	backgroundArray.connectVertexAttrib(vbBackgroundNorm,progBackground,"vNorm",3);
+	backgroundArray.connectVertexAttrib(vbBackgroundTc,progBackground,"vTc",2);
 	backgroundArray.connectIndexBuffer(ibBackground);
 
 	vbPillarPos.setData(pillar.getVertices(),3);
@@ -128,6 +128,7 @@ void OpenGLRenderer::clearRows() {
 	for (uint32_t row : clearedRows) {
 		Vec3 coord{pos2Coord(Vec2i(width()/2.0,row), 20.0f)};
 		starter->setStart(coord, Vec3(width(),1.0f,1.0f));
+		particleSystem.setInitialSpeed( (viewerPos-coord)*2, (viewerPos-coord)*2+Vec3{Rand::rand01(),Rand::rand01(),Rand::rand01()}*3  );
 		particleSystem.restart(particlesPerRow);
 	}
 }
@@ -173,7 +174,7 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 	std::array<Vec2,4> activeTetrominoPos;
 	Vec3 activeTetrominoColor;
 	
-	lookFromVec = Vec3{0,0,5};
+	lookFromVec = viewerPos;
 	lookAtVec = Vec3{0,0,0};
 	upVec = Vec3{0,1,0};
 	lightPos = Mat4::rotationZ(time*20) * Vec3{0,10,-4};
@@ -197,7 +198,7 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 			if (a>=1) {
 				animationCurrent = animationTarget;
 				a = 1;
-				fractalParam = 0.25+Rand::rand01()*0.5f;
+				fractalParam = 0.4f+Rand::rand01()*0.5f;
 			}
 			for (size_t i = 0;i<tetrominoPos.size();++i) {
 				Vec2 temp{float(droppedTetromino[i].x()), float(droppedTetromino[i].y()) + (animationTarget.y()-animationStart.y()) * a};
@@ -319,7 +320,7 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 		glDisable(GL_BLEND);
 	}
 	
-	particleSystem.setSize(dim.height/30);		
+	particleSystem.setPointSize(dim.height/30);		
 	particleSystem.render(v,p);
 	particleSystem.update(time);
 }

@@ -90,6 +90,7 @@ private:
 	
 	std::shared_ptr<BrickStart> starter;
 	ParticleSystem particleSystem;
+	Vec3 viewerPos;
 	
 	Vec2i animationStart;
 	Vec2 animationCurrent;
@@ -99,6 +100,7 @@ private:
 	std::array<Vec2i,4> droppedTetromino;
 	Vec3 droppedTetrominoColor;
 	std::vector<uint32_t> clearedRows;
+	
 		
 	Vec3 pos2Coord(const Vec2& pos, float dist) const;
 	
