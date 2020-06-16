@@ -17,7 +17,7 @@ vec2 mulC(vec2 a, vec2 b) {
 }
 
 
-float fractal(vec2 tc) {
+float juliaFractal(vec2 tc) {
     vec2 start = vec2(-3.0, -2.0);
     vec2 end   = vec2( 3.0,  2.0);
     vec2 delta = end-start;
@@ -34,13 +34,13 @@ float fractal(vec2 tc) {
     return float(i)/255;
 }
 
-/*
-float fractal(vec2 tc) {
+
+float mandelFractal(vec2 tc) {
     vec2 start = vec2(-0.7371, -0.18735);
     vec2 end = vec2(-0.7370, -0.18730);
    
     vec2 center = vec2(-0.73705, -0.187325);
-    vec2 delta = vec2(2.0, 4.0)*(1+0*fractParam);
+    vec2 delta = vec2(2.0, 4.0);
     float zoom = 1.5*pow(0.5, (sin(animation*1)+1)*8);
     delta = delta * zoom;
  
@@ -60,7 +60,6 @@ float fractal(vec2 tc) {
     return float(i)/maxiter;
 }
 
- */
  
 vec3 astroIntensity(float t) {
     t = pow(t, 0.4);
@@ -79,7 +78,12 @@ vec3 astroIntensity(float t) {
 }
 
 void main() {
-    vec3 texValue = astroIntensity(fractal(tc*vec2(1, 2)-vec2(0, 0.5)));
+    
+    vec2 fractalPos = tc*vec2(1, 2)-vec2(0, 0.5);
+    
+    float f = (fractParam > 0) ? juliaFractal(fractalPos) : mandelFractal(fractalPos);
+    
+    vec3 texValue = astroIntensity(f);
     
     vec3 lightDir = normalize(vLightPos-pos);
     vec3 nNormal = normalize(normal);
