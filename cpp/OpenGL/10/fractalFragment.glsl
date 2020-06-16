@@ -59,7 +59,7 @@ void main() {
     vec3 eyeDir = normalize(eyePos-pos);
 
     vec3 r = reflect(-lightDir, nNormal);
-    vec3 specular = vec3(1.0,1.0,1.0) * pow(max(0.0,dot(eyeDir,r)),22.0);
+    vec3 specular = vec3(0.5,0.5,0.5) * pow(max(0.0,dot(eyeDir,r)),22.0);
     vec3 diffuse  = texValue * max(0.0,dot(lightDir,nNormal));
     vec3 ambient  = texValue * vec3(0.2,0.2,0.2);
     
