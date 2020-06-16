@@ -18,11 +18,14 @@ public:
 	bool render(double t);
 	
 	void setShowPreview(bool showPreview) {grid.getRenderer()->setShowPreview(showPreview);}
-	bool getShowPreview () const {return grid.getRenderer()->getShowPreview();}
+	bool getShowPreview() const {return grid.getRenderer()->getShowPreview();}
 
 	void setShowTarget(bool showTarget) {grid.getRenderer()->setShowTarget(showTarget);}
-	bool getShowTarget () const {return grid.getRenderer()->getShowTarget();}
-	
+	bool getShowTarget() const {return grid.getRenderer()->getShowTarget();}
+
+    void setPause(bool pause) {this->pause = pause;}
+    bool getPause() const {return pause;}
+
 	
 private:
 	std::vector<size_t> nextTetrominos;
@@ -35,6 +38,7 @@ private:
 	uint32_t score;
 	uint32_t clearedRows;
 	double lastAdvance;
+    bool pause;
 	
 	size_t genRandTetrominoIndex();
 	std::vector<uint32_t> checkRows() const;

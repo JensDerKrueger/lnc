@@ -16,7 +16,8 @@ Scene::Scene(Grid& grid) :
 	prevPosition{position},
 	score{0},
 	clearedRows{0},
-	lastAdvance{-1}
+	lastAdvance{-1},
+    pause(false)
 {
 	current = genRandTetrominoIndex();
 	next = genRandTetrominoIndex();
@@ -103,15 +104,17 @@ bool Scene::render(double t) {
 	std::array<Vec2i,4> transformedNext{transformTetromino(next, 0, Vec2i{0,0})};
 	std::array<Vec2i,4> transformedTarget{transformTetromino(current, rotationIndex, fullDropPosition())};
 
-	grid.render(transformedCurrent, colors[current], transformedNext, colors[next], transformedTarget, t);
+	grid.render(transformedCurrent, colors[current], transformedNext, colors[next], transformedTarget, pause ? lastAdvance : t);
 
-	if (getDelay() * 0.01 < t-lastAdvance && !grid.getRenderer()->isAnimating()) {
-		if (!advance()) {
-			std::cout << "Score: " << score << " at level " << getLevel() << std::endl;
-			return false;
-		}
-		lastAdvance = t;
-	}
+    if (!pause) {
+        if (getDelay() * 0.01 < t-lastAdvance && !grid.getRenderer()->isAnimating()) {
+            if (!advance()) {
+                std::cout << "Score: " << score << " at level " << getLevel() << std::endl;
+                return false;
+            }
+            lastAdvance = t;
+        }
+    }
 	return true;
 }
 

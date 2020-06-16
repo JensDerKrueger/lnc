@@ -41,9 +41,21 @@ void ReverseParticleSystem::setAcceleration(const Vec3& acceleration) {
 }
 
 std::vector<float> ReverseParticleSystem::getData() const {
-    return {0.0f,0.0f,0.0f};
+    std::vector<float> dummy;
+    
+    for (size_t i = 0;i<10;++i) {
+        dummy.push_back(Rand::rand01());
+        dummy.push_back(Rand::rand01());
+        dummy.push_back(Rand::rand01());
+        dummy.push_back(1);
+        dummy.push_back(1);
+        dummy.push_back(1);
+        dummy.push_back(1);
+    }
+    
+    return dummy;
 }
 
 size_t ReverseParticleSystem::getParticleCount() const {
-    return 1;
+    return 10000;
 }

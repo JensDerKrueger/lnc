@@ -65,6 +65,8 @@ OpenGLRenderer::OpenGLRenderer(uint32_t width, uint32_t height) :
 	
 	starter(std::make_shared<BrickStart>(Vec3{0,0,0},Vec3{0,0,0})),
 	particleSystem{8000, starter, {-10,-10,50}, {10,10,55}, {0,0,0}, Vec3{-100.0f,-100.0f,-100.0f}, Vec3{100.0f,100.0f,100.0f}, 5.0f, 80.0f, RAINBOW_COLOR, false},
+    particleBitmap(std::make_shared<Bitmap>(128,128)),
+    revParticleSystem(particleBitmap, {-10,-10,50}, {10,10,55},{0,0,0}, 5.0f, 80.0f, RAINBOW_COLOR, false),
 	viewerPos{0,0,5}
 {
 	vbBrickPos.setData(brick.getVertices(),3);
@@ -323,4 +325,9 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 	particleSystem.setPointSize(dim.height/30);		
 	particleSystem.render(v,p);
 	particleSystem.update(time);
+
+    revParticleSystem.setPointSize(dim.height/30);
+    revParticleSystem.render(v,p);
+    revParticleSystem.update(time);
+
 }
