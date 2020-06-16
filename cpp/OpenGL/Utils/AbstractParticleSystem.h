@@ -30,6 +30,7 @@ public:
 	virtual std::vector<float> getData() const = 0;
 	virtual size_t getParticleCount() const = 0;
 
+    
 private:
 	float pointSize;
 	bool autorestart;

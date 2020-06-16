@@ -92,8 +92,7 @@ void ParticleSystem::setColor(const Vec3& color) {
 		for (Particle& p : particles) {
 			p.setColor(computeColor());
 		}
-	}
-		
+	}	
 }
 
 Particle::Particle( const Vec3& position, const Vec3& direction, const Vec3& acceleration, 
