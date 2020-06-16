@@ -26,6 +26,8 @@ public:
     void setPause(bool pause) {this->pause = pause;}
     bool getPause() const {return pause;}
 
+    void incBackgroundParam() {grid.getRenderer()->incBackgroundParam();}
+    void decBackgroundParam() {grid.getRenderer()->decBackgroundParam();}
 	
 private:
 	std::vector<size_t> nextTetrominos;

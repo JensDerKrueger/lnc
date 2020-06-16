@@ -61,7 +61,6 @@ OpenGLRenderer::OpenGLRenderer(uint32_t width, uint32_t height) :
 	lpLocationBackground{progBackground.getUniformLocation("vLightPos")},
 	animationBackgroundLocation{progBackground.getUniformLocation("animation")},	
 	fractalParamBackgroundLocation{progBackground.getUniformLocation("fractParam")},
-	fractalParam{0.9f},	
 	
 	starter(std::make_shared<BrickStart>(Vec3{0,0,0},Vec3{0,0,0})),
 	particleSystem{8000, starter, {-10,-10,50}, {10,10,55}, {0,0,0}, Vec3{-100.0f,-100.0f,-100.0f}, Vec3{100.0f,100.0f,100.0f}, 5.0f, 80.0f, RAINBOW_COLOR, false},
@@ -69,6 +68,8 @@ OpenGLRenderer::OpenGLRenderer(uint32_t width, uint32_t height) :
     revParticleSystem(1000, particleBitmap, {-10,-10,50}, {10,10,55},{0,0,0}, 5.0f, 80.0f, RAINBOW_COLOR, false),
 	viewerPos{0,0,5}
 {
+    setBackgroundParam(0.8f);
+    
 	vbBrickPos.setData(brick.getVertices(),3);
 	vbBrickNorm.setData(brick.getNormals(),3);
 	vbBrickTan.setData(brick.getTangents(),3);
@@ -200,7 +201,6 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 			if (a>=1) {
 				animationCurrent = animationTarget;
 				a = 1;
-				fractalParam = 0.4f+Rand::rand01()*0.5f;
 			}
 			for (size_t i = 0;i<tetrominoPos.size();++i) {
 				Vec2 temp{float(droppedTetromino[i].x()), float(droppedTetromino[i].y()) + (animationTarget.y()-animationStart.y()) * a};
@@ -232,7 +232,7 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 	progBackground.setUniform(mitLocationBackground, Mat4::inverse(m), true);
 	progBackground.setUniform(invVLocationBackground, Mat4::inverse(v)); 
 	progBackground.setUniform(animationBackgroundLocation, time/10);
-	progBackground.setUniform(fractalParamBackgroundLocation, fractalParam);
+	progBackground.setUniform(fractalParamBackgroundLocation, getBackgroundParam());
 
 	glDrawElements(GL_TRIANGLES, brick.getIndices().size(), GL_UNSIGNED_INT, (void*)0);
 

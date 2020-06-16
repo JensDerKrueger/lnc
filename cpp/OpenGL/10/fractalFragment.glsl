@@ -81,7 +81,7 @@ void main() {
     
     vec2 fractalPos = tc*vec2(1, 2)-vec2(0, 0.5);
     
-    float f = (fractParam > 0) ? juliaFractal(fractalPos) : mandelFractal(fractalPos);
+    float f = (fractParam >= 0) ? juliaFractal(fractalPos) : mandelFractal(fractalPos);
     
     vec3 texValue = astroIntensity(f);
     

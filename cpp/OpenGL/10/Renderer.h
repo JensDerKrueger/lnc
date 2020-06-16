@@ -9,6 +9,7 @@ public:
 	Renderer(uint32_t width, uint32_t height) :
 		w(width),
 		h(height),
+        backgroundParam(0),
 		showPreview{true},
 		showTarget{true}
 	{}	
@@ -34,11 +35,15 @@ public:
 	virtual void dropAnimation(const std::array<Vec2i,4>& source, const Vec3& sourceColor, const std::array<Vec2i,4>& target, const std::vector<uint32_t>& clearedRows) = 0;
 	virtual bool isAnimating() const = 0;
 	
-	
-	
+    void incBackgroundParam() {backgroundParam += 0.01f;}
+    void decBackgroundParam() {if (backgroundParam>=0) backgroundParam -= 0.01f;}
+    float getBackgroundParam() const {return backgroundParam;}
+    void setBackgroundParam(float backgroundParam) {this->backgroundParam = backgroundParam;}
+
 private:
 	uint32_t w;
 	uint32_t h;
+    float backgroundParam;
 	
 	bool showPreview;
 	bool showTarget;

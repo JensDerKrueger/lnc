@@ -85,7 +85,6 @@ private:
 	const GLint lpLocationBackground;
 	const GLint animationBackgroundLocation;
 	const GLint fractalParamBackgroundLocation;
-	float fractalParam;
 	
 	Dimensions dim;
 	
