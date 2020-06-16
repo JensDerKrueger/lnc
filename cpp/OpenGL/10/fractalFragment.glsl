@@ -59,7 +59,8 @@ float fractal(vec2 tc) {
  
     return float(i)/maxiter;
 }
-*/
+
+ */
  
 vec3 astroIntensity(float t) {
     t = pow(t, 0.4);
