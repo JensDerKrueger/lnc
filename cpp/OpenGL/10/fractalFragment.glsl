@@ -16,6 +16,7 @@ vec2 mulC(vec2 a, vec2 b) {
     return vec2(a.x*b.x - a.y*b.y, a.x*b.y +a.y*b.x);
 }
 
+
 float fractal(vec2 tc) {
     vec2 start = vec2(-3.0, -2.0);
     vec2 end   = vec2( 3.0,  2.0);
@@ -33,6 +34,33 @@ float fractal(vec2 tc) {
     return float(i)/255;
 }
 
+/*
+float fractal(vec2 tc) {
+    vec2 start = vec2(-0.7371, -0.18735);
+    vec2 end = vec2(-0.7370, -0.18730);
+   
+    vec2 center = vec2(-0.73705, -0.187325);
+    vec2 delta = vec2(2.0, 4.0)*(1+0*fractParam);
+    float zoom = 1.5*pow(0.5, (sin(animation*1)+1)*8);
+    delta = delta * zoom;
+ 
+ 
+    uint maxiter = max(255, uint(min(1 / zoom, 3000)));
+    vec2 c = center - delta / 2 + delta * tc;
+    vec2 z = vec2(0, 0);
+    uint i = 1;
+ 
+ 
+    while (i <= maxiter && (z.x * z.x + z.y * z.y) < 4.0) {
+        z = mulC(z, z) + c;
+        i += 1;
+    }
+    i = i % maxiter;
+ 
+    return float(i)/maxiter;
+}
+*/
+ 
 vec3 astroIntensity(float t) {
     t = pow(t, 0.4);
     float pi = 3.1415926;
