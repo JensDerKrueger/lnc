@@ -30,6 +30,7 @@ public:
 	virtual std::vector<float> getData() const = 0;
 	virtual size_t getParticleCount() const = 0;
 
+    static Vec3 computeColor(const Vec3& c);
     
 private:
 	float pointSize;

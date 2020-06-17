@@ -16,7 +16,7 @@ ParticleSystem::ParticleSystem(	uint32_t particleCount, std::shared_ptr<StartVol
 	lastT{0}
 {	
 	for (uint32_t i = 0;i<particleCount;++i) {
-		Particle p{computeStart(), computeDirection(), acceleration, computeColor(), 1.0f, autorestart ? maxAge*Rand::rand01() : 0, minPos, maxPos, true};
+		Particle p{computeStart(), computeDirection(), acceleration, computeColor(color), 1.0f, autorestart ? maxAge*Rand::rand01() : 0, minPos, maxPos, true};
 		particles.push_back(p);		
 	}	
 }
@@ -40,7 +40,7 @@ void ParticleSystem::setBounce(bool bounce) {
 void ParticleSystem::restart(size_t count) {	
 	for (Particle& p : particles) {
 		if (p.isDead()) {
-			p.restart(computeStart(), computeDirection(), acceleration, computeColor(), 1.0f, maxAge*Rand::rand01());
+			p.restart(computeStart(), computeDirection(), acceleration, computeColor(color), 1.0f, maxAge*Rand::rand01());
 			count--;
 			if (count == 0) break;
 		}
@@ -54,7 +54,7 @@ void ParticleSystem::update(float t) {
 	for (Particle& p : particles) {
 		p.update(deltaT);
 		if (p.isDead() && getAutoRestart()) {
-			p.restart(computeStart(), computeDirection(), acceleration, computeColor(), 1.0f, maxAge*Rand::rand01());
+			p.restart(computeStart(), computeDirection(), acceleration, computeColor(color), 1.0f, maxAge*Rand::rand01());
 		}
 	}	
 }
@@ -78,19 +78,11 @@ Vec3 ParticleSystem::computeDirection() const {
 	return initialSpeedMin + (initialSpeedMax - initialSpeedMin) * Vec3{Rand::rand01(),Rand::rand01(),Rand::rand01()};
 }
 
-Vec3 ParticleSystem::computeColor() const {
-	if (color == RANDOM_COLOR)
-		return Vec3::random();
-		
-	else
-		return color; 
-}
-
 void ParticleSystem::setColor(const Vec3& color) {
 	if (this->color != color) {
 		this->color = color;
 		for (Particle& p : particles) {
-			p.setColor(computeColor());
+			p.setColor(computeColor(color));
 		}
 	}	
 }

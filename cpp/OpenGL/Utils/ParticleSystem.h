@@ -118,6 +118,4 @@ private:
 	
 	Vec3 computeStart() const;
 	Vec3 computeDirection() const;
-	Vec3 computeColor() const;
-	
 };

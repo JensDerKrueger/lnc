@@ -115,6 +115,8 @@ AbstractParticleSystem::AbstractParticleSystem(float pointSize, bool autorestart
 }
 
 void AbstractParticleSystem::render(const Mat4& v, const Mat4& p) {
+    if (getParticleCount() == 0) return;
+    
 	prog.enable();
 	prog.setUniform(mvpLocation, v*p);
 	prog.setTexture(texLocation, sprite, 0);		
@@ -135,4 +137,11 @@ void AbstractParticleSystem::render(const Mat4& v, const Mat4& p) {
 	glDisable(GL_BLEND);
 	glEnable(GL_CULL_FACE);
 	glDepthMask(GL_TRUE);
+}
+
+Vec3 AbstractParticleSystem::computeColor(const Vec3& c) {
+    if (c == RANDOM_COLOR)
+        return Vec3::random();
+    else
+        return c;
 }

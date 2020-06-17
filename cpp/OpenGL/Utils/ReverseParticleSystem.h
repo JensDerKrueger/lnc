@@ -1,25 +1,20 @@
 #pragma once
 
-#include "AbstractParticleSystem.h"
-
 #include <vector>
 #include <memory>
 
+#include "AbstractParticleSystem.h"
+#include "Vec2.h"
 #include "Rand.h"
 
 class Bitmap {
 public:
+    Bitmap(const std::string& bmpImage, uint8_t threshold);
+    
     Bitmap(uint32_t width, uint32_t height) :
         width(width),
         height(height),
-        data(width*height) {
-            
-            for (uint32_t y = 0;y<height;++y) {
-                setBit(y,y,true);
-            }
-            
-            
-        }
+        data(width*height) {}
     void setBit(uint32_t x, uint32_t y, bool bit) {data[serializeIndex(x,y)] = bit;}
     bool getBit(uint32_t x, uint32_t y) const {return data[serializeIndex(x,y)];}
     
@@ -49,7 +44,7 @@ public:
                           const Vec3& initialSpeedMin, const Vec3& initialSpeedMax,
 						  const Vec3& acceleration,
 						  float maxAge, float pointSize, const Vec3& color=RANDOM_COLOR,
-                          bool autorestart=true);
+                          bool autorestart=true, bool reverse=true);
 
     void update(float t);
     void setBitmap(const std::shared_ptr<Bitmap> targetBitmap);
@@ -77,10 +72,13 @@ private:
     float maxAge;
 	Vec3 color;
 	float lastT;
+    float reverse;
+    uint32_t iMaxAge;
+    
+    std::vector<std::vector<Vec3>> particlePositions;
+    std::vector<Vec3> particleColors;
+    std::vector<size_t> particleCountPerTimestep;
     
     void recomputeTrajectories();
-    Vec3 computeColor() const;
 
-    
-    std::vector<Vec3> particleStart;
 };

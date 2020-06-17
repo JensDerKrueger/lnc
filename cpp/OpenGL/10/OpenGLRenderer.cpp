@@ -63,9 +63,9 @@ OpenGLRenderer::OpenGLRenderer(uint32_t width, uint32_t height) :
 	fractalParamBackgroundLocation{progBackground.getUniformLocation("fractParam")},
 	
 	starter(std::make_shared<BrickStart>(Vec3{0,0,0},Vec3{0,0,0})),
-	particleSystem{8000, starter, {-10,-10,50}, {10,10,55}, {0,0,0}, Vec3{-100.0f,-100.0f,-100.0f}, Vec3{100.0f,100.0f,100.0f}, 5.0f, 80.0f, RAINBOW_COLOR, false},
-    particleBitmap(std::make_shared<Bitmap>(128,128)),
-    revParticleSystem(1000, particleBitmap, {-10,-10,50}, {10,10,55},{0,0,0}, 5.0f, 80.0f, RAINBOW_COLOR, false),
+	particleSystem{8000, starter, {-10,-10,50}, {10,10,55}, {0,0,0}, {-100.0f,-100.0f,-100.0f}, {100.0f,100.0f,100.0f}, 5.0f, 80.0f, RAINBOW_COLOR, false},
+    particleBitmap(std::make_shared<Bitmap>("start.bmp", 64)),
+revParticleSystem(3000, particleBitmap, {-5,-5,0}, {5,5,0}, {0,0,0}, 5000.0f, 80.0f, RANDOM_COLOR, false, true),
 	viewerPos{0,0,5}
 {
     setBackgroundParam(0.8f);
@@ -250,7 +250,7 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 
 	glDrawElements(GL_TRIANGLES, brick.getIndices().size(), GL_UNSIGNED_INT, (void*)0);
 
-	m = Mat4{Mat4::translation(Vec3{-(float(width())/2.0f+0.5f),0,-20.0f })};
+	m = Mat4::translation(Vec3{-(float(width())/2.0f+0.5f),0,-20.0f });
 	progNormalMap.setUniform(mvpLocationNormalMap, m*v*p);
 	progNormalMap.setUniform(mLocationNormalMap, m);
 	progNormalMap.setUniform(mitLocationNormalMap, Mat4::inverse(m), true);
@@ -326,8 +326,9 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 	particleSystem.render(v,p);
 	particleSystem.update(time);
 
-    revParticleSystem.setPointSize(dim.height/30);
-    revParticleSystem.render(v,p);
+    m = Mat4::translation(Vec3{-0.5,-0.5,0})*Mat4::scaling(2,2,0);
+    revParticleSystem.setPointSize(dim.height/100);
+    revParticleSystem.render(m*v,p);
     revParticleSystem.update(time);
 
 }
