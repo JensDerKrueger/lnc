@@ -3,36 +3,89 @@
 #include <ostream>
 #include <string>
 #include <array>
+#include <sstream>
+#include <cmath>
 
-class Vec2i {
+#include "Vec2i.h"
+#include "Rand.h"
+
+
+template <typename T>
+class Vec2t {
 	public:
-		Vec2i();
-		Vec2i(int32_t x, int32_t y);
-		Vec2i(const Vec2i& other);
-		
-		friend std::ostream& operator<<(std::ostream &os, const Vec2i& v) {os << v.toString() ; return os;}
-		const std::string toString() const;
-		
-		int32_t x() const;
-		int32_t y() const;
-				
-		Vec2i operator+(const Vec2i& val) const;
-		Vec2i operator-(const Vec2i& val) const;
-		Vec2i operator*(const Vec2i& val) const;
-		Vec2i operator/(const Vec2i& val) const;
+        Vec2t() :
+            e{0,0}
+        {}
 
-		Vec2i operator*(const int32_t& val) const;
-		Vec2i operator/(const int32_t& val) const;		
-		
-		bool operator == ( const Vec2i& other ) const;
-		bool operator != ( const Vec2i& other ) const;
+        Vec2t(T x, T y) :
+            e{x,y}
+        {}
+            
+        Vec2t(const Vec2t<T>& other) :
+            e{other.e}
+        {}
+            
+        const std::string toString() const {
+            std::stringstream s;
+            s << "[" << e[0] << ", " << e[1] << "]";
+            return s.str();
+        }
 
-		operator int32_t*(void) {return e.data();}
-		operator const int32_t*(void) const  {return e.data();}
-							
-		static Vec2i random();		
-			
+        T x() const {
+            return e[0];
+        }
+
+        T y() const {
+            return e[1];
+        }
+
+        Vec2t<T> operator+(const Vec2t<T>& val) const{
+            return {e[0]+val.e[0],
+                        e[1]+val.e[1]};
+        }
+
+        Vec2t<T> operator-(const Vec2t<T>& val) const {
+            return {e[0]-val.e[0],
+                        e[1]-val.e[1]};
+        }
+
+        Vec2t<T> operator*(const Vec2t<T>& val) const {
+            return {e[0]*val.e[0],
+                        e[1]*val.e[1]};
+        }
+
+        Vec2t<T> operator/(const Vec2t<T>& val) const {
+            return {e[0]/val.e[0],
+                        e[1]/val.e[1]};
+        }
+
+        Vec2t<T> operator*(const T& val) const {
+            return {e[0]*val,
+                        e[1]*val};
+        }
+
+        Vec2t<T> operator/(const T& val) const {
+            return {e[0]/val,
+                        e[1]/val};
+        }
+
+        bool operator == ( const Vec2t<T>& other ) const {
+            return e == other.e;
+        }
+
+        bool operator != ( const Vec2t<T>& other ) const {
+            return e != other.e;
+        }
+    
+		friend std::ostream& operator<<(std::ostream &os, const Vec2t<T>& v) {os << v.toString() ; return os;}
+
+		operator T*(void) {return e.data();}
+		operator const T*(void) const  {return e.data();}
+										
 	private:
-		std::array<int32_t, 2> e;
+		std::array<T, 2> e;
 		
 };
+
+typedef Vec2t<int32_t> Vec2i;
+typedef Vec2t<uint32_t> Vec2ui;
