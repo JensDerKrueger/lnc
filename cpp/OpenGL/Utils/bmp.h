@@ -4,6 +4,8 @@
 #include <string>
 #include <sstream>
 
+#include "Vec2i.h"
+
 namespace BMP {
 	class BMPException : public std::exception {
 		public:
@@ -20,6 +22,19 @@ namespace BMP {
         uint32_t height;
         uint32_t componentCount;
         std::vector<uint8_t> data;
+        
+        size_t computeIndex(uint32_t x, uint32_t y, uint32_t component) const {
+            return component+(x+y*width)*componentCount;
+        }
+        
+        uint8_t getValue(uint32_t x, uint32_t y, uint32_t component) const {
+            return data[computeIndex(x, y, component)];
+        }
+
+        void setValue(uint32_t x, uint32_t y, uint32_t component, uint8_t value) {
+            data[computeIndex(x, y, component)] = value;
+        }
+
     };
 
 
@@ -27,4 +42,7 @@ namespace BMP {
               const std::vector<uint8_t>& data);
 
     Image load(const std::string& filename);
+
+    void blit(const Image& source, const Vec2ui& sourceStart, const Vec2ui& sourceEnd,
+              const Image& target, const Vec2ui& targetStart, bool skipChecks=false);
 }

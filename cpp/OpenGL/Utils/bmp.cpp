@@ -4,13 +4,13 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <string_view>
 
 #include "bmp.h"
 
 namespace BMP {
 
-
-	bool save(const std::string& filename, uint32_t w, uint32_t h, const std::vector<uint8_t>& data) {
+bool save(const std::string& filename, uint32_t w, uint32_t h, const std::vector<uint8_t>& data) {
 		const uint8_t iComponentCount = 3;
 		
 		std::ofstream outStream(filename.c_str(), std::ofstream::binary);
@@ -146,4 +146,51 @@ namespace BMP {
 		
 		return texture;	
 	}
+
+
+    void blit(const Image& source, const Vec2ui& rawSourceStart, const Vec2ui& rawSourceEnd,
+              Image& target, const Vec2ui& targetStart, bool skipChecks) {
+        
+        Vec2ui sourceStart{rawSourceStart.x() > rawSourceEnd.x() ? rawSourceEnd.x() : rawSourceStart.x(),
+                          rawSourceStart.y() > rawSourceEnd.y() ? rawSourceEnd.y() : rawSourceStart.y()};
+        Vec2ui sourceEnd{rawSourceStart.x() > rawSourceEnd.x() ? rawSourceStart.x() : rawSourceEnd.x(),
+                        rawSourceStart.y() > rawSourceEnd.y() ? rawSourceStart.y() : rawSourceEnd.y()};
+        
+        if (!skipChecks) {
+            if (target.componentCount != source.componentCount)
+                throw BMPException("blit requires images with equal component count");
+                        
+            if (sourceEnd.x() >= source.width || sourceEnd.y() >= source.height)
+                throw BMPException("blit source region out of bounds");
+
+            Vec2ui blitSize = sourceEnd-sourceStart;
+            if (targetStart.x() + blitSize.x() > target.width ||
+                targetStart.y() + blitSize.y() > target.height) {
+
+                Vec2ui newSize{(target.width >= targetStart.x() + blitSize.x()) ? target.width : (targetStart.x() + blitSize.x()),
+                              (target.height >= targetStart.y() + blitSize.y()) ? target.height : (targetStart.y() + blitSize.y())};
+                
+                Image tmp;
+                tmp.width = newSize.x();
+                tmp.height = newSize.y();
+                tmp.componentCount = source.componentCount;
+                tmp.data.resize(tmp.width*tmp.height*tmp.componentCount);
+                
+                blit(target,{0,0},{newSize.x()-1,newSize.y()-1},target,{0,0},true);
+                
+                target.width = tmp.width;
+                target.height = tmp.height;
+                target.data = tmp.data;
+            }
+
+        }
+            
+        for (uint32_t y = sourceStart.y();y < sourceEnd.y();++y) {
+            for (uint32_t x = sourceStart.x();x < sourceEnd.x();++x) {
+                for (uint32_t c = 0;c<target.componentCount;++c) {
+                    target.setValue(x,y,c, source.getValue(x,y,c));
+                }
+            }
+        }
+    }
 }
