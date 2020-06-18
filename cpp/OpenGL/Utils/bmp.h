@@ -39,10 +39,11 @@ namespace BMP {
 
 
 	bool save(const std::string& filename, uint32_t w, uint32_t h,
-              const std::vector<uint8_t>& data);
+              const std::vector<uint8_t>& data, uint8_t iComponentCount = 3);
+
 
     Image load(const std::string& filename);
 
     void blit(const Image& source, const Vec2ui& sourceStart, const Vec2ui& sourceEnd,
-              const Image& target, const Vec2ui& targetStart, bool skipChecks=false);
+              Image& target, const Vec2ui& targetStart, bool skipChecks=false);
 }

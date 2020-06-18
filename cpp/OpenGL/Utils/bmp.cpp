@@ -10,8 +10,7 @@
 
 namespace BMP {
 
-bool save(const std::string& filename, uint32_t w, uint32_t h, const std::vector<uint8_t>& data) {
-		const uint8_t iComponentCount = 3;
+bool save(const std::string& filename, uint32_t w, uint32_t h, const std::vector<uint8_t>& data, uint8_t iComponentCount) {
 		
 		std::ofstream outStream(filename.c_str(), std::ofstream::binary);
 		if (!outStream.is_open()) return false;
@@ -48,15 +47,17 @@ bool save(const std::string& filename, uint32_t w, uint32_t h, const std::vector
 		for (size_t y = 0;y<h;++y) {
 			for (size_t x = 0;x<w;++x) {
 				
-				uint8_t r = data[4*(x+y*w)+0];
-				uint8_t g = data[4*(x+y*w)+1];
-				uint8_t b = data[4*(x+y*w)+2];
-				uint8_t a = data[4*(x+y*w)+3];
+				uint8_t r = data[iComponentCount*(x+y*w)+0];
+				uint8_t g = data[iComponentCount*(x+y*w)+1];
+				uint8_t b = data[iComponentCount*(x+y*w)+2];
 				
 				pData[i++] = b;
 				pData[i++] = g;
 				pData[i++] = r;
-				if (iComponentCount==4) pData[i++] = a;
+                if (iComponentCount==4) {
+                    uint8_t a = data[iComponentCount*(x+y*w)+3];
+                    pData[i++] = a;
+                }
 			}
 		}
 		
@@ -157,8 +158,11 @@ bool save(const std::string& filename, uint32_t w, uint32_t h, const std::vector
                         rawSourceStart.y() > rawSourceEnd.y() ? rawSourceStart.y() : rawSourceEnd.y()};
         
         if (!skipChecks) {
-            if (target.componentCount != source.componentCount)
-                throw BMPException("blit requires images with equal component count");
+            if (target.componentCount != source.componentCount) {
+                std::stringstream s;
+                s << "blit requires images with equal component count " << source.componentCount << " != " << target.componentCount;
+                throw BMPException(s.str());
+            }
                         
             if (sourceEnd.x() >= source.width || sourceEnd.y() >= source.height)
                 throw BMPException("blit source region out of bounds");
@@ -176,7 +180,7 @@ bool save(const std::string& filename, uint32_t w, uint32_t h, const std::vector
                 tmp.componentCount = source.componentCount;
                 tmp.data.resize(tmp.width*tmp.height*tmp.componentCount);
                 
-                blit(target,{0,0},{newSize.x()-1,newSize.y()-1},target,{0,0},true);
+                blit(target,{0,0},{target.width,target.height},tmp,{0,0},true);
                 
                 target.width = tmp.width;
                 target.height = tmp.height;
@@ -188,7 +192,7 @@ bool save(const std::string& filename, uint32_t w, uint32_t h, const std::vector
         for (uint32_t y = sourceStart.y();y < sourceEnd.y();++y) {
             for (uint32_t x = sourceStart.x();x < sourceEnd.x();++x) {
                 for (uint32_t c = 0;c<target.componentCount;++c) {
-                    target.setValue(x,y,c, source.getValue(x,y,c));
+                    target.setValue(targetStart.x()+x-sourceStart.x(),targetStart.y()+y-sourceStart.y(),c,source.getValue(x,y,c));
                 }
             }
         }
