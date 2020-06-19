@@ -110,7 +110,13 @@ void Scene::fullDrop() {
     if (pause || gameOver) return;
 	prevPosition = position;
 	position = fullDropPosition();
-	evaluateState(position+Vec2i(0,1));
+	if (!evaluateState(position+Vec2i(0,1))) setGameOver();
+}
+
+void Scene::setGameOver() {
+    gameOver = true;
+    std::cout << "Score: " << score << " at level " << getLevel() << std::endl;
+    grid.getRenderer()->setGameOver(true, score);
 }
 
 bool Scene::render(double t) {
@@ -120,13 +126,10 @@ bool Scene::render(double t) {
 	std::array<Vec2i,4> transformedNext{transformTetromino(next, 0, Vec2i{0,0})};
 	std::array<Vec2i,4> transformedTarget{transformTetromino(current, rotationIndex, fullDropPosition())};
 
-
     if (!pause) {
         if (getDelay() * 0.01 < t-lastAdvance && !grid.getRenderer()->isAnimating() && !gameOver) {
             if (!advance()) {
-                gameOver = true;
-                std::cout << "Score: " << score << " at level " << getLevel() << std::endl;
-                grid.getRenderer()->setGameOver(true, score);
+                setGameOver();
                 return false;
             }
             lastAdvance = t;

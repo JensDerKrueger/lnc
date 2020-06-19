@@ -56,5 +56,7 @@ private:
 	void updateScore(size_t rowCount);
 	Vec2i fullDropPosition() const;
 	bool evaluateState(const Vec2i& nextPosition);
+    
+    void setGameOver();
 		
 };
