@@ -182,7 +182,7 @@ std::vector<float> ReverseParticleSystem::getData() const {
             result.push_back(c.z());
             
             if (prevPos == nextPos)
-                result.push_back(reverse ? 1 : 0);
+                result.push_back(reverse ? 1.0f : 0.0f);
             else
                 result.push_back(relativeAge);
 
