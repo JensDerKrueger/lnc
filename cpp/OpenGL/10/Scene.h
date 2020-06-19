@@ -28,6 +28,8 @@ public:
 
     void incBackgroundParam() {grid.getRenderer()->incBackgroundParam();}
     void decBackgroundParam() {grid.getRenderer()->decBackgroundParam();}
+    
+    void restart();
 	
 private:
 	std::vector<size_t> nextTetrominos;
@@ -41,6 +43,7 @@ private:
 	uint32_t clearedRows;
 	double lastAdvance;
     bool pause;
+    bool gameOver;
 	
 	size_t genRandTetrominoIndex();
 	std::vector<uint32_t> checkRows() const;

@@ -4,6 +4,8 @@
 #include "OpenGLRenderer.h"
 
 #include <bmp.h>
+#include <FontRenderer.h>
+
 
 OpenGLRenderer::OpenGLRenderer(uint32_t width, uint32_t height) : 
 	Renderer(width,height),
@@ -65,8 +67,9 @@ OpenGLRenderer::OpenGLRenderer(uint32_t width, uint32_t height) :
 	starter(std::make_shared<BrickStart>(Vec3{0,0,0},Vec3{0,0,0})),
 	particleSystem{8000, starter, {-10,-10,50}, {10,10,55}, {0,0,0}, {-100.0f,-100.0f,-100.0f}, {100.0f,100.0f,100.0f}, 5.0f, 80.0f, RAINBOW_COLOR, false},
     particleBitmap(std::make_shared<Bitmap>("start.bmp", 64)),
-revParticleSystem(3000, particleBitmap, {-5,-5,0}, {5,5,0}, {0,0,0}, 5000.0f, 80.0f, RANDOM_COLOR, false, true),
-	viewerPos{0,0,5}
+revParticleSystem(2000, particleBitmap, {-5,-5,0}, {5,5,0}, {0,0,0}, 500.0f, 80.0f, {1,1,1}, false, true),
+	viewerPos{0,0,5},
+    gameOver{false}
 {
     setBackgroundParam(0.8f);
     
@@ -154,6 +157,14 @@ void OpenGLRenderer::dropAnimation(const std::array<Vec2i,4>& source, const Vec3
 
 bool OpenGLRenderer::isAnimating() const {
 	return animationCurrent != animationTarget;
+}
+
+void OpenGLRenderer::setGameOver(bool gameOver, uint32_t score) {
+    this->gameOver = gameOver;
+    if (gameOver) {
+        particleBitmap = std::make_shared<Bitmap>(FontRenderer::renderNumber(score), 64);
+        revParticleSystem.setBitmap(particleBitmap);
+    }
 }
 
 void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3& currentColor,
@@ -326,9 +337,10 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 	particleSystem.render(v,p);
 	particleSystem.update(time);
 
-    m = Mat4::translation(Vec3{-0.5,-0.5,0})*Mat4::scaling(2,2,0);
-    revParticleSystem.setPointSize(dim.height/100);
-    revParticleSystem.render(m*v,p);
-    revParticleSystem.update(time);
-
+    if (gameOver) {
+        m = Mat4::translation(Vec3{-0.5,-0.5,0})*Mat4::scaling(2,2,0);
+        revParticleSystem.setPointSize(dim.height/60);
+        revParticleSystem.render(m*v,p);
+        revParticleSystem.update(time);
+    }
 }

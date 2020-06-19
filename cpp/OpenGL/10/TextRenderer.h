@@ -12,6 +12,7 @@ public:
 	
 	virtual void dropAnimation(const std::array<Vec2i,4>& source, const Vec3& sourceColor, const std::array<Vec2i,4>& target, const std::vector<uint32_t>& clearedRows) {}
 	virtual bool isAnimating() const {return false;}
+    virtual void setGameOver(bool gameOver, uint32_t score) {}
 
 private:
 	static void setColor(const Vec3& color);

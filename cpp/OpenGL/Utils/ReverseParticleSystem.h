@@ -6,11 +6,12 @@
 #include "AbstractParticleSystem.h"
 #include "Vec2.h"
 #include "Rand.h"
+#include "bmp.h"
 
 class Bitmap {
 public:
-    Bitmap(const std::string& bmpImage, uint8_t threshold);
-    
+    Bitmap(const BMP::Image& image, uint8_t threshold);
+    Bitmap(const std::string& bmpImage, uint8_t threshold);    
     Bitmap(uint32_t width, uint32_t height) :
         width(width),
         height(height),
@@ -74,6 +75,7 @@ private:
 	float lastT;
     float reverse;
     uint32_t iMaxAge;
+    float startT;
     
     std::vector<std::vector<Vec3>> particlePositions;
     std::vector<Vec3> particleColors;

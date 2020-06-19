@@ -28,7 +28,8 @@ void Grid::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3& currentCo
 }
 
 void Grid::clear() {
-	data.resize(width*height,-1);
+    data.clear();
+    data.resize(width*height,-1);
 }
 
 void Grid::setPixel(uint32_t x, uint32_t y, int8_t val) {

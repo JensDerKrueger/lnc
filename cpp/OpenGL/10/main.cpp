@@ -18,6 +18,9 @@ bool animate{true};
 static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {  
     if (action == GLFW_REPEAT || action == GLFW_PRESS) {
         switch (key) {
+            case GLFW_KEY_S :
+                scene->restart();
+                break;
             case GLFW_KEY_O :
                 scene->incBackgroundParam();
                 break;
@@ -57,7 +60,9 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
                 break;
         }
     } 
-} 
+}
+
+
 
 int main(int agrc, char ** argv) {
     GLEnv gl{640,480,4,"OpenGL Tetris Teil 10", true, true, 4, 1, true};
@@ -69,10 +74,8 @@ int main(int agrc, char ** argv) {
         
     glfwSetTime(0);        
     do {
-        renderer->setViewport(Dimensions{gl.getFramebufferSize()});        
-        if (!scene->render(glfwGetTime())) {
-            break;
-        }
+        renderer->setViewport(Dimensions{gl.getFramebufferSize()});
+        scene->render(glfwGetTime());
         gl.endOfFrame();        
     } while (!gl.shouldClose());  
   

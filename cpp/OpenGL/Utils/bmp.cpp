@@ -10,7 +10,11 @@
 
 namespace BMP {
 
-bool save(const std::string& filename, uint32_t w, uint32_t h, const std::vector<uint8_t>& data, uint8_t iComponentCount) {
+    bool save(const std::string& filename, const Image& source) {
+        return save(filename, source.width, source.height, source.data, source.componentCount);
+    }
+
+    bool save(const std::string& filename, uint32_t w, uint32_t h, const std::vector<uint8_t>& data, uint8_t iComponentCount) {
 		
 		std::ofstream outStream(filename.c_str(), std::ofstream::binary);
 		if (!outStream.is_open()) return false;
@@ -164,8 +168,11 @@ bool save(const std::string& filename, uint32_t w, uint32_t h, const std::vector
                 throw BMPException(s.str());
             }
                         
-            if (sourceEnd.x() >= source.width || sourceEnd.y() >= source.height)
-                throw BMPException("blit source region out of bounds");
+            if (sourceEnd.x() > source.width || sourceEnd.y() > source.height) {
+                std::stringstream s;
+                s << "blit source region out of bounds (w=" << source.width << " h=" << source.height << " x=" << sourceEnd.x() << " y=" << sourceEnd.y() << ")";
+                throw BMPException(s.str());
+            }
 
             Vec2ui blitSize = sourceEnd-sourceStart;
             if (targetStart.x() + blitSize.x() > target.width ||

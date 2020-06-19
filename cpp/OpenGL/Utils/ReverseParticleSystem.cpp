@@ -2,10 +2,8 @@
 
 #include "ReverseParticleSystem.h"
 #include "Rand.h"
-#include "bmp.h"
 
-Bitmap::Bitmap(const std::string& bmpImage, uint8_t threshold) {
-    BMP::Image image{BMP::load(bmpImage)};
+Bitmap::Bitmap(const BMP::Image& image, uint8_t threshold) {
     width = image.width;
     height = image.height;
     
@@ -13,6 +11,10 @@ Bitmap::Bitmap(const std::string& bmpImage, uint8_t threshold) {
     for (size_t i = 0;i<width*height;++i) {
         data[i] = image.data[i*image.componentCount] >= threshold;
     }
+}
+Bitmap::Bitmap(const std::string& bmpImage, uint8_t threshold) :
+    Bitmap(BMP::load(bmpImage), threshold)
+{
 }
 
 ReverseParticleSystem::ReverseParticleSystem(uint32_t particleCount,
@@ -31,16 +33,16 @@ ReverseParticleSystem::ReverseParticleSystem(uint32_t particleCount,
     acceleration(acceleration),
     maxAge(maxAge),
     color(color),
-    reverse(reverse)
+    reverse(reverse),
+    startT(0)
 {
     setColor(color);
     recomputeTrajectories();
 }
     
 void ReverseParticleSystem::update(float t) {
-    const float deltaT = t-lastT;
-    lastT = t;
-    // TODO
+    if (startT == 0) startT = t;
+    lastT = t-startT;
 }
 
 void ReverseParticleSystem::setBitmap(const std::shared_ptr<Bitmap> targetBitmap) {
@@ -49,10 +51,14 @@ void ReverseParticleSystem::setBitmap(const std::shared_ptr<Bitmap> targetBitmap
 }
 
 void ReverseParticleSystem::restart(size_t count) {
-    
+    particleCount = count;
+    setColor(color);
+    recomputeTrajectories();
+    startT = 0;
 }
 
 void ReverseParticleSystem::recomputeTrajectories() {
+    startT = 0;
     particleCountPerTimestep.clear();
     particleColors.clear();
     particlePositions.clear();

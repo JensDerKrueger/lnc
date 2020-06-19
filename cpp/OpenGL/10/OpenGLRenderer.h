@@ -25,6 +25,7 @@ public:
 		
 	void dropAnimation(const std::array<Vec2i,4>& source, const Vec3& sourceColor, const std::array<Vec2i,4>& target, const std::vector<uint32_t>& clearedRows);
 	bool isAnimating() const;
+    void setGameOver(bool gameOver, uint32_t score);
 	
 private:	
 	Tesselation brick;
@@ -102,6 +103,7 @@ private:
 	std::array<Vec2i,4> droppedTetromino;
 	Vec3 droppedTetrominoColor;
 	std::vector<uint32_t> clearedRows;
+    bool gameOver;
 	
 		
 	Vec3 pos2Coord(const Vec2& pos, float dist) const;

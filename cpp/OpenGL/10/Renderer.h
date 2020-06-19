@@ -39,6 +39,8 @@ public:
     void decBackgroundParam() {if (backgroundParam>=0) backgroundParam -= 0.01f;}
     float getBackgroundParam() const {return backgroundParam;}
     void setBackgroundParam(float backgroundParam) {this->backgroundParam = backgroundParam;}
+    
+    virtual void setGameOver(bool gameOver, uint32_t score) = 0;
 
 private:
 	uint32_t w;

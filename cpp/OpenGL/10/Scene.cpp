@@ -17,14 +17,29 @@ Scene::Scene(Grid& grid) :
 	score{0},
 	clearedRows{0},
 	lastAdvance{-1},
-    pause(false)
+    pause(false),
+    gameOver(false)
 {
 	current = genRandTetrominoIndex();
 	next = genRandTetrominoIndex();
 	grid.clear();
 }
 
+void Scene::restart() {
+    if (gameOver) {
+        score = 0;
+        clearedRows = 0;
+        current = genRandTetrominoIndex();
+        next = genRandTetrominoIndex();
+        grid.clear();
+        gameOver = false;
+        grid.getRenderer()->setGameOver(false, score);
+        return;
+    }
+}
+
 void Scene::rotateCW(){
+    if (pause || gameOver) return;
 	size_t nextRotationIndex = (rotationIndex+1)%4;
 	if (validateTransform(nextRotationIndex,position)) {
 		rotationIndex = nextRotationIndex;
@@ -32,6 +47,7 @@ void Scene::rotateCW(){
 }
 
 void Scene::rotateCCW(){
+    if (pause || gameOver) return;
 	size_t nextRotationIndex = (rotationIndex+3)%4;
 	if (validateTransform(nextRotationIndex,position)) {
 		rotationIndex = nextRotationIndex;
@@ -39,6 +55,7 @@ void Scene::rotateCCW(){
 }
 
 void Scene::moveLeft(){
+    if (pause || gameOver) return;
 	prevPosition = position;
 	Vec2i nextPosition{position.x()-1, position.y()};
 	if (validateTransform(rotationIndex,nextPosition)) {
@@ -47,6 +64,7 @@ void Scene::moveLeft(){
 }
 
 void Scene::moveRight(){
+    if (pause || gameOver) return;
 	prevPosition = position;
 	Vec2i nextPosition{position.x()+1, position.y()};
 	if (validateTransform(rotationIndex,nextPosition)) {
@@ -92,6 +110,7 @@ Vec2i Scene::fullDropPosition() const {
 }
 
 void Scene::fullDrop() {
+    if (pause || gameOver) return;
 	prevPosition = position;
 	position = fullDropPosition();
 	evaluateState(position+Vec2i(0,1));
@@ -104,12 +123,15 @@ bool Scene::render(double t) {
 	std::array<Vec2i,4> transformedNext{transformTetromino(next, 0, Vec2i{0,0})};
 	std::array<Vec2i,4> transformedTarget{transformTetromino(current, rotationIndex, fullDropPosition())};
 
-	grid.render(transformedCurrent, colors[current], transformedNext, colors[next], transformedTarget, pause ? lastAdvance : t);
+	grid.render(transformedCurrent, colors[current], transformedNext,
+                colors[next], transformedTarget, pause ? lastAdvance : t);
 
     if (!pause) {
-        if (getDelay() * 0.01 < t-lastAdvance && !grid.getRenderer()->isAnimating()) {
+        if (getDelay() * 0.01 < t-lastAdvance && !grid.getRenderer()->isAnimating() && !gameOver) {
             if (!advance()) {
+                gameOver = true;
                 std::cout << "Score: " << score << " at level " << getLevel() << std::endl;
+                grid.getRenderer()->setGameOver(true, score);
                 return false;
             }
             lastAdvance = t;
