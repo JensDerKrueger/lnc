@@ -59,6 +59,7 @@ void ReverseParticleSystem::restart(size_t count) {
 
 void ReverseParticleSystem::recomputeTrajectories() {
     startT = 0;
+    lastT = 0;
     particleCountPerTimestep.clear();
     particleColors.clear();
     particlePositions.clear();
@@ -100,7 +101,7 @@ void ReverseParticleSystem::recomputeTrajectories() {
     std::vector<uint32_t> maxAges(particleStart.size());
     for (uint32_t i = 0; i < maxAges.size(); ++i) {
         float z = Rand::rand01();
-        maxAges[i] = uint32_t(maxAge*(0.6+0.4*z));
+        maxAges[i] = uint32_t(maxAge*z);
         iMaxAge = std::max(maxAges[i], iMaxAge);
     }
 
@@ -123,7 +124,7 @@ void ReverseParticleSystem::recomputeTrajectories() {
             }
             active++;
             const Vec3& oldPos = particlePositions[i][step-1];
-            Vec3 newPos = oldPos + directions[i]*0.0001f;
+            Vec3 newPos = oldPos + directions[i];
             directions[i] = directions[i] + acceleration;
             particlePositions[i].push_back(newPos);
         }
@@ -145,34 +146,54 @@ void ReverseParticleSystem::setAcceleration(const Vec3& acceleration) {
 }
 
 std::vector<float> ReverseParticleSystem::getData() const {
-    std::vector<float> dummy;
+    std::vector<float> result;
     
-    uint32_t iLastT{uint32_t(lastT*1000)};
+    uint32_t iLastT{uint32_t(lastT)};
+    float alpha = lastT-iLastT;
+    
     uint32_t activeT = (iLastT >= iMaxAge) ? iMaxAge-1 : iLastT;
 
     for (size_t i = 0;i<particleCount;++i) {
         size_t index = (reverse) ? (iMaxAge-1)-activeT : activeT;
+        float relativeAge;
+        
+        if (reverse)
+            relativeAge = 1.0f-float(index-alpha)/float(particlePositions[i].size());
+        else
+            relativeAge = float(index+alpha)/float(particlePositions[i].size());
 
         if (index < particlePositions[i].size()) {
             
-            dummy.push_back(particlePositions[i][index].x());
-            dummy.push_back(particlePositions[i][index].y());
-            dummy.push_back(particlePositions[i][index].z());
+            size_t nextIndex = (reverse) ? ((index==0) ? 0 : index-1) : ((index==particlePositions[i].size()-1) ? index : index+1);
+
+            const Vec3 prevPos = particlePositions[i][index];
+            const Vec3 nextPos = particlePositions[i][nextIndex];
+            
+            const Vec3 pos = prevPos * (1.0f-alpha) + nextPos * alpha;
+            
+            result.push_back(pos.x());
+            result.push_back(pos.y());
+            result.push_back(pos.z());
             
             Vec3 c = particleColors[i] == RAINBOW_COLOR ? Vec3::hsvToRgb({float(index),1.0,1.0}) : particleColors[i];
             
-            dummy.push_back(c.x());
-            dummy.push_back(c.y());
-            dummy.push_back(c.z());
-            dummy.push_back(1);
+            result.push_back(c.x());
+            result.push_back(c.y());
+            result.push_back(c.z());
+            
+            if (prevPos == nextPos)
+                result.push_back(reverse ? 1 : 0);
+            else
+                result.push_back(relativeAge);
+
         }
     }
     
-    return dummy;
+    return result;
 }
 
 size_t ReverseParticleSystem::getParticleCount() const {
-    uint32_t iLastT{uint32_t(lastT*1000)};
+    uint32_t iLastT{uint32_t(lastT)};
     uint32_t activeT = (iLastT >= iMaxAge) ? iMaxAge-1 : iLastT;
     size_t index = (reverse) ? (iMaxAge-1)-activeT : activeT;
     return particleCountPerTimestep[index];

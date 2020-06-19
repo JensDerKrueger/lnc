@@ -26,16 +26,13 @@ Scene::Scene(Grid& grid) :
 }
 
 void Scene::restart() {
-    if (gameOver) {
-        score = 0;
-        clearedRows = 0;
-        current = genRandTetrominoIndex();
-        next = genRandTetrominoIndex();
-        grid.clear();
-        gameOver = false;
-        grid.getRenderer()->setGameOver(false, score);
-        return;
-    }
+    score = 0;
+    clearedRows = 0;
+    current = genRandTetrominoIndex();
+    next = genRandTetrominoIndex();
+    grid.clear();
+    gameOver = false;
+    grid.getRenderer()->setGameOver(false, score);
 }
 
 void Scene::rotateCW(){
@@ -123,8 +120,6 @@ bool Scene::render(double t) {
 	std::array<Vec2i,4> transformedNext{transformTetromino(next, 0, Vec2i{0,0})};
 	std::array<Vec2i,4> transformedTarget{transformTetromino(current, rotationIndex, fullDropPosition())};
 
-	grid.render(transformedCurrent, colors[current], transformedNext,
-                colors[next], transformedTarget, pause ? lastAdvance : t);
 
     if (!pause) {
         if (getDelay() * 0.01 < t-lastAdvance && !grid.getRenderer()->isAnimating() && !gameOver) {
@@ -137,7 +132,11 @@ bool Scene::render(double t) {
             lastAdvance = t;
         }
     }
-	return true;
+
+    grid.render(transformedCurrent, colors[current], transformedNext,
+                colors[next], transformedTarget, pause ? lastAdvance : t);
+
+    return true;
 }
 
 size_t Scene::genRandTetrominoIndex() {

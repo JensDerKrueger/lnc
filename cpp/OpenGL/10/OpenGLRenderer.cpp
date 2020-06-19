@@ -67,7 +67,7 @@ OpenGLRenderer::OpenGLRenderer(uint32_t width, uint32_t height) :
 	starter(std::make_shared<BrickStart>(Vec3{0,0,0},Vec3{0,0,0})),
 	particleSystem{8000, starter, {-10,-10,50}, {10,10,55}, {0,0,0}, {-100.0f,-100.0f,-100.0f}, {100.0f,100.0f,100.0f}, 5.0f, 80.0f, RAINBOW_COLOR, false},
     particleBitmap(std::make_shared<Bitmap>("start.bmp", 64)),
-revParticleSystem(2000, particleBitmap, {-5,-5,0}, {5,5,0}, {0,0,0}, 500.0f, 80.0f, {1,1,1}, false, true),
+    revParticleSystem(6000, particleBitmap, {-0.2,-0.2,0}, {0.2,0.2,0}, {0,0,0}, 10.0f, 80.0f, {1,1,1}, false, true),
 	viewerPos{0,0,5},
     gameOver{false}
 {
