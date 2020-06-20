@@ -37,7 +37,7 @@ void GLBuffer::setData(const std::vector<GLuint>& data) {
 void GLBuffer::connectVertexAttrib(GLint location, size_t elemCount, size_t offset) const {
 	glBindBuffer(target, bufferID);
 	glEnableVertexAttribArray(location);
-	glVertexAttribPointer(location, elemCount, type, GL_FALSE, stride, (void*)(offset*elemSize));
+	glVertexAttribPointer(location, GLsizei(elemCount), type, GL_FALSE, GLsizei(stride), (void*)(offset*elemSize));
 }
 
 void GLBuffer::bind() const {

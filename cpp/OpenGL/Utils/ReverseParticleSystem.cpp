@@ -51,7 +51,7 @@ void ReverseParticleSystem::setBitmap(const std::shared_ptr<Bitmap> targetBitmap
 }
 
 void ReverseParticleSystem::restart(size_t count) {
-    particleCount = count;
+    particleCount = uint32_t(count);
     setColor(color);
     recomputeTrajectories();
     startT = 0;

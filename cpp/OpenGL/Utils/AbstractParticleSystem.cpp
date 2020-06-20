@@ -132,7 +132,7 @@ void AbstractParticleSystem::render(const Mat4& v, const Mat4& p) {
 	particleArray.bind();
 	vbPosColor.setData(getData(),7,GL_DYNAMIC_DRAW);
 
-	glDrawArrays(GL_POINTS, 0, getParticleCount());
+	glDrawArrays(GL_POINTS, 0, GLsizei(getParticleCount()));
 
 	glDisable(GL_BLEND);
 	glEnable(GL_CULL_FACE);

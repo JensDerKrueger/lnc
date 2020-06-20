@@ -23,15 +23,15 @@ void TextRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3& c
 
 	std::vector<SpritePixel> spritePixels;
 	for (const Vec2i& p : tetrominoPos) {
-		spritePixels.push_back(SpritePixel{p,currentColor,1});
+		spritePixels.push_back(SpritePixel{p,currentColor,1.0f});
 	}	
 
 	for (const Vec2i& p : nextTetrominoPos) {
-		spritePixels.push_back(SpritePixel{p,nextColor,0.2});
+		spritePixels.push_back(SpritePixel{p,nextColor,0.2f});
 	}	
 
 	for (const Vec2i& p : targerTetrominoPos) {
-		spritePixels.push_back(SpritePixel{p,nextColor,0.2});
+		spritePixels.push_back(SpritePixel{p,nextColor,0.2f});
 	}	
 
 	for (const auto& p : spritePixels) {

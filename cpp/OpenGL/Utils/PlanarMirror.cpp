@@ -62,7 +62,7 @@ void PlanarMirror::start(const Mat4& MVP) const {
 	prog.enable();
 	prog.setUniform(mvpLoc, MVP);
 	arMirror.bind();
-	glDrawElements(GL_TRIANGLES, mirrorTess.getIndices().size(), GL_UNSIGNED_INT, (void*)0);	
+	glDrawElements(GL_TRIANGLES, GLsizei(mirrorTess.getIndices().size()), GL_UNSIGNED_INT, (void*)0);	
 	
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);	
 	
@@ -83,7 +83,7 @@ void PlanarMirror::end(const Mat4& MVP) const {
 	prog.enable();
 	prog.setUniform(mvpLoc, MVP);
 	arMirror.bind();
-	glDrawElements(GL_TRIANGLES, mirrorTess.getIndices().size(), GL_UNSIGNED_INT, (void*)0);	
+	glDrawElements(GL_TRIANGLES, GLsizei(mirrorTess.getIndices().size()), GL_UNSIGNED_INT, (void*)0);	
 	
 	glDisable(GL_BLEND);
 }
