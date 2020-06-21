@@ -9,7 +9,7 @@
 
 OpenGLRenderer::OpenGLRenderer(uint32_t width, uint32_t height) : 
 	Renderer(width,height),
-	brick{Tesselation::genBrick({0,0,0}, {0.9,0.9,0.9})},
+	brick{Tesselation::genBrick({0.0f,0.0f,0.0f}, {0.9f,0.9f,0.9f})},
 	vbBrickPos{GL_ARRAY_BUFFER},
 	vbBrickNorm{GL_ARRAY_BUFFER},
 	vbBrickTan{GL_ARRAY_BUFFER},
@@ -67,8 +67,10 @@ OpenGLRenderer::OpenGLRenderer(uint32_t width, uint32_t height) :
 	starter(std::make_shared<BrickStart>(Vec3{0,0,0},Vec3{0,0,0})),
 	particleSystem{8000, starter, {-10,-10,50}, {10,10,55}, {0,0,0}, {-100.0f,-100.0f,-100.0f}, {100.0f,100.0f,100.0f}, 5.0f, 80.0f, RAINBOW_COLOR, false},
     particleBitmap(std::make_shared<Bitmap>("start.bmp", 64)),
-    revParticleSystem(6000, particleBitmap, {-0.2,-0.2,0}, {0.2,0.2,0}, {0,0,0}, 10.0f, 80.0f, {1,1,1}, false, true),
-	viewerPos{0,0,5},
+    revParticleSystem(6000, particleBitmap, {-0.2f,-0.2f,0.0f}, {0.2f,0.2f,0.0f}, {0.0f,0.0f,0.0f}, 10.0f, 80.0f, {1.0f,1.0f,1.0f}, false, true),
+	viewerPos{0.0f,0.0f,5.0f},
+	animationStartTime{0.0},
+	currentTime{0.0},
     gameOver{false}
 {
     setBackgroundParam(0.8f);
@@ -132,8 +134,8 @@ void OpenGLRenderer::clearRows() {
 	const size_t particlesPerRow{((1<<clearedRows.size())*200)/clearedRows.size()};
 	
 	for (uint32_t row : clearedRows) {
-		Vec3 coord{pos2Coord(Vec2i(width()/2.0,row), 20.0f)};
-		starter->setStart(coord, Vec3(width(),1.0f,1.0f));
+		Vec3 coord{pos2Coord(Vec2i(width()/2,row), 20.0f)};
+		starter->setStart(coord, Vec3(float(width()),1.0f,1.0f));
 		particleSystem.setInitialSpeed( (viewerPos-coord)*2, (viewerPos-coord)*2+Vec3{Rand::rand01(),Rand::rand01(),Rand::rand01()}*3  );
 		particleSystem.restart(particlesPerRow);
 	}
@@ -195,9 +197,9 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 
 	if (isAnimating()) {
 		if (clearedRows.size() == 4) {
-			const float totalTime = float(animationTarget.y() - animationStart.y())*0.08;
-			float a = (currentTime - animationStartTime)/totalTime;
-			if (a < 1)
+			const float totalTime = float(animationTarget.y() - animationStart.y())*0.08f;
+			const float a = float((currentTime - animationStartTime)/totalTime);
+			if (a < 1.0f)
 				animationCurrent = Vec2(animationStart) * (1-a) + Vec2(animationTarget) * a;
 			else {
 				animationCurrent = animationTarget;
@@ -207,14 +209,14 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 			upVec = Vec3{0,0,1};
 			lightPos = lookFromVec;		
 		} else {
-			const float totalTime = float(animationTarget.y() - animationStart.y())*0.01;
-			float a = (currentTime - animationStartTime)/totalTime;
-			if (a>=1) {
+			const float totalTime = float(animationTarget.y() - animationStart.y())*0.01f;
+			double a = (currentTime - animationStartTime)/totalTime;
+			if (a>=1.0) {
 				animationCurrent = animationTarget;
-				a = 1;
+				a = 1.0;
 			}
 			for (size_t i = 0;i<tetrominoPos.size();++i) {
-				Vec2 temp{float(droppedTetromino[i].x()), float(droppedTetromino[i].y()) + (animationTarget.y()-animationStart.y()) * a};
+				Vec2 temp{float(droppedTetromino[i].x()), float(droppedTetromino[i].y() + (animationTarget.y()-animationStart.y()) * a)};
 				activeTetrominoPos[i] = temp;
 			}
 			activeTetrominoColor = droppedTetrominoColor;		
@@ -231,7 +233,7 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 	// setup viewport and clear buffers
 	glViewport(0, 0, dim.width, dim.height);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	const Mat4 p{Mat4::perspective(45, dim.aspect(), 0.0001, 1000)};
+	const Mat4 p{Mat4::perspective(45.0f, dim.aspect(), 0.0001f, 1000.0f)};
 
 	Mat4 m{Mat4::translation(Vec3{0,0,-21.0f })};
 	backgroundArray.bind();
@@ -245,7 +247,7 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 	progBackground.setUniform(animationBackgroundLocation, time/10);
 	progBackground.setUniform(fractalParamBackgroundLocation, getBackgroundParam());
 
-	glDrawElements(GL_TRIANGLES, brick.getIndices().size(), GL_UNSIGNED_INT, (void*)0);
+	glDrawElements(GL_TRIANGLES, GLsizei(brick.getIndices().size()), GL_UNSIGNED_INT, (void*)0);
 
 	pillarArray.bind();
 	progNormalMap.enable();	
@@ -259,7 +261,7 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 	progNormalMap.setTexture(normMapLocationNormalMap,backgroundNormalMap,0);
 	progNormalMap.setTexture(texLocationNormalMap,backgroundAlbedo,1);
 
-	glDrawElements(GL_TRIANGLES, brick.getIndices().size(), GL_UNSIGNED_INT, (void*)0);
+	glDrawElements(GL_TRIANGLES, GLsizei(brick.getIndices().size()), GL_UNSIGNED_INT, (void*)0);
 
 	m = Mat4::translation(Vec3{-(float(width())/2.0f+0.5f),0,-20.0f });
 	progNormalMap.setUniform(mvpLocationNormalMap, m*v*p);
@@ -268,7 +270,7 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 	progNormalMap.setUniform(invVLocationNormalMap, Mat4::inverse(v)); 
 	progNormalMap.setUniform(colorLocation, Vec3{0.5,0.5,0.5});
 
-	glDrawElements(GL_TRIANGLES, brick.getIndices().size(), GL_UNSIGNED_INT, (void*)0);
+	glDrawElements(GL_TRIANGLES, GLsizei(brick.getIndices().size()), GL_UNSIGNED_INT, (void*)0);
 
 	progBrick.enable();
 	brickArray.bind();
@@ -289,7 +291,7 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 			progBrick.setUniform(mLocationBrick, m);
 			progBrick.setUniform(mitLocationBrick, Mat4::inverse(m), true);			
 			progBrick.setUniform(colorBrickLocation, c);
-			glDrawElements(GL_TRIANGLES, brick.getIndices().size(), GL_UNSIGNED_INT, (void*)0);
+			glDrawElements(GL_TRIANGLES, GLsizei(brick.getIndices().size()), GL_UNSIGNED_INT, (void*)0);
 		}
 	}
 	
@@ -299,7 +301,7 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 		progBrick.setUniform(mLocationBrick, m);
 		progBrick.setUniform(mitLocationBrick, Mat4::inverse(m), true);			
 		progBrick.setUniform(colorBrickLocation, activeTetrominoColor);
-		glDrawElements(GL_TRIANGLES, brick.getIndices().size(), GL_UNSIGNED_INT, (void*)0);
+		glDrawElements(GL_TRIANGLES, GLsizei(brick.getIndices().size()), GL_UNSIGNED_INT, (void*)0);
 	}	
 
 	if (getShowPreview()) {
@@ -309,7 +311,7 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 			progBrick.setUniform(mLocationBrick, m);
 			progBrick.setUniform(mitLocationBrick, Mat4::inverse(m), true);			
 			progBrick.setUniform(colorBrickLocation, nextColor);
-			glDrawElements(GL_TRIANGLES, brick.getIndices().size(), GL_UNSIGNED_INT, (void*)0);
+			glDrawElements(GL_TRIANGLES, GLsizei(brick.getIndices().size()), GL_UNSIGNED_INT, (void*)0);
 		}	
 	}
 	
@@ -326,20 +328,20 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 			progBrick.setUniform(mitLocationBrick, Mat4::inverse(m), true);			
 			progBrick.setUniform(colorBrickLocation, currentColor);
 			progBrick.setUniform(opacityBrickLocation, 0.2f);
-			glDrawElements(GL_TRIANGLES, brick.getIndices().size(), GL_UNSIGNED_INT, (void*)0);
+			glDrawElements(GL_TRIANGLES, GLsizei(brick.getIndices().size()), GL_UNSIGNED_INT, (void*)0);
 		}
 
 		glDepthMask(GL_TRUE);
 		glDisable(GL_BLEND);
 	}
 	
-	particleSystem.setPointSize(dim.height/30);		
+	particleSystem.setPointSize(dim.height/30.0f);
 	particleSystem.render(v,p);
 	particleSystem.update(time);
 
     if (gameOver) {
         m = Mat4::translation(Vec3{-0.5,-0.5,0})*Mat4::scaling(2,2,0);
-        revParticleSystem.setPointSize(dim.height/60);
+        revParticleSystem.setPointSize(dim.height/60.0f);
         revParticleSystem.render(m*v,p);
         revParticleSystem.update(time);
     }

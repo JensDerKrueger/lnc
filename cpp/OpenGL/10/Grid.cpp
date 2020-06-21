@@ -32,11 +32,11 @@ void Grid::clear() {
     data.resize(width*height,-1);
 }
 
-void Grid::setPixel(uint32_t x, uint32_t y, int8_t val) {
+void Grid::setPixel(size_t x, size_t y, int8_t val) {
 	data[gridIndex(x,y)] = val;
 }
 
-int8_t Grid::getPixel(uint32_t x, uint32_t y) const {
+int8_t Grid::getPixel(size_t x, size_t y) const {
 	return data[gridIndex(x,y)];
 }
 
@@ -52,6 +52,6 @@ std::string Grid::toString() const {
 	return s.str();
 }
 
-size_t Grid::gridIndex(uint32_t x, uint32_t y) const {
+size_t Grid::gridIndex(size_t x, size_t y) const {
 	return x+width*y;
 }

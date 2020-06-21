@@ -7,9 +7,6 @@
 #include "Renderer.h"
 #include "Vec2i.h"
 
-
-
-
 class Grid {
 public:
 	Grid(std::shared_ptr<Renderer> renderer);
@@ -17,8 +14,8 @@ public:
 	void render(const std::array<Vec2i,4>& tetrominoPos, const Vec3& currentColor, const std::array<Vec2i,4>& nextTetrominoPos, const Vec3& nextColor,
 				const std::array<Vec2i,4>& targerTetrominoPos, float time) const;
 	void clear();
-	void setPixel(uint32_t x, uint32_t y, int8_t val);
-	int8_t getPixel(uint32_t x, uint32_t y) const;
+	void setPixel(size_t x, size_t y, int8_t val);
+	int8_t getPixel(size_t x, size_t y) const;
 	
 	std::string toString() const;
 	
@@ -33,6 +30,6 @@ private:
 
 	std::vector<int8_t> data;
 
-	size_t gridIndex(uint32_t x, uint32_t y) const;
+	size_t gridIndex(size_t x, size_t y) const;
 
 };

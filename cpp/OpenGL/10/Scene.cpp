@@ -74,7 +74,7 @@ bool Scene::evaluateState(const Vec2i& nextPosition) {
 		applyCollision();
 		const std::vector<uint32_t> fullRows = checkRows();
 		if (!fullRows.empty()) {
-			updateScore(fullRows.size());
+			updateScore(uint32_t(fullRows.size()));
 			for (uint32_t row : fullRows) {
 				clearRow(row);
 			}
@@ -137,7 +137,7 @@ bool Scene::render(double t) {
     }
 
     grid.render(transformedCurrent, colors[current], transformedNext,
-                colors[next], transformedTarget, pause ? lastAdvance : t);
+                colors[next], transformedTarget, float(pause ? lastAdvance : t));
 
     return true;
 }
@@ -169,7 +169,7 @@ std::vector<uint32_t> Scene::checkRows() const {
 	return fullRows;
 }
 
-bool Scene::validateTransform(uint32_t rot, const Vec2i& pos) const {
+bool Scene::validateTransform(size_t rot, const Vec2i& pos) const {
 	std::array<Vec2i,4> transformedTetromino = transformTetromino(current, rot, pos);
 	for (const Vec2i& brick : transformedTetromino) {
 		if (brick.x() < 0) return false;
@@ -193,12 +193,12 @@ void Scene::clearRow(uint32_t row) {
 }
 
 void Scene::applyCollision() {
-	std::array<Vec2i,4> transformedTetromino = transformTetromino(current, rotationIndex , position);
+	std::array<Vec2i,4> transformedTetromino = transformTetromino(current, rotationIndex, position);
 	for (const Vec2i& brick : transformedTetromino)
-		grid.setPixel(brick.x(), brick.y(), current);	
+		grid.setPixel(brick.x(), brick.y(), uint8_t(current));	
 }
 
-std::array<Vec2i,4> Scene::transformTetromino(size_t tetIndex, uint32_t rot, const Vec2i& pos) const {
+std::array<Vec2i,4> Scene::transformTetromino(size_t tetIndex, size_t rot, const Vec2i& pos) const {
 	std::array<Vec2i,4> transformedTetromino = tetrominos[tetIndex][rot%tetrominos[tetIndex].size()];
 	for (uint32_t i = 0;i<transformedTetromino.size();++i) {
 		transformedTetromino[i] = transformedTetromino[i] + pos;
@@ -240,7 +240,7 @@ uint32_t Scene::getDelay() const {
 	}
 }
 
-void Scene::updateScore(size_t rowCount) {
+void Scene::updateScore(uint32_t rowCount) {
 	uint32_t points{0};
 	switch (rowCount) {
 		case 1 : points = 40; break;

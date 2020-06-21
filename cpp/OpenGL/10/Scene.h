@@ -47,13 +47,13 @@ private:
 	
 	size_t genRandTetrominoIndex();
 	std::vector<uint32_t> checkRows() const;
-	bool validateTransform(uint32_t rot, const Vec2i& pos) const;
+	bool validateTransform(size_t rot, const Vec2i& pos) const;
 	void clearRow(uint32_t r);
 	void applyCollision();
-	std::array<Vec2i,4> transformTetromino(size_t tetIndex, uint32_t rot, const Vec2i& pos) const;
+	std::array<Vec2i,4> transformTetromino(size_t tetIndex, size_t rot, const Vec2i& pos) const;
 	uint32_t getLevel() const;
 	uint32_t getDelay() const;
-	void updateScore(size_t rowCount);
+	void updateScore(uint32_t rowCount);
 	Vec2i fullDropPosition() const;
 	bool evaluateState(const Vec2i& nextPosition);
     
