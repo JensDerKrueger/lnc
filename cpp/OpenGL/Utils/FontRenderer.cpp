@@ -1,15 +1,33 @@
+#include <string>
+#include <fstream>
+#include <sstream>
+
 #include "FontRenderer.h"
 
-#include <string>
 
-BMP::Image FontRenderer::renderNumber(uint32_t number) {
+BMP::Image FontRenderer::renderNumber(uint32_t number,
+                                      const std::string& imageFilename,
+                                      const std::string& positionFilename) {
 
-    BMP::Image numberSource = BMP::load("numbers.bmp");
-    std::vector<std::pair<Vec2ui, Vec2ui>> positions;
-    for (uint32_t i = 0;i<10;++i) {
-        positions.push_back(std::make_pair<Vec2ui, Vec2ui>({100*i,0}, {100*(i+1)-1,145}));
-    }
+    BMP::Image numberSource = BMP::load(imageFilename);
     
+    std::vector<std::pair<Vec2ui, Vec2ui>> positions;
+    std::ifstream posfile (positionFilename);
+    std::string line;
+    if (posfile.is_open()) {
+        while ( getline (posfile,line) ) {
+            std::vector<uint32_t> vals;
+            std::stringstream tokenizer(line);
+            std::string token;
+            while(getline(tokenizer, token, ' ')) {
+                vals.push_back(uint32_t(stoi(token)));
+            }
+            if (vals.size() == 4)
+                positions.push_back(std::make_pair<Vec2ui, Vec2ui>({vals[0],vals[1]}, {vals[2],vals[3]}));
+        }
+        posfile.close();
+    }
+
     std::vector<uint32_t> digits;
     if (number == 0) {
         digits.push_back(0);
