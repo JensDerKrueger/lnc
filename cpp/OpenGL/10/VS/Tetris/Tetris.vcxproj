@@ -152,7 +152,10 @@
     <PostBuildEvent>
       <Command>XCOPY "$(ProjectDir)..\..\*.bmp" "$(OutDir)*.*" /Y
 XCOPY "$(ProjectDir)..\..\*.glsl" "$(OutDir)*.*" /Y
-XCOPY "$(ProjectDir)..\..\..\Utils\*.bmp" "$(OutDir)*.*" /Y</Command>
+XCOPY "$(ProjectDir)..\..\*.pos" "$(OutDir)*.*" /Y
+XCOPY "$(ProjectDir)..\..\*.bmp" "$(ProjectDir)*.*" /Y
+XCOPY "$(ProjectDir)..\..\*.glsl" "$(ProjectDir)*.*" /Y
+XCOPY "$(ProjectDir)..\..\*.pos" "$(ProjectDir)*.*" /Y</Command>
       <Message>Resources are copied to the build directory</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -176,7 +179,10 @@ XCOPY "$(ProjectDir)..\..\..\Utils\*.bmp" "$(OutDir)*.*" /Y</Command>
     <PostBuildEvent>
       <Command>XCOPY "$(ProjectDir)..\..\*.bmp" "$(OutDir)*.*" /Y
 XCOPY "$(ProjectDir)..\..\*.glsl" "$(OutDir)*.*" /Y
-XCOPY "$(ProjectDir)..\..\..\Utils\*.bmp" "$(OutDir)*.*" /Y</Command>
+XCOPY "$(ProjectDir)..\..\*.pos" "$(OutDir)*.*" /Y
+XCOPY "$(ProjectDir)..\..\*.bmp" "$(ProjectDir)*.*" /Y
+XCOPY "$(ProjectDir)..\..\*.glsl" "$(ProjectDir)*.*" /Y
+XCOPY "$(ProjectDir)..\..\*.pos" "$(ProjectDir)*.*" /Y</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Resources are copied to the build directory</Message>
@@ -206,7 +212,10 @@ XCOPY "$(ProjectDir)..\..\..\Utils\*.bmp" "$(OutDir)*.*" /Y</Command>
     <PostBuildEvent>
       <Command>XCOPY "$(ProjectDir)..\..\*.bmp" "$(OutDir)*.*" /Y
 XCOPY "$(ProjectDir)..\..\*.glsl" "$(OutDir)*.*" /Y
-XCOPY "$(ProjectDir)..\..\..\Utils\*.bmp" "$(OutDir)*.*" /Y</Command>
+XCOPY "$(ProjectDir)..\..\*.pos" "$(OutDir)*.*" /Y
+XCOPY "$(ProjectDir)..\..\*.bmp" "$(ProjectDir)*.*" /Y
+XCOPY "$(ProjectDir)..\..\*.glsl" "$(ProjectDir)*.*" /Y
+XCOPY "$(ProjectDir)..\..\*.pos" "$(ProjectDir)*.*" /Y</Command>
       <Message>Resources are copied to the build directory</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -234,7 +243,10 @@ XCOPY "$(ProjectDir)..\..\..\Utils\*.bmp" "$(OutDir)*.*" /Y</Command>
     <PostBuildEvent>
       <Command>XCOPY "$(ProjectDir)..\..\*.bmp" "$(OutDir)*.*" /Y
 XCOPY "$(ProjectDir)..\..\*.glsl" "$(OutDir)*.*" /Y
-XCOPY "$(ProjectDir)..\..\..\Utils\*.bmp" "$(OutDir)*.*" /Y</Command>
+XCOPY "$(ProjectDir)..\..\*.pos" "$(OutDir)*.*" /Y
+XCOPY "$(ProjectDir)..\..\*.bmp" "$(ProjectDir)*.*" /Y
+XCOPY "$(ProjectDir)..\..\*.glsl" "$(ProjectDir)*.*" /Y
+XCOPY "$(ProjectDir)..\..\*.pos" "$(ProjectDir)*.*" /Y</Command>
       <Message>Resources are copied to the build directory</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
