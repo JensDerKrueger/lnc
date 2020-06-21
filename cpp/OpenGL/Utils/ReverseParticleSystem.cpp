@@ -130,6 +130,8 @@ void ReverseParticleSystem::recomputeTrajectories() {
         }
         particleCountPerTimestep.push_back(active);
     }
+
+    setColor(color);
 }
 
 void ReverseParticleSystem::setColor(const Vec3& color) {

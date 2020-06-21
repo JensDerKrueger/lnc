@@ -50,7 +50,7 @@ public:
     void update(float t);
     void setBitmap(const std::shared_ptr<Bitmap> targetBitmap);
     void setColor(const Vec3& color);
-    
+    void setDirection(bool reverse) { this->reverse = reverse; }
     void restart(size_t count);
     
     void setAcceleration(const Vec3& acceleration);
