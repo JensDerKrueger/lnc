@@ -82,17 +82,24 @@ void simulate(size_t particleCount) {
             }
         }
         fixedParticles.push_back(current);
+        std::cout << "." << std::flush;
     }
 }
 
 
+void checkGLError(const std::string& id) {
+    GLenum e = glGetError();
+    if (e != GL_NO_ERROR) {
+        std::cerr << "An openGL error occured:" << e << " at " << id << std::endl;
+    }
+}
+
 int main(int agrc, char ** argv) {
     initParticles();
-    simulate(10);
-    for (const Vec3& p : fixedParticles) {
-        std::cout << p << std::endl;
-    }
-        
+    std::cout << "Growing structure ";
+    simulate(100);
+    std::cout << " Done" << std::endl;
+
     std::vector<float> floatParticleData(fixedParticles.size()*3);
     for (size_t i = 0;i<fixedParticles.size();++i) {
         floatParticleData[i*3+0] = fixedParticles[i].x();
@@ -104,6 +111,9 @@ int main(int agrc, char ** argv) {
     GLEnv gl{640,480,4,"Growy", true, true, 4, 1, true};
         
     GLBuffer vbParticlePositions{GL_ARRAY_BUFFER};
+    std::vector<float> empty;
+  //  vbParticlePositions.setData(empty,3,GL_DYNAMIC_DRAW);
+
     GLArray particleArray{};
     GLProgram particleProgram{GLProgram::createFromString(vsString, fsString)};
     GLint mvpLocationParticle{particleProgram.getUniformLocation("MVP")};
@@ -111,7 +121,7 @@ int main(int agrc, char ** argv) {
 
     particleArray.bind();
     particleArray.connectVertexAttrib(vbParticlePositions, particleProgram, "vPos", 3);
-    
+        
     gl.setKeyCallback(keyCallback);
     glfwSetTime(0);
     
@@ -123,13 +133,15 @@ int main(int agrc, char ** argv) {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     
     Vec3 lookAtVec{0,0,0};
-    Vec3 lookFromVec{0,3,3};
+    Vec3 lookFromVec{0,1,1};
     Vec3 upVec{0,1,0};
         
+    checkGLError("init");
+
     do {
         Dimensions dim{gl.getFramebufferSize()};
 
-        const Mat4 p{Mat4::perspective(45.0f, dim.aspect(), 0.0001f, 1000.0f)};
+        const Mat4 p{Mat4::perspective(5.0f, dim.aspect(), 0.0001f, 1000.0f)};
         const Mat4 v{Mat4::lookAt(lookFromVec,lookAtVec,upVec)};
         
         glViewport(0, 0, dim.width, dim.height);
@@ -138,15 +150,12 @@ int main(int agrc, char ** argv) {
         particleProgram.enable();
         particleProgram.setUniform(mvpLocationParticle, m*v*p);
                     
-        glPointSize(2);
+        glPointSize(10);
         particleArray.bind();
         vbParticlePositions.setData(floatParticleData,3,GL_DYNAMIC_DRAW);
         glDrawArrays(GL_POINTS, 0, GLsizei(fixedParticles.size()));
-
         
-//        renderer->setViewport(Dimensions{gl.getFramebufferSize()});
-//      scene->render(glfwGetTime());
-        
+        checkGLError("EOF");
         gl.endOfFrame();
     } while (!gl.shouldClose());  
   
