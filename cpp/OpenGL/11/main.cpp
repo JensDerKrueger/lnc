@@ -1,6 +1,8 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <chrono>
+typedef std::chrono::high_resolution_clock Clock;
 
 #include <GL/glew.h>  
 #include <GLFW/glfw3.h>
@@ -10,29 +12,51 @@
 #include <Mat4.h>
 #include <Rand.h>
 
-#include <GLProgram.h>
-#include <GLBuffer.h>
-#include <GLArray.h>
+#include <AbstractParticleSystem.h>
 
 
-static std::string vsString{
-"#version 410\n"
-"uniform mat4 MVP;\n"
-"layout (location = 0) in vec3 vPos;\n"
-"void main() {\n"
-"    gl_Position = MVP * vec4(vPos, 1.0);\n"
-"}\n"};
+class SimpleStaticParticleSystem : public AbstractParticleSystem {
+public:
+    SimpleStaticParticleSystem(const std::vector<Vec3> data, float pointSize) :
+        AbstractParticleSystem(pointSize),
+        color{1.0f,1.0f,1.0f}
+    {
+        setData(data);
+    }
+    
+    virtual void update(float t) {}
+    virtual void setColor(const Vec3& color) {this->color = color;}
+    
+    void setData(const std::vector<Vec3> data) {
+        floatParticleData.resize(data.size()*7);
+        for (size_t i = 0;i<data.size();++i) {
+            floatParticleData[i*7+0] = data[i].x();
+            floatParticleData[i*7+1] = data[i].y();
+            floatParticleData[i*7+2] = data[i].z();
+            
+            
+            Vec3 c = color == RAINBOW_COLOR ? Vec3::hsvToRgb({float(i)/data.size()*360,1.0,1.0}) : computeColor(color);
+            
+            floatParticleData[i*7+3] = c.x();
+            floatParticleData[i*7+4] = c.y();
+            floatParticleData[i*7+5] = c.z();
+            floatParticleData[i*7+6] = 1.0f;
+        }
+    }
+    
+    virtual std::vector<float> getData() const {return floatParticleData;}
+    virtual size_t getParticleCount() const  {return floatParticleData.size()/7;}
+private:
+    Vec3 color;
+    std::vector<float> floatParticleData;
 
-static std::string fsString{
-"#version 410\n"
-"out vec4 FragColor;\n"
-"void main() {\n"
-"    FragColor = vec4(1.0,1.0,1.0,1.0);\n"
-"}\n"};
+};
+
 
 std::vector<Vec3> fixedParticles{};
 const float radius = 0.001f;
 const float colDist = 2*radius;
+const size_t particleCount = 2000;
 
 static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {  
     if (action == GLFW_REPEAT || action == GLFW_PRESS) {
@@ -82,9 +106,32 @@ void simulate(size_t particleCount) {
             }
         }
         fixedParticles.push_back(current);
-        std::cout << "." << std::flush;
+        std::cout << i+1 << "/" << particleCount << "\r" << std::flush;
     }
 }
+
+
+void simulate(size_t maxParticleCount, uint32_t quota) {
+    auto t1 = Clock::now();
+    
+    for (size_t i = fixedParticles.size();i<maxParticleCount;++i) {
+        Vec3 current = genRandomStartpoint();
+        while (!checkCollision(current)) {
+            current = randomWalk(current);
+            if (current.sqlength() > 5*5) {
+                current = genRandomStartpoint();
+            }
+        }
+        fixedParticles.push_back(current);
+        
+        auto t2 = Clock::now();
+        if (std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count() > quota) {
+            std::cout << i+1 << "/" << particleCount << "\r" << std::flush;
+            return;
+        }
+    }
+}
+
 
 
 void checkGLError(const std::string& id) {
@@ -95,33 +142,13 @@ void checkGLError(const std::string& id) {
 }
 
 int main(int agrc, char ** argv) {
+    GLEnv gl{640,480,4,"Dendrite Growth Simulation", true, true, 4, 1, true};
+
     initParticles();
-    std::cout << "Growing structure ";
-    simulate(5000);
-    std::cout << " Done" << std::endl;
+    simulate(10);
+    SimpleStaticParticleSystem simplePS(fixedParticles, 5);
+    simplePS.setColor(RAINBOW_COLOR);
 
-    std::vector<float> floatParticleData(fixedParticles.size()*3);
-    for (size_t i = 0;i<fixedParticles.size();++i) {
-        floatParticleData[i*3+0] = fixedParticles[i].x();
-        floatParticleData[i*3+1] = fixedParticles[i].y();
-        floatParticleData[i*3+2] = fixedParticles[i].z();
-    }
-    
-    
-    GLEnv gl{640,480,4,"Growy", true, true, 4, 1, true};
-        
-    GLBuffer vbParticlePositions{GL_ARRAY_BUFFER};
-    std::vector<float> empty;
-    vbParticlePositions.setData(empty,3,GL_DYNAMIC_DRAW);
-
-    GLArray particleArray{};
-    GLProgram particleProgram{GLProgram::createFromString(vsString, fsString)};
-    GLint mvpLocationParticle{particleProgram.getUniformLocation("MVP")};
-    Mat4 m,v,p;
-
-    particleArray.bind();
-    particleArray.connectVertexAttrib(vbParticlePositions, particleProgram, "vPos", 3);
-        
     gl.setKeyCallback(keyCallback);
     glfwSetTime(0);
     
@@ -143,19 +170,21 @@ int main(int agrc, char ** argv) {
 
         const Mat4 p{Mat4::perspective(5.0f, dim.aspect(), 0.0001f, 1000.0f)};
         const Mat4 v{Mat4::lookAt(lookFromVec,lookAtVec,upVec)};
+        const Mat4 m{Mat4::rotationY(glfwGetTime()*27)*Mat4::rotationX(glfwGetTime()*17)};
         
         glViewport(0, 0, dim.width, dim.height);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
-        particleProgram.enable();
-        particleProgram.setUniform(mvpLocationParticle, m*v*p);
-                    
-        glPointSize(10);
-        particleArray.bind();
-        vbParticlePositions.setData(floatParticleData,3,GL_DYNAMIC_DRAW);
-        glDrawArrays(GL_POINTS, 0, GLsizei(fixedParticles.size()));
+        simplePS.setPointSize(dim.height/60.0f);
+        simplePS.render(m*v,p);
         
-        checkGLError("EOF");
+        
+        if (fixedParticles.size() < particleCount) {
+            simulate(particleCount, 5);
+            simplePS.setData(fixedParticles);
+        }
+        
+        checkGLError("endOfFrame");
         gl.endOfFrame();
     } while (!gl.shouldClose());  
   
