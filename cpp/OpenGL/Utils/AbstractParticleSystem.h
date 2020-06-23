@@ -13,18 +13,13 @@ const Vec3 RAINBOW_COLOR{-2.0f,-2.0f,-2.0f};
 
 class AbstractParticleSystem {
 public:
-	AbstractParticleSystem(float pointSize, bool autorestart);
+	AbstractParticleSystem(float pointSize);
 	virtual void update(float t) = 0;
 		
 	void setPointSize(float pointSize) {this->pointSize = pointSize;}	
 	float getPointSize() const {return pointSize;}	
 	virtual void setColor(const Vec3& color) = 0;
 	
-	void setAutoRestart(bool autorestart) {this->autorestart = autorestart;}
-	bool getAutoRestart() const {return autorestart;}	
-	
-	virtual void restart(size_t count) = 0;
-
 	void render(const Mat4& v, const Mat4& p);
 	
 	virtual std::vector<float> getData() const = 0;
@@ -34,7 +29,6 @@ public:
     
 private:
 	float pointSize;
-	bool autorestart;
 	
 	GLProgram prog;
 	GLint mvpLocation;

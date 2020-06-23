@@ -1,6 +1,6 @@
 #include <algorithm>
 
-#include "ReverseParticleSystem.h"
+#include "PrecomputedParticleSystem.h"
 #include "Rand.h"
 
 Bitmap::Bitmap(const BMP::Image& image, uint8_t threshold) {
@@ -17,15 +17,15 @@ Bitmap::Bitmap(const std::string& bmpImage, uint8_t threshold) :
 {
 }
 
-ReverseParticleSystem::ReverseParticleSystem(uint32_t particleCount,
+PrecomputedParticleSystem::PrecomputedParticleSystem(uint32_t particleCount,
                                              const std::shared_ptr<Bitmap> targetBitmap,
                                              const Vec3& initialSpeedMin,
                                              const Vec3& initialSpeedMax,
                                              const Vec3& acceleration,
                                              float maxAge, float pointSize,
-                                             const Vec3& color, bool autorestart,
+                                             const Vec3& color,
                                              bool reverse) :
-    AbstractParticleSystem(pointSize, autorestart),
+    AbstractParticleSystem(pointSize),
     particleCount(particleCount),
     targetBitmap(targetBitmap),
     initialSpeedMin(initialSpeedMin),
@@ -40,24 +40,24 @@ ReverseParticleSystem::ReverseParticleSystem(uint32_t particleCount,
     recomputeTrajectories();
 }
     
-void ReverseParticleSystem::update(float t) {
+void PrecomputedParticleSystem::update(float t) {
     if (startT == 0) startT = t;
     lastT = t-startT;
 }
 
-void ReverseParticleSystem::setBitmap(const std::shared_ptr<Bitmap> targetBitmap) {
+void PrecomputedParticleSystem::setBitmap(const std::shared_ptr<Bitmap> targetBitmap) {
     this->targetBitmap = targetBitmap;
     recomputeTrajectories();
 }
 
-void ReverseParticleSystem::restart(size_t count) {
+void PrecomputedParticleSystem::restart(size_t count) {
     particleCount = uint32_t(count);
     setColor(color);
     recomputeTrajectories();
     startT = 0;
 }
 
-void ReverseParticleSystem::recomputeTrajectories() {
+void PrecomputedParticleSystem::recomputeTrajectories() {
     startT = 0;
     lastT = 0;
     particleCountPerTimestep.clear();
@@ -134,7 +134,7 @@ void ReverseParticleSystem::recomputeTrajectories() {
     setColor(color);
 }
 
-void ReverseParticleSystem::setColor(const Vec3& color) {
+void PrecomputedParticleSystem::setColor(const Vec3& color) {
     this->color = color;
     particleColors.clear();
     for (uint32_t i = 0; i < particleCount; ++i) {
@@ -142,12 +142,12 @@ void ReverseParticleSystem::setColor(const Vec3& color) {
     }
 }
 
-void ReverseParticleSystem::setAcceleration(const Vec3& acceleration) {
+void PrecomputedParticleSystem::setAcceleration(const Vec3& acceleration) {
     this->acceleration = acceleration;
     recomputeTrajectories();
 }
 
-std::vector<float> ReverseParticleSystem::getData() const {
+std::vector<float> PrecomputedParticleSystem::getData() const {
     std::vector<float> result;
     
     uint32_t iLastT{uint32_t(lastT)};
@@ -194,7 +194,7 @@ std::vector<float> ReverseParticleSystem::getData() const {
     return result;
 }
 
-size_t ReverseParticleSystem::getParticleCount() const {
+size_t PrecomputedParticleSystem::getParticleCount() const {
     uint32_t iLastT{uint32_t(lastT)};
     uint32_t activeT = (iLastT >= iMaxAge) ? iMaxAge-1 : iLastT;
     size_t index = (reverse) ? (iMaxAge-1)-activeT : activeT;

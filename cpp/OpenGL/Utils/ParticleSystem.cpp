@@ -5,7 +5,7 @@ ParticleSystem::ParticleSystem(	uint32_t particleCount, std::shared_ptr<StartVol
 								const Vec3& initialSpeedMin, const Vec3& initialSpeedMax, 
 								const Vec3& acceleration, const Vec3& minPos, const Vec3& maxPos, 
 								float maxAge, float pointSize, const Vec3& color, bool autorestart) :
-	AbstractParticleSystem(pointSize, autorestart),
+	AbstractParticleSystem(pointSize),
 	starter(starter),
 	initialSpeedMin(initialSpeedMin),
 	initialSpeedMax(initialSpeedMax),
@@ -13,7 +13,8 @@ ParticleSystem::ParticleSystem(	uint32_t particleCount, std::shared_ptr<StartVol
 	acceleration(acceleration),
 	color(color),
 	maxAge(maxAge),
-	lastT{0}
+	lastT{0},
+    autorestart{autorestart}
 {	
 	for (uint32_t i = 0;i<particleCount;++i) {
 		Particle p{computeStart(), computeDirection(), acceleration, computeColor(color), 1.0f, autorestart ? maxAge*Rand::rand01() : 0, minPos, maxPos, true};

@@ -39,13 +39,13 @@ private:
 };
 
 
-class ReverseParticleSystem : public AbstractParticleSystem {
+class PrecomputedParticleSystem : public AbstractParticleSystem {
 public:
-	ReverseParticleSystem(uint32_t particleCount, const std::shared_ptr<Bitmap> targetBitmap,
+	PrecomputedParticleSystem(uint32_t particleCount, const std::shared_ptr<Bitmap> targetBitmap,
                           const Vec3& initialSpeedMin, const Vec3& initialSpeedMax,
 						  const Vec3& acceleration,
 						  float maxAge, float pointSize, const Vec3& color=RANDOM_COLOR,
-                          bool autorestart=true, bool reverse=true);
+                          bool reverse=true);
 
     void update(float t);
     void setBitmap(const std::shared_ptr<Bitmap> targetBitmap);

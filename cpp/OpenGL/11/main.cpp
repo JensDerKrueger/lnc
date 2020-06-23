@@ -97,7 +97,7 @@ void checkGLError(const std::string& id) {
 int main(int agrc, char ** argv) {
     initParticles();
     std::cout << "Growing structure ";
-    simulate(100);
+    simulate(5000);
     std::cout << " Done" << std::endl;
 
     std::vector<float> floatParticleData(fixedParticles.size()*3);

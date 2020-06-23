@@ -88,9 +88,8 @@ static std::string fsString{
 "    FragColor = vec4(color*texValue)*color.a;\n"
 "}\n"};
 
-AbstractParticleSystem::AbstractParticleSystem(float pointSize, bool autorestart) :
+AbstractParticleSystem::AbstractParticleSystem(float pointSize) :
 	pointSize(pointSize), 
-	autorestart(autorestart),
 	prog{GLProgram::createFromString(vsString, fsString)},
 	mvpLocation{0},
 	texLocation{0},

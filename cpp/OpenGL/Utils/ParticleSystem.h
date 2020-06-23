@@ -102,6 +102,9 @@ public:
 	virtual std::vector<float> getData() const;
 	virtual size_t getParticleCount() const {return particles.size();}
 
+    void setAutoRestart(bool autorestart) {this->autorestart = autorestart;}
+    bool getAutoRestart() const {return autorestart;}
+
 private:
 	ParticleSystem(const ParticleSystem&);
 	
@@ -115,6 +118,7 @@ private:
 	Vec3 color;
 	float maxAge;
 	float lastT;
+    bool autorestart;
 	
 	Vec3 computeStart() const;
 	Vec3 computeDirection() const;

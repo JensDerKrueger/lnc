@@ -10,7 +10,7 @@
 #include <GLArray.h>
 #include <GLTexture2D.h>
 #include <ParticleSystem.h>
-#include <ReverseParticleSystem.h>
+#include <PrecomputedParticleSystem.h>
 
 class OpenGLRenderer : public Renderer {
 public:
@@ -92,7 +92,7 @@ private:
 	std::shared_ptr<BrickStart> starter;
 	ParticleSystem particleSystem;
     std::shared_ptr<Bitmap> particleBitmap;
-    ReverseParticleSystem revParticleSystem;
+    PrecomputedParticleSystem scoreParticleSystem;
 	Vec3 viewerPos;
 	
 	Vec2i animationStart;

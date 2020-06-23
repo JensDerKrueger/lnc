@@ -67,7 +67,7 @@ OpenGLRenderer::OpenGLRenderer(uint32_t width, uint32_t height) :
 	starter(std::make_shared<BrickStart>(Vec3{0,0,0},Vec3{0,0,0})),
 	particleSystem{8000, starter, {-10,-10,50}, {10,10,55}, {0,0,0}, {-100.0f,-100.0f,-100.0f}, {100.0f,100.0f,100.0f}, 5.0f, 80.0f, RAINBOW_COLOR, false},
     particleBitmap(std::make_shared<Bitmap>("start.bmp", 64)),
-    revParticleSystem(6000, particleBitmap, {-0.2f,-0.2f,0.0f}, {0.2f,0.2f,0.0f}, {0.0f,0.0f,0.0f}, 10.0f, 80.0f, {1.0f,1.0f,1.0f}, false, true),
+    scoreParticleSystem(6000, particleBitmap, {-0.2f,-0.2f,0.0f}, {0.2f,0.2f,0.0f}, {0.0f,0.0f,0.0f}, 10.0f, 80.0f, {1.0f,1.0f,1.0f}, true),
 	viewerPos{0.0f,0.0f,5.0f},
 	animationStartTime{0.0},
 	currentTime{0.0},
@@ -165,7 +165,7 @@ void OpenGLRenderer::setGameOver(bool gameOver, uint32_t score) {
     this->gameOver = gameOver;
     if (gameOver) {
         particleBitmap = std::make_shared<Bitmap>(FontRenderer::renderNumber(score, "numbers.bmp", "numbers.pos" ), 64);
-        revParticleSystem.setBitmap(particleBitmap);
+        scoreParticleSystem.setBitmap(particleBitmap);
     }
 }
 
@@ -341,8 +341,8 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 
     if (gameOver) {
         m = Mat4::translation(Vec3{-0.5,-0.5,0})*Mat4::scaling(2,2,0);
-        revParticleSystem.setPointSize(dim.height/60.0f);
-        revParticleSystem.render(m*v,p);
-        revParticleSystem.update(time);
+        scoreParticleSystem.setPointSize(dim.height/60.0f);
+        scoreParticleSystem.render(m*v,p);
+        scoreParticleSystem.update(time);
     }
 }
