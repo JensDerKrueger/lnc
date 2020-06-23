@@ -12,6 +12,8 @@ typedef std::chrono::high_resolution_clock Clock;
 #include <Mat4.h>
 #include <Rand.h>
 
+#include "Octree.h"
+
 #include <AbstractParticleSystem.h>
 
 
@@ -34,7 +36,6 @@ public:
             floatParticleData[i*7+1] = data[i].y();
             floatParticleData[i*7+2] = data[i].z();
             
-            
             Vec3 c = color == RAINBOW_COLOR ? Vec3::hsvToRgb({float(i)/data.size()*360,1.0,1.0}) : computeColor(color);
             
             floatParticleData[i*7+3] = c.x();
@@ -56,7 +57,8 @@ private:
 std::vector<Vec3> fixedParticles{};
 const float radius = 0.001f;
 const float colDist = 2*radius;
-const size_t particleCount = 2000;
+const size_t particleCount = 5000;
+Octree octree{1.0f, Vec3{0.0f,0.0f,0.0f}};
 
 static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {  
     if (action == GLFW_REPEAT || action == GLFW_PRESS) {
@@ -69,12 +71,15 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
 }
 
 float mindDist(const Vec3& pos) {
+    return octree.minDist(pos);
+/*
     float minDist = (pos - fixedParticles[0]).length();
     for (const Vec3& p : fixedParticles) {
         float currentDist = (pos - p).length();
         if (currentDist < minDist) minDist = currentDist;
     }
     return minDist;
+ */
 }
 
 bool checkCollision(const Vec3& pos) {
@@ -106,6 +111,7 @@ void simulate(size_t particleCount) {
             }
         }
         fixedParticles.push_back(current);
+        octree.add(current);
         std::cout << i+1 << "/" << particleCount << "\r" << std::flush;
     }
 }
