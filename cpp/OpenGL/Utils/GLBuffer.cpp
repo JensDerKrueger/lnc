@@ -1,6 +1,7 @@
 #include <sstream>
 
 #include "GLBuffer.h"
+#include "GLEnv.h"
 
 
 GLBuffer::GLBuffer(GLenum target) :
@@ -35,6 +36,10 @@ void GLBuffer::setData(const std::vector<GLuint>& data) {
 }
 
 void GLBuffer::connectVertexAttrib(GLint location, size_t elemCount, size_t offset) const {
+    if (type == 0) {
+        throw GLException{"Need to call setData before connectVertexAttrib"};
+    }
+    
 	glBindBuffer(target, bufferID);
 	glEnableVertexAttribArray(location);
 	glVertexAttribPointer(location, GLsizei(elemCount), type, GL_FALSE, GLsizei(stride), (void*)(offset*elemSize));
