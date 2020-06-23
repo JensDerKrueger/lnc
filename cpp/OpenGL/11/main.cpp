@@ -112,7 +112,7 @@ int main(int agrc, char ** argv) {
         
     GLBuffer vbParticlePositions{GL_ARRAY_BUFFER};
     std::vector<float> empty;
-  //  vbParticlePositions.setData(empty,3,GL_DYNAMIC_DRAW);
+    vbParticlePositions.setData(empty,3,GL_DYNAMIC_DRAW);
 
     GLArray particleArray{};
     GLProgram particleProgram{GLProgram::createFromString(vsString, fsString)};
