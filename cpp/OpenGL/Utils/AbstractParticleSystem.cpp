@@ -91,15 +91,12 @@ static std::string fsString{
 AbstractParticleSystem::AbstractParticleSystem(float pointSize) :
 	pointSize(pointSize), 
 	prog{GLProgram::createFromString(vsString, fsString)},
-	mvpLocation{0},
-	texLocation{0},
+	mvpLocation{prog.getUniformLocation("MVP")},
+	texLocation{prog.getUniformLocation("sprite")},
 	sprite{GL_LINEAR, GL_LINEAR},
 	particleArray{},
 	vbPosColor{GL_ARRAY_BUFFER}	
 {
-	// setup shader
-	mvpLocation = prog.getUniformLocation("MVP");
-	texLocation = prog.getUniformLocation("sprite"); 
 
 	// setup texture
 	sprite.setData(spritePixel, 64, 64 , 3);
