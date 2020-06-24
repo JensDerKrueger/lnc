@@ -164,6 +164,27 @@ void checkGLError(const std::string& id) {
 }
 
 int main(int agrc, char ** argv) {
+    
+    /*
+    Octree test{1,Vec3(0.0,0.0,0.0),2};
+    test.add(Vec3(0.05,0.0,0.0));
+    test.add(Vec3(0.05,0.0,0.0));
+    test.add(Vec3(0.06,0.0,0.0));
+    test.add(Vec3(0.07,0.0,0.0));
+    test.add(Vec3(0.08,0.0,0.0));
+    test.add(Vec3(0.09,0.0,0.0));
+    test.add(Vec3(0.091,0.0,0.0));
+    test.add(Vec3(0.095,0.0,0.0));
+    
+    float md = test.minDist(Vec3{0.1,0,0});
+    
+    std::cout << md << std::endl;
+    
+    
+    return 0;
+     */
+    
+    
     GLEnv gl{640,480,4,"Dendrite Growth Simulation", true, true, 4, 1, true};
 
     std::string vsString{
@@ -192,7 +213,6 @@ int main(int agrc, char ** argv) {
     octreeArray.connectVertexAttrib(vbOctreePos, prog, "vPos", 3);
 
     initParticles();
-    simulate(10);
     SimpleStaticParticleSystem simplePS(fixedParticles, 5);
     simplePS.setColor(RAINBOW_COLOR);
 
@@ -218,7 +238,7 @@ int main(int agrc, char ** argv) {
 
         const Mat4 p{Mat4::perspective(6.0f, dim.aspect(), 0.0001f, 1000.0f)};
         const Mat4 v{Mat4::lookAt(lookFromVec,lookAtVec,upVec)};
-        const Mat4 m{Mat4::rotationY(glfwGetTime()*27)*Mat4::rotationX(glfwGetTime()*17)};
+        const Mat4 m{Mat4::rotationY(45*glfwGetTime())*Mat4::rotationX(30*glfwGetTime())};
         
         glViewport(0, 0, dim.width, dim.height);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -230,6 +250,7 @@ int main(int agrc, char ** argv) {
             trisVertexCount = data.size()/3;
             vbOctreePos.setData(data,3,GL_DYNAMIC_DRAW);
             simplePS.setData(fixedParticles);
+            glfwSetTime(1);
         }
         
         simplePS.setPointSize(dim.height/60.0f);
