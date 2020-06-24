@@ -10,7 +10,8 @@ TARGET = grow
 
 all: $(TARGET)
 
-release: CFLAGS += -O3 -DNDEBUG
+release: CFLAGS += -O3 -flto -DNDEBUG
+release: LFLAGS += -flto
 release: $(TARGET)
 
 ../Utils/libutils.a:
