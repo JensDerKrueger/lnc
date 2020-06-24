@@ -95,17 +95,17 @@ float OctreeNode::minSqDistApprox(const Vec3& pos) const {
 bool OctreeNode::intersect(const Vec3& pos, float radiusSq, Vec3 minPos, Vec3 maxPos) const {
     if (pos.x() < minPos.x()) {
         radiusSq -= sq(minPos.x() - pos.x());
-    } else {
+    } else if (pos.x() > maxPos.x()) {
         radiusSq -= sq(maxPos.x() - pos.x());
     }
     if (pos.y() < minPos.y()) {
         radiusSq -= sq(minPos.y() - pos.y());
-    } else {
+    } else if (pos.y() > maxPos.y()) {
         radiusSq -= sq(maxPos.y() - pos.y());
     }
     if (pos.z() < minPos.z()) {
         radiusSq -= sq(minPos.z() - pos.z());
-    } else {
+    } else if (pos.z() > maxPos.z()) {
         radiusSq -= sq(maxPos.z() - pos.z());
     }
     return radiusSq > 0;
