@@ -139,14 +139,6 @@ void simulate(size_t maxParticleCount, uint32_t quota) {
 }
 
 
-
-void checkGLError(const std::string& id) {
-    GLenum e = glGetError();
-    if (e != GL_NO_ERROR) {
-        std::cerr << "An openGL error occured:" << e << " at " << id << std::endl;
-    }
-}
-
 int main(int agrc, char ** argv) {
     GLEnv gl{640,480,4,"Dendrite Growth Simulation", true, true, 4, 1, true};
 
@@ -176,7 +168,7 @@ int main(int agrc, char ** argv) {
 
         const Mat4 p{Mat4::perspective(5.0f, dim.aspect(), 0.0001f, 1000.0f)};
         const Mat4 v{Mat4::lookAt(lookFromVec,lookAtVec,upVec)};
-        const Mat4 m{Mat4::rotationY(glfwGetTime()*27)*Mat4::rotationX(glfwGetTime()*17)};
+        const Mat4 m{Mat4::rotationY(static_cast<float>(glfwGetTime()*27))*Mat4::rotationX(static_cast<float>(glfwGetTime()*17))};
         
         glViewport(0, 0, dim.width, dim.height);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

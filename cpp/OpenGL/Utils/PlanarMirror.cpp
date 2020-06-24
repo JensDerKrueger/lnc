@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include "PlanarMirror.h"
 
 static std::string vsString{
@@ -16,13 +14,6 @@ static std::string fsString{
 "void main() {\n"
 "    FragColor = vec4(1.0,1.0,0.0,0.5);\n"
 "}\n"};
-
-void checkGLError(const std::string& id) {
-	GLenum e = glGetError();
-	if (e != GL_NO_ERROR) {
-		std::cerr << "An openGL error occured:" << e << " at " << id << std::endl;
-	}	
-}
 
 PlanarMirror::PlanarMirror(const Vec3& a, const Vec3& b, const Vec3& c, const Vec3& d) :
 	mirrorTess{Tesselation::genRectangle(a,b,c,d)},

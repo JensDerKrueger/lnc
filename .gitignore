@@ -1,3 +1,6 @@
 **/.DS_Store
 **/*.o
 **/*.a
+.vs/
+cpp/OpenGL/11/VS/grow/bin/*
+cpp/OpenGL/11/VS/grow/tmp/*
