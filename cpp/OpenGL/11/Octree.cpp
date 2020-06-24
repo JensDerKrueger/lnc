@@ -1,4 +1,6 @@
 #include <iostream>
+#include <limits>
+#include <cmath>
 
 #include "Octree.h"
 
@@ -30,19 +32,19 @@ size_t OctreeNode::subtreeIndex(const Vec3& pos) const {
            ((pos.x() <= center.x()) ? 0 : 1);
 }
 
-void OctreeNode::add(const Vec3& pos, size_t maxElemCount) {
+void OctreeNode::add(const Vec3& pos, size_t maxElemCount, size_t maxDepth) {
     if (isLeaf()) {
         elements.push_back(pos);
-        if (elements.size() >= maxElemCount) {
-            split(maxElemCount);
+        if (maxDepth > 0 && elements.size() > maxElemCount) {
+            split(maxElemCount, maxDepth);
         }
     } else {
         size_t index = subtreeIndex(pos);
-        children[index]->add(pos, maxElemCount);
+        children[index]->add(pos, maxElemCount, maxDepth-1);
     }
 }
 
-void OctreeNode::split(size_t maxElemCount) {
+void OctreeNode::split(size_t maxElemCount, size_t maxDepth) {
     // create childen
     const Vec3 center{computeCenter()};
     children[0] = std::make_shared<OctreeNode>(minPos,center);
@@ -64,10 +66,61 @@ void OctreeNode::split(size_t maxElemCount) {
     // insert elements into children
     for (size_t i = 0;i<elements.size();++i) {
         size_t index = subtreeIndex(elements[i]);
-        children[index]->add(elements[i], maxElemCount);
+        children[index]->add(elements[i], maxElemCount, maxDepth-1);
     }
     
     elements.clear();
+}
+
+float OctreeNode::minSqDistApprox(const Vec3& pos) const {
+    float minSqDistance = std::numeric_limits<float>::max();
+    if (isLeaf()) {
+        for (const Vec3& e : elements) {
+            minSqDistance = std::min(minSqDistance, (pos-e).sqlength());
+        }
+        return minSqDistance;
+    } else {
+        size_t index = subtreeIndex(pos);
+        if (children[index]->isLeaf() && children[index]->elements.size() == 0) {
+            for (size_t i = 0;i<8;++i) {
+                minSqDistance = std::min(minSqDistance, children[i]->minSqDistApprox(pos));
+            }
+            return minSqDistance;
+        } else {
+            return children[index]->minSqDistApprox(pos);
+        }
+    }
+}
+
+bool OctreeNode::intersect(const Vec3& pos, float radiusSq, Vec3 minPos, Vec3 maxPos) const {
+    if (pos.x() < minPos.x()) {
+        radiusSq -= sq(minPos.x() - pos.x());
+    } else {
+        radiusSq -= sq(maxPos.x() - pos.x());
+    }
+    if (pos.y() < minPos.y()) {
+        radiusSq -= sq(minPos.y() - pos.y());
+    } else {
+        radiusSq -= sq(maxPos.y() - pos.y());
+    }
+    if (pos.z() < minPos.z()) {
+        radiusSq -= sq(minPos.z() - pos.z());
+    } else {
+        radiusSq -= sq(maxPos.z() - pos.z());
+    }
+    return radiusSq > 0;
+}
+
+float OctreeNode::minSqDist(const Vec3& pos, float radiusSq) const {
+    if (isLeaf()) {
+        return std::min(radiusSq, minSqDistApprox(pos));
+    } else {
+        for (size_t i = 0;i<8;++i) {
+            if (intersect(pos, radiusSq, children[i]->minPos, children[i]->maxPos))
+                radiusSq = std::min(radiusSq, children[i]->minSqDist(pos, radiusSq));
+        }
+    }
+    return radiusSq;
 }
 
 std::vector<float> OctreeNode::toTriList() const {
@@ -122,11 +175,15 @@ Octree::Octree(float size, const Vec3& first, size_t maxElemCount, size_t maxDep
 }
 
 void Octree::add(const Vec3& pos) {
-    root->add(pos, maxElemCount);
+    root->add(pos, maxElemCount, maxDepth);
 }
 
 float Octree::minDist(const Vec3& pos) const {
-    return 0.0f;
+    if (root->isLeaf()) {
+        return sqrt(root->minSqDistApprox(pos));
+    }
+    float minDist = root->minSqDistApprox(pos);
+    return sqrt(root->minSqDist(pos, minDist));
 }
 
 std::vector<float> Octree::toTriList() const {

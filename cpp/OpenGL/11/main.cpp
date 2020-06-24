@@ -74,8 +74,8 @@ private:
 std::vector<Vec3> fixedParticles{};
 const float radius = 0.001f;
 const float colDist = 2*radius;
-const size_t particleCount = 5000;
-Octree octree{1.0f, Vec3{0.0f,0.0f,0.0f},2};
+const size_t particleCount = 20000;
+Octree octree{1.0f, Vec3{0.0f,0.0f,0.0f}, 10};
 
 static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {  
     if (action == GLFW_REPEAT || action == GLFW_PRESS) {
@@ -88,13 +88,14 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
 }
 
 float mindDist(const Vec3& pos) {
-//    return octree.minDist(pos);
-    float minDist = (pos - fixedParticles[0]).length();
+    return octree.minDist(pos);
+/*    float minDist = (pos - fixedParticles[0]).length();
     for (const Vec3& p : fixedParticles) {
         float currentDist = (pos - p).length();
         if (currentDist < minDist) minDist = currentDist;
     }
     return minDist;
+ */
 }
 
 bool checkCollision(const Vec3& pos) {
@@ -152,9 +153,8 @@ void simulate(size_t maxParticleCount, uint32_t quota) {
             return;
         }
     }
+    std::cout << particleCount << "/" << particleCount << "\r" << std::flush;
 }
-
-
 
 void checkGLError(const std::string& id) {
     GLenum e = glGetError();
@@ -166,7 +166,6 @@ void checkGLError(const std::string& id) {
 int main(int agrc, char ** argv) {
     GLEnv gl{640,480,4,"Dendrite Growth Simulation", true, true, 4, 1, true};
 
-    
     std::string vsString{
     "#version 410\n"
     "uniform mat4 MVP;\n"
@@ -179,7 +178,7 @@ int main(int agrc, char ** argv) {
     "#version 410\n"
     "out vec4 FragColor;\n"
     "void main() {\n"
-    "    FragColor = vec4(1.0,1.0,1.0,1.0)*0.03;\n"
+    "    FragColor = vec4(1.0,1.0,1.0,1.0)*0.01;\n"
     "}\n"};
     GLProgram prog{GLProgram::createFromString(vsString, fsString)};
     GLint mvpLocation{prog.getUniformLocation("MVP")};
@@ -193,7 +192,7 @@ int main(int agrc, char ** argv) {
     octreeArray.connectVertexAttrib(vbOctreePos, prog, "vPos", 3);
 
     initParticles();
-  //  simulate(10);
+    simulate(10);
     SimpleStaticParticleSystem simplePS(fixedParticles, 5);
     simplePS.setColor(RAINBOW_COLOR);
 
@@ -217,7 +216,7 @@ int main(int agrc, char ** argv) {
     do {
         Dimensions dim{gl.getFramebufferSize()};
 
-        const Mat4 p{Mat4::perspective(3.0f, dim.aspect(), 0.0001f, 1000.0f)};
+        const Mat4 p{Mat4::perspective(6.0f, dim.aspect(), 0.0001f, 1000.0f)};
         const Mat4 v{Mat4::lookAt(lookFromVec,lookAtVec,upVec)};
         const Mat4 m{Mat4::rotationY(glfwGetTime()*27)*Mat4::rotationX(glfwGetTime()*17)};
         
@@ -228,31 +227,31 @@ int main(int agrc, char ** argv) {
             simulate(particleCount, 5);
             octreeArray.bind();
             std::vector<float> data{octree.toTriList()};
-            trisVertexCount = data.size();
+            trisVertexCount = data.size()/3;
             vbOctreePos.setData(data,3,GL_DYNAMIC_DRAW);
             simplePS.setData(fixedParticles);
         }
         
         simplePS.setPointSize(dim.height/60.0f);
         simplePS.render(m*v,p);
-        
-        
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_ONE, GL_ONE);
-        glBlendEquation(GL_FUNC_ADD);
-        glDisable(GL_CULL_FACE);
-        glDepthMask(GL_FALSE);
-        
-        octreeArray.bind();
-        prog.enable();
-        prog.setUniform(mvpLocation, m*v*p);
-        glDrawArrays(GL_TRIANGLES, 0, GLsizei(trisVertexCount));
-        glEnable(GL_CULL_FACE);
+      
+        if (fixedParticles.size() < particleCount) {
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_ONE, GL_ONE);
+            glBlendEquation(GL_FUNC_ADD);
+            glDisable(GL_CULL_FACE);
+            glDepthMask(GL_FALSE);
+            
+            octreeArray.bind();
+            prog.enable();
+            prog.setUniform(mvpLocation, m*v*p);
+            glDrawArrays(GL_TRIANGLES, 0, GLsizei(trisVertexCount));
+            glEnable(GL_CULL_FACE);
 
-        glDisable(GL_BLEND);
-        glEnable(GL_CULL_FACE);
-        glDepthMask(GL_TRUE);
-
+            glDisable(GL_BLEND);
+            glEnable(GL_CULL_FACE);
+            glDepthMask(GL_TRUE);
+        }
         
         checkGLError("endOfFrame");
         gl.endOfFrame();
