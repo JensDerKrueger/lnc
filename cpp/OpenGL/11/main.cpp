@@ -210,8 +210,8 @@ int main(int agrc, char ** argv) {
     octreeLineArray.connectVertexAttrib(vbOctreeLinePos, prog, "vColor", 4, 3);
 
     octreeFaceArray.bind();
-    octreeFaceArray.connectVertexAttrib(vbOctreeLinePos, prog, "vPos", 3);
-    octreeFaceArray.connectVertexAttrib(vbOctreeLinePos, prog, "vColor", 4, 3);
+    octreeFaceArray.connectVertexAttrib(vbOctreeFacePos, prog, "vPos", 3);
+    octreeFaceArray.connectVertexAttrib(vbOctreeFacePos, prog, "vColor", 4, 3);
 
 
     /*
@@ -268,7 +268,7 @@ int main(int agrc, char ** argv) {
             //glfwSetTime(1);
         }
         
-        const Mat4 p{Mat4::perspective(45.0f, dim.aspect(), 0.0001f, 1000.0f)};
+        const Mat4 p{Mat4::perspective(6.0f, dim.aspect(), 0.0001f, 1000.0f)};
         const Mat4 v{Mat4::lookAt(lookFromVec,lookAtVec,upVec)};
         const Mat4 m{Mat4::rotationY(45*glfwGetTime()/2.0f)*Mat4::rotationX(30*glfwGetTime()/2.0f)};
         
@@ -285,7 +285,7 @@ int main(int agrc, char ** argv) {
             octreeFaceArray.bind();
             prog.enable();
             prog.setUniform(mvpLocation, m*v*p);
-          //  glDrawArrays(GL_TRIANGLES, 0, GLsizei(trisVertexCount));
+            glDrawArrays(GL_TRIANGLES, 0, GLsizei(trisVertexCount));
 
             octreeLineArray.bind();
             glDrawArrays(GL_LINES, 0, GLsizei(lineVertexCount));

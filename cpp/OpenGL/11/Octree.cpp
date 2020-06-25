@@ -39,6 +39,7 @@ void OctreeNode::add(const Vec3& pos, size_t maxElemCount, size_t maxDepth) {
         elements.push_back(pos);
         if (maxDepth > 0 && elements.size() > maxElemCount) {
             split(maxElemCount, maxDepth);
+            warranty = 100;
         }
     } else {
         size_t index = subtreeIndex(pos);
@@ -137,7 +138,7 @@ std::vector<float> OctreeNode::toTriList() {
     
     age();
     
-    Vec4 color{(warranty == 0) ? Vec4{0.01,0.01,0.01,0.01} : Vec4{0.01,0.0,0.0,0.01}};
+    Vec4 color{(warranty == 0) ? Vec4{0.01,0.01,0.01,0.01} : Vec4{0.1,0.0,0.0,0.1}};
         
     if (!isLeaf()) {
         const Vec3 center{computeCenter()};
