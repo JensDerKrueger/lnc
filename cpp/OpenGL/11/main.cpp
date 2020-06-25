@@ -74,7 +74,7 @@ private:
 std::vector<Vec3> fixedParticles{};
 const float radius = 0.001f;
 const float colDist = 2*radius;
-const size_t particleCount = 20000;
+const size_t particleCount = 100000;
 Octree octree{1.0f, Vec3{0.0f,0.0f,0.0f}, 10};
 
 static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {  
@@ -88,14 +88,21 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
 }
 
 float mindDist(const Vec3& pos) {
-    return octree.minDist(pos);
-/*    float minDist = (pos - fixedParticles[0]).length();
+/*
+ float linearMinDist = (pos - fixedParticles[0]).length();
     for (const Vec3& p : fixedParticles) {
         float currentDist = (pos - p).length();
-        if (currentDist < minDist) minDist = currentDist;
+        if (currentDist < linearMinDist) linearMinDist = currentDist;
     }
+    return linearMinDist
+*/
+    float minDist = octree.minDist(pos);
+/*
+    if (minDist != linearMinDist) {
+        std::cout << minDist << " != " << linearMinDist << std::endl;
+    }
+*/
     return minDist;
- */
 }
 
 bool checkCollision(const Vec3& pos) {
@@ -114,6 +121,7 @@ Vec3 genRandomStartpoint() {
 }
 
 void initParticles() {
+    fixedParticles.clear();
     fixedParticles.push_back(Vec3(0.0f,0.0f,0.0f));
 }
 
@@ -128,7 +136,7 @@ void simulate(size_t particleCount) {
         }
         fixedParticles.push_back(current);
         octree.add(current);
-        std::cout << i+1 << "/" << particleCount << "\r" << std::flush;
+     //   std::cout << i+1 << "/" << particleCount << "\r" << std::flush;
     }
 }
 
@@ -164,27 +172,6 @@ void checkGLError(const std::string& id) {
 }
 
 int main(int agrc, char ** argv) {
-    
-    /*
-    Octree test{1,Vec3(0.0,0.0,0.0),2};
-    test.add(Vec3(0.05,0.0,0.0));
-    test.add(Vec3(0.05,0.0,0.0));
-    test.add(Vec3(0.06,0.0,0.0));
-    test.add(Vec3(0.07,0.0,0.0));
-    test.add(Vec3(0.08,0.0,0.0));
-    test.add(Vec3(0.09,0.0,0.0));
-    test.add(Vec3(0.091,0.0,0.0));
-    test.add(Vec3(0.095,0.0,0.0));
-    
-    float md = test.minDist(Vec3{0.1,0,0});
-    
-    std::cout << md << std::endl;
-    
-    
-    return 0;
-     */
-    
-    
     GLEnv gl{640,480,4,"Dendrite Growth Simulation", true, true, 4, 1, true};
 
     std::string vsString{
@@ -211,8 +198,18 @@ int main(int agrc, char ** argv) {
 
     octreeArray.bind();
     octreeArray.connectVertexAttrib(vbOctreePos, prog, "vPos", 3);
-
+/*
     initParticles();
+    auto t1 = Clock::now();
+    for (size_t pc = 1;pc<300;++pc){
+        auto t2 = Clock::now();
+        simulate(100);
+        auto t3 = Clock::now();
+        std::cout << pc*100
+                  << "\t;" << std::chrono::duration_cast<std::chrono::milliseconds>(t3 - t1).count() /1000.0
+                  << "\t;" << std::chrono::duration_cast<std::chrono::milliseconds>(t3 - t2).count() /1000.0 << std::endl;
+    }
+*/
     SimpleStaticParticleSystem simplePS(fixedParticles, 5);
     simplePS.setColor(RAINBOW_COLOR);
 

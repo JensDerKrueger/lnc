@@ -10,7 +10,7 @@ TARGET = grow
 
 all: $(TARGET)
 
-release: CFLAGS += -O3 -flto -DNDEBUG
+release: CFLAGS += -O3 -Os -flto -DNDEBUG
 release: LFLAGS += -flto
 release: $(TARGET)
 
