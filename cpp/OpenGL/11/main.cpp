@@ -178,27 +178,43 @@ int main(int agrc, char ** argv) {
     "#version 410\n"
     "uniform mat4 MVP;\n"
     "layout (location = 0) in vec3 vPos;\n"
+    "layout (location = 1) in vec4 vColor;\n"
+    "out vec4 color;"
     "void main() {\n"
     "    gl_Position = MVP * vec4(vPos, 1.0);\n"
+    "    color = vColor;\n"
     "}\n"};
 
     std::string fsString{
     "#version 410\n"
+    "in vec4 color;"
     "out vec4 FragColor;\n"
     "void main() {\n"
-    "    FragColor = vec4(1.0,1.0,1.0,1.0)*0.01;\n"
+    "    FragColor = color;\n"
     "}\n"};
     GLProgram prog{GLProgram::createFromString(vsString, fsString)};
     GLint mvpLocation{prog.getUniformLocation("MVP")};
-    GLArray octreeArray{};
-    GLBuffer vbOctreePos{GL_ARRAY_BUFFER};
+    
+    GLArray octreeLineArray{};
+    GLBuffer vbOctreeLinePos{GL_ARRAY_BUFFER};
+    GLArray octreeFaceArray{};
+    GLBuffer vbOctreeFacePos{GL_ARRAY_BUFFER};
 
     std::vector<float> empty;
-    vbOctreePos.setData(empty,3,GL_DYNAMIC_DRAW);
+    vbOctreeFacePos.setData(empty,7,GL_DYNAMIC_DRAW);
+    vbOctreeLinePos.setData(empty,7,GL_DYNAMIC_DRAW);
 
-    octreeArray.bind();
-    octreeArray.connectVertexAttrib(vbOctreePos, prog, "vPos", 3);
-/*
+    
+    octreeLineArray.bind();
+    octreeLineArray.connectVertexAttrib(vbOctreeLinePos, prog, "vPos", 3);
+    octreeLineArray.connectVertexAttrib(vbOctreeLinePos, prog, "vColor", 4, 3);
+
+    octreeFaceArray.bind();
+    octreeFaceArray.connectVertexAttrib(vbOctreeLinePos, prog, "vPos", 3);
+    octreeFaceArray.connectVertexAttrib(vbOctreeLinePos, prog, "vColor", 4, 3);
+
+
+    /*
     initParticles();
     auto t1 = Clock::now();
     for (size_t pc = 1;pc<300;++pc){
@@ -230,27 +246,33 @@ int main(int agrc, char ** argv) {
     checkGLError("init");
 
     size_t trisVertexCount = 0;
+    size_t lineVertexCount = 0;
     do {
         Dimensions dim{gl.getFramebufferSize()};
-
-        const Mat4 p{Mat4::perspective(6.0f, dim.aspect(), 0.0001f, 1000.0f)};
-        const Mat4 v{Mat4::lookAt(lookFromVec,lookAtVec,upVec)};
-        const Mat4 m{Mat4::rotationY(45*glfwGetTime())*Mat4::rotationX(30*glfwGetTime())};
-        
         glViewport(0, 0, dim.width, dim.height);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
                 
         if (fixedParticles.size() < particleCount) {
             simulate(particleCount, 5);
-            octreeArray.bind();
-            std::vector<float> data{octree.toTriList()};
-            trisVertexCount = data.size()/3;
-            vbOctreePos.setData(data,3,GL_DYNAMIC_DRAW);
+            octreeLineArray.bind();
+            std::vector<float> data{octree.toLineList()};
+            lineVertexCount = data.size()/7;
+            vbOctreeLinePos.setData(data,7,GL_DYNAMIC_DRAW);
+            
+            octreeFaceArray.bind();
+            data = octree.toTriList();
+            trisVertexCount = data.size()/7;
+            vbOctreeFacePos.setData(data,7,GL_DYNAMIC_DRAW);
+
             simplePS.setData(fixedParticles);
-            glfwSetTime(1);
+            //glfwSetTime(1);
         }
         
-        simplePS.setPointSize(dim.height/60.0f);
+        const Mat4 p{Mat4::perspective(45.0f, dim.aspect(), 0.0001f, 1000.0f)};
+        const Mat4 v{Mat4::lookAt(lookFromVec,lookAtVec,upVec)};
+        const Mat4 m{Mat4::rotationY(45*glfwGetTime()/2.0f)*Mat4::rotationX(30*glfwGetTime()/2.0f)};
+        
+        simplePS.setPointSize(dim.height/160.0f);
         simplePS.render(m*v,p);
       
         if (fixedParticles.size() < particleCount) {
@@ -260,10 +282,15 @@ int main(int agrc, char ** argv) {
             glDisable(GL_CULL_FACE);
             glDepthMask(GL_FALSE);
             
-            octreeArray.bind();
+            octreeFaceArray.bind();
             prog.enable();
             prog.setUniform(mvpLocation, m*v*p);
-            glDrawArrays(GL_TRIANGLES, 0, GLsizei(trisVertexCount));
+          //  glDrawArrays(GL_TRIANGLES, 0, GLsizei(trisVertexCount));
+
+            octreeLineArray.bind();
+            glDrawArrays(GL_LINES, 0, GLsizei(lineVertexCount));
+
+
             glEnable(GL_CULL_FACE);
 
             glDisable(GL_BLEND);

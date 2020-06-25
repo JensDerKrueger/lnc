@@ -5,6 +5,7 @@
 #include <memory>
 
 #include <Vec3.h>
+#include <Vec4.h>
 
 
 class OctreeNode;
@@ -17,13 +18,17 @@ public:
     OctreeNode(const Vec3& first, const Vec3& minPos, const Vec3& maxPos);
     void add(const Vec3& pos, size_t maxElemCount, size_t maxDepth);
 
-    std::vector<float> toTriList() const;
+    std::vector<float> toTriList();
+    std::vector<float> toLineList() const;
 
     float minSqDistApprox(const Vec3& pos) const;
     float minSqDist(const Vec3& pos, float radiusSq) const;
     bool isLeaf() const {return children[0] == nullptr;}
+    
+    void age() {if (warranty>0) warranty--;}
 
 private:
+    size_t warranty;
     Vec3 minPos;
     Vec3 maxPos;
     std::vector<Vec3> elements;
@@ -34,6 +39,7 @@ private:
     Vec3 computeCenter() const;
     bool intersect(const Vec3& pos, float radiusSq, Vec3 minPos, Vec3 maxPos) const;
     static float sq(float x) {return x*x;}
+    static void pushColor(std::vector<float>& v, const Vec4& c);
 
 };
 
@@ -44,7 +50,8 @@ public:
     void add(const Vec3& pos);
     float minDist(const Vec3& pos) const;
     
-    std::vector<float> toTriList() const;
+    std::vector<float> toTriList();
+    std::vector<float> toLineList() const;
         
 private:
     size_t maxElemCount;
