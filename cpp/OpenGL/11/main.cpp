@@ -1,3 +1,4 @@
+#include <fstream>
 #include <iostream>
 #include <vector>
 #include <string>
@@ -160,8 +161,6 @@ void checkGLError(const std::string& id) {
         std::cerr << "An openGL error occured:" << e << " at " << id << std::endl;
     }
 }
-
-#include <fstream>
     
 int main(int agrc, char ** argv) {
     GLEnv gl{640,480,4,"Dendrite Growth Simulation", true, true, 4, 1, true};
