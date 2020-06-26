@@ -89,7 +89,7 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
 
 float mindDist(const Vec3& pos) {
 /*
- float linearMinDist = (pos - fixedParticles[0]).length();
+    float linearMinDist = (pos - fixedParticles[0]).length();
     for (const Vec3& p : fixedParticles) {
         float currentDist = (pos - p).length();
         if (currentDist < linearMinDist) linearMinDist = currentDist;
@@ -171,7 +171,53 @@ void checkGLError(const std::string& id) {
     }
 }
 
+#include <fstream>
+    
 int main(int agrc, char ** argv) {
+    /*
+    std::ofstream dataFile;
+    dataFile.open("data.txt");
+    
+    dataFile << "octree" << std::endl;
+    Octree octree1{1.0f, Vec3{0.0f,0.0f,0.0f}, 10};
+    auto t1 = Clock::now();
+    for (size_t pc = 1;pc<3000;++pc){
+        auto t2 = Clock::now();
+        for (size_t i = 1;i<1000;++i) {
+            Vec3 p{Rand::rand11(),Rand::rand11(),Rand::rand11()};
+            octree1.minDist(p);
+            octree1.add(p);
+        }
+        auto t3 = Clock::now();
+        dataFile << pc*100
+                  << "\t;" << std::chrono::duration_cast<std::chrono::milliseconds>(t3 - t1).count() /1000.0
+                  << "\t;" << std::chrono::duration_cast<std::chrono::milliseconds>(t3 - t2).count() /1000.0 << std::endl;
+    }
+
+    dataFile << "linear" << std::endl;
+    std::vector<Vec3> fixedParticles1{};
+    fixedParticles1.clear();
+    fixedParticles1.push_back(Vec3(0.0f,0.0f,0.0f));
+    for (size_t pc = 1;pc<300;++pc){
+        auto t2 = Clock::now();
+        for (size_t i = 1;i<1000;++i) {
+            Vec3 pos{Rand::rand11(),Rand::rand11(),Rand::rand11()};
+            float linearMinDist = (pos - fixedParticles1[0]).length();
+            for (const Vec3& p : fixedParticles1) {
+                float currentDist = (pos - p).length();
+                if (currentDist < linearMinDist) linearMinDist = currentDist;
+            }
+            fixedParticles1.push_back(pos);
+        }
+        auto t3 = Clock::now();
+        dataFile << pc*100
+                  << "\t;" << std::chrono::duration_cast<std::chrono::milliseconds>(t3 - t1).count() /1000.0
+                  << "\t;" << std::chrono::duration_cast<std::chrono::milliseconds>(t3 - t2).count() /1000.0 << std::endl;
+    }
+
+    dataFile.close();
+    */
+    
     GLEnv gl{640,480,4,"Dendrite Growth Simulation", true, true, 4, 1, true};
 
     std::string vsString{
