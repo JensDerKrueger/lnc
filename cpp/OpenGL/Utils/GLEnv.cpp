@@ -2,12 +2,20 @@
 #include <iomanip>
 #include <chrono>
 #include <cmath>
+#include <iostream>
 
 typedef std::chrono::high_resolution_clock Clock;
 
 
 #include "GLEnv.h"
 
+
+void checkGLError(const std::string& id) {
+	GLenum e = glGetError();
+	if (e != GL_NO_ERROR) {
+		std::cerr << "An openGL error occured:" << e << " at " << id << std::endl;
+	}
+}
 
 void GLEnv::errorCallback(int error, const char* description) { 
 	std::stringstream s;

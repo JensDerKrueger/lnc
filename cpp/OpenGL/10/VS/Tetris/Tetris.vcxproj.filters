@@ -13,74 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\..\Utils\FontRenderer.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Utils\FresnelVisualizer.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Utils\GLArray.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Utils\GLBuffer.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Utils\GLEnv.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Utils\GLProgram.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Utils\GLTexture2D.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Utils\Mat4.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Utils\ParticleSystem.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Utils\PlanarMirror.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Utils\Rand.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Utils\ReverseParticleSystem.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Utils\Tesselation.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Utils\Vec2.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Utils\Vec3.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Utils\AbstractParticleSystem.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Utils\bmp.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Scene.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\TextRenderer.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Grid.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\main.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\OpenGLRenderer.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
+    <Filter Include="Quelldateien\Utils">
+      <UniqueIdentifier>{44645753-cacd-42e4-8765-cf3848c67846}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Utils\FontRenderer.h">
@@ -155,5 +90,76 @@
     <ClInclude Include="..\..\OpenGLRenderer.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Utils\PrecomputedParticleSystem.h">
+      <Filter>Quelldateien\Utils</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\Grid.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\main.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\OpenGLRenderer.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Scene.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\TextRenderer.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Utils\AbstractParticleSystem.cpp">
+      <Filter>Quelldateien\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Utils\bmp.cpp">
+      <Filter>Quelldateien\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Utils\FontRenderer.cpp">
+      <Filter>Quelldateien\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Utils\FresnelVisualizer.cpp">
+      <Filter>Quelldateien\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Utils\GLArray.cpp">
+      <Filter>Quelldateien\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Utils\GLBuffer.cpp">
+      <Filter>Quelldateien\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Utils\GLEnv.cpp">
+      <Filter>Quelldateien\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Utils\GLProgram.cpp">
+      <Filter>Quelldateien\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Utils\GLTexture2D.cpp">
+      <Filter>Quelldateien\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Utils\Mat4.cpp">
+      <Filter>Quelldateien\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Utils\ParticleSystem.cpp">
+      <Filter>Quelldateien\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Utils\PlanarMirror.cpp">
+      <Filter>Quelldateien\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Utils\PrecomputedParticleSystem.cpp">
+      <Filter>Quelldateien\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Utils\Rand.cpp">
+      <Filter>Quelldateien\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Utils\Tesselation.cpp">
+      <Filter>Quelldateien\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Utils\Vec2.cpp">
+      <Filter>Quelldateien\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Utils\Vec3.cpp">
+      <Filter>Quelldateien\Utils</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
