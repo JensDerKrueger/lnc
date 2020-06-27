@@ -7,8 +7,6 @@
 #include <GL/glew.h>  
 #include <GLFW/glfw3.h>
 
-void checkGLError(const std::string& id);
-
 class GLException : public std::exception {
 	public:
 		GLException(const std::string& whatStr) : whatStr(whatStr) {}
@@ -38,6 +36,9 @@ class GLEnv {
 		
 		void setFPSCounter(bool fpsCounter);
 		void setSync(bool sync);
+
+		static void checkGLError(const std::string& id);
+
 	private:
 		GLFWwindow* window;
 		std::string title;
