@@ -1,6 +1,7 @@
 **/.DS_Store
 **/*.o
 **/*.a
+**/*.user
 .vs/
 cpp/OpenGL/10/VS/Tetris/bin/*
 cpp/OpenGL/10/VS/Tetris/tmp/*
