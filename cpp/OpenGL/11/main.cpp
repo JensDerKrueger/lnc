@@ -1,3 +1,4 @@
+#include <fstream>
 #include <iostream>
 #include <vector>
 #include <string>
@@ -74,8 +75,9 @@ private:
 std::vector<Vec3> fixedParticles{};
 const float radius = 0.001f;
 const float colDist = 2*radius;
-const size_t particleCount = 5000;
-Octree octree{1.0f, Vec3{0.0f,0.0f,0.0f},2};
+const size_t particleCount = 100000;
+Octree octree{1.0f, Vec3{0.0f,0.0f,0.0f}, 10};
+bool rotation{true};
 
 static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {  
     if (action == GLFW_REPEAT || action == GLFW_PRESS) {
@@ -83,18 +85,15 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
             case GLFW_KEY_ESCAPE :
                 glfwSetWindowShouldClose(window, GL_TRUE);
                 break;
+            case GLFW_KEY_R :
+                rotation = !rotation;
+                break;
         }
     } 
 }
 
 float mindDist(const Vec3& pos) {
-//    return octree.minDist(pos);
-    float minDist = (pos - fixedParticles[0]).length();
-    for (const Vec3& p : fixedParticles) {
-        float currentDist = (pos - p).length();
-        if (currentDist < minDist) minDist = currentDist;
-    }
-    return minDist;
+    return octree.minDist(pos);
 }
 
 bool checkCollision(const Vec3& pos) {
@@ -113,6 +112,7 @@ Vec3 genRandomStartpoint() {
 }
 
 void initParticles() {
+    fixedParticles.clear();
     fixedParticles.push_back(Vec3(0.0f,0.0f,0.0f));
 }
 
@@ -152,40 +152,52 @@ void simulate(size_t maxParticleCount, uint32_t quota) {
             return;
         }
     }
+    std::cout << particleCount << "/" << particleCount << "\r" << std::flush;
 }
-
 
 int main(int agrc, char ** argv) {
     GLEnv gl{640,480,4,"Dendrite Growth Simulation", true, true, 4, 1, true};
 
-    
     std::string vsString{
     "#version 410\n"
     "uniform mat4 MVP;\n"
     "layout (location = 0) in vec3 vPos;\n"
+    "layout (location = 1) in vec4 vColor;\n"
+    "out vec4 color;"
     "void main() {\n"
     "    gl_Position = MVP * vec4(vPos, 1.0);\n"
+    "    color = vColor;\n"
     "}\n"};
 
     std::string fsString{
     "#version 410\n"
+    "in vec4 color;"
     "out vec4 FragColor;\n"
     "void main() {\n"
-    "    FragColor = vec4(1.0,1.0,1.0,1.0)*0.03;\n"
+    "    FragColor = color;\n"
     "}\n"};
     GLProgram prog{GLProgram::createFromString(vsString, fsString)};
     GLint mvpLocation{prog.getUniformLocation("MVP")};
-    GLArray octreeArray{};
-    GLBuffer vbOctreePos{GL_ARRAY_BUFFER};
+    
+    GLArray octreeLineArray{};
+    GLBuffer vbOctreeLinePos{GL_ARRAY_BUFFER};
+    GLArray octreeFaceArray{};
+    GLBuffer vbOctreeFacePos{GL_ARRAY_BUFFER};
 
     std::vector<float> empty;
-    vbOctreePos.setData(empty,3,GL_DYNAMIC_DRAW);
+    vbOctreeFacePos.setData(empty,7,GL_DYNAMIC_DRAW);
+    vbOctreeLinePos.setData(empty,7,GL_DYNAMIC_DRAW);
 
-    octreeArray.bind();
-    octreeArray.connectVertexAttrib(vbOctreePos, prog, "vPos", 3);
+    
+    octreeLineArray.bind();
+    octreeLineArray.connectVertexAttrib(vbOctreeLinePos, prog, "vPos", 3);
+    octreeLineArray.connectVertexAttrib(vbOctreeLinePos, prog, "vColor", 4, 3);
 
-    initParticles();
-  //  simulate(10);
+    octreeFaceArray.bind();
+    octreeFaceArray.connectVertexAttrib(vbOctreeFacePos, prog, "vPos", 3);
+    octreeFaceArray.connectVertexAttrib(vbOctreeFacePos, prog, "vColor", 4, 3);
+
+
     SimpleStaticParticleSystem simplePS(fixedParticles, 5);
     simplePS.setColor(RAINBOW_COLOR);
 
@@ -206,45 +218,64 @@ int main(int agrc, char ** argv) {
     checkGLError("init");
 
     size_t trisVertexCount = 0;
+    size_t lineVertexCount = 0;
     do {
         Dimensions dim{gl.getFramebufferSize()};
 
         const Mat4 p{Mat4::perspective(3.0f, dim.aspect(), 0.0001f, 1000.0f)};
         const Mat4 v{Mat4::lookAt(lookFromVec,lookAtVec,upVec)};
         const Mat4 m{Mat4::rotationY(static_cast<float>(glfwGetTime()*27))*Mat4::rotationX(static_cast<float>(glfwGetTime()*17))};
-        
+
         glViewport(0, 0, dim.width, dim.height);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
                 
         if (fixedParticles.size() < particleCount) {
             simulate(particleCount, 5);
-            octreeArray.bind();
-            std::vector<float> data{octree.toTriList()};
-            trisVertexCount = data.size();
-            vbOctreePos.setData(data,3,GL_DYNAMIC_DRAW);
+            octreeLineArray.bind();
+            std::vector<float> data{octree.toLineList()};
+            lineVertexCount = data.size()/7;
+            vbOctreeLinePos.setData(data,7,GL_DYNAMIC_DRAW);
+            
+            octreeFaceArray.bind();
+            data = octree.toTriList();
+            trisVertexCount = data.size()/7;
+            vbOctreeFacePos.setData(data,7,GL_DYNAMIC_DRAW);
+
             simplePS.setData(fixedParticles);
+            
         }
         
-        simplePS.setPointSize(dim.height/60.0f);
+        if (!rotation) glfwSetTime(1);
+        
+        const Mat4 p{Mat4::perspective(6.0f, dim.aspect(), 0.0001f, 1000.0f)};
+        const Mat4 v{Mat4::lookAt(lookFromVec,lookAtVec,upVec)};
+        const Mat4 m{Mat4::rotationY(45*glfwGetTime()/2.0f)*Mat4::rotationX(30*glfwGetTime()/2.0f)};
+        
+        simplePS.setPointSize(dim.height/160.0f);
         simplePS.render(m*v,p);
-        
-        
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_ONE, GL_ONE);
-        glBlendEquation(GL_FUNC_ADD);
-        glDisable(GL_CULL_FACE);
-        glDepthMask(GL_FALSE);
-        
-        octreeArray.bind();
-        prog.enable();
-        prog.setUniform(mvpLocation, m*v*p);
-        glDrawArrays(GL_TRIANGLES, 0, GLsizei(trisVertexCount));
-        glEnable(GL_CULL_FACE);
+      
+        if (fixedParticles.size() < particleCount) {
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_ONE, GL_ONE);
+            glBlendEquation(GL_FUNC_ADD);
+            glDisable(GL_CULL_FACE);
+            glDepthMask(GL_FALSE);
+            
+            octreeFaceArray.bind();
+            prog.enable();
+            prog.setUniform(mvpLocation, m*v*p);
+            glDrawArrays(GL_TRIANGLES, 0, GLsizei(trisVertexCount));
 
-        glDisable(GL_BLEND);
-        glEnable(GL_CULL_FACE);
-        glDepthMask(GL_TRUE);
+            octreeLineArray.bind();
+            glDrawArrays(GL_LINES, 0, GLsizei(lineVertexCount));
 
+
+            glEnable(GL_CULL_FACE);
+
+            glDisable(GL_BLEND);
+            glEnable(GL_CULL_FACE);
+            glDepthMask(GL_TRUE);
+        }
         
         checkGLError("endOfFrame");
         gl.endOfFrame();

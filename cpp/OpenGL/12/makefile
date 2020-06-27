@@ -4,9 +4,9 @@ LFLAGS=-lglfw -lGLEW -framework OpenGL -L../Utils -lutils
 # for linux use this line LFLAGS=-lglfw -lGLEW -lGL -L../Utils -lutils
 LIBS=
 INCLUDES=-I. -I../Utils
-SRC = Octree.cpp main.cpp
+SRC = main.cpp
 OBJ = $(SRC:.cpp=.o)
-TARGET = grow
+TARGET = lsystem
 
 all: $(TARGET)
 
