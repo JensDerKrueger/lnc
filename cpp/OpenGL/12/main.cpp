@@ -35,12 +35,6 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
     } 
 }
 
-void checkGLError(const std::string& id) {
-    GLenum e = glGetError();
-    if (e != GL_NO_ERROR) {
-        std::cerr << "An openGL error occured:" << e << " at " << id << std::endl;
-    }
-}
     
 int main(int agrc, char ** argv) {
     GLEnv gl{640,480,4,"Plant Growth", true, true, 4, 1, true};
@@ -93,7 +87,7 @@ int main(int agrc, char ** argv) {
     Vec3 lookFromVec{0,1,1};
     Vec3 upVec{0,1,0};
         
-    checkGLError("init");
+    GLEnv::checkGLError("init");
 
     do {
         Dimensions dim{gl.getFramebufferSize()};
@@ -108,7 +102,7 @@ int main(int agrc, char ** argv) {
         lineArray.bind();
         glDrawArrays(GL_LINES, 0, GLsizei(lineVertexCount));
 
-        checkGLError("endOfFrame");
+        GLEnv::checkGLError("endOfFrame");
         gl.endOfFrame();
     } while (!gl.shouldClose());  
   
