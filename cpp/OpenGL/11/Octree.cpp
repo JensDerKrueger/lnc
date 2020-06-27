@@ -138,7 +138,7 @@ std::vector<float> OctreeNode::toTriList() {
     
     age();
     
-    Vec4 color{(warranty == 0) ? Vec4{0.01,0.01,0.01,0.01} : Vec4{0.1,0.0,0.0,0.1}};
+    Vec4 color{(warranty == 0) ? Vec4{0.01f,0.01f,0.01f,0.01f} : Vec4{0.1f,0.0f,0.0f,0.1f}};
         
     if (!isLeaf()) {
         const Vec3 center{computeCenter()};
