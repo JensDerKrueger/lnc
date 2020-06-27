@@ -215,19 +215,11 @@ int main(int agrc, char ** argv) {
     Vec3 lookFromVec{0,1,1};
     Vec3 upVec{0,1,0};
         
-    checkGLError("init");
+    GLEnv::checkGLError("init");
 
     size_t trisVertexCount = 0;
     size_t lineVertexCount = 0;
     do {
-        Dimensions dim{gl.getFramebufferSize()};
-
-        const Mat4 p{Mat4::perspective(3.0f, dim.aspect(), 0.0001f, 1000.0f)};
-        const Mat4 v{Mat4::lookAt(lookFromVec,lookAtVec,upVec)};
-        const Mat4 m{Mat4::rotationY(static_cast<float>(glfwGetTime()*27))*Mat4::rotationX(static_cast<float>(glfwGetTime()*17))};
-
-        glViewport(0, 0, dim.width, dim.height);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
                 
         if (fixedParticles.size() < particleCount) {
             simulate(particleCount, 5);
@@ -242,14 +234,17 @@ int main(int agrc, char ** argv) {
             vbOctreeFacePos.setData(data,7,GL_DYNAMIC_DRAW);
 
             simplePS.setData(fixedParticles);
-            
         }
         
+        Dimensions dim{ gl.getFramebufferSize() };
+        glViewport(0, 0, dim.width, dim.height);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
         if (!rotation) glfwSetTime(1);
         
         const Mat4 p{Mat4::perspective(6.0f, dim.aspect(), 0.0001f, 1000.0f)};
         const Mat4 v{Mat4::lookAt(lookFromVec,lookAtVec,upVec)};
-        const Mat4 m{Mat4::rotationY(45*glfwGetTime()/2.0f)*Mat4::rotationX(30*glfwGetTime()/2.0f)};
+        const Mat4 m{Mat4::rotationY(45*float(glfwGetTime())/2.0f)*Mat4::rotationX(30*float(glfwGetTime())/2.0f)};
         
         simplePS.setPointSize(dim.height/160.0f);
         simplePS.render(m*v,p);
@@ -277,7 +272,7 @@ int main(int agrc, char ** argv) {
             glDepthMask(GL_TRUE);
         }
         
-        checkGLError("endOfFrame");
+        GLEnv::checkGLError("endOfFrame");
         gl.endOfFrame();
     } while (!gl.shouldClose());  
   
