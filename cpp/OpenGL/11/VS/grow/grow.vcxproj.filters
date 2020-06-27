@@ -16,6 +16,9 @@
     <Filter Include="Quelldateien\Utils">
       <UniqueIdentifier>{f0f88b9b-8485-4ed8-8afa-cad524ec46ab}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Headerdateien\Utils">
+      <UniqueIdentifier>{aefd680b-a4c5-4f8f-a4b4-5904749098eb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\main.cpp">
@@ -75,64 +78,70 @@
     <ClCompile Include="..\..\..\Utils\Vec3.cpp">
       <Filter>Quelldateien\Utils</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Utils\Vec4.cpp">
+      <Filter>Quelldateien\Utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Octree.h">
-      <Filter>Quelldateien</Filter>
+    <ClInclude Include="..\..\..\Utils\bmp.h">
+      <Filter>Headerdateien\Utils</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Utils\AbstractParticleSystem.h">
-      <Filter>Quelldateien\Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Utils\bmp.h">
-      <Filter>Quelldateien\Utils</Filter>
+      <Filter>Headerdateien\Utils</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Utils\FontRenderer.h">
-      <Filter>Quelldateien\Utils</Filter>
+      <Filter>Headerdateien\Utils</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Utils\FresnelVisualizer.h">
-      <Filter>Quelldateien\Utils</Filter>
+      <Filter>Headerdateien\Utils</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Utils\GLArray.h">
-      <Filter>Quelldateien\Utils</Filter>
+      <Filter>Headerdateien\Utils</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Utils\GLBuffer.h">
-      <Filter>Quelldateien\Utils</Filter>
+      <Filter>Headerdateien\Utils</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Utils\GLEnv.h">
-      <Filter>Quelldateien\Utils</Filter>
+      <Filter>Headerdateien\Utils</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Utils\GLProgram.h">
-      <Filter>Quelldateien\Utils</Filter>
+      <Filter>Headerdateien\Utils</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Utils\GLTexture2D.h">
-      <Filter>Quelldateien\Utils</Filter>
+      <Filter>Headerdateien\Utils</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Utils\Mat4.h">
-      <Filter>Quelldateien\Utils</Filter>
+      <Filter>Headerdateien\Utils</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Utils\ParticleSystem.h">
-      <Filter>Quelldateien\Utils</Filter>
+      <Filter>Headerdateien\Utils</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Utils\PlanarMirror.h">
-      <Filter>Quelldateien\Utils</Filter>
+      <Filter>Headerdateien\Utils</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Utils\PrecomputedParticleSystem.h">
-      <Filter>Quelldateien\Utils</Filter>
+      <Filter>Headerdateien\Utils</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Utils\Rand.h">
-      <Filter>Quelldateien\Utils</Filter>
+      <Filter>Headerdateien\Utils</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Utils\Tesselation.h">
-      <Filter>Quelldateien\Utils</Filter>
+      <Filter>Headerdateien\Utils</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Utils\Vec2.h">
-      <Filter>Quelldateien\Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Utils\Vec2i.h">
-      <Filter>Quelldateien\Utils</Filter>
+      <Filter>Headerdateien\Utils</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Utils\Vec3.h">
-      <Filter>Quelldateien\Utils</Filter>
+      <Filter>Headerdateien\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Utils\Vec4.h">
+      <Filter>Headerdateien\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Utils\Vec2i.h">
+      <Filter>Headerdateien\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Octree.h">
+      <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
