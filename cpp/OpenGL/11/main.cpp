@@ -1,7 +1,8 @@
 #define showOctree
-//#define only2D
+#define only2D
 
 #include <thread>
+#include <mutex>
 #include <fstream>
 #include <iostream>
 #include <vector>
@@ -83,6 +84,8 @@ const size_t particleCount = 100000;
 Octree octree{1.0f, Vec3{0.0f,0.0f,0.0f}, 2};
 bool rotation{true};
 bool bTerminateSimulation{false};
+std::mutex simualtionMutex;
+
 
 static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {  
     if (action == GLFW_REPEAT || action == GLFW_PRESS) {
@@ -138,8 +141,11 @@ void simulate(size_t particleCount) {
                 current = genRandomStartpoint();
             }
         }
+        simualtionMutex.lock();
         fixedParticles.push_back(current);
         octree.add(current);
+        simualtionMutex.unlock();
+
         std::cout << i+1 << "/" << particleCount << "\r" << std::flush;
         if (bTerminateSimulation) return;
     }
@@ -216,12 +222,13 @@ int main(int agrc, char ** argv) {
     size_t lineVertexCount = 0;
 #endif
     
+    
     std::thread simulationThread(simulate, particleCount);
     
     do {
                 
+        simualtionMutex.lock();
         if (fixedParticles.size() < particleCount) {
-            
 #ifdef showOctree
             octreeLineArray.bind();
             std::vector<float> data{octree.toLineList()};
@@ -235,6 +242,7 @@ int main(int agrc, char ** argv) {
 #endif
             simplePS.setData(fixedParticles);
         }
+        simualtionMutex.unlock();
         
         Dimensions dim{ gl.getFramebufferSize() };
         glViewport(0, 0, dim.width, dim.height);
