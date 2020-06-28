@@ -6,7 +6,7 @@
 
 
 OctreeNode::OctreeNode(const Vec3& first, const Vec3& minPos, const Vec3& maxPos) :
-    warranty{10},
+    warranty{20},
     minPos{minPos},
     maxPos{maxPos},
     elements{first},
@@ -15,7 +15,7 @@ OctreeNode::OctreeNode(const Vec3& first, const Vec3& minPos, const Vec3& maxPos
 }
 
 OctreeNode::OctreeNode(const Vec3& minPos, const Vec3& maxPos) :
-    warranty{10},
+    warranty{20},
     minPos{minPos},
     maxPos{maxPos},
     elements{},
@@ -39,7 +39,7 @@ void OctreeNode::add(const Vec3& pos, size_t maxElemCount, size_t maxDepth) {
         elements.push_back(pos);
         if (maxDepth > 0 && elements.size() > maxElemCount) {
             split(maxElemCount, maxDepth);
-            warranty = 100;
+            warranty = 20;
         }
     } else {
         size_t index = subtreeIndex(pos);
