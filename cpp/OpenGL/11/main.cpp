@@ -1,5 +1,5 @@
 #define showOctree
-#define only2D
+//#define only2D
 
 #include <thread>
 #include <mutex>
@@ -84,7 +84,7 @@ const size_t particleCount = 100000;
 Octree octree{1.0f, Vec3{0.0f,0.0f,0.0f}, 2};
 bool rotation{true};
 bool bTerminateSimulation{false};
-std::mutex simualtionMutex;
+std::mutex simulationMutex;
 
 
 static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {  
@@ -141,10 +141,10 @@ void simulate(size_t particleCount) {
                 current = genRandomStartpoint();
             }
         }
-        simualtionMutex.lock();
+        simulationMutex.lock();
         fixedParticles.push_back(current);
         octree.add(current);
-        simualtionMutex.unlock();
+        simulationMutex.unlock();
 
         std::cout << i+1 << "/" << particleCount << "\r" << std::flush;
         if (bTerminateSimulation) return;
@@ -227,7 +227,7 @@ int main(int agrc, char ** argv) {
     
     do {
                 
-        simualtionMutex.lock();
+        simulationMutex.lock();
         if (fixedParticles.size() < particleCount) {
 #ifdef showOctree
             octreeLineArray.bind();
@@ -242,7 +242,7 @@ int main(int agrc, char ** argv) {
 #endif
             simplePS.setData(fixedParticles);
         }
-        simualtionMutex.unlock();
+        simulationMutex.unlock();
         
         Dimensions dim{ gl.getFramebufferSize() };
         glViewport(0, 0, dim.width, dim.height);
