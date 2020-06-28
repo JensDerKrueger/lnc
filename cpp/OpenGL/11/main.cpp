@@ -1,7 +1,7 @@
 #define showOctree
 //#define only2D
 
-
+#include <thread>
 #include <fstream>
 #include <iostream>
 #include <vector>
@@ -80,8 +80,9 @@ std::vector<Vec3> fixedParticles{};
 const float radius = 0.001f;
 const float colDist = 2*radius;
 const size_t particleCount = 100000;
-Octree octree{1.0f, Vec3{0.0f,0.0f,0.0f}, 10};
+Octree octree{1.0f, Vec3{0.0f,0.0f,0.0f}, 2};
 bool rotation{true};
+bool bTerminateSimulation{false};
 
 static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {  
     if (action == GLFW_REPEAT || action == GLFW_PRESS) {
@@ -140,31 +141,8 @@ void simulate(size_t particleCount) {
         fixedParticles.push_back(current);
         octree.add(current);
         std::cout << i+1 << "/" << particleCount << "\r" << std::flush;
+        if (bTerminateSimulation) return;
     }
-}
-
-
-void simulate(size_t maxParticleCount, uint32_t quota) {
-    auto t1 = Clock::now();
-    
-    for (size_t i = fixedParticles.size();i<maxParticleCount;++i) {
-        Vec3 current = genRandomStartpoint();
-        while (!checkCollision(current)) {
-            current = randomWalk(current);
-            if (current.sqlength() > 5*5) {
-                current = genRandomStartpoint();
-            }
-        }
-        fixedParticles.push_back(current);
-        octree.add(current);
-
-        auto t2 = Clock::now();
-        if (std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count() > quota) {
-            std::cout << i+1 << "/" << particleCount << "\r" << std::flush;
-            return;
-        }
-    }
-    std::cout << particleCount << "/" << particleCount << "\r" << std::flush;
 }
 
 int main(int agrc, char ** argv) {
@@ -237,10 +215,13 @@ int main(int agrc, char ** argv) {
     size_t trisVertexCount = 0;
     size_t lineVertexCount = 0;
 #endif
+    
+    std::thread simulationThread(simulate, particleCount);
+    
     do {
                 
         if (fixedParticles.size() < particleCount) {
-            simulate(particleCount, 5);
+            
 #ifdef showOctree
             octreeLineArray.bind();
             std::vector<float> data{octree.toLineList()};
@@ -262,15 +243,16 @@ int main(int agrc, char ** argv) {
         if (!rotation) glfwSetTime(1);
 
 #ifdef only2D
-        const Mat4 p{Mat4::perspective(16.0f, dim.aspect(), 0.0001f, 1000.0f)};
+        const Mat4 p{Mat4::perspective(26.0f, dim.aspect(), 0.0001f, 1000.0f)};
         const Mat4 m{};
+        simplePS.setPointSize(dim.height/150.0f);
 #else
         const Mat4 p{Mat4::perspective(6.0f, dim.aspect(), 0.0001f, 1000.0f)};
-        const Mat4 m{Mat4::rotationY(45*float(glfwGetTime())/2.0f)*Mat4::rotationX(30*float(glfwGetTime())/2.0f)};
+        const Mat4 m{Mat4::rotationY(45*float(glfwGetTime())/20.0f)*Mat4::rotationX(30*float(glfwGetTime())/20.0f)};
+        simplePS.setPointSize(dim.height/80.0f);
 #endif
         const Mat4 v{Mat4::lookAt(lookFromVec,lookAtVec,upVec)};
 
-        simplePS.setPointSize(dim.height/80.0f);
         simplePS.render(m*v,p);
 
 #ifdef showOctree
@@ -298,9 +280,14 @@ int main(int agrc, char ** argv) {
         }
 #endif
         
+        
         GLEnv::checkGLError("endOfFrame");
         gl.endOfFrame();
+
     } while (!gl.shouldClose());  
-  
+
+    bTerminateSimulation = true;
+    simulationThread.join();
+
     return EXIT_SUCCESS;
 }  
