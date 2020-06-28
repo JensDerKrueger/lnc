@@ -3,7 +3,7 @@
 #include <vector>
 #include <array>
 #include <Vec3.h>
-#include <Vec2i.h>
+#include <Vec2.h>
 
 const std::vector<std::vector<std::array<Vec2i,4>>> tetrominos{	
 		{{Vec2i{-1,0},Vec2i{0,0},Vec2i{1,0},Vec2i{2,0}},

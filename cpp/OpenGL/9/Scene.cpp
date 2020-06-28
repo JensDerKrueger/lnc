@@ -195,7 +195,7 @@ void Scene::renderWorld(float t0, const Mat4& m, const Mat4& v, const Mat4& p, c
 
 	// ************* particles
 
-	particleSystem.setSize(dim.height/30);
+	particleSystem.setPointSize(dim.height/30);
 	
 	starter->setStart(mBall * Vec3(0.0f,0.0f,0.0f), 0.2);
 	

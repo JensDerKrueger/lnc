@@ -6,7 +6,7 @@
 #include <string>
 #include <sstream>
 
-#include "Vec2i.h"
+#include "Vec2.h"
 
 namespace BMP {
 	class BMPException : public std::exception {

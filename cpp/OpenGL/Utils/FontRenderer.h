@@ -4,7 +4,7 @@
 #include <utility>
 
 #include "bmp.h"
-#include "Vec2i.h"
+#include "Vec2.h"
 
 
 

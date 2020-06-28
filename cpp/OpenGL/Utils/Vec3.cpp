@@ -150,7 +150,7 @@ Vec3 Vec3::randomPointInHemisphere() {
 
 Vec3 Vec3::randomPointInDisc() {
 	while (true) {
-		Vec3 p{Rand::rand01(),Rand::rand01(),0};
+		Vec3 p{Rand::rand11(),Rand::rand11(),0};
 		if (p.sqlength() > 1) continue;
 		return p;
 	}	
@@ -187,3 +187,12 @@ Vec3 Vec3::hsvToRgb(const Vec3& other) {
 		default: return {v,p,q};
 	}
 }
+
+Vec3 Vec3::minV(const Vec3& a, const Vec3& b) {
+    return {std::min(a.x(),b.x()), std::min(a.y(),b.y()), std::min(a.z(),b.z())};
+}
+
+Vec3 Vec3::maxV(const Vec3& a, const Vec3& b) {
+    return {std::max(a.x(),b.x()), std::max(a.y(),b.y()), std::max(a.z(),b.z())};
+}
+

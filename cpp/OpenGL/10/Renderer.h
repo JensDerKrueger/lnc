@@ -2,7 +2,7 @@
 
 #include <vector>
 #include <Vec3.h>
-#include <Vec2i.h>
+#include <Vec2.h>
 
 class Renderer {
 public:

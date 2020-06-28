@@ -3,7 +3,6 @@
 #include "Renderer.h"
 
 #include <Vec2.h>
-#include <Vec2i.h>
 #include <GLProgram.h>
 #include <Tesselation.h>
 #include <GLBuffer.h>

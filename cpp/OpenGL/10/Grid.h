@@ -5,7 +5,7 @@
 #include <string>
 
 #include "Renderer.h"
-#include "Vec2i.h"
+#include "Vec2.h"
 
 class Grid {
 public:

@@ -45,7 +45,10 @@ class Vec3 {
 		static Vec3 reflect(const Vec3& a, const Vec3& n);
 		static Vec3 refract(const Vec3& a, const Vec3& n, 
 							const float index);
-		
+        
+        static Vec3 minV(const Vec3& a, const Vec3& b);
+        static Vec3 maxV(const Vec3& a, const Vec3& b);
+    
 		static Vec3 random();		
 		static Vec3 randomPointInSphere();
 		static Vec3 randomPointInHemisphere();
