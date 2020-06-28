@@ -1,3 +1,7 @@
+#define showOctree
+//#define only2D
+
+
 #include <fstream>
 #include <iostream>
 #include <vector>
@@ -101,11 +105,19 @@ bool checkCollision(const Vec3& pos) {
 }
 
 Vec3 randomWalk(const Vec3& pos) {
-    return pos + Vec3::randomPointInSphere()*mindDist(pos);
+    #ifdef only2D
+        return pos + Vec3::randomPointInDisc()*mindDist(pos);
+    #else
+        return pos + Vec3::randomPointInSphere()*mindDist(pos);
+    #endif
 }
 
 Vec3 genRandomStartpoint() {
+#ifdef only2D
+    Vec3 current{Rand::rand11(),Rand::rand11(),0};
+#else
     Vec3 current{Rand::rand11(),Rand::rand11(),Rand::rand11()};
+#endif
     while (checkCollision(current))
         current = genRandomStartpoint();
     return current;
@@ -158,6 +170,7 @@ void simulate(size_t maxParticleCount, uint32_t quota) {
 int main(int agrc, char ** argv) {
     GLEnv gl{640,480,4,"Dendrite Growth Simulation", true, true, 4, 1, true};
 
+#ifdef showOctree
     std::string vsString{
     "#version 410\n"
     "uniform mat4 MVP;\n"
@@ -196,7 +209,7 @@ int main(int agrc, char ** argv) {
     octreeFaceArray.bind();
     octreeFaceArray.connectVertexAttrib(vbOctreeFacePos, prog, "vPos", 3);
     octreeFaceArray.connectVertexAttrib(vbOctreeFacePos, prog, "vColor", 4, 3);
-
+#endif
 
     SimpleStaticParticleSystem simplePS(fixedParticles, 5);
     simplePS.setColor(RAINBOW_COLOR);
@@ -210,19 +223,25 @@ int main(int agrc, char ** argv) {
     glDepthFunc(GL_LESS);
     glClearDepth(1.0f);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    
-    Vec3 lookAtVec{0,0,0};
-    Vec3 lookFromVec{0,1,1};
-    Vec3 upVec{0,1,0};
-        
-    GLEnv::checkGLError("init");
 
+#ifdef only2D
+    Vec3 lookFromVec{0,0,1};
+#else
+    Vec3 lookFromVec{0,1,1};
+#endif
+    Vec3 lookAtVec{0,0,0};
+    Vec3 upVec{0,1,0};
+
+    GLEnv::checkGLError("init");
+#ifdef showOctree
     size_t trisVertexCount = 0;
     size_t lineVertexCount = 0;
+#endif
     do {
                 
         if (fixedParticles.size() < particleCount) {
             simulate(particleCount, 5);
+#ifdef showOctree
             octreeLineArray.bind();
             std::vector<float> data{octree.toLineList()};
             lineVertexCount = data.size()/7;
@@ -232,7 +251,7 @@ int main(int agrc, char ** argv) {
             data = octree.toTriList();
             trisVertexCount = data.size()/7;
             vbOctreeFacePos.setData(data,7,GL_DYNAMIC_DRAW);
-
+#endif
             simplePS.setData(fixedParticles);
         }
         
@@ -241,14 +260,20 @@ int main(int agrc, char ** argv) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         if (!rotation) glfwSetTime(1);
-        
+
+#ifdef only2D
+        const Mat4 p{Mat4::perspective(16.0f, dim.aspect(), 0.0001f, 1000.0f)};
+        const Mat4 m{};
+#else
         const Mat4 p{Mat4::perspective(6.0f, dim.aspect(), 0.0001f, 1000.0f)};
-        const Mat4 v{Mat4::lookAt(lookFromVec,lookAtVec,upVec)};
         const Mat4 m{Mat4::rotationY(45*float(glfwGetTime())/2.0f)*Mat4::rotationX(30*float(glfwGetTime())/2.0f)};
-        
-        simplePS.setPointSize(dim.height/160.0f);
+#endif
+        const Mat4 v{Mat4::lookAt(lookFromVec,lookAtVec,upVec)};
+
+        simplePS.setPointSize(dim.height/80.0f);
         simplePS.render(m*v,p);
-      
+
+#ifdef showOctree
         if (fixedParticles.size() < particleCount) {
             glEnable(GL_BLEND);
             glBlendFunc(GL_ONE, GL_ONE);
@@ -271,6 +296,7 @@ int main(int agrc, char ** argv) {
             glEnable(GL_CULL_FACE);
             glDepthMask(GL_TRUE);
         }
+#endif
         
         GLEnv::checkGLError("endOfFrame");
         gl.endOfFrame();
