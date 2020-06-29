@@ -81,9 +81,6 @@
     <ClInclude Include="..\..\..\Utils\Vec3.h">
       <Filter>Headerdateien\Utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Utils\Vec2i.h">
-      <Filter>Headerdateien\Utils</Filter>
-    </ClInclude>
     <ClInclude Include="Z:\twitch\lnc\cpp\OpenGL\Utils\Vec4.h">
       <Filter>Headerdateien\Utils</Filter>
     </ClInclude>
@@ -159,9 +156,6 @@
       <Filter>Quelldateien\Utils</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Utils\Tesselation.cpp">
-      <Filter>Quelldateien\Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Utils\Vec2.cpp">
       <Filter>Quelldateien\Utils</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Utils\Vec3.cpp">

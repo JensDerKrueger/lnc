@@ -72,9 +72,6 @@
     <ClCompile Include="..\..\..\Utils\Tesselation.cpp">
       <Filter>Quelldateien\Utils</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Utils\Vec2.cpp">
-      <Filter>Quelldateien\Utils</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\Utils\Vec3.cpp">
       <Filter>Quelldateien\Utils</Filter>
     </ClCompile>
@@ -135,9 +132,6 @@
       <Filter>Headerdateien\Utils</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Utils\Vec4.h">
-      <Filter>Headerdateien\Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Utils\Vec2i.h">
       <Filter>Headerdateien\Utils</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Octree.h">

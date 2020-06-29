@@ -178,7 +178,6 @@
     <ClCompile Include="..\..\..\Utils\PrecomputedParticleSystem.cpp" />
     <ClCompile Include="..\..\..\Utils\Rand.cpp" />
     <ClCompile Include="..\..\..\Utils\Tesselation.cpp" />
-    <ClCompile Include="..\..\..\Utils\Vec2.cpp" />
     <ClCompile Include="..\..\..\Utils\Vec3.cpp" />
     <ClCompile Include="..\..\..\Utils\Vec4.cpp" />
     <ClCompile Include="..\..\main.cpp" />
@@ -201,7 +200,6 @@
     <ClInclude Include="..\..\..\Utils\Rand.h" />
     <ClInclude Include="..\..\..\Utils\Tesselation.h" />
     <ClInclude Include="..\..\..\Utils\Vec2.h" />
-    <ClInclude Include="..\..\..\Utils\Vec2i.h" />
     <ClInclude Include="..\..\..\Utils\Vec3.h" />
     <ClInclude Include="..\..\..\Utils\Vec4.h" />
     <ClInclude Include="..\..\Octree.h" />
