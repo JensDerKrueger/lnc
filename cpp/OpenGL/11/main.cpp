@@ -81,7 +81,7 @@ std::vector<Vec3> fixedParticles{};
 const float radius = 0.001f;
 const float colDist = 2*radius;
 const size_t particleCount = 100000;
-Octree octree{1.0f, Vec3{0.0f,0.0f,0.0f}, 2};
+Octree octree{1.0f, Vec3{0.0f,0.0f,0.0f}, 10};
 bool rotation{true};
 bool bTerminateSimulation{false};
 std::mutex simulationMutex;
@@ -227,8 +227,8 @@ int main(int agrc, char ** argv) {
     
     do {
                 
-        simulationMutex.lock();
         if (fixedParticles.size() < particleCount) {
+            simulationMutex.lock();
 #ifdef showOctree
             octreeLineArray.bind();
             std::vector<float> data{octree.toLineList()};
@@ -241,8 +241,8 @@ int main(int agrc, char ** argv) {
             vbOctreeFacePos.setData(data,7,GL_DYNAMIC_DRAW);
 #endif
             simplePS.setData(fixedParticles);
+            simulationMutex.unlock();
         }
-        simulationMutex.unlock();
         
         Dimensions dim{ gl.getFramebufferSize() };
         glViewport(0, 0, dim.width, dim.height);
@@ -256,7 +256,7 @@ int main(int agrc, char ** argv) {
         simplePS.setPointSize(dim.height/150.0f);
 #else
         const Mat4 p{Mat4::perspective(6.0f, dim.aspect(), 0.0001f, 1000.0f)};
-        const Mat4 m{Mat4::rotationY(45*float(glfwGetTime())/20.0f)*Mat4::rotationX(30*float(glfwGetTime())/20.0f)};
+        const Mat4 m{Mat4::rotationY(45*float(glfwGetTime())/2.0f)*Mat4::rotationX(30*float(glfwGetTime())/2.0f)};
         simplePS.setPointSize(dim.height/80.0f);
 #endif
         const Mat4 v{Mat4::lookAt(lookFromVec,lookAtVec,upVec)};
