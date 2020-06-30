@@ -17,6 +17,11 @@ Vec4::Vec4(const Vec4& other) :
 	e{other.e}
 {}
 	
+Vec4::Vec4(const Vec3& other, float w) :
+    e{other.x(),other.y(),other.z(),w}
+{}
+
+
 const std::string Vec4::toString() const {
 	std::stringstream s;
 	s << "[" << e[0] << ", " << e[1] << ", " << e[2] << ", " << e[3] << "]";
@@ -115,6 +120,10 @@ float Vec4::sqlength() const {
 	return e[0]*e[0]+e[1]*e[1]+e[2]*e[2]+e[3]*e[3];
 }
 
+Vec3 Vec4::vec3() const {
+    return Vec3(e[0], e[1], e[2]);
+}
+
 float Vec4::dot(const Vec4& a, const Vec4& b) {
 	return a.e[0]*b.e[0]+a.e[1]*b.e[1]+a.e[2]*b.e[2]+a.e[3]*b.e[3];
 }
@@ -122,7 +131,6 @@ float Vec4::dot(const Vec4& a, const Vec4& b) {
 Vec4 Vec4::normalize(const Vec4& a) {
 	return a/a.length();
 }
-
 
 Vec4 Vec4::random() {
 	return Vec4{Rand::rand01(),Rand::rand01(),Rand::rand01(),Rand::rand01()};

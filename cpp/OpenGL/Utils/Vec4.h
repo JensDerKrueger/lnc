@@ -4,11 +4,14 @@
 #include <string>
 #include <array>
 
+#include "Vec3.h"
+
 class Vec4 {
 	public:
 		Vec4();
 		Vec4(float x, float y, float z, float w);
 		Vec4(const Vec4& other);
+        Vec4(const Vec3& other, float w);
 		
 		friend std::ostream& operator<<(std::ostream &os, const Vec4& v) {os << v.toString() ; return os;}
 		const std::string toString() const;
@@ -36,6 +39,8 @@ class Vec4 {
 
 		float length() const;
 		float sqlength() const;
+    
+        Vec3 vec3() const;
 		
 		operator float*(void) {return e.data();}
 		operator const float*(void) const  {return e.data();}
