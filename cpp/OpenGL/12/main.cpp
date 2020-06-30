@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <stack>
 #include <string>
 #include <chrono>
 typedef std::chrono::high_resolution_clock Clock;
@@ -30,48 +31,125 @@ class LException : public std::exception {
 };
 
 
-struct Rule {
-    char source;
-    std::string target;
+struct Target {
+    float probability;
+    std::string targetString;
 };
 
-std::string executeRules(const std::string& s, const std::vector<Rule>& rules) {
-    std::string result = "";
+class Rule {
+public:
+    Rule(char source, const std::string& target) :
+        source(source),
+        targets{Target{1.0f,target}}
+    {}
+
+    Rule(char source, const std::vector<Target>& targets) :
+        source(source),
+        targets{targets}
+    {
+        normalize();
+    }
+
+    std::string getTarget() const {
+        float p = Rand::rand01();
+        
+        for (const Target& t : targets) {
+            p -= t.probability;
+            if (p <= 0)
+                return t.targetString;
+        }
+        
+        return targets.back().targetString;
+    }
     
+    char source;
+    
+private:
+    std::vector<Target> targets;
+    
+    void normalize() {
+        float sum = 0.0f;
+        for (const Target& t : targets) {
+            sum += t.probability;
+        }
+        for (Target& t : targets) {
+            t.probability /= sum;
+        }
+
+    }
+};
+
+struct DrawState {
+    Vec3 pos;
+    Vec3 dir;
+};
+
+struct Symbol {
+    char c;
+    size_t iteration;
+};
+
+struct Vertex {
+    Vec3 pos;
+    size_t iteration;
+};
+
+std::vector<Symbol> genSymbolVector(const std::string& s) {
+    std::vector<Symbol> sv;
     for (const char c : s) {
+        sv.push_back(Symbol{c,0});
+    }
+    return sv;
+}
+
+std::vector<Symbol> executeRules(const std::vector<Symbol>& input, const std::vector<Rule>& rules, size_t iteration) {
+    
+    std::vector<Symbol> result;
+    
+    for (const Symbol symbol : input) {
         bool found = false;
         for (const Rule& r : rules) {
-            if (r.source == c) {
-                result += r.target;
+            if (r.source == symbol.c) {
+                std::string targetString = r.getTarget();
+                for (const char c : targetString) {
+                    result.push_back(Symbol{c, iteration});
+                }
                 found = true;
                 break;
             }
         }
-        if (!found) result += c;
+        if (!found) result.push_back(symbol);
     }
     
     return result;
 }
 
-const std::vector<Vec3> drawString(const std::string& s, float angle) {
-    std::vector<Vec3> result;
+const std::vector<Vertex> drawString(const std::vector<Symbol>& s, float angle, const Vec3& startDir) {
+    std::vector<Vertex> result;
+    std::stack<DrawState> drawStack;
+        
+    DrawState currentState{{0.0f,0.0f,0.0f}, startDir};
     
-    Vec3 pos{0.0f,0.0f,0.0f};
-    Vec3 dir{1.0f,0.0f,0.0f};
-    
-    for (const char c : s) {
-        switch (c) {
+    for (const Symbol& symbol : s) {
+        switch (symbol.c) {
             case 'G' :
             case 'F' :
-                result.push_back(pos);
-                pos = pos + dir;
-                result.push_back(pos);
+                result.push_back(Vertex{currentState.pos, symbol.iteration});
+                currentState.pos = currentState.pos + currentState.dir;
+                result.push_back(Vertex{currentState.pos, symbol.iteration});
+                break;
+            case '[' :
+                drawStack.push(DrawState{currentState});
+                break;
+            case ']' :
+                currentState = drawStack.top();
+                drawStack.pop();
                 break;
             case '+' :
-                dir = Mat4::rotationZ(angle)*dir;
+                currentState.dir = Mat4::rotationZ(angle)*currentState.dir;
                 break;
             case '-' :
-                dir = Mat4::rotationZ(-angle)*dir;
+                currentState.dir = Mat4::rotationZ(-angle)*currentState.dir;
                 break;
         }
     }
@@ -85,12 +163,14 @@ std::vector<float> genTree(size_t iterations) {
     std::string start = "F--F--F";
     std::vector<Rule> rules{Rule{'F',"F+F--F+F"}};
     float angle = 60;
+    Vec3 startDir{1.0f,0.0f,0.0f};
  */
 /*
     // Sierpinski triangle
     std::string start = "F-G-G";
     std::vector<Rule> rules{Rule{'F',"F-G+F+G-F"},Rule{'G',"GG"}};
     float angle = 120;
+    Vec3 startDir{1.0f,0.0f,0.0f};
 */
 
 /*
@@ -98,6 +178,7 @@ std::vector<float> genTree(size_t iterations) {
     std::string start = "FX";
     std::vector<Rule> rules{Rule{'X',"X+YF+"},Rule{'Y',"-FX-Y"}};
     float angle = 90;
+    Vec3 startDir{1.0f,0.0f,0.0f};
 */
     
 /*
@@ -105,48 +186,70 @@ std::vector<float> genTree(size_t iterations) {
     std::string start = "F";
     std::vector<Rule> rules{Rule{'F',"F-G--G+F++FF+G-"},Rule{'G',"+F-GG--G-F++F+G"}};
     float angle = 60;
+    Vec3 startDir{1.0f,0.0f,0.0f};
 */
-
+/*
     // Hilbert Curve
     std::string start = "A";
     std::vector<Rule> rules{Rule{'A',"-BF+AFA+FB-"},Rule{'B',"+AF-BFB-FA+"}};
     float angle = 90;
-
-    std::string target = start;
+    Vec3 startDir{1.0f,0.0f,0.0f};
+*/
+/*
+   // Fractal Plant
+    std::string start = "X";
+    std::vector<Rule> rules{Rule{'X',"F+[[X]-X]-F[-FX]+X"},Rule{'F',"FF"}};
+    float angle = 25;
+    Vec3 startDir{0.0f,1.0f,0.0f};
+*/
+ 
+    
+    std::string start = "X";
+    std::vector<Rule> rules{Rule{'X',std::vector<Target>{Target{0.5f,"F[-FX]FX"},Target{0.5f,"F[+FX]FX"}}}};
+    float angle = 15;
+    Vec3 startDir{0.0f,1.0f,0.0f};
+    
+    std::vector<Symbol> target = genSymbolVector(start);
     for (size_t i = 0;i<iterations;++i) {
-        target = executeRules(target, rules);
+        target = executeRules(target, rules, i+1);
     }
     
     if (target.empty()) {
         throw LException("Evaluated String should not be empty.");
     }
     
-    const std::vector<Vec3> structure = drawString(target, angle);
+    const std::vector<Vertex> structure = drawString(target, angle, startDir);
     
     if (structure.empty()) {
         return {};
     }
     
-    Vec3 minV = structure[0];
-    Vec3 maxV = structure[0];
+    Vec3 minV = structure[0].pos;
+    Vec3 maxV = structure[0].pos;
     
-    for (const Vec3& p : structure) {
-        minV = Vec3::minV(minV, p);
-        maxV = Vec3::maxV(maxV, p);
+    for (const Vertex& p : structure) {
+        minV = Vec3::minV(minV, p.pos);
+        maxV = Vec3::maxV(maxV, p.pos);
+        
     }
     
     const Vec3 sizeV = maxV-minV;
     float maxSize = std::max(sizeV.x(), std::max(sizeV.y(), sizeV.z()));
     
     std::vector<float> data{};
-    for (const Vec3& p : structure) {
-        data.push_back((p.x()-minV.x()-sizeV.x()/2)/maxSize);
-        data.push_back((p.y()-minV.y()-sizeV.y()/2)/maxSize);
-        data.push_back((p.z()-minV.z()-sizeV.z()/2)/maxSize);
-        data.push_back(1.0f);
-        data.push_back(1.0f);
-        data.push_back(1.0f);
-        data.push_back(1.0f);
+    for (const Vertex& p : structure) {
+        data.push_back((p.pos.x()-minV.x()-sizeV.x()/2)/maxSize);
+        data.push_back((p.pos.y()-minV.y()-sizeV.y()/2)/maxSize);
+        data.push_back((p.pos.z()-minV.z()-sizeV.z()/2)/maxSize);
+        
+        if (p.iteration) {
+            Vec3 color = Vec3::hsvToRgb(Vec3{360.0f * p.iteration/iterations,1.0f,1.0f});
+            
+            data.push_back(color.r());
+            data.push_back(color.g());
+            data.push_back(color.b());
+            data.push_back(1.0f);
+        }
     }
     
     return data;
@@ -217,6 +320,8 @@ int main(int agrc, char ** argv) {
 
     glfwSetTime(0);
     size_t maxIter{1000};
+    size_t lastIterations = 1;
+    GLsizei vertexCount=0;
     do {
         Dimensions dim{gl.getFramebufferSize()};
         glViewport(0, 0, dim.width, dim.height);
@@ -230,14 +335,22 @@ int main(int agrc, char ** argv) {
         lineArray.bind();
         
         const size_t iterations = size_t(glfwGetTime()) % maxIter;
-        const std::vector<float> data{genTree(iterations)};
-        vbLinePos.setData(data,7,GL_DYNAMIC_DRAW);
         
-        if (data.size() > 100000) {
-            maxIter = iterations+1;
+        
+        
+        if (iterations != lastIterations) {
+            const std::vector<float> data{genTree(iterations)};
+            vbLinePos.setData(data,7,GL_DYNAMIC_DRAW);
+            lastIterations = iterations;
+
+            if (data.size() > 1000000) {
+                maxIter = iterations+1;
+            }
+            vertexCount = GLsizei(data.size()/7);
         }
         
-        glDrawArrays(GL_LINES, 0, GLsizei(data.size()/7) );
+        
+        glDrawArrays(GL_LINES, 0, vertexCount );
 
         GLEnv::checkGLError("endOfFrame");
         gl.endOfFrame();
