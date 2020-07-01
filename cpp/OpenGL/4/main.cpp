@@ -18,7 +18,7 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
         glfwSetWindowShouldClose(window, GL_TRUE);
 } 
 
-int main(int agrc, char ** argv) {
+int main(int argc, char ** argv) {
     GLEnv gl{640,480,4,"Interactive Late Night Coding Teil 4"};
     
     gl.setKeyCallback(keyCallback);

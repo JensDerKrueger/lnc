@@ -151,7 +151,7 @@ void simulate(size_t particleCount) {
     }
 }
 
-int main(int agrc, char ** argv) {
+int main(int argc, char ** argv) {
     GLEnv gl{640,480,4,"Dendrite Growth Simulation", true, true, 4, 1, true};
 
 #ifdef showOctree

@@ -16,7 +16,7 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
         glfwSetWindowShouldClose(window, GL_TRUE);
 } 
 
-int main(int agrc, char ** argv) {
+int main(int argc, char ** argv) {
 
     glfwSetErrorCallback(errorCallback);  
     if (!glfwInit()) {  
