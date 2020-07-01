@@ -105,6 +105,12 @@ void GLEnv::setKeyCallback(GLFWkeyfun f) {
 	glfwSetKeyCallback(window, f);
 }
 
+void GLEnv::setMouseCallbacks(GLFWcursorposfun p, GLFWmousebuttonfun b, GLFWscrollfun s) {
+    glfwSetCursorPosCallback(window, p);
+    glfwSetMouseButtonCallback(window, b);
+    glfwSetScrollCallback(window, s);
+}
+
 Dimensions GLEnv::getFramebufferSize() const {	
 	int width, height;
 	glfwGetFramebufferSize(window, &width, &height);
