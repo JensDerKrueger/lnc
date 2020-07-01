@@ -93,11 +93,25 @@ struct Vertex {
 };
 
 struct LShape {
+    std::string name;
     std::string start;
     std::vector<Rule> rules;
     float angle;
     Vec3 startDir;
 };
+
+std::vector<LShape> systems {
+    LShape {"koch curve", "F--F--F", {Rule{'F',"F+F--F+F"}}, 60, {1.0f,0.0f,0.0f}},
+    LShape {"sierpinski triangle", "F-G-G", {Rule{'F',"F-G+F+G-F"},Rule{'G',"GG"}}, 120, {1.0f,0.0f,0.0f}},
+    LShape {"dragon curve", "FX", {Rule{'X',"X+YF+"},Rule{'Y',"-FX-Y"}}, 90, {1.0f,0.0f,0.0f}},
+    LShape {"gosper curve", "F", {Rule{'F',"F-G--G+F++FF+G-"},Rule{'G',"+F-GG--G-F++F+G"}}, 60, {1.0f,0.0f,0.0f}},
+    LShape {"hilbert curve", "A", {Rule{'A',"-BF+AFA+FB-"},Rule{'B',"+AF-BFB-FA+"}}, 90, {1.0f,0.0f,0.0f}},
+    LShape {"fractal plant", "X", {Rule{'X',"F+[[X]-X]-F[-FX]+X"},Rule{'F',"FF"}}, 25, {0.0f,1.0f,0.0f}},
+    LShape {"random plant", "X", {Rule{'X',std::vector<Target>{Target{0.5f,"F[-FX]FX"},Target{0.5f,"F[+FX]FX"}}}}, 15, {0.0f,1.0f,0.0f}}
+};
+
+size_t currentSystem = 0;
+
 
 std::string executeRules(const std::string& input, const std::vector<Rule>& rules) {
     
@@ -153,17 +167,8 @@ const std::vector<Vertex> drawString(const std::string& s, float angle, const Ve
     return result;
 }
 
-std::vector<float> genTree(size_t iterations) {
-    LShape kochCurve{"F--F--F", {Rule{'F',"F+F--F+F"}}, 60, {1.0f,0.0f,0.0f}};
-    LShape sierpinskiTriangle{"F-G-G", {Rule{'F',"F-G+F+G-F"},Rule{'G',"GG"}}, 120, {1.0f,0.0f,0.0f}};
-    LShape dragonCurve{"FX", {Rule{'X',"X+YF+"},Rule{'Y',"-FX-Y"}}, 90, {1.0f,0.0f,0.0f}};
-    LShape gosperCurve{"F", {Rule{'F',"F-G--G+F++FF+G-"},Rule{'G',"+F-GG--G-F++F+G"}}, 60, {1.0f,0.0f,0.0f}};
-    LShape hilbertCurve{"A", {Rule{'A',"-BF+AFA+FB-"},Rule{'B',"+AF-BFB-FA+"}}, 90, {1.0f,0.0f,0.0f}};
-    LShape fractalPlant{"X", {Rule{'X',"F+[[X]-X]-F[-FX]+X"},Rule{'F',"FF"}}, 25, {0.0f,1.0f,0.0f}};
-    LShape randomPlant{"X", {Rule{'X',std::vector<Target>{Target{0.5f,"F[-FX]FX"},Target{0.5f,"F[+FX]FX"}}}}, 15, {0.0f,1.0f,0.0f}};
+std::vector<float> genTree(size_t iterations, const LShape& currenShape) {
 
-    const LShape& currenShape = randomPlant;
-    
     std::string target = currenShape.start;
     for (size_t i = 0;i<iterations;++i) {
         target = executeRules(target, currenShape.rules);
@@ -214,6 +219,10 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
         switch (key) {
             case GLFW_KEY_ESCAPE :
                 glfwSetWindowShouldClose(window, GL_TRUE);
+                break;
+            case GLFW_KEY_T :
+                currentSystem = (currentSystem + 1) % systems.size();
+                glfwSetTime(0);
                 break;
         }
     } 
@@ -324,6 +333,7 @@ int main(int argc, char ** argv) {
     GLsizei vertexCount=0;
     size_t iterations=0;
     size_t lastIterations=1;
+    size_t lastSystem=1;
     
     do {
         dim = Dimensions{gl.getFramebufferSize()};
@@ -338,12 +348,13 @@ int main(int argc, char ** argv) {
     
         lineArray.bind();
         
-        if (vertexCount < 10000) {
+        if (currentSystem != lastSystem || vertexCount < 10000) {
             iterations = size_t(glfwGetTime()*10);
         }
         
         if (iterations != lastIterations) {
-            const std::vector<float> data{genTree(iterations)};
+            const std::vector<float> data{genTree(iterations, systems[currentSystem])};
+            lastSystem = currentSystem;
             vbLinePos.setData(data,7,GL_DYNAMIC_DRAW);
             lastIterations = iterations;
             vertexCount = GLsizei(data.size()/7);
