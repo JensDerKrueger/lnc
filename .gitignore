@@ -7,3 +7,5 @@ cpp/OpenGL/10/VS/Tetris/bin/*
 cpp/OpenGL/10/VS/Tetris/tmp/*
 cpp/OpenGL/11/VS/grow/bin/*
 cpp/OpenGL/11/VS/grow/tmp/*
+cpp/OpenGL/12/VS/lsystem/bin/*
+cpp/OpenGL/12/VS/lsystem/tmp/*
