@@ -64,7 +64,7 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
 
 
 
-int main(int agrc, char ** argv) {
+int main(int argc, char ** argv) {
     GLEnv gl{640,480,4,"OpenGL Tetris Teil 10", true, true, 4, 1, true};
         
     renderer = std::make_shared<OpenGLRenderer>(10,20);
