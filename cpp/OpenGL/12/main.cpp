@@ -10,6 +10,7 @@ typedef std::chrono::high_resolution_clock Clock;
 #include <GLEnv.h>
 
 #include <Vec3.h>
+#include <Vec2.h>
 #include <Mat4.h>
 #include <Rand.h>
 
@@ -82,38 +83,31 @@ private:
 struct DrawState {
     Vec3 pos;
     Vec3 dir;
+    size_t depth;
 };
 
-struct Symbol {
-    char c;
-    size_t iteration;
-};
 
 struct Vertex {
     Vec3 pos;
-    size_t iteration;
+    size_t depth;
 };
 
-std::vector<Symbol> genSymbolVector(const std::string& s) {
-    std::vector<Symbol> sv;
-    for (const char c : s) {
-        sv.push_back(Symbol{c,0});
-    }
-    return sv;
-}
+struct LShape {
+    std::string start;
+    std::vector<Rule> rules;
+    float angle;
+    Vec3 startDir;
+};
 
-std::vector<Symbol> executeRules(const std::vector<Symbol>& input, const std::vector<Rule>& rules, size_t iteration) {
+std::string executeRules(const std::string& input, const std::vector<Rule>& rules) {
     
-    std::vector<Symbol> result;
+    std::string result;
     
-    for (const Symbol symbol : input) {
+    for (const char symbol : input) {
         bool found = false;
         for (const Rule& r : rules) {
-            if (r.source == symbol.c) {
-                std::string targetString = r.getTarget();
-                for (const char c : targetString) {
-                    result.push_back(Symbol{c, iteration});
-                }
+            if (r.source == symbol) {
+                result += r.getTarget();
                 found = true;
                 break;
             }
@@ -124,19 +118,19 @@ std::vector<Symbol> executeRules(const std::vector<Symbol>& input, const std::ve
     return result;
 }
 
-const std::vector<Vertex> drawString(const std::vector<Symbol>& s, float angle, const Vec3& startDir) {
+const std::vector<Vertex> drawString(const std::string& s, float angle, const Vec3& startDir) {
     std::vector<Vertex> result;
     std::stack<DrawState> drawStack;
         
-    DrawState currentState{{0.0f,0.0f,0.0f}, startDir};
+    DrawState currentState{{0.0f,0.0f,0.0f}, startDir, 1};
     
-    for (const Symbol& symbol : s) {
-        switch (symbol.c) {
+    for (const char symbol : s) {
+        switch (symbol) {
             case 'G' :
             case 'F' :
-                result.push_back(Vertex{currentState.pos, symbol.iteration});
+                result.push_back(Vertex{currentState.pos, currentState.depth});
                 currentState.pos = currentState.pos + currentState.dir;
-                result.push_back(Vertex{currentState.pos, symbol.iteration});
+                result.push_back(Vertex{currentState.pos, currentState.depth});
                 break;
             case '[' :
                 drawStack.push(DrawState{currentState});
@@ -147,9 +141,11 @@ const std::vector<Vertex> drawString(const std::vector<Symbol>& s, float angle, 
                 break;
             case '+' :
                 currentState.dir = Mat4::rotationZ(angle)*currentState.dir;
+                currentState.depth++;
                 break;
             case '-' :
                 currentState.dir = Mat4::rotationZ(-angle)*currentState.dir;
+                currentState.depth++;
                 break;
         }
     }
@@ -158,67 +154,26 @@ const std::vector<Vertex> drawString(const std::vector<Symbol>& s, float angle, 
 }
 
 std::vector<float> genTree(size_t iterations) {
-/*
-    // Koch curve
-    std::string start = "F--F--F";
-    std::vector<Rule> rules{Rule{'F',"F+F--F+F"}};
-    float angle = 60;
-    Vec3 startDir{1.0f,0.0f,0.0f};
- */
-/*
-    // Sierpinski triangle
-    std::string start = "F-G-G";
-    std::vector<Rule> rules{Rule{'F',"F-G+F+G-F"},Rule{'G',"GG"}};
-    float angle = 120;
-    Vec3 startDir{1.0f,0.0f,0.0f};
-*/
+    LShape kochCurve{"F--F--F", {Rule{'F',"F+F--F+F"}}, 60, {1.0f,0.0f,0.0f}};
+    LShape sierpinskiTriangle{"F-G-G", {Rule{'F',"F-G+F+G-F"},Rule{'G',"GG"}}, 120, {1.0f,0.0f,0.0f}};
+    LShape dragonCurve{"FX", {Rule{'X',"X+YF+"},Rule{'Y',"-FX-Y"}}, 90, {1.0f,0.0f,0.0f}};
+    LShape gosperCurve{"F", {Rule{'F',"F-G--G+F++FF+G-"},Rule{'G',"+F-GG--G-F++F+G"}}, 60, {1.0f,0.0f,0.0f}};
+    LShape hilbertCurve{"A", {Rule{'A',"-BF+AFA+FB-"},Rule{'B',"+AF-BFB-FA+"}}, 90, {1.0f,0.0f,0.0f}};
+    LShape fractalPlant{"X", {Rule{'X',"F+[[X]-X]-F[-FX]+X"},Rule{'F',"FF"}}, 25, {0.0f,1.0f,0.0f}};
+    LShape randomPlant{"X", {Rule{'X',std::vector<Target>{Target{0.5f,"F[-FX]FX"},Target{0.5f,"F[+FX]FX"}}}}, 15, {0.0f,1.0f,0.0f}};
 
-/*
-    // Dragon Curve
-    std::string start = "FX";
-    std::vector<Rule> rules{Rule{'X',"X+YF+"},Rule{'Y',"-FX-Y"}};
-    float angle = 90;
-    Vec3 startDir{1.0f,0.0f,0.0f};
-*/
+    const LShape& currenShape = randomPlant;
     
-/*
-    // Gosper Curve
-    std::string start = "F";
-    std::vector<Rule> rules{Rule{'F',"F-G--G+F++FF+G-"},Rule{'G',"+F-GG--G-F++F+G"}};
-    float angle = 60;
-    Vec3 startDir{1.0f,0.0f,0.0f};
-*/
-/*
-    // Hilbert Curve
-    std::string start = "A";
-    std::vector<Rule> rules{Rule{'A',"-BF+AFA+FB-"},Rule{'B',"+AF-BFB-FA+"}};
-    float angle = 90;
-    Vec3 startDir{1.0f,0.0f,0.0f};
-*/
-/*
-   // Fractal Plant
-    std::string start = "X";
-    std::vector<Rule> rules{Rule{'X',"F+[[X]-X]-F[-FX]+X"},Rule{'F',"FF"}};
-    float angle = 25;
-    Vec3 startDir{0.0f,1.0f,0.0f};
-*/
- 
-    
-    std::string start = "X";
-    std::vector<Rule> rules{Rule{'X',std::vector<Target>{Target{0.5f,"F[-FX]FX"},Target{0.5f,"F[+FX]FX"}}}};
-    float angle = 15;
-    Vec3 startDir{0.0f,1.0f,0.0f};
-    
-    std::vector<Symbol> target = genSymbolVector(start);
+    std::string target = currenShape.start;
     for (size_t i = 0;i<iterations;++i) {
-        target = executeRules(target, rules, i+1);
+        target = executeRules(target, currenShape.rules);
     }
     
     if (target.empty()) {
         throw LException("Evaluated String should not be empty.");
     }
     
-    const std::vector<Vertex> structure = drawString(target, angle, startDir);
+    const std::vector<Vertex> structure = drawString(target, currenShape.angle, currenShape.startDir);
     
     if (structure.empty()) {
         return {};
@@ -226,11 +181,12 @@ std::vector<float> genTree(size_t iterations) {
     
     Vec3 minV = structure[0].pos;
     Vec3 maxV = structure[0].pos;
+    size_t maxDepth = 0;
     
     for (const Vertex& p : structure) {
         minV = Vec3::minV(minV, p.pos);
         maxV = Vec3::maxV(maxV, p.pos);
-        
+        maxDepth = std::max(maxDepth,p.depth);
     }
     
     const Vec3 sizeV = maxV-minV;
@@ -241,15 +197,12 @@ std::vector<float> genTree(size_t iterations) {
         data.push_back((p.pos.x()-minV.x()-sizeV.x()/2)/maxSize);
         data.push_back((p.pos.y()-minV.y()-sizeV.y()/2)/maxSize);
         data.push_back((p.pos.z()-minV.z()-sizeV.z()/2)/maxSize);
-        
-        if (p.iteration) {
-            Vec3 color = Vec3::hsvToRgb(Vec3{360.0f * p.iteration/iterations,1.0f,1.0f});
-            
-            data.push_back(color.r());
-            data.push_back(color.g());
-            data.push_back(color.b());
-            data.push_back(1.0f);
-        }
+                
+        Vec3 color = Vec3::hsvToRgb(Vec3{360.0f * p.depth/maxDepth,1.0f,1.0f});
+        data.push_back(color.r());
+        data.push_back(color.g());
+        data.push_back(color.b());
+        data.push_back(1.0f);
     }
     
     return data;
@@ -266,6 +219,54 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
     } 
 }
 
+
+float scale{1.0f};
+Vec2 translation{0.0f,0.0f};
+Vec2 lastTranslation{0.0f,0.0f};
+bool leftMousePressed = false;
+bool rightMousePressed = false;
+Vec2 currentPos{0.0f,0.0f};
+Vec2 leftStartPos{0.0f,0.0f};
+Vec2 rigthStartPos{0.0f,0.0f};
+Dimensions dim;
+float rotation = 0.0f;
+float lastRotation = 0.0f;
+
+void mousePosCallback(GLFWwindow* window, double xpos, double ypos) {
+    currentPos = Vec2(xpos/(dim.width/2), 1.0f-ypos/(dim.height/2));
+    
+    if (leftMousePressed) {
+        translation = lastTranslation + currentPos-leftStartPos;
+    }
+    
+    if (rightMousePressed) {
+        rotation = lastRotation + 360*(currentPos.x()-rigthStartPos.x());
+    }
+}
+
+void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+        leftStartPos = currentPos;
+        leftMousePressed = true;
+    }
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
+        leftMousePressed = false;
+        lastTranslation = translation;
+    }
+    
+    if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
+        rigthStartPos = currentPos;
+        rightMousePressed = true;
+    }
+    if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE) {
+        rightMousePressed = false;
+        lastRotation = rotation;
+    }
+}
+
+void mouseScrollCallback(GLFWwindow *window, double xoffset, double yoffset) {
+    scale = std::min(100.0f,std::max(0.1f,scale+float(yoffset)));
+}
     
 int main(int argc, char ** argv) {
     GLEnv gl{640,480,4,"Plant Growth", true, true, 4, 1, true};
@@ -303,6 +304,7 @@ int main(int argc, char ** argv) {
     lineArray.connectVertexAttrib(vbLinePos, prog, "vColor", 4, 3);
     
     gl.setKeyCallback(keyCallback);
+    gl.setMouseCallbacks(mousePosCallback, mouseButtonCallback, mouseScrollCallback);
     glfwSetTime(0);
     
     glEnable(GL_CULL_FACE);
@@ -319,33 +321,31 @@ int main(int argc, char ** argv) {
     GLEnv::checkGLError("init");
 
     glfwSetTime(0);
-    size_t maxIter{1000};
-    size_t lastIterations = 1;
     GLsizei vertexCount=0;
+    size_t iterations=0;
+    size_t lastIterations=1;
+    
     do {
-        Dimensions dim{gl.getFramebufferSize()};
+        dim = Dimensions{gl.getFramebufferSize()};
         glViewport(0, 0, dim.width, dim.height);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
                         
-        const Mat4 p{Mat4::ortho(-1,1,-1/dim.aspect(),1/dim.aspect(),-1,1)};
+        const Mat4 p{Mat4::scaling(scale, scale, scale) * Mat4::rotationZ(rotation)* Mat4::translation(translation.x(), translation.y(), 0) * Mat4::ortho(-1,1,-1/dim.aspect(),1/dim.aspect(),-1,1)};
+        
             
         prog.enable();
         prog.setUniform(mvpLocation, p);
     
         lineArray.bind();
         
-        const size_t iterations = size_t(glfwGetTime()) % maxIter;
-        
-        
+        if (vertexCount < 10000) {
+            iterations = size_t(glfwGetTime()*10);
+        }
         
         if (iterations != lastIterations) {
             const std::vector<float> data{genTree(iterations)};
             vbLinePos.setData(data,7,GL_DYNAMIC_DRAW);
             lastIterations = iterations;
-
-            if (data.size() > 1000000) {
-                maxIter = iterations+1;
-            }
             vertexCount = GLsizei(data.size()/7);
         }
         
