@@ -13,6 +13,7 @@ typedef std::chrono::high_resolution_clock Clock;
 #include <Vec2.h>
 #include <Mat4.h>
 #include <Rand.h>
+#include <bmp.h>
 
 #include "GLProgram.h"
 #include "GLBuffer.h"
@@ -40,6 +41,40 @@ public:
         height(height),
         data(width*height)
     {
+    }
+    
+    size_t getWidth() const {
+        return width;
+    }
+    
+    size_t getHeight() const {
+        return height;
+    }
+
+    std::string toString() const {
+        std::stringstream s;
+        for (size_t i = 0;i<data.size();++i) {
+            s << data[i];
+            if (i%width == width-1 && i != 0)
+                s << std::endl;
+            else
+                s << ", ";
+        }
+        return s.str();
+    }
+    
+    std::vector<uint8_t> toByteArray() const {
+        std::vector<uint8_t> uidata(data.size()*3);
+        for (size_t i = 0;i<data.size();++i) {
+            uidata[i*3+0] = uint8_t(data[i]*255);
+            uidata[i*3+1] = uint8_t(data[i]*255);
+            uidata[i*3+2] = uint8_t(data[i]*255);
+        }
+        return uidata;
+    }
+
+    friend std::ostream& operator<<(std::ostream &os, const Grid2D& v) {
+        os << v.toString() ; return os;
     }
     
     void setValue(size_t x, size_t y, float value) {
@@ -80,7 +115,6 @@ public:
         return result;
     }
     
-    
     Grid2D operator*(const float& value) const {
         Grid2D result{width,height};
         for (size_t i = 0;i<result.data.size();++i) {
@@ -103,7 +137,7 @@ public:
             size_t i=0;
             for (size_t y = 0;y<other.height;++y) {
                 for (size_t x = 0;x<other.width;++x) {
-                    result.data[i] = other.data[i] + sample(x/float(other.width-1),y/float(other.height-1));
+                    result.data[i] = other.data[i] + sample(x/float(other.width-1.0f),y/float(other.height-1.0f));
                     i++;
                 }
             }
@@ -113,7 +147,7 @@ public:
             size_t i=0;
             for (size_t y = 0;y<height;++y) {
                 for (size_t x = 0;x<width;++x) {
-                    result.data[i] = data[i] + other.sample(x/float(width-1),y/float(height-1));
+                    result.data[i] = data[i] + other.sample(x/float(width-1.0f),y/float(height-1.0f));
                     i++;
                 }
             }
@@ -139,12 +173,22 @@ private:
 
 
 int main(int argc, char ** argv) {
+    Grid2D g0 = Grid2D::genRandom(256, 256);
     Grid2D g1 = Grid2D::genRandom(128, 128);
     Grid2D g2 = Grid2D::genRandom(64, 64);
     Grid2D g3 = Grid2D::genRandom(32, 32);
     Grid2D g4 = Grid2D::genRandom(16, 16);
-    
-    Grid2D g = g1*1.0f/8.0f+g2*1.0f/4.0f+g3*1.0f/2.0f+g4;
+    Grid2D g5 = Grid2D::genRandom(8, 8);
+        
+    Grid2D g = g0*1.0f/32.0f+g1*1.0f/16.0f+g2*1.0f/8.0f+g3*1.0f/4.0f+g4/2.0f;
+
+    BMP::save("g0.bmp", g0.getWidth(), g0.getHeight(), g0.toByteArray(), 3);
+    BMP::save("g1.bmp", g1.getWidth(), g1.getHeight(), g1.toByteArray(), 3);
+    BMP::save("g2.bmp", g2.getWidth(), g2.getHeight(), g2.toByteArray(), 3);
+    BMP::save("g3.bmp", g3.getWidth(), g3.getHeight(), g3.toByteArray(), 3);
+    BMP::save("g4.bmp", g4.getWidth(), g4.getHeight(), g4.toByteArray(), 3);
+    BMP::save("g5.bmp", g5.getWidth(), g5.getHeight(), g5.toByteArray(), 3);
+    BMP::save("g.bmp", g.getWidth(), g.getHeight(), g.toByteArray(), 3);
 
     return 0;
  /*
