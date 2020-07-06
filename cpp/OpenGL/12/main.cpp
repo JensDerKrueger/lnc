@@ -101,6 +101,7 @@ struct LShape {
 };
 
 std::vector<LShape> systems {
+    #include "lsystems.inc"
     LShape {"koch curve", "F--F--F", {Rule{'F',"F+F--F+F"}}, 60, {1.0f,0.0f,0.0f}},
     LShape {"sierpinski triangle", "F-G-G", {Rule{'F',"F-G+F+G-F"},Rule{'G',"GG"}}, 120, {1.0f,0.0f,0.0f}},
     LShape {"dragon curve", "FX", {Rule{'X',"X+YF+"},Rule{'Y',"-FX-Y"}}, 90, {1.0f,0.0f,0.0f}},
