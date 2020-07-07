@@ -9,6 +9,7 @@
 
 #include "Vec3.h"
 #include "Mat4.h"
+#include "GLTexture1D.h"
 #include "GLTexture2D.h"
 
 class ProgramException : public std::exception {
@@ -38,7 +39,8 @@ public:
 	void setUniform(GLint id, const Vec3& value) const;
 	void setUniform(GLint id, const Mat4& value, bool transpose=false) const;
 	
-	void setTexture(GLint id, const GLTexture2D& texture, GLuint unit=0) const; 
+	void setTexture(GLint id, const GLTexture2D& texture, GLuint unit=0) const;
+    void setTexture(GLint id, const GLTexture1D& texture, GLuint unit=0) const;
 	
 	void enable() const;
 	void disable() const;

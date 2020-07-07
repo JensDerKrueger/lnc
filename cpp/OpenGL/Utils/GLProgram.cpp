@@ -135,6 +135,12 @@ void GLProgram::setTexture(GLint id, const GLTexture2D& texture, GLuint unit) co
 	glUniform1i(id, unit);
 }
 
+void GLProgram::setTexture(GLint id, const GLTexture1D& texture, GLuint unit) const {
+    glActiveTexture(GL_TEXTURE0 + unit);
+    glBindTexture(GL_TEXTURE_1D, texture.getId());
+    glUniform1i(id, unit);
+}
+
 void GLProgram::checkAndThrow() {
 	GLenum e = glGetError();
 	if (e != GL_NO_ERROR) {
