@@ -9,3 +9,5 @@ cpp/OpenGL/11/VS/grow/bin/*
 cpp/OpenGL/11/VS/grow/tmp/*
 cpp/OpenGL/12/VS/lsystem/bin/*
 cpp/OpenGL/12/VS/lsystem/tmp/*
+cpp/OpenGL/terrain/VS/terrain/bin/*
+cpp/OpenGL/terrain/VS/terrain/tmp/*

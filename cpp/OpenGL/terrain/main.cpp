@@ -76,7 +76,7 @@ int main(int argc, char ** argv) {
     const Vec2t<size_t> startRes{512, 512};
     Grid2D heightField{startRes.x(),startRes.y()};
     for (size_t octave = 0;octave<octaves;++octave) {
-        const Vec2 currentRes = startRes / (1<<octave);
+        const Vec2 currentRes = startRes / (1ll<<octave);
         Grid2D currentGrid = Grid2D::genRandom(currentRes.x(), currentRes.y());
         heightField = heightField + currentGrid/(1<<(octaves-octave));
     }
