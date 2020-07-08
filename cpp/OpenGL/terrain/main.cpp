@@ -105,19 +105,19 @@ public:
             for (size_t p = 0;p<texSize;++p) {
                 const float normIndex = float(p)/float(texSize-1);
                 
-                if (normIndex >= colors[nextIndex].pos) {
-                    prevIndex++;
-                    nextIndex = prevIndex+1;
+                if (normIndex > colors[nextIndex].pos) {
+                    prevIndex = nextIndex;
+                    nextIndex = nextIndex+1;
                 }
                 if (normIndex >= colors.back().pos) {
                     prevIndex = colors.size()-1;
                     nextIndex = colors.size()-1;
                 }
-                
                             
                 const Vec3& prev = colors[prevIndex].color;
                 const Vec3& next = colors[nextIndex].color;
                 
+                                
                 float alpha = (prevIndex == nextIndex) ? 0.5f :  (normIndex-colors[prevIndex].pos)/(colors[nextIndex].pos-colors[prevIndex].pos);
                 
                 const Vec3 curreColor{prev*(1-alpha)+next*alpha};
