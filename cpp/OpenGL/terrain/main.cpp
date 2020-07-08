@@ -206,12 +206,14 @@ int main(int argc, char ** argv) {
     "in vec3 pos;\n"
     "in float height;\n"
     "uniform float reduction;\n"
+    "uniform float alpha;\n"
+        
     "out vec4 FragColor;\n"
     "void main() {\n"
     "    vec3 lightDir = normalize(lightPos-pos);\n"
     "    float diffuse = dot(normalize(normal), lightDir);\n"
     "    vec3 texValue = texture(heightSampler, height*reduction).rgb*diffuse;\n"
-    "    FragColor = vec4(texValue,1.0);\n"
+    "    FragColor = vec4(texValue,alpha);\n"
     "}\n"};
     
     GLProgram prog{GLProgram::createFromString(vsString, fsString)};
@@ -220,11 +222,11 @@ int main(int argc, char ** argv) {
     GLint mvitLocation{prog.getUniformLocation("itMV")};
     GLint lightPosLocation{prog.getUniformLocation("lightPos")};
     GLint reductionLocation{prog.getUniformLocation("reduction")};
+    GLint alphaLocation{prog.getUniformLocation("alpha")};
     GLint heightTextureLocation{prog.getUniformLocation("heightSampler")};
     
     prog.enable();
     prog.setTexture(heightTextureLocation,heightTexture);
-    prog.setUniform(reductionLocation, reduction);
     
     GLArray terrainArray{};
     GLBuffer vbTerrain{GL_ARRAY_BUFFER};
@@ -236,10 +238,9 @@ int main(int argc, char ** argv) {
     terrainArray.connectVertexAttrib(vbTerrain, prog, "vPos", 3);
     terrainArray.connectVertexAttrib(vbTerrain, prog, "vNormal", 3, 3);
     
-/*
     GLArray waterArray{};
     GLBuffer vbWater{GL_ARRAY_BUFFER};
-    const float waterLevel = 0.8f;
+    const float waterLevel = 0.2f/reduction;
     const std::vector<float> waterVertices{-0.5f,waterLevel,-0.5f, 0.0f,1.0f,0.0f,
                                             0.5f,waterLevel,-0.5f, 0.0f,1.0f,0.0f,
                                             0.5f,waterLevel,0.5f, 0.0f,1.0f,0.0f,
@@ -251,8 +252,6 @@ int main(int argc, char ** argv) {
     waterArray.bind();
     waterArray.connectVertexAttrib(vbWater, prog, "vPos", 3);
     waterArray.connectVertexAttrib(vbWater, prog, "vNormal", 3, 3);
-    */
-    
     
     
     gl.setKeyCallback(keyCallback);
@@ -286,16 +285,29 @@ int main(int argc, char ** argv) {
         prog.setUniform(mvitLocation, Mat4::inverse(m*v), true);
         prog.setUniform(mvLocation, m*v);
         prog.setUniform(lightPosLocation, Vec3{0,0,0});
-        
+        prog.setUniform(alphaLocation, 1.0f);
+        prog.setUniform(reductionLocation, reduction);
+
 
         terrainArray.bind();
         glDrawArrays(GL_TRIANGLES, 0, tris.size()/6 );
+      
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glBlendEquation(GL_FUNC_ADD);
+        glDepthMask(GL_FALSE);
         
-      /*
+        prog.setUniform(alphaLocation, 0.9f);
+        prog.setUniform(reductionLocation, 1.0f);
+
+        
         waterArray.bind();
         glDrawArrays(GL_TRIANGLES, 0, waterVertices.size()/6 );
-*/
 
+        glDisable(GL_BLEND);
+        glDepthMask(GL_TRUE);
+
+        
         GLEnv::checkGLError("endOfFrame");
         gl.endOfFrame();
     } while (!gl.shouldClose());  
