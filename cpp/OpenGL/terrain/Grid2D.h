@@ -20,7 +20,8 @@ public:
     Grid2D operator*(const float& value) const;
     Grid2D operator/(const float& value) const;
     Grid2D operator+(const Grid2D& other) const;
-        
+    void normalize();
+
     friend std::ostream& operator<<(std::ostream &os, const Grid2D& v);
 
 private:

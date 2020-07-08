@@ -70,39 +70,113 @@ const std::vector<float> convertHeightFieldToTriangles(const Grid2D& heightField
     return tris;
 }
 
-int main(int argc, char ** argv) {
 
-    const size_t octaves = 8;
-    const Vec2t<size_t> startRes{512, 512};
+
+class PosColor {
+public:
+    float pos;
+    Vec3 color;
+    bool operator<(const PosColor& other) const {
+        return pos < other.pos;
+    }
+};
+
+class GradientGenerator {
+public:
+    GradientGenerator(size_t texSize) : texSize(texSize) {}
+
+    void addColor(float pos, const Vec3& color) {
+        addColor(PosColor{pos, color});
+    }
+
+    void addColor(const PosColor& c) {
+        colors.push_back(c);
+    }
+    
+    GLTexture1D getTexture() {
+        std::sort(colors.begin(), colors.end());
+        
+        std::vector<GLubyte> textureData(texSize*3);
+
+        if (colors.size() > 0) {
+                    
+            size_t prevIndex = 0;
+            size_t nextIndex = 0;
+            for (size_t p = 0;p<texSize;++p) {
+                const float normIndex = float(p)/float(texSize-1);
+                
+                if (normIndex >= colors[nextIndex].pos) {
+                    prevIndex++;
+                    nextIndex = prevIndex+1;
+                }
+                if (normIndex >= colors.back().pos) {
+                    prevIndex = colors.size()-1;
+                    nextIndex = colors.size()-1;
+                }
+                
+                            
+                const Vec3& prev = colors[prevIndex].color;
+                const Vec3& next = colors[nextIndex].color;
+                
+                float alpha = (prevIndex == nextIndex) ? 0.5f :  (normIndex-colors[prevIndex].pos)/(colors[nextIndex].pos-colors[prevIndex].pos);
+                
+                const Vec3 curreColor{prev*(1-alpha)+next*alpha};
+                textureData[p*3+0] = GLubyte(curreColor.r()*255);
+                textureData[p*3+1] = GLubyte(curreColor.g()*255);
+                textureData[p*3+2] = GLubyte(curreColor.b()*255);
+            }
+        }
+        
+        GLTexture1D texture{GL_LINEAR, GL_LINEAR};
+        texture.setData(textureData, texSize, 3);
+        return texture;
+    }
+    
+private:
+    size_t texSize;
+    std::vector<PosColor> colors;
+    
+};
+
+
+
+
+int main(int argc, char ** argv) {
+    const size_t octaves = 9;
+    const Vec2t<size_t> startRes{1024, 1024};
     Grid2D heightField{startRes.x(),startRes.y()};
     for (size_t octave = 0;octave<octaves;++octave) {
         const Vec2 currentRes = startRes / (1ll<<octave);
         Grid2D currentGrid = Grid2D::genRandom(currentRes.x(), currentRes.y());
         heightField = heightField + currentGrid/(1<<(octaves-octave));
     }
-    heightField = heightField/3.0f;
+    
+    const float reduction = 3.0f;
+    
+    heightField.normalize();
+    heightField = heightField/reduction;
+
+    
+    
     
     GLEnv gl{1024,768,4,"Terrain Generator", true, true, 4, 1, true};
 
-    const size_t texSize{256};
-    std::vector<GLubyte> heightTextureData(texSize*3);
+    GradientGenerator gend(256);
     
-    // 0        0.2     0.25        0.5           0.7    0.9
-    // blau -- gelb -- hellgrün -- dunkelgrün -- grau -- weiß
+    gend.addColor(0.0f, Vec3{ 0.09f, 0.27f, 0.63f });   //water
+    gend.addColor(0.2f, Vec3{ 0.09f, 0.27f, 0.63f });   //water
+    gend.addColor(0.25f, Vec3{ 0.79f, 0.62f, 0.41f});   //beach
+    gend.addColor(0.3f, Vec3{ 0.79f, 0.62f, 0.41f });   //beach
+    gend.addColor(0.35f, Vec3{ 0.29f, 0.65f, 0.23f });  //gras1
+    gend.addColor(0.4f, Vec3{ 0.12f, 0.32f, 0.12f });  //gras2
+    gend.addColor(0.6f, Vec3{ 0.07f, 0.19f, 0.08f });  //gras3
+    gend.addColor(0.7f, Vec3{ 0.32f, 0.31f, 0.31f });  //rock
+    gend.addColor(0.9f, Vec3{ 0.32f, 0.31f, 0.31f });  //rock
+    gend.addColor(1.0f, Vec3{ 1.0f, 1.0f, 1.0f });  //snow
+    
+    
+    GLTexture1D heightTexture = gend.getTexture();
 
-    
-    const Vec3 blue{0.0,0.0,1.0};
-    const Vec3 red{1.0,0.0,0.0};
-    for (size_t p = 0;p<texSize;++p) {
-        const float alpha = float(p)/float(texSize-1);
-        const Vec3 curreColor{blue*alpha+red*(1.0f-alpha)};
-        heightTextureData[p*3+0] = GLubyte(curreColor.r()*255);
-        heightTextureData[p*3+1] = GLubyte(curreColor.g()*255);
-        heightTextureData[p*3+2] = GLubyte(curreColor.b()*255);
-    }
-    
-    GLTexture1D heightTexture{GL_LINEAR};
-    heightTexture.setData(heightTextureData, texSize, 3);
     
     std::string vsString{
     "#version 410\n"
@@ -131,11 +205,12 @@ int main(int argc, char ** argv) {
     "in vec3 normal;\n"
     "in vec3 pos;\n"
     "in float height;\n"
+    "uniform float reduction;\n"
     "out vec4 FragColor;\n"
     "void main() {\n"
     "    vec3 lightDir = normalize(lightPos-pos);\n"
     "    float diffuse = dot(normalize(normal), lightDir);\n"
-    "    vec3 texValue = texture(heightSampler, height*3).rgb*diffuse;\n"
+    "    vec3 texValue = texture(heightSampler, height*reduction).rgb*diffuse;\n"
     "    FragColor = vec4(texValue,1.0);\n"
     "}\n"};
     
@@ -144,33 +219,53 @@ int main(int argc, char ** argv) {
     GLint mvLocation{prog.getUniformLocation("MV")};
     GLint mvitLocation{prog.getUniformLocation("itMV")};
     GLint lightPosLocation{prog.getUniformLocation("lightPos")};
+    GLint reductionLocation{prog.getUniformLocation("reduction")};
     GLint heightTextureLocation{prog.getUniformLocation("heightSampler")};
     
     prog.enable();
     prog.setTexture(heightTextureLocation,heightTexture);
-
+    prog.setUniform(reductionLocation, reduction);
     
     GLArray terrainArray{};
     GLBuffer vbTerrain{GL_ARRAY_BUFFER};
-
+    
     const std::vector<float> tris = convertHeightFieldToTriangles(heightField);
-    vbTerrain.setData(tris,6,GL_DYNAMIC_DRAW);
+    vbTerrain.setData(tris,6,GL_STATIC_DRAW);
 
     terrainArray.bind();
     terrainArray.connectVertexAttrib(vbTerrain, prog, "vPos", 3);
     terrainArray.connectVertexAttrib(vbTerrain, prog, "vNormal", 3, 3);
     
+/*
+    GLArray waterArray{};
+    GLBuffer vbWater{GL_ARRAY_BUFFER};
+    const float waterLevel = 0.8f;
+    const std::vector<float> waterVertices{-0.5f,waterLevel,-0.5f, 0.0f,1.0f,0.0f,
+                                            0.5f,waterLevel,-0.5f, 0.0f,1.0f,0.0f,
+                                            0.5f,waterLevel,0.5f, 0.0f,1.0f,0.0f,
+                                           -0.5f,waterLevel,-0.5f, 0.0f,1.0f,0.0f,
+                                            0.5f,waterLevel,0.5f, 0.0f,1.0f,0.0f,
+                                           -0.5f,waterLevel,0.5f, 0.0f,1.0f,0.0f};
+    vbWater.setData(waterVertices,6,GL_STATIC_DRAW);
+
+    waterArray.bind();
+    waterArray.connectVertexAttrib(vbWater, prog, "vPos", 3);
+    waterArray.connectVertexAttrib(vbWater, prog, "vNormal", 3, 3);
+    */
+    
+    
+    
     gl.setKeyCallback(keyCallback);
     
-    glEnable(GL_CULL_FACE);
+    glDisable(GL_CULL_FACE);
     glCullFace(GL_BACK);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
     glClearDepth(1.0f);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     
-    Vec3 lookAtVec{0,0,0};
-    Vec3 lookFromVec{0,1.1,1.1};
+    Vec3 lookAtVec{0,0.2f,0};
+    Vec3 lookFromVec{0,0.8,0.8};
     Vec3 upVec{0,1,0};
         
     GLEnv::checkGLError("init");
@@ -195,6 +290,11 @@ int main(int argc, char ** argv) {
 
         terrainArray.bind();
         glDrawArrays(GL_TRIANGLES, 0, tris.size()/6 );
+        
+      /*
+        waterArray.bind();
+        glDrawArrays(GL_TRIANGLES, 0, waterVertices.size()/6 );
+*/
 
         GLEnv::checkGLError("endOfFrame");
         gl.endOfFrame();

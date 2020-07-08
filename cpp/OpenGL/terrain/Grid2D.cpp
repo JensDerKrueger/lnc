@@ -120,6 +120,23 @@ Grid2D Grid2D::operator+(const Grid2D& other) const {
     }
 }
     
+void Grid2D::normalize() {
+    if (data.empty()) return;
+    
+    float minValue = data[0];
+    float maxValue = data[0];
+    for (size_t i = 0;i<data.size();++i) {
+        minValue = std::min(minValue, data[i]);
+        maxValue = std::max(maxValue, data[i]);
+    }
+    
+    const float scale = 1.0f/(maxValue-minValue);
+    for (size_t i = 0;i<data.size();++i) {
+        data[i] = (data[i]-minValue) * scale;
+    }
+}
+
+
 size_t Grid2D::index(size_t x, size_t y) const {
     return x + y * width;
 }
