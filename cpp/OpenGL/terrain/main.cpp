@@ -3,6 +3,7 @@
 #include <stack>
 #include <string>
 #include <sstream>
+#include <exception>
 #include <chrono>
 typedef std::chrono::high_resolution_clock Clock;
 
@@ -14,6 +15,7 @@ typedef std::chrono::high_resolution_clock Clock;
 #include <Vec2.h>
 #include <Mat4.h>
 #include <bmp.h>
+#include <Camera.h>
 
 #include <GLTexture1D.h>
 #include <GLProgram.h>
@@ -23,17 +25,79 @@ typedef std::chrono::high_resolution_clock Clock;
 
 #include "Grid2D.h"
 
-#include <exception>
+
+
+static Camera camera = Camera(/*Position:*/{ 0.0f, 0.5f, 1.0f });
 
 static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    if (action == GLFW_REPEAT || action == GLFW_PRESS) {
-        switch (key) {
-            case GLFW_KEY_ESCAPE :
+
+    if (action == GLFW_PRESS)
+    {
+        switch (key)
+        {
+            case GLFW_KEY_ESCAPE:
                 glfwSetWindowShouldClose(window, GL_TRUE);
                 break;
+            case GLFW_KEY_W:
+                camera.moveFront(true);
+                break;
+            case GLFW_KEY_S:
+                camera.moveBack(true);
+                break;
+            case GLFW_KEY_A:
+                camera.moveLeft(true);
+                break;
+            case GLFW_KEY_D:
+                camera.moveRight(true);
+                break;
+            default:
+                break;
         }
-    } 
+    }
+    else if (action == GLFW_RELEASE)
+    {
+        switch (key)
+        {
+            case GLFW_KEY_W:
+                camera.moveFront(false);
+                break;
+            case GLFW_KEY_S:
+                camera.moveBack(false);
+                break;
+            case GLFW_KEY_A:
+                camera.moveLeft(false);
+                break;
+            case GLFW_KEY_D:
+                camera.moveRight(false);
+                break;
+            default:
+                break;
+        }
+    }
 }
+
+static void cursorPositionCallback(GLFWwindow* window, double xPosition, double yPosition)
+{
+    camera.mouseMove(xPosition, yPosition);
+}
+
+static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
+{
+    if (button == GLFW_MOUSE_BUTTON_LEFT)
+    {
+        if (action == GLFW_PRESS)
+            camera.enableMouse();
+        else if (action == GLFW_RELEASE)
+            camera.disableMouse();
+    }
+}
+
+static void scrollCallback(GLFWwindow* window, double x_offset, double y_offset)
+{
+
+}
+
+
 
 void pushVertex(const Vec3& v, std::vector<float>& a ) {
     a.push_back(v.x());
@@ -252,9 +316,9 @@ int main(int argc, char ** argv) {
     waterArray.bind();
     waterArray.connectVertexAttrib(vbWater, prog, "vPos", 3);
     waterArray.connectVertexAttrib(vbWater, prog, "vNormal", 3, 3);
-    
-    
+
     gl.setKeyCallback(keyCallback);
+    gl.setMouseCallbacks(cursorPositionCallback, mouseButtonCallback, scrollCallback);
     
     glDisable(GL_CULL_FACE);
     glCullFace(GL_BACK);
@@ -262,11 +326,7 @@ int main(int argc, char ** argv) {
     glDepthFunc(GL_LESS);
     glClearDepth(1.0f);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    
-    Vec3 lookAtVec{0,0.2f,0};
-    Vec3 lookFromVec{0,0.8,0.8};
-    Vec3 upVec{0,1,0};
-        
+
     GLEnv::checkGLError("init");
 
     glfwSetTime(0);
@@ -275,9 +335,10 @@ int main(int argc, char ** argv) {
         Dimensions dim{gl.getFramebufferSize()};
         glViewport(0, 0, dim.width, dim.height);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-                        
+
+        camera.updatePosition();
         const Mat4 p{Mat4::perspective(45.0f, dim.aspect(), 0.0001f, 100000.0f)};
-        const Mat4 v{Mat4::lookAt(lookFromVec,lookAtVec,upVec)};
+        const Mat4 v = camera.viewMatrix();
         const Mat4 m{Mat4::rotationY(glfwGetTime()*20)};
         
         prog.enable();
