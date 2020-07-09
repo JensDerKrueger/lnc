@@ -1,5 +1,6 @@
 #include <Rand.h>
 #include <Vec2.h>
+#include <bmp.h>
 
 #include "Grid2D.h"
 
@@ -44,6 +45,11 @@ void Grid2D::setValue(size_t x, size_t y, float value) {
     data[index(x,y)] = value;
 }
 
+
+float Grid2D::getValueNormalized(float x, float y) const {
+    return data[index(size_t(x*width),size_t(y*height))];
+}
+
 float Grid2D::getValue(size_t x, size_t y) const {
     return data[index(x,y)];
 }
@@ -54,13 +60,13 @@ float Grid2D::sample(float x, float y) const {
     float sx = x*(width-1);
     float sy = y*(height-1);
     
-    float alpha = sx - floor(sx);
-    float beta  = sy - floor(sy);
+    float alpha = sx - floorf(sx);
+    float beta  = sy - floorf(sy);
     
-    Vec2ui a{uint32_t(floor(sx)),uint32_t(floor(sy))};
-    Vec2ui b{uint32_t(ceil(sx)),uint32_t(floor(sy))};
-    Vec2ui c{uint32_t(floor(sx)),uint32_t(ceil(sy))};
-    Vec2ui d{uint32_t(ceil(sx)),uint32_t(ceil(sy))};
+    Vec2ui a{uint32_t(floorf(sx)),uint32_t(floorf(sy))};
+    Vec2ui b{uint32_t(ceilf(sx)),uint32_t(floorf(sy))};
+    Vec2ui c{uint32_t(floorf(sx)),uint32_t(ceilf(sy))};
+    Vec2ui d{uint32_t(ceilf(sx)),uint32_t(ceilf(sy))};
     
     float va = getValue(a.x(), a.y());
     float vb = getValue(b.x(), b.y());
@@ -86,8 +92,114 @@ Grid2D Grid2D::operator*(const float& value) const {
     return result;
 }
 
+Grid2D Grid2D::operator+(const float& value) const {
+    Grid2D result{width,height};
+    for (size_t i = 0;i<result.data.size();++i) {
+        result.data[i] = data[i]+value;
+    }
+    return result;
+}
+
+Grid2D Grid2D::operator-(const float& value) const {
+    Grid2D result{width,height};
+    for (size_t i = 0;i<result.data.size();++i) {
+        result.data[i] = data[i]-value;
+    }
+    return result;
+}
+
 Grid2D Grid2D::operator/(const float& value) const {
     return *this * (1.0f/value);
+}
+
+Grid2D Grid2D::operator-(const Grid2D& other) const {
+    if (other.width > width) {
+        Grid2D result{other.width,other.height};
+        size_t i=0;
+        for (size_t y = 0;y<other.height;++y) {
+            for (size_t x = 0;x<other.width;++x) {
+                result.data[i] = other.data[i] - sample(x/float(other.width-1.0f),y/float(other.height-1.0f));
+                i++;
+            }
+        }
+        return result;
+    } else if (other.width < width) {
+        Grid2D result{width,height};
+        size_t i=0;
+        for (size_t y = 0;y<height;++y) {
+            for (size_t x = 0;x<width;++x) {
+                result.data[i] = data[i] - other.sample(x/float(width-1.0f),y/float(height-1.0f));
+                i++;
+            }
+        }
+        return result;
+    } else {
+        Grid2D result{width,height};
+        for (size_t i = 0;i<result.data.size();++i) {
+            result.data[i] = data[i]-other.data[i];
+        }
+        return result;
+    }
+}
+
+Grid2D Grid2D::operator*(const Grid2D& other) const {
+    if (other.width > width) {
+        Grid2D result{other.width,other.height};
+        size_t i=0;
+        for (size_t y = 0;y<other.height;++y) {
+            for (size_t x = 0;x<other.width;++x) {
+                result.data[i] = other.data[i] * sample(x/float(other.width-1.0f),y/float(other.height-1.0f));
+                i++;
+            }
+        }
+        return result;
+    } else if (other.width < width) {
+        Grid2D result{width,height};
+        size_t i=0;
+        for (size_t y = 0;y<height;++y) {
+            for (size_t x = 0;x<width;++x) {
+                result.data[i] = data[i] * other.sample(x/float(width-1.0f),y/float(height-1.0f));
+                i++;
+            }
+        }
+        return result;
+    } else {
+        Grid2D result{width,height};
+        for (size_t i = 0;i<result.data.size();++i) {
+            result.data[i] = data[i]*other.data[i];
+        }
+        return result;
+    }
+}
+
+Grid2D Grid2D::operator/(const Grid2D& other) const {
+    if (other.width > width) {
+        Grid2D result{other.width,other.height};
+        size_t i=0;
+        for (size_t y = 0;y<other.height;++y) {
+            for (size_t x = 0;x<other.width;++x) {
+                result.data[i] = other.data[i] / sample(x/float(other.width-1.0f),y/float(other.height-1.0f));
+                i++;
+            }
+        }
+        return result;
+    } else if (other.width < width) {
+        Grid2D result{width,height};
+        size_t i=0;
+        for (size_t y = 0;y<height;++y) {
+            for (size_t x = 0;x<width;++x) {
+                result.data[i] = data[i] / other.sample(x/float(width-1.0f),y/float(height-1.0f));
+                i++;
+            }
+        }
+        return result;
+    } else {
+        Grid2D result{width,height};
+        for (size_t i = 0;i<result.data.size();++i) {
+            result.data[i] = data[i]/other.data[i];
+        }
+        return result;
+    }
 }
 
 Grid2D Grid2D::operator+(const Grid2D& other) const {
@@ -143,4 +255,21 @@ size_t Grid2D::index(size_t x, size_t y) const {
 
 std::ostream& operator<<(std::ostream &os, const Grid2D& v) {
     os << v.toString() ; return os;
+}
+
+
+Grid2D Grid2D::fromBMP(const std::string& filename) {
+    BMP::Image bmp = BMP::load(filename);
+    
+    Grid2D g{bmp.width, bmp.width};
+    
+    size_t i = 0;
+    for (size_t y = 0;y<g.height;++y) {
+        for (size_t x = 0;x<g.width;++x) {
+            g.data[i] = bmp.getValue(x,y,0)/255.0f;
+            i++;
+        }
+    }
+
+    return g;
 }

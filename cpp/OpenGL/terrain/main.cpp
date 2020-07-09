@@ -5,17 +5,20 @@
 #include <sstream>
 #include <exception>
 #include <chrono>
+#include <cmath>
 typedef std::chrono::high_resolution_clock Clock;
 
 #include <GL/glew.h>  
 #include <GLFW/glfw3.h>
 #include <GLEnv.h>
 
+#include <Vec4.h>
 #include <Vec3.h>
 #include <Vec2.h>
 #include <Mat4.h>
 #include <bmp.h>
 #include <Camera.h>
+#include <ParticleSystem.h>
 
 #include <GLTexture1D.h>
 #include <GLProgram.h>
@@ -25,7 +28,52 @@ typedef std::chrono::high_resolution_clock Clock;
 
 #include "Grid2D.h"
 
+/*
+class TerrainParticleSystem : public ParticleSystem {
+public:
+    TerrainParticleSystem(uint32_t particleCount, std::shared_ptr<StartVolume> starter,
+                   const Vec3& initialSpeedMin, const Vec3& initialSpeedMax,
+                   const Vec3& acceleration, const Grid2D& grid,
+                   float maxAge, float pointSize, const Vec3& color=RANDOM_COLOR, bool autorestart=true) :
+        ParticleSystem(particleCount, starter, initialSpeedMin, initialSpeedMax,
+                       acceleration, Vec3{0,0,0}, Vec3{0,0,0}, maxAge, pointSize, color, autorestart),
+        grid(grid)
+    {
+    }
+    
+    void update(float deltaT) {
+        age+=deltaT;
+        if(isDead()) {
+            opacity = 0.0f;
+            return;
+        }
 
+        Vec3 nextPosition{position + direction*deltaT};
+        
+        if (bounce) {
+            if (nextPosition.x() < -0.5 || nextPosition.x() > 0.5)    direction = direction * Vec3(-0.5f,0.0f,0.0f);
+            if (nextPosition.y() < grid.getValue(nextPosition.x+0.5f,nextPosition.y+0.5f) || nextPosition.y() > 2)    direction = direction * Vec3(0.0f,-0.5f,0.0f);
+            if (nextPosition.z() < -0.5 || nextPosition.z() > 0.5)    direction = direction * Vec3(0.0f,0.0f,-0.5f);
+            nextPosition = position + direction*deltaT;
+        } else {
+            if (nextPosition.x() < minPos.x() || nextPosition.x() > maxPos.x() ||
+                nextPosition.y() < minPos.y() || nextPosition.y() > maxPos.y() ||
+                nextPosition.z() < minPos.z() || nextPosition.z() > maxPos.z()) {
+                direction = Vec3(0,0,0);
+                acceleration = Vec3(0,0,0);
+                nextPosition = position;
+            }
+        }
+        position = nextPosition;
+        direction = direction + acceleration*deltaT;
+    }
+    
+private:
+    Grid2D grid;
+    
+};
+
+*/
 
 static Camera camera = Camera(/*Position:*/{ 0.0f, 0.5f, 1.0f });
 
@@ -139,7 +187,7 @@ const std::vector<float> convertHeightFieldToTriangles(const Grid2D& heightField
 class PosColor {
 public:
     float pos;
-    Vec3 color;
+    Vec4 color;
     bool operator<(const PosColor& other) const {
         return pos < other.pos;
     }
@@ -149,7 +197,7 @@ class GradientGenerator {
 public:
     GradientGenerator(size_t texSize) : texSize(texSize) {}
 
-    void addColor(float pos, const Vec3& color) {
+    void addColor(float pos, const Vec4& color) {
         addColor(PosColor{pos, color});
     }
 
@@ -160,7 +208,7 @@ public:
     GLTexture1D getTexture() {
         std::sort(colors.begin(), colors.end());
         
-        std::vector<GLubyte> textureData(texSize*3);
+        std::vector<GLubyte> textureData(texSize*4);
 
         if (colors.size() > 0) {
                     
@@ -178,21 +226,22 @@ public:
                     nextIndex = colors.size()-1;
                 }
                             
-                const Vec3& prev = colors[prevIndex].color;
-                const Vec3& next = colors[nextIndex].color;
+                const Vec4& prev = colors[prevIndex].color;
+                const Vec4& next = colors[nextIndex].color;
                 
                                 
                 float alpha = (prevIndex == nextIndex) ? 0.5f :  (normIndex-colors[prevIndex].pos)/(colors[nextIndex].pos-colors[prevIndex].pos);
                 
-                const Vec3 curreColor{prev*(1-alpha)+next*alpha};
-                textureData[p*3+0] = GLubyte(curreColor.r()*255);
-                textureData[p*3+1] = GLubyte(curreColor.g()*255);
-                textureData[p*3+2] = GLubyte(curreColor.b()*255);
+                const Vec4 curreColor{prev*(1-alpha)+next*alpha};
+                textureData[p*4+0] = GLubyte(curreColor.r()*255);
+                textureData[p*4+1] = GLubyte(curreColor.g()*255);
+                textureData[p*4+2] = GLubyte(curreColor.b()*255);
+                textureData[p*4+3] = GLubyte(curreColor.a()*255);
             }
         }
         
         GLTexture1D texture{GL_LINEAR, GL_LINEAR};
-        texture.setData(textureData, texSize, 3);
+        texture.setData(textureData, texSize, 4);
         return texture;
     }
     
@@ -202,85 +251,58 @@ private:
     
 };
 
-
-
-
 int main(int argc, char ** argv) {
-    const size_t octaves = 9;
-    const Vec2t<size_t> startRes{1024, 1024};
-    Grid2D heightField{startRes.x(),startRes.y()};
-    for (size_t octave = 0;octave<octaves;++octave) {
-        const Vec2 currentRes = startRes / (1ll<<octave);
+    Grid2D parameterField{Grid2D::fromBMP("param.bmp")};
+    
+    const size_t maxOctaves = 10;
+    const Vec2t<size_t> startRes{size_t(1)<<maxOctaves, size_t(1)<<maxOctaves};
+    Grid2D smoothHeightField{startRes.x(),startRes.y()};
+    for (size_t octave = 0;octave<maxOctaves;++octave) {
+        const Vec2 currentRes = startRes / (size_t(1)<<octave);
         Grid2D currentGrid = Grid2D::genRandom(currentRes.x(), currentRes.y());
-        heightField = heightField + currentGrid/(1<<(octaves-octave));
+        smoothHeightField = smoothHeightField + currentGrid/(powf(2.5f,maxOctaves-octave));
     }
+    smoothHeightField.normalize();
+    smoothHeightField = smoothHeightField / 4.0f + 0.2f;
     
-    const float reduction = 3.0f;
+    const size_t reducedOctaves = 9;
+    Grid2D roughHeightField{startRes.x(),startRes.y()};
+    for (size_t octave = 0;octave<reducedOctaves;++octave) {
+        const Vec2 currentRes = startRes / (size_t(1)<<octave);
+        Grid2D currentGrid = Grid2D::genRandom(currentRes.x(), currentRes.y());
+        roughHeightField = roughHeightField + currentGrid/(1<<(reducedOctaves-octave));
+    }
+    roughHeightField.normalize();
     
-    heightField.normalize();
-    heightField = heightField/reduction;
+    const float reduction = 1.5f;
+    
+    
+    
+    
+    Grid2D heightField = (smoothHeightField * parameterField + roughHeightField * (parameterField*-1+1))/reduction;
+    
 
-    
     
     
     GLEnv gl{1024,768,4,"Terrain Generator", true, true, 4, 1, true};
 
     GradientGenerator gend(256);
     
-
-    gend.addColor(0.0f, Vec3{ 0.09f, 0.27f, 0.63f });   //water
-    gend.addColor(0.2f, Vec3{ 0.09f, 0.27f, 0.63f });   //water
-    gend.addColor(0.25f, Vec3{ 0.79f, 0.62f, 0.41f });   //beach
-    gend.addColor(0.3f, Vec3{ 0.79f, 0.62f, 0.41f });   //beach
-    gend.addColor(0.35f, Vec3{ 0.23f, 0.50f, 0.17f });  //chlorophyll 1
-    gend.addColor(0.50f, Vec3{ 0.11f, 0.38f, 0.08f });  //chlorophyll 2
-    gend.addColor(0.6f, Vec3{ 0.32f, 0.31f, 0.31f });  //rock
-    gend.addColor(0.7f, Vec3{ 0.32f, 0.31f, 0.31f });  //rock
-    gend.addColor(0.8f, Vec3{ 1.0f, 1.0f, 1.0f });  //snow
-    gend.addColor(1.0f, Vec3{ 1.0f, 1.0f, 1.0f });  //snow
+    gend.addColor(0.0f,  Vec4{ 0.09f, 0.27f, 0.63f, 1.0f });   //water
+    gend.addColor(0.2f,  Vec4{ 0.09f, 0.27f, 0.63f, 1.0f });   //water
+    gend.addColor(0.25f, Vec4{ 0.79f, 0.62f, 0.41f, 0.0f });   //beach
+    gend.addColor(0.3f,  Vec4{ 0.79f, 0.62f, 0.41f, 0.0f });   //beach
+    gend.addColor(0.35f, Vec4{ 0.23f, 0.50f, 0.17f, 0.0f });  //chlorophyll 1
+    gend.addColor(0.50f, Vec4{ 0.11f, 0.38f, 0.08f, 0.0f });  //chlorophyll 2
+    gend.addColor(0.6f,  Vec4{ 0.32f, 0.31f, 0.31f, 0.0f });  //rock
+    gend.addColor(0.7f,  Vec4{ 0.32f, 0.31f, 0.31f, 0.0f });  //rock
+    gend.addColor(0.8f,  Vec4{ 1.00f, 1.00f, 1.00f, 0.5f });  //snow
+    gend.addColor(1.0f,  Vec4{ 1.00f, 1.00f, 1.00f, 0.5f });  //snow
     
     GLTexture1D heightTexture = gend.getTexture();
 
     
-    std::string vsString{
-    "#version 410\n"
-    "uniform mat4 MVP;\n"
-    "uniform mat4 MV;\n"
-    "uniform mat4 itMV;\n"
-    "in vec3 vPos;\n"
-    "in vec3 vNormal;\n"
-    "in vec4 vColor;\n"
-    "out vec4 color;"
-    "out vec3 normal;"
-    "out vec3 pos;"
-    "out float height;"
-    "void main() {\n"
-    "    gl_Position = MVP * vec4(vPos/vec3(1.0,1.0,1.0), 1.0);\n"
-    "    normal = (itMV * vec4(vNormal, 0.0)).xyz;\n"
-    "    height = vPos.y;"
-    "    pos = (MV * vec4(vPos, 1.0)).xyz;\n"
-    "    color = vColor;\n"
-    "}\n"};
-
-    std::string fsString{
-    "#version 410\n"
-    "uniform vec3 lightPos;\n"
-    "uniform sampler1D heightSampler;\n"
-    "in vec3 normal;\n"
-    "in vec3 pos;\n"
-    "in float height;\n"
-    "uniform float reduction;\n"
-    "uniform float alpha;\n"
-        
-    "out vec4 FragColor;\n"
-    "void main() {\n"
-    "    vec3 lightDir = normalize(lightPos-pos);\n"
-    "    float diffuse = dot(normalize(normal), lightDir);\n"
-    "    vec3 texValue = texture(heightSampler, height*reduction).rgb*diffuse;\n"
-    "    FragColor = vec4(texValue,alpha);\n"
-    "}\n"};
-    
-    GLProgram prog{GLProgram::createFromString(vsString, fsString)};
+    GLProgram prog{GLProgram::createFromFile("terrain-vs.glsl", "terrain-fs.glsl")};
     GLint mvpLocation{prog.getUniformLocation("MVP")};
     GLint mvLocation{prog.getUniformLocation("MV")};
     GLint mvitLocation{prog.getUniformLocation("itMV")};
@@ -339,7 +361,7 @@ int main(int argc, char ** argv) {
         camera.updatePosition();
         const Mat4 p{Mat4::perspective(45.0f, dim.aspect(), 0.0001f, 100000.0f)};
         const Mat4 v = camera.viewMatrix();
-        const Mat4 m{Mat4::rotationY(glfwGetTime()*20)};
+        const Mat4 m{};
         
         prog.enable();
         prog.setUniform(mvpLocation, m*v*p);
