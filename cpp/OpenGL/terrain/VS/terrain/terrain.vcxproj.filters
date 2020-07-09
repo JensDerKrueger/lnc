@@ -95,5 +95,8 @@
     <ClInclude Include="..\..\..\Utils\GLTexture1D.h">
       <Filter>Headerdateien\Utils</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Utils\Camera.h">
+      <Filter>Quelldateien\Utils</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

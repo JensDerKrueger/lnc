@@ -178,6 +178,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Utils\bmp.h" />
+    <ClInclude Include="..\..\..\Utils\Camera.h" />
     <ClInclude Include="..\..\..\Utils\GLArray.h" />
     <ClInclude Include="..\..\..\Utils\GLBuffer.h" />
     <ClInclude Include="..\..\..\Utils\GLEnv.h" />
