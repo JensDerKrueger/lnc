@@ -54,6 +54,9 @@
     <ClCompile Include="..\..\..\Utils\GLArray.cpp">
       <Filter>Quelldateien\Utils</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Utils\GLTexture1D.cpp">
+      <Filter>Quelldateien\Utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Utils\bmp.h">
@@ -87,6 +90,9 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Utils\GLArray.h">
+      <Filter>Headerdateien\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Utils\GLTexture1D.h">
       <Filter>Headerdateien\Utils</Filter>
     </ClInclude>
   </ItemGroup>

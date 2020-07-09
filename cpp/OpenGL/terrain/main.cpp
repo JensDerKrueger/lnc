@@ -163,17 +163,17 @@ int main(int argc, char ** argv) {
 
     GradientGenerator gend(256);
     
+
     gend.addColor(0.0f, Vec3{ 0.09f, 0.27f, 0.63f });   //water
     gend.addColor(0.2f, Vec3{ 0.09f, 0.27f, 0.63f });   //water
-    gend.addColor(0.25f, Vec3{ 0.79f, 0.62f, 0.41f});   //beach
+    gend.addColor(0.25f, Vec3{ 0.79f, 0.62f, 0.41f });   //beach
     gend.addColor(0.3f, Vec3{ 0.79f, 0.62f, 0.41f });   //beach
-    gend.addColor(0.35f, Vec3{ 0.29f, 0.65f, 0.23f });  //gras1
-    gend.addColor(0.4f, Vec3{ 0.12f, 0.32f, 0.12f });  //gras2
-    gend.addColor(0.6f, Vec3{ 0.07f, 0.19f, 0.08f });  //gras3
+    gend.addColor(0.35f, Vec3{ 0.23f, 0.50f, 0.17f });  //chlorophyll 1
+    gend.addColor(0.50f, Vec3{ 0.11f, 0.38f, 0.08f });  //chlorophyll 2
+    gend.addColor(0.6f, Vec3{ 0.32f, 0.31f, 0.31f });  //rock
     gend.addColor(0.7f, Vec3{ 0.32f, 0.31f, 0.31f });  //rock
-    gend.addColor(0.9f, Vec3{ 0.32f, 0.31f, 0.31f });  //rock
+    gend.addColor(0.8f, Vec3{ 1.0f, 1.0f, 1.0f });  //snow
     gend.addColor(1.0f, Vec3{ 1.0f, 1.0f, 1.0f });  //snow
-    
     
     GLTexture1D heightTexture = gend.getTexture();
 
