@@ -2,6 +2,7 @@
 #include <vector>
 #include <stack>
 #include <string>
+#include <memory>
 #include <sstream>
 #include <exception>
 #include <chrono>
@@ -11,6 +12,7 @@ typedef std::chrono::high_resolution_clock Clock;
 #include <GL/glew.h>  
 #include <GLFW/glfw3.h>
 #include <GLEnv.h>
+#include <Grid2D.h>
 
 #include <Vec4.h>
 #include <Vec3.h>
@@ -26,54 +28,8 @@ typedef std::chrono::high_resolution_clock Clock;
 #include <GLArray.h>
 #include <GLTexture2D.h>
 
-#include "Grid2D.h"
+#include "GradientGenerator.h"
 
-/*
-class TerrainParticleSystem : public ParticleSystem {
-public:
-    TerrainParticleSystem(uint32_t particleCount, std::shared_ptr<StartVolume> starter,
-                   const Vec3& initialSpeedMin, const Vec3& initialSpeedMax,
-                   const Vec3& acceleration, const Grid2D& grid,
-                   float maxAge, float pointSize, const Vec3& color=RANDOM_COLOR, bool autorestart=true) :
-        ParticleSystem(particleCount, starter, initialSpeedMin, initialSpeedMax,
-                       acceleration, Vec3{0,0,0}, Vec3{0,0,0}, maxAge, pointSize, color, autorestart),
-        grid(grid)
-    {
-    }
-    
-    void update(float deltaT) {
-        age+=deltaT;
-        if(isDead()) {
-            opacity = 0.0f;
-            return;
-        }
-
-        Vec3 nextPosition{position + direction*deltaT};
-        
-        if (bounce) {
-            if (nextPosition.x() < -0.5 || nextPosition.x() > 0.5)    direction = direction * Vec3(-0.5f,0.0f,0.0f);
-            if (nextPosition.y() < grid.getValue(nextPosition.x+0.5f,nextPosition.y+0.5f) || nextPosition.y() > 2)    direction = direction * Vec3(0.0f,-0.5f,0.0f);
-            if (nextPosition.z() < -0.5 || nextPosition.z() > 0.5)    direction = direction * Vec3(0.0f,0.0f,-0.5f);
-            nextPosition = position + direction*deltaT;
-        } else {
-            if (nextPosition.x() < minPos.x() || nextPosition.x() > maxPos.x() ||
-                nextPosition.y() < minPos.y() || nextPosition.y() > maxPos.y() ||
-                nextPosition.z() < minPos.z() || nextPosition.z() > maxPos.z()) {
-                direction = Vec3(0,0,0);
-                acceleration = Vec3(0,0,0);
-                nextPosition = position;
-            }
-        }
-        position = nextPosition;
-        direction = direction + acceleration*deltaT;
-    }
-    
-private:
-    Grid2D grid;
-    
-};
-
-*/
 
 static Camera camera = Camera(/*Position:*/{ 0.0f, 0.5f, 1.0f });
 
@@ -142,7 +98,6 @@ static void mouseButtonCallback(GLFWwindow* window, int button, int action, int 
 
 static void scrollCallback(GLFWwindow* window, double x_offset, double y_offset)
 {
-
 }
 
 
@@ -183,74 +138,6 @@ const std::vector<float> convertHeightFieldToTriangles(const Grid2D& heightField
 }
 
 
-
-class PosColor {
-public:
-    float pos;
-    Vec4 color;
-    bool operator<(const PosColor& other) const {
-        return pos < other.pos;
-    }
-};
-
-class GradientGenerator {
-public:
-    GradientGenerator(size_t texSize) : texSize(texSize) {}
-
-    void addColor(float pos, const Vec4& color) {
-        addColor(PosColor{pos, color});
-    }
-
-    void addColor(const PosColor& c) {
-        colors.push_back(c);
-    }
-    
-    GLTexture1D getTexture() {
-        std::sort(colors.begin(), colors.end());
-        
-        std::vector<GLubyte> textureData(texSize*4);
-
-        if (colors.size() > 0) {
-                    
-            size_t prevIndex = 0;
-            size_t nextIndex = 0;
-            for (size_t p = 0;p<texSize;++p) {
-                const float normIndex = float(p)/float(texSize-1);
-                
-                if (normIndex > colors[nextIndex].pos) {
-                    prevIndex = nextIndex;
-                    nextIndex = nextIndex+1;
-                }
-                if (normIndex >= colors.back().pos) {
-                    prevIndex = colors.size()-1;
-                    nextIndex = colors.size()-1;
-                }
-                            
-                const Vec4& prev = colors[prevIndex].color;
-                const Vec4& next = colors[nextIndex].color;
-                
-                                
-                float alpha = (prevIndex == nextIndex) ? 0.5f :  (normIndex-colors[prevIndex].pos)/(colors[nextIndex].pos-colors[prevIndex].pos);
-                
-                const Vec4 curreColor{prev*(1-alpha)+next*alpha};
-                textureData[p*4+0] = GLubyte(curreColor.r()*255);
-                textureData[p*4+1] = GLubyte(curreColor.g()*255);
-                textureData[p*4+2] = GLubyte(curreColor.b()*255);
-                textureData[p*4+3] = GLubyte(curreColor.a()*255);
-            }
-        }
-        
-        GLTexture1D texture{GL_LINEAR, GL_LINEAR};
-        texture.setData(textureData, texSize, 4);
-        return texture;
-    }
-    
-private:
-    size_t texSize;
-    std::vector<PosColor> colors;
-    
-};
-
 int main(int argc, char ** argv) {
     Grid2D parameterField{Grid2D::fromBMP("param.bmp")};
     
@@ -277,14 +164,20 @@ int main(int argc, char ** argv) {
     const float reduction = 1.5f;
     
     
+    std::shared_ptr<Grid2D> heightField = std::make_shared<Grid2D>((smoothHeightField * parameterField + roughHeightField * (parameterField*-1+1))/reduction);
     
-    
-    Grid2D heightField = (smoothHeightField * parameterField + roughHeightField * (parameterField*-1+1))/reduction;
-    
+    const MaxData maxv{heightField->maxValue()};
+    const Vec3 mountainTop{maxv.pos.x()-0.5f,maxv.value+0.0005f,maxv.pos.y()-0.5f};
 
-    
-    
     GLEnv gl{1024,768,4,"Terrain Generator", true, true, 4, 1, true};
+
+    std::shared_ptr<SphereStart> starter = std::make_shared<SphereStart>(mountainTop, 0.001f);
+    ParticleSystem particleSystem{20000, starter,
+                                  Vec3{-0.01,0.0,-0.01}, Vec3{0.01,0.03,0.01}, Vec3{0,-0.01, 0},
+                                  Vec3{-0.5f,0.0f,-0.5f}, Vec3{0.5f,1.0f,0.5f}, 20, 10, Vec3{1.0f,0.5f,0.0f}, true, heightField};
+    
+    particleSystem.setBounce(false);
+
 
     GradientGenerator gend(256);
     
@@ -317,7 +210,7 @@ int main(int argc, char ** argv) {
     GLArray terrainArray{};
     GLBuffer vbTerrain{GL_ARRAY_BUFFER};
     
-    const std::vector<float> tris = convertHeightFieldToTriangles(heightField);
+    const std::vector<float> tris = convertHeightFieldToTriangles(*heightField);
     vbTerrain.setData(tris,6,GL_STATIC_DRAW);
 
     terrainArray.bind();
@@ -390,6 +283,8 @@ int main(int argc, char ** argv) {
         glDisable(GL_BLEND);
         glDepthMask(GL_TRUE);
 
+        particleSystem.render(m*v,p);
+        particleSystem.update(glfwGetTime());
         
         GLEnv::checkGLError("endOfFrame");
         gl.endOfFrame();

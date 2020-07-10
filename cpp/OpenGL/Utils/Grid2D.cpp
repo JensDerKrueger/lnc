@@ -1,6 +1,8 @@
-#include <Rand.h>
-#include <Vec2.h>
-#include <bmp.h>
+#include <limits>
+
+#include "Rand.h"
+#include "Vec2.h"
+#include "bmp.h"
 
 #include "Grid2D.h"
 
@@ -54,8 +56,14 @@ float Grid2D::getValue(size_t x, size_t y) const {
     return data[index(x,y)];
 }
 
+
+float Grid2D::sample(const Vec2& pos) const  {
+    return sample(pos.x(), pos.y());
+}
+
 float Grid2D::sample(float x, float y) const {
-    // TODO: check value range
+    x = std::max(std::min(x,1.0f), 0.0f);
+    y = std::max(std::min(y,1.0f), 0.0f);
     
     float sx = x*(width-1);
     float sy = y*(height-1);
@@ -248,6 +256,18 @@ void Grid2D::normalize() {
     }
 }
 
+MaxData Grid2D::maxValue() const {
+    MaxData maxV{std::numeric_limits<float>::min(), Vec2{0,0}};
+    for (size_t i = 0;i<data.size();++i) {
+        if (maxV.value < data[i]){
+            maxV.value = data[i];
+            const float x = float(i % width)/(width-1);
+            const float y = float(i / width)/(height-1);
+            maxV.pos = Vec2{x,y};
+        }
+    }
+    return maxV;
+}
 
 size_t Grid2D::index(size_t x, size_t y) const {
     return x + y * width;

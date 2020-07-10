@@ -6,6 +6,7 @@
 #include <memory>
 
 #include "Rand.h"
+#include "Grid2D.h"
 
 class StartVolume {
 public:
@@ -49,7 +50,7 @@ class Particle {
 public:
 	Particle(const Vec3& position, const Vec3& direction, const Vec3& acceleration, 
 			 const Vec3& color, float opacity, float maxAge, 
-			 const Vec3& minPos, const Vec3& maxPos, bool bounce);
+			 const Vec3& minPos, const Vec3& maxPos, bool bounce, std::shared_ptr<Grid2D> grid);
 	
 	void update(float deltaT);
 	void restart(const Vec3& position, const Vec3& direction, const Vec3& acceleration, 
@@ -74,6 +75,7 @@ private:
 	
 	Vec3 minPos;
 	Vec3 maxPos;
+    std::shared_ptr<Grid2D> grid;
 };
 
 class ParticleSystem : public AbstractParticleSystem {
@@ -81,7 +83,8 @@ public:
 	ParticleSystem(	uint32_t particleCount, std::shared_ptr<StartVolume> starter,
 					const Vec3& initialSpeedMin, const Vec3& initialSpeedMax, 
 					const Vec3& acceleration, const Vec3& minPos, const Vec3& maxPos,
-					float maxAge, float pointSize, const Vec3& color=RANDOM_COLOR, bool autorestart=true);
+					float maxAge, float pointSize, const Vec3& color=RANDOM_COLOR,
+                    bool autorestart=true, std::shared_ptr<Grid2D> grid=nullptr);
 
 	void update(float t);
 	
@@ -119,6 +122,7 @@ private:
 	float maxAge;
 	float lastT;
     bool autorestart;
+    std::shared_ptr<Grid2D> grid;
 	
 	Vec3 computeStart() const;
 	Vec3 computeDirection() const;

@@ -1,10 +1,12 @@
 #include "ParticleSystem.h"
 #include "Rand.h"
+#include "Vec2.h"
 
 ParticleSystem::ParticleSystem(	uint32_t particleCount, std::shared_ptr<StartVolume> starter,
 								const Vec3& initialSpeedMin, const Vec3& initialSpeedMax, 
 								const Vec3& acceleration, const Vec3& minPos, const Vec3& maxPos, 
-								float maxAge, float pointSize, const Vec3& color, bool autorestart) :
+								float maxAge, float pointSize, const Vec3& color, bool autorestart,
+                                std::shared_ptr<Grid2D> grid) :
 	AbstractParticleSystem(pointSize),
 	starter(starter),
 	initialSpeedMin(initialSpeedMin),
@@ -14,10 +16,11 @@ ParticleSystem::ParticleSystem(	uint32_t particleCount, std::shared_ptr<StartVol
 	color(color),
 	maxAge(maxAge),
 	lastT{0},
-    autorestart{autorestart}
+    autorestart{autorestart},
+    grid{grid}
 {	
 	for (uint32_t i = 0;i<particleCount;++i) {
-		Particle p{computeStart(), computeDirection(), acceleration, computeColor(color), 1.0f, autorestart ? maxAge*Rand::rand01() : 0, minPos, maxPos, true};
+		Particle p{computeStart(), computeDirection(), acceleration, computeColor(color), 1.0f, autorestart ? maxAge*Rand::rand01() : 0, minPos, maxPos, true, grid};
 		particles.push_back(p);		
 	}	
 }
@@ -90,7 +93,7 @@ void ParticleSystem::setColor(const Vec3& color) {
 
 Particle::Particle( const Vec3& position, const Vec3& direction, const Vec3& acceleration, 
 					const Vec3& color, float opacity, float maxAge, const Vec3& minPos, const Vec3& maxPos,
-					bool bounce) :
+					bool bounce, std::shared_ptr<Grid2D> grid) :
 	position(position),
 	direction(direction),
 	acceleration(acceleration),
@@ -100,7 +103,8 @@ Particle::Particle( const Vec3& position, const Vec3& direction, const Vec3& acc
 	maxAge(maxAge),
 	age(0.0f),
 	minPos(minPos),
-	maxPos(maxPos)
+	maxPos(maxPos),
+    grid(grid)
 {
 }
 
@@ -117,20 +121,49 @@ void Particle::update(float deltaT) {
 
 	Vec3 nextPosition{position + direction*deltaT};
 	
-	if (bounce) {
-		if (nextPosition.x() < minPos.x() || nextPosition.x() > maxPos.x())	direction = direction * Vec3(-0.5f,0.0f,0.0f);
-		if (nextPosition.y() < minPos.y() || nextPosition.y() > maxPos.y())	direction = direction * Vec3(0.0f,-0.5f,0.0f);
-		if (nextPosition.z() < minPos.z() || nextPosition.z() > maxPos.z())	direction = direction * Vec3(0.0f,0.0f,-0.5f);
-		nextPosition = position + direction*deltaT;
-	} else {
-		if (nextPosition.x() < minPos.x() || nextPosition.x() > maxPos.x() ||
-			nextPosition.y() < minPos.y() || nextPosition.y() > maxPos.y() ||
-			nextPosition.z() < minPos.z() || nextPosition.z() > maxPos.z()) {
-			direction = Vec3(0,0,0);
-			acceleration = Vec3(0,0,0);
-			nextPosition = position;			
-		}
-	}
+    if (grid) {
+        
+        const Vec2 posOverGrid{(nextPosition.x()-minPos.x())/(maxPos.x()-minPos.x()),
+                               (nextPosition.z()-minPos.z())/(maxPos.z()-minPos.z())};
+        
+        const float gridHeight = grid->sample(posOverGrid);
+        
+        if (bounce) {
+            if (nextPosition.x() < minPos.x() || nextPosition.x() > maxPos.x())
+                direction = direction * Vec3(-0.5f,0.0f,0.0f);
+            if (nextPosition.y() < gridHeight || nextPosition.y() > maxPos.y())
+                direction = direction * Vec3(0.0f,-0.5f,0.0f);
+            if (nextPosition.z() < minPos.z() || nextPosition.z() > maxPos.z())
+                direction = direction * Vec3(0.0f,0.0f,-0.5f);
+            nextPosition = position + direction*deltaT;
+        } else {
+            if (nextPosition.x() < minPos.x() || nextPosition.x() > maxPos.x() ||
+                nextPosition.y() < gridHeight || nextPosition.y() > maxPos.y() ||
+                nextPosition.z() < minPos.z() || nextPosition.z() > maxPos.z()) {
+                direction = Vec3(0,0,0);
+                acceleration = Vec3(0,0,0);
+                nextPosition = position;
+            }
+        }
+    } else {
+        if (bounce) {
+            if (nextPosition.x() < minPos.x() || nextPosition.x() > maxPos.x())
+                direction = direction * Vec3(-0.5f,0.0f,0.0f);
+            if (nextPosition.y() < minPos.y() || nextPosition.y() > maxPos.y())
+                direction = direction * Vec3(0.0f,-0.5f,0.0f);
+            if (nextPosition.z() < minPos.z() || nextPosition.z() > maxPos.z())
+                direction = direction * Vec3(0.0f,0.0f,-0.5f);
+            nextPosition = position + direction*deltaT;
+        } else {
+            if (nextPosition.x() < minPos.x() || nextPosition.x() > maxPos.x() ||
+                nextPosition.y() < minPos.y() || nextPosition.y() > maxPos.y() ||
+                nextPosition.z() < minPos.z() || nextPosition.z() > maxPos.z()) {
+                direction = Vec3(0,0,0);
+                acceleration = Vec3(0,0,0);
+                nextPosition = position;
+            }
+        }
+    }
 	position = nextPosition;
 	direction = direction + acceleration*deltaT;	
 }
