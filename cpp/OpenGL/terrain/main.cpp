@@ -173,12 +173,12 @@ int main(int argc, char ** argv) {
 
     std::shared_ptr<SphereStart> starter = std::make_shared<SphereStart>(mountainTop, 0.001f);
     ParticleSystem particleSystem{20000, starter,
-                                  Vec3{-0.01,0.0,-0.01}, Vec3{0.01,0.03,0.01}, Vec3{0,-0.01, 0},
-                                  Vec3{-0.5f,0.0f,-0.5f}, Vec3{0.5f,1.0f,0.5f}, 20, 10, Vec3{1.0f,0.5f,0.0f}, true, heightField};
+                                  Vec3{-0.01,0.0,-0.01}, Vec3{0.02,0.04,0.02}, Vec3{0,-0.01, 0},
+                                  Vec3{-0.5f,0.0f,-0.5f}, Vec3{0.5f,1.0f,0.5f}, 10, 10, Vec3{1.0f,0.5f,0.0f}, true, heightField};
     
     particleSystem.setBounce(false);
 
-
+    
     GradientGenerator gend(256);
     
     gend.addColor(0.0f,  Vec4{ 0.09f, 0.27f, 0.63f, 1.0f });   //water
@@ -275,7 +275,6 @@ int main(int argc, char ** argv) {
         
         prog.setUniform(alphaLocation, 0.9f);
         prog.setUniform(reductionLocation, 1.0f);
-
         
         waterArray.bind();
         glDrawArrays(GL_TRIANGLES, 0, waterVertices.size()/6 );
@@ -285,7 +284,7 @@ int main(int argc, char ** argv) {
 
         particleSystem.render(m*v,p);
         particleSystem.update(glfwGetTime());
-        
+
         GLEnv::checkGLError("endOfFrame");
         gl.endOfFrame();
     } while (!gl.shouldClose());  
