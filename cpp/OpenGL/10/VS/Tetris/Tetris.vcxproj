@@ -27,23 +27,23 @@
     <ClInclude Include="..\..\..\Utils\GLBuffer.h" />
     <ClInclude Include="..\..\..\Utils\GLEnv.h" />
     <ClInclude Include="..\..\..\Utils\GLProgram.h" />
+    <ClInclude Include="..\..\..\Utils\GLTexture1D.h" />
     <ClInclude Include="..\..\..\Utils\GLTexture2D.h" />
     <ClInclude Include="..\..\..\Utils\Mat4.h" />
     <ClInclude Include="..\..\..\Utils\ParticleSystem.h" />
     <ClInclude Include="..\..\..\Utils\PlanarMirror.h" />
     <ClInclude Include="..\..\..\Utils\PrecomputedParticleSystem.h" />
     <ClInclude Include="..\..\..\Utils\Rand.h" />
-    <ClInclude Include="..\..\..\Utils\ReverseParticleSystem.h" />
     <ClInclude Include="..\..\..\Utils\Tesselation.h" />
     <ClInclude Include="..\..\..\Utils\Vec2.h" />
     <ClInclude Include="..\..\..\Utils\Vec3.h" />
+    <ClInclude Include="..\..\..\Utils\Vec4.h" />
     <ClInclude Include="..\..\Grid.h" />
     <ClInclude Include="..\..\OpenGLRenderer.h" />
     <ClInclude Include="..\..\Renderer.h" />
     <ClInclude Include="..\..\Scene.h" />
     <ClInclude Include="..\..\TetrisConst.h" />
     <ClInclude Include="..\..\TextRenderer.h" />
-    <ClInclude Include="Z:\twitch\lnc\cpp\OpenGL\Utils\Vec4.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Utils\AbstractParticleSystem.cpp" />
@@ -54,6 +54,7 @@
     <ClCompile Include="..\..\..\Utils\GLBuffer.cpp" />
     <ClCompile Include="..\..\..\Utils\GLEnv.cpp" />
     <ClCompile Include="..\..\..\Utils\GLProgram.cpp" />
+    <ClCompile Include="..\..\..\Utils\GLTexture1D.cpp" />
     <ClCompile Include="..\..\..\Utils\GLTexture2D.cpp" />
     <ClCompile Include="..\..\..\Utils\Mat4.cpp" />
     <ClCompile Include="..\..\..\Utils\ParticleSystem.cpp" />
@@ -62,12 +63,12 @@
     <ClCompile Include="..\..\..\Utils\Rand.cpp" />
     <ClCompile Include="..\..\..\Utils\Tesselation.cpp" />
     <ClCompile Include="..\..\..\Utils\Vec3.cpp" />
+    <ClCompile Include="..\..\..\Utils\Vec4.cpp" />
     <ClCompile Include="..\..\Grid.cpp" />
     <ClCompile Include="..\..\main.cpp" />
     <ClCompile Include="..\..\OpenGLRenderer.cpp" />
     <ClCompile Include="..\..\Scene.cpp" />
     <ClCompile Include="..\..\TextRenderer.cpp" />
-    <ClCompile Include="Z:\twitch\lnc\cpp\OpenGL\Utils\Vec4.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

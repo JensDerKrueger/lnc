@@ -171,6 +171,7 @@
     <ClCompile Include="..\..\..\Utils\GLBuffer.cpp" />
     <ClCompile Include="..\..\..\Utils\GLEnv.cpp" />
     <ClCompile Include="..\..\..\Utils\GLProgram.cpp" />
+    <ClCompile Include="..\..\..\Utils\GLTexture1D.cpp" />
     <ClCompile Include="..\..\..\Utils\GLTexture2D.cpp" />
     <ClCompile Include="..\..\..\Utils\Mat4.cpp" />
     <ClCompile Include="..\..\..\Utils\ParticleSystem.cpp" />
@@ -192,6 +193,7 @@
     <ClInclude Include="..\..\..\Utils\GLBuffer.h" />
     <ClInclude Include="..\..\..\Utils\GLEnv.h" />
     <ClInclude Include="..\..\..\Utils\GLProgram.h" />
+    <ClInclude Include="..\..\..\Utils\GLTexture1D.h" />
     <ClInclude Include="..\..\..\Utils\GLTexture2D.h" />
     <ClInclude Include="..\..\..\Utils\Mat4.h" />
     <ClInclude Include="..\..\..\Utils\ParticleSystem.h" />
