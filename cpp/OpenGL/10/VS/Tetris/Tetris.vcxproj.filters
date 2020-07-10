@@ -69,9 +69,6 @@
     <ClInclude Include="..\..\..\Utils\Rand.h">
       <Filter>Headerdateien\Utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Utils\ReverseParticleSystem.h">
-      <Filter>Headerdateien\Utils</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\Utils\Tesselation.h">
       <Filter>Headerdateien\Utils</Filter>
     </ClInclude>
@@ -79,9 +76,6 @@
       <Filter>Headerdateien\Utils</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Utils\Vec3.h">
-      <Filter>Headerdateien\Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="Z:\twitch\lnc\cpp\OpenGL\Utils\Vec4.h">
       <Filter>Headerdateien\Utils</Filter>
     </ClInclude>
     <ClInclude Include="..\..\OpenGLRenderer.h">
@@ -95,6 +89,12 @@
     </ClInclude>
     <ClInclude Include="..\..\TextRenderer.h">
       <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Utils\Vec4.h">
+      <Filter>Headerdateien\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Utils\GLTexture1D.h">
+      <Filter>Headerdateien\Utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -161,7 +161,10 @@
     <ClCompile Include="..\..\..\Utils\Vec3.cpp">
       <Filter>Quelldateien\Utils</Filter>
     </ClCompile>
-    <ClCompile Include="Z:\twitch\lnc\cpp\OpenGL\Utils\Vec4.cpp">
+    <ClCompile Include="..\..\..\Utils\Vec4.cpp">
+      <Filter>Quelldateien\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Utils\GLTexture1D.cpp">
       <Filter>Quelldateien\Utils</Filter>
     </ClCompile>
   </ItemGroup>

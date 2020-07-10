@@ -78,6 +78,9 @@
     <ClCompile Include="..\..\..\Utils\Vec4.cpp">
       <Filter>Quelldateien\Utils</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Utils\GLTexture1D.cpp">
+      <Filter>Quelldateien\Utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Utils\bmp.h">
@@ -136,6 +139,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Octree.h">
       <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Utils\GLTexture1D.h">
+      <Filter>Headerdateien\Utils</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

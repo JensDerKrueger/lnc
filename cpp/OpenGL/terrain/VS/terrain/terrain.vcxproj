@@ -108,6 +108,12 @@
       <AdditionalLibraryDirectories>$(SolutionDir)..\..\..\VS\lib\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>opengl32.lib;glew32s.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>XCOPY "$(ProjectDir)..\..\*.bmp" "$(OutDir)*.*" /Y
+XCOPY "$(ProjectDir)..\..\*.glsl" "$(OutDir)*.*" /Y
+XCOPY "$(ProjectDir)..\..\*.bmp" "$(ProjectDir)*.*" /Y
+XCOPY "$(ProjectDir)..\..\*.glsl" "$(ProjectDir)*.*" /Y</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -127,6 +133,12 @@
       <AdditionalLibraryDirectories>$(SolutionDir)..\..\..\VS\lib\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>opengl32.lib;glew32s.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>XCOPY "$(ProjectDir)..\..\*.bmp" "$(OutDir)*.*" /Y
+XCOPY "$(ProjectDir)..\..\*.glsl" "$(OutDir)*.*" /Y
+XCOPY "$(ProjectDir)..\..\*.bmp" "$(ProjectDir)*.*" /Y
+XCOPY "$(ProjectDir)..\..\*.glsl" "$(ProjectDir)*.*" /Y</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -142,6 +154,12 @@
       <AdditionalDependencies>opengl32.lib;glew32s.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)..\..\..\VS\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>XCOPY "$(ProjectDir)..\..\*.bmp" "$(OutDir)*.*" /Y
+XCOPY "$(ProjectDir)..\..\*.glsl" "$(OutDir)*.*" /Y
+XCOPY "$(ProjectDir)..\..\*.bmp" "$(ProjectDir)*.*" /Y
+XCOPY "$(ProjectDir)..\..\*.glsl" "$(ProjectDir)*.*" /Y</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -161,6 +179,12 @@
       <AdditionalDependencies>opengl32.lib;glew32s.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)..\..\..\VS\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>XCOPY "$(ProjectDir)..\..\*.bmp" "$(OutDir)*.*" /Y
+XCOPY "$(ProjectDir)..\..\*.glsl" "$(OutDir)*.*" /Y
+XCOPY "$(ProjectDir)..\..\*.bmp" "$(ProjectDir)*.*" /Y
+XCOPY "$(ProjectDir)..\..\*.glsl" "$(ProjectDir)*.*" /Y</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Utils\bmp.cpp" />
@@ -173,6 +197,7 @@
     <ClCompile Include="..\..\..\Utils\Mat4.cpp" />
     <ClCompile Include="..\..\..\Utils\Rand.cpp" />
     <ClCompile Include="..\..\..\Utils\Vec3.cpp" />
+    <ClCompile Include="..\..\..\Utils\Vec4.cpp" />
     <ClCompile Include="..\..\Grid2D.cpp" />
     <ClCompile Include="..\..\main.cpp" />
   </ItemGroup>
@@ -189,7 +214,15 @@
     <ClInclude Include="..\..\..\Utils\Rand.h" />
     <ClInclude Include="..\..\..\Utils\Vec2.h" />
     <ClInclude Include="..\..\..\Utils\Vec3.h" />
+    <ClInclude Include="..\..\..\Utils\Vec4.h" />
     <ClInclude Include="..\..\Grid2D.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\param.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\terrain-fs.glsl" />
+    <None Include="..\..\terrain-vs.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

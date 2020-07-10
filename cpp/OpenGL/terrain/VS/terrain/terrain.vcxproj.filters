@@ -57,6 +57,9 @@
     <ClCompile Include="..\..\..\Utils\GLTexture1D.cpp">
       <Filter>Quelldateien\Utils</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Utils\Vec4.cpp">
+      <Filter>Quelldateien\Utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Utils\bmp.h">
@@ -95,8 +98,24 @@
     <ClInclude Include="..\..\..\Utils\GLTexture1D.h">
       <Filter>Headerdateien\Utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Utils\Camera.h">
-      <Filter>Quelldateien\Utils</Filter>
+    <ClInclude Include="..\..\..\Utils\Vec4.h">
+      <Filter>Headerdateien\Utils</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Utils\Camera.h">
+      <Filter>Headerdateien\Utils</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\param.bmp">
+      <Filter>Ressourcendateien</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\terrain-fs.glsl">
+      <Filter>Ressourcendateien</Filter>
+    </None>
+    <None Include="..\..\terrain-vs.glsl">
+      <Filter>Ressourcendateien</Filter>
+    </None>
   </ItemGroup>
 </Project>
