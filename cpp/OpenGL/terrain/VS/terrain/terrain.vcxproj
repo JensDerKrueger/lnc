@@ -187,6 +187,7 @@ XCOPY "$(ProjectDir)..\..\*.glsl" "$(ProjectDir)*.*" /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\Utils\AbstractParticleSystem.cpp" />
     <ClCompile Include="..\..\..\Utils\bmp.cpp" />
     <ClCompile Include="..\..\..\Utils\GLArray.cpp" />
     <ClCompile Include="..\..\..\Utils\GLBuffer.cpp" />
@@ -194,14 +195,17 @@ XCOPY "$(ProjectDir)..\..\*.glsl" "$(ProjectDir)*.*" /Y</Command>
     <ClCompile Include="..\..\..\Utils\GLProgram.cpp" />
     <ClCompile Include="..\..\..\Utils\GLTexture1D.cpp" />
     <ClCompile Include="..\..\..\Utils\GLTexture2D.cpp" />
+    <ClCompile Include="..\..\..\Utils\Grid2D.cpp" />
     <ClCompile Include="..\..\..\Utils\Mat4.cpp" />
+    <ClCompile Include="..\..\..\Utils\ParticleSystem.cpp" />
     <ClCompile Include="..\..\..\Utils\Rand.cpp" />
     <ClCompile Include="..\..\..\Utils\Vec3.cpp" />
     <ClCompile Include="..\..\..\Utils\Vec4.cpp" />
-    <ClCompile Include="..\..\Grid2D.cpp" />
+    <ClCompile Include="..\..\GradientGenerator.cpp" />
     <ClCompile Include="..\..\main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\Utils\AbstractParticleSystem.h" />
     <ClInclude Include="..\..\..\Utils\bmp.h" />
     <ClInclude Include="..\..\..\Utils\Camera.h" />
     <ClInclude Include="..\..\..\Utils\GLArray.h" />
@@ -210,12 +214,14 @@ XCOPY "$(ProjectDir)..\..\*.glsl" "$(ProjectDir)*.*" /Y</Command>
     <ClInclude Include="..\..\..\Utils\GLProgram.h" />
     <ClInclude Include="..\..\..\Utils\GLTexture1D.h" />
     <ClInclude Include="..\..\..\Utils\GLTexture2D.h" />
+    <ClInclude Include="..\..\..\Utils\Grid2D.h" />
     <ClInclude Include="..\..\..\Utils\Mat4.h" />
+    <ClInclude Include="..\..\..\Utils\ParticleSystem.h" />
     <ClInclude Include="..\..\..\Utils\Rand.h" />
     <ClInclude Include="..\..\..\Utils\Vec2.h" />
     <ClInclude Include="..\..\..\Utils\Vec3.h" />
     <ClInclude Include="..\..\..\Utils\Vec4.h" />
-    <ClInclude Include="..\..\Grid2D.h" />
+    <ClInclude Include="..\..\GradientGenerator.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\..\param.bmp" />
