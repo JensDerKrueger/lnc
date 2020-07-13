@@ -19,11 +19,15 @@ public:
     GradientGenerator(size_t texSize);
     void addColor(float pos, const Vec4& color);
     void addColor(const PosColor& c);
+        
+    GLTexture1D getTexture() const;
     
-    GLTexture1D getTexture();
+    void toFile(const std::string& filename) const;
     
 private:
     size_t texSize;
     std::vector<PosColor> colors;
+    
+    std::vector<GLubyte> get8BitVector() const;
     
 };

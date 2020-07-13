@@ -18,8 +18,8 @@ typedef std::chrono::high_resolution_clock Clock;
 #include <Vec3.h>
 #include <Vec2.h>
 #include <Mat4.h>
-#include <bmp.h>
 #include <Camera.h>
+#include <bmp.h>
 #include <ParticleSystem.h>
 
 #include <GLTexture1D.h>
@@ -124,13 +124,14 @@ const std::vector<float> convertHeightFieldToTriangles(const Grid2D& heightField
     
     for (size_t y = 1;y<heightField.getHeight()-2;++y) {
         for (size_t x = 1;x<heightField.getWidth()-2;++x) {
-            pushValue(x,y+1,heightField,tris);
-            pushValue(x+1,y,heightField,tris);
-            pushValue(x,y,heightField,tris);
+            pushValue(x,y+1,heightField,tris);             tris.push_back(0.0f);
+            pushValue(x+1,y,heightField,tris);             tris.push_back(0.0f);
+            pushValue(x,y,heightField,tris);               tris.push_back(0.0f);
 
-            pushValue(x,y+1,heightField,tris);
-            pushValue(x+1,y+1,heightField,tris);
-            pushValue(x+1,y,heightField,tris);
+            pushValue(x,y+1,heightField,tris);             tris.push_back(0.0f);
+            pushValue(x+1,y+1,heightField,tris);            tris.push_back(0.0f);
+            pushValue(x+1,y,heightField,tris);             tris.push_back(0.0f);
+            
         }
     }
     
@@ -174,26 +175,16 @@ int main(int argc, char ** argv) {
     std::shared_ptr<SphereStart> starter = std::make_shared<SphereStart>(mountainTop, 0.001f);
     ParticleSystem particleSystem{20000, starter,
                                   Vec3{-0.01,0.0,-0.01}, Vec3{0.02,0.04,0.02}, Vec3{0,-0.01, 0},
-                                  Vec3{-0.5f,0.0f,-0.5f}, Vec3{0.5f,1.0f,0.5f}, 10, 10, Vec3{1.0f,0.5f,0.0f}, true, heightField};
+                                  Vec3{-0.5f,0.0f,-0.5f}, Vec3{0.5f,1.0f,0.5f}, 10, 3, Vec3{1.0f,0.5f,0.0f}, true, heightField};
     
     particleSystem.setBounce(false);
-
     
-    GradientGenerator gend(256);
     
-    gend.addColor(0.0f,  Vec4{ 0.09f, 0.27f, 0.63f, 1.0f });   //water
-    gend.addColor(0.2f,  Vec4{ 0.09f, 0.27f, 0.63f, 1.0f });   //water
-    gend.addColor(0.25f, Vec4{ 0.79f, 0.62f, 0.41f, 0.0f });   //beach
-    gend.addColor(0.3f,  Vec4{ 0.79f, 0.62f, 0.41f, 0.0f });   //beach
-    gend.addColor(0.35f, Vec4{ 0.23f, 0.50f, 0.17f, 0.0f });  //chlorophyll 1
-    gend.addColor(0.50f, Vec4{ 0.11f, 0.38f, 0.08f, 0.0f });  //chlorophyll 2
-    gend.addColor(0.6f,  Vec4{ 0.32f, 0.31f, 0.31f, 0.0f });  //rock
-    gend.addColor(0.7f,  Vec4{ 0.32f, 0.31f, 0.31f, 0.0f });  //rock
-    gend.addColor(0.8f,  Vec4{ 1.00f, 1.00f, 1.00f, 0.5f });  //snow
-    gend.addColor(1.0f,  Vec4{ 1.00f, 1.00f, 1.00f, 0.5f });  //snow
+    BMP::Image heightTextureImage{BMP::load("gradientTex.bmp")};
+    GLTexture2D heightTexture{GL_LINEAR, GL_LINEAR};
+    heightTexture.setData(heightTextureImage.data, heightTextureImage.width, heightTextureImage.height, heightTextureImage.componentCount);
     
-    GLTexture1D heightTexture = gend.getTexture();
-
+    
     
     GLProgram prog{GLProgram::createFromFile("terrain-vs.glsl", "terrain-fs.glsl")};
     GLint mvpLocation{prog.getUniformLocation("MVP")};
@@ -211,26 +202,28 @@ int main(int argc, char ** argv) {
     GLBuffer vbTerrain{GL_ARRAY_BUFFER};
     
     const std::vector<float> tris = convertHeightFieldToTriangles(*heightField);
-    vbTerrain.setData(tris,6,GL_STATIC_DRAW);
+    vbTerrain.setData(tris,7,GL_STATIC_DRAW);
 
     terrainArray.bind();
     terrainArray.connectVertexAttrib(vbTerrain, prog, "vPos", 3);
     terrainArray.connectVertexAttrib(vbTerrain, prog, "vNormal", 3, 3);
-    
+    terrainArray.connectVertexAttrib(vbTerrain, prog, "vGradient", 1, 6);
+ 
     GLArray waterArray{};
     GLBuffer vbWater{GL_ARRAY_BUFFER};
     const float waterLevel = 0.2f/reduction;
-    const std::vector<float> waterVertices{-0.5f,waterLevel,-0.5f, 0.0f,1.0f,0.0f,
-                                            0.5f,waterLevel,-0.5f, 0.0f,1.0f,0.0f,
-                                            0.5f,waterLevel,0.5f, 0.0f,1.0f,0.0f,
-                                           -0.5f,waterLevel,-0.5f, 0.0f,1.0f,0.0f,
-                                            0.5f,waterLevel,0.5f, 0.0f,1.0f,0.0f,
-                                           -0.5f,waterLevel,0.5f, 0.0f,1.0f,0.0f};
-    vbWater.setData(waterVertices,6,GL_STATIC_DRAW);
+    const std::vector<float> waterVertices{-0.5f,waterLevel,-0.5f, 0.0f,1.0f,0.0f,  0.0f,
+                                            0.5f,waterLevel,-0.5f, 0.0f,1.0f,0.0f,  0.0f,
+                                            0.5f,waterLevel,0.5f, 0.0f,1.0f,0.0f,   0.0f,
+                                           -0.5f,waterLevel,-0.5f, 0.0f,1.0f,0.0f,  0.0f,
+                                            0.5f,waterLevel,0.5f, 0.0f,1.0f,0.0f,   0.0f,
+                                           -0.5f,waterLevel,0.5f, 0.0f,1.0f,0.0f,   0.0f};
+    vbWater.setData(waterVertices,7,GL_STATIC_DRAW);
 
     waterArray.bind();
     waterArray.connectVertexAttrib(vbWater, prog, "vPos", 3);
     waterArray.connectVertexAttrib(vbWater, prog, "vNormal", 3, 3);
+    waterArray.connectVertexAttrib(vbTerrain, prog, "vGradient", 1, 6);
 
     gl.setKeyCallback(keyCallback);
     gl.setMouseCallbacks(cursorPositionCallback, mouseButtonCallback, scrollCallback);
@@ -264,9 +257,10 @@ int main(int argc, char ** argv) {
         prog.setUniform(alphaLocation, 1.0f);
         prog.setUniform(reductionLocation, reduction);
 
+        prog.setTexture(heightTextureLocation,heightTexture);
 
         terrainArray.bind();
-        glDrawArrays(GL_TRIANGLES, 0, tris.size()/6 );
+        glDrawArrays(GL_TRIANGLES, 0, tris.size()/7 );
       
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -277,7 +271,7 @@ int main(int argc, char ** argv) {
         prog.setUniform(reductionLocation, 1.0f);
         
         waterArray.bind();
-        glDrawArrays(GL_TRIANGLES, 0, waterVertices.size()/6 );
+        glDrawArrays(GL_TRIANGLES, 0, waterVertices.size()/7 );
 
         glDisable(GL_BLEND);
         glDepthMask(GL_TRUE);

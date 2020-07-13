@@ -1,3 +1,5 @@
+#include <bmp.h>
+
 #include "GradientGenerator.h"
 
 GradientGenerator::GradientGenerator(size_t texSize) :
@@ -12,32 +14,39 @@ void GradientGenerator::addColor(const PosColor& c) {
     colors.push_back(c);
 }
 
-GLTexture1D GradientGenerator::getTexture() {
-    std::sort(colors.begin(), colors.end());
+GLTexture1D GradientGenerator::getTexture() const {
+    GLTexture1D texture{GL_LINEAR, GL_LINEAR};
+    texture.setData(get8BitVector(), texSize, 4);
+    return texture;
+}
+
+std::vector<GLubyte> GradientGenerator::get8BitVector() const {
+    std::vector<PosColor> sortedColors(colors);
+    std::sort(sortedColors.begin(), sortedColors.end());
     
     std::vector<GLubyte> textureData(texSize*4);
 
-    if (colors.size() > 0) {
+    if (sortedColors.size() > 0) {
                 
         size_t prevIndex = 0;
         size_t nextIndex = 0;
         for (size_t p = 0;p<texSize;++p) {
             const float normIndex = float(p)/float(texSize-1);
             
-            if (normIndex > colors[nextIndex].pos) {
+            if (normIndex > sortedColors[nextIndex].pos) {
                 prevIndex = nextIndex;
                 nextIndex = nextIndex+1;
             }
-            if (normIndex >= colors.back().pos) {
-                prevIndex = colors.size()-1;
-                nextIndex = colors.size()-1;
+            if (normIndex >= sortedColors.back().pos) {
+                prevIndex = sortedColors.size()-1;
+                nextIndex = sortedColors.size()-1;
             }
                         
-            const Vec4& prev = colors[prevIndex].color;
-            const Vec4& next = colors[nextIndex].color;
+            const Vec4& prev = sortedColors[prevIndex].color;
+            const Vec4& next = sortedColors[nextIndex].color;
             
                             
-            float alpha = (prevIndex == nextIndex) ? 0.5f :  (normIndex-colors[prevIndex].pos)/(colors[nextIndex].pos-colors[prevIndex].pos);
+            float alpha = (prevIndex == nextIndex) ? 0.5f :  (normIndex-sortedColors[prevIndex].pos)/(sortedColors[nextIndex].pos-sortedColors[prevIndex].pos);
             
             const Vec4 curreColor{prev*(1-alpha)+next*alpha};
             textureData[p*4+0] = GLubyte(curreColor.r()*255);
@@ -47,7 +56,10 @@ GLTexture1D GradientGenerator::getTexture() {
         }
     }
     
-    GLTexture1D texture{GL_LINEAR, GL_LINEAR};
-    texture.setData(textureData, texSize, 4);
-    return texture;
+    return textureData;
+}
+
+void GradientGenerator::toFile(const std::string& filename) const {
+    BMP::Image image{1, uint32_t(texSize), 4, get8BitVector()};
+    BMP::save(filename, image);
 }
