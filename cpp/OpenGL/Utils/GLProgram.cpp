@@ -121,9 +121,18 @@ void GLProgram::setUniform(GLint id, float value) const {
 	glUniform1f(id, value);	
 }
 
+void GLProgram::setUniform(GLint id, const Vec2& value) const {
+    glUniform2fv(id, 1, value);
+}
+
 void GLProgram::setUniform(GLint id, const Vec3& value) const {
 	glUniform3fv(id, 1, value);	
 }
+
+void GLProgram::setUniform(GLint id, const Vec4& value) const {
+    glUniform4fv(id, 1, value);
+}
+
 
 void GLProgram::setUniform(GLint id, const Mat4& value, bool transpose) const {
 	glUniformMatrix4fv(id, 1, transpose, value);

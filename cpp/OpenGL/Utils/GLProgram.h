@@ -7,7 +7,9 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include "Vec2.h"
 #include "Vec3.h"
+#include "Vec4.h"
 #include "Mat4.h"
 #include "GLTexture1D.h"
 #include "GLTexture2D.h"
@@ -36,7 +38,9 @@ public:
 	GLint getUniformLocation(const std::string& id) const;
 			
 	void setUniform(GLint id, float value) const;
+    void setUniform(GLint id, const Vec2& value) const;
 	void setUniform(GLint id, const Vec3& value) const;
+    void setUniform(GLint id, const Vec4& value) const;
 	void setUniform(GLint id, const Mat4& value, bool transpose=false) const;
 	
 	void setTexture(GLint id, const GLTexture2D& texture, GLuint unit=0) const;
