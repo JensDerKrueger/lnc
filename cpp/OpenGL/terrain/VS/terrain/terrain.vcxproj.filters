@@ -48,9 +48,6 @@
     <ClCompile Include="..\..\..\Utils\Vec3.cpp">
       <Filter>Quelldateien\Utils</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Grid2D.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\Utils\GLArray.cpp">
       <Filter>Quelldateien\Utils</Filter>
     </ClCompile>
@@ -58,6 +55,18 @@
       <Filter>Quelldateien\Utils</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Utils\Vec4.cpp">
+      <Filter>Quelldateien\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Utils\Grid2D.cpp">
+      <Filter>Quelldateien\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\GradientGenerator.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Utils\ParticleSystem.cpp">
+      <Filter>Quelldateien\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Utils\AbstractParticleSystem.cpp">
       <Filter>Quelldateien\Utils</Filter>
     </ClCompile>
   </ItemGroup>
@@ -89,9 +98,6 @@
     <ClInclude Include="..\..\..\Utils\Vec3.h">
       <Filter>Headerdateien\Utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Grid2D.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\Utils\GLArray.h">
       <Filter>Headerdateien\Utils</Filter>
     </ClInclude>
@@ -102,6 +108,18 @@
       <Filter>Headerdateien\Utils</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Utils\Camera.h">
+      <Filter>Headerdateien\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Utils\Grid2D.h">
+      <Filter>Headerdateien\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\GradientGenerator.h">
+      <Filter>Headerdateien\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Utils\ParticleSystem.h">
+      <Filter>Headerdateien\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Utils\AbstractParticleSystem.h">
       <Filter>Headerdateien\Utils</Filter>
     </ClInclude>
   </ItemGroup>
