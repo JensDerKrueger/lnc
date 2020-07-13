@@ -5,7 +5,14 @@ GLTexture2D::GLTexture2D(GLint magFilter, GLint minFilter, GLint wrapX, GLint wr
 	id(0),
 	internalformat(0),
 	format(0),
-	type(0)
+	type(0),
+    magFilter(magFilter),
+    minFilter(minFilter),
+    wrapX(wrapX),
+    wrapY(wrapY),
+    width(0),
+    height(0),
+    componentCount(0)
 {
 	glGenTextures(1, &id);
 	glBindTexture(GL_TEXTURE_2D, id);
@@ -19,6 +26,20 @@ GLTexture2D::~GLTexture2D() {
 	glDeleteTextures(1, &id);
 }
 
+GLTexture2D::GLTexture2D(const GLTexture2D& other) :
+    GLTexture2D(other.magFilter, other.minFilter, other.wrapX, other.wrapY)
+{
+    setData(other.data, other.height, other.width, other.componentCount);
+}
+
+GLTexture2D& GLTexture2D::operator=(GLTexture2D other) {
+    magFilter = other.magFilter;
+    minFilter = other.minFilter;
+    wrapX = other.wrapX;
+    wrapY = other.wrapY;
+    setData(other.data, other.height, other.width, other.componentCount);
+    return *this;
+}
 
 const GLint GLTexture2D::getId() const {
 	return id;
@@ -29,6 +50,12 @@ void GLTexture2D::setData(const std::vector<GLubyte>& data, uint32_t width, uint
 		throw GLException{"Data size and texure dimensions do not match."};
 	}
 	
+    this->data = data;
+    this->width = width;
+    this->height = height;
+    this->componentCount = componentCount;
+
+    
 	glBindTexture(GL_TEXTURE_2D, id);
 
 	glPixelStorei(GL_PACK_ALIGNMENT ,1);
