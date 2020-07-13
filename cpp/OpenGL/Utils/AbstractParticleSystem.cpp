@@ -70,11 +70,14 @@ std::vector<uint8_t> spritePixel{
 static std::string vsString{
 "#version 410\n"
 "uniform mat4 MVP;\n"
+"uniform vec2 pointParam;"
 "layout (location = 0) in vec3 vPos;\n"
 "layout (location = 1) in vec4 vColor;\n"
 "out vec4 color;\n"
 "void main() {\n"
 "	gl_Position = MVP * vec4(vPos, 1.0);\n"
+"   float dist = gl_Position.z;"
+"   gl_PointSize = pointParam.x*pointParam.y / dist;\n"
 "   color = vColor;\n"
 "}\n"};
 
@@ -88,16 +91,17 @@ static std::string fsString{
 "    FragColor = vec4(color*texValue)*color.a;\n"
 "}\n"};
 
-AbstractParticleSystem::AbstractParticleSystem(float pointSize) :
-	pointSize(pointSize), 
+AbstractParticleSystem::AbstractParticleSystem(float pointSize, float refDepth) :
+	pointSize(pointSize),
+    refDepth(refDepth),
 	prog{GLProgram::createFromString(vsString, fsString)},
 	mvpLocation{prog.getUniformLocation("MVP")},
+    ppLocation{prog.getUniformLocation("pointParam")},
 	texLocation{prog.getUniformLocation("sprite")},
 	sprite{GL_LINEAR, GL_LINEAR},
 	particleArray{},
 	vbPosColor{GL_ARRAY_BUFFER}	
 {
-
 	// setup texture
 	sprite.setData(spritePixel, 64, 64 , 3);
 		
@@ -115,6 +119,7 @@ void AbstractParticleSystem::render(const Mat4& v, const Mat4& p) {
     
 	prog.enable();
 	prog.setUniform(mvpLocation, v*p);
+    prog.setUniform(ppLocation, Vec2(pointSize,refDepth));
 	prog.setTexture(texLocation, sprite, 0);		
 
 	glEnable(GL_BLEND);
@@ -123,7 +128,7 @@ void AbstractParticleSystem::render(const Mat4& v, const Mat4& p) {
 	glDisable(GL_CULL_FACE);
 	glDepthMask(GL_FALSE);
 			
-	glPointSize(pointSize);
+    glEnable( GL_PROGRAM_POINT_SIZE );
 
 	particleArray.bind();
 	vbPosColor.setData(getData(),7,GL_DYNAMIC_DRAW);
