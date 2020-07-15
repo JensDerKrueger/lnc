@@ -95,10 +95,7 @@ Vec3 Grid2D::normal(float x, float y) const {
 
     float sx = x * (width - 1);
     float sy = y * (height - 1);
-
-    float alpha = sx - floorf(sx);
-    float beta = sy - floorf(sy);
-
+    
     Vec2ui a{ uint32_t(floorf(sx)),uint32_t(floorf(sy)) };
     Vec2ui b{ uint32_t(ceilf(sx)),uint32_t(floorf(sy)) };
     Vec2ui c{ uint32_t(floorf(sx)),uint32_t(ceilf(sy)) };
