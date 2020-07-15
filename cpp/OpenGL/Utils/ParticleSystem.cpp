@@ -6,7 +6,7 @@ ParticleSystem::ParticleSystem(	uint32_t particleCount, std::shared_ptr<StartVol
 								const Vec3& initialSpeedMin, const Vec3& initialSpeedMax, 
 								const Vec3& acceleration, const Vec3& minPos, const Vec3& maxPos, 
 								float maxAge, float pointSize, const Vec3& color, bool autorestart,
-                                std::shared_ptr<Grid2D> grid) :
+                                EruptionType eruptionType, std::shared_ptr<Grid2D> grid) :
 	AbstractParticleSystem(pointSize),
 	starter(starter),
 	initialSpeedMin(initialSpeedMin),
@@ -17,7 +17,8 @@ ParticleSystem::ParticleSystem(	uint32_t particleCount, std::shared_ptr<StartVol
 	maxAge(maxAge),
 	lastT{0},
     autorestart{autorestart},
-    grid{grid}
+    grid{grid},
+    eruptionType{eruptionType}
 {	
 	for (uint32_t i = 0;i<particleCount;++i) {
 		Particle p{computeStart(), computeDirection(), acceleration, computeColor(color), 1.0f, autorestart ? maxAge*Rand::rand01() : 0, minPos, maxPos, true, grid};
@@ -82,22 +83,19 @@ Vec3 ParticleSystem::computeDirection() const {
 	float radius = 1.0f;
 	float t = glfwGetTime();
 
-	switch (2) {	//eruption type
-		case 1:	//default		
+	switch (eruptionType) {
+		case DefaultEruption:
 			return initialSpeedMin + (initialSpeedMax - initialSpeedMin) * Vec3{ Rand::rand01(),Rand::rand01(),Rand::rand01() };
-
-		case 2: //smooth eruption
+		case SmoothEruption:
 			radius = (initialSpeedMax - initialSpeedMin).length() * (0.6f + 0.4f * Rand::rand01()) * 0.15f;
 			return Vec3::randomPointInSphere() * radius + Vec3{ 0.0f, 0.15f, 0.0f };
-
-
-		case 3:	//magic chaotic vulcano :		
+		case MagicChaoticVulcano:
 			radius = (initialSpeedMax - initialSpeedMin).length() * (0.6f + 0.4f * Rand::rand01()) * 0.1f;
 			return Vec3::randomPointInSphere() * radius + Vec3{ 0.04f * cos(floorf(t * 3.5f) * 10.0f),
-																0.05f + 0.2f * (1.2f + cos(floorf(t * 13.0f))) * 0.2f * Rand::rand01(),
+																0.05f + 0.2f * (1.2f + cos(floorf(t * 13.0f))) *
+                                                                0.2f * Rand::rand01(),
 																0.04f * sin(floorf(t * 4.0f) * 20.0f) }
-																*1.0f;
-
+                                                                *1.0f;
 	}
 
 

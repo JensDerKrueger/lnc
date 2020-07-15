@@ -98,7 +98,6 @@ void GLEnv::endOfFrame() {
             last = now;
         }
 	}
-	
 }
 
 void GLEnv::setKeyCallback(GLFWkeyfun f) {

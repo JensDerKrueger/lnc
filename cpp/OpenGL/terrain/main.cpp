@@ -102,21 +102,28 @@ static void scrollCallback(GLFWwindow* window, double x_offset, double y_offset)
 
 
 
-void pushVertex(const Vec3& v, std::vector<float>& a ) {
+void pushPosGradient(const Vec3& v, std::vector<float>& a) {
     a.push_back(v.x());
     a.push_back(v.y());
     a.push_back(v.z());
 }
 
+void pushNormal(const Vec3& v, std::vector<float>& a, float gradient ) {
+    a.push_back(v.x());
+    a.push_back(v.y());
+    a.push_back(v.z());
+    a.push_back(gradient);
+}
+
 void pushValue(size_t x,size_t y, const Grid2D& heightField, std::vector<float>& tris) {
     Vec3 v{float(x)/heightField.getWidth()-0.5f,heightField.getValue(x,y),float(y)/heightField.getHeight()-0.5f};
-    pushVertex(v, tris);
     
     const Vec3 t1{0.0f,(heightField.getValue(x,y+1) - heightField.getValue(x,y-1))/(2.0f/heightField.getWidth()), 1.0f};
     const Vec3 t2{1.0f,(heightField.getValue(x+1,y) - heightField.getValue(x-1,y))/(2.0f/heightField.getHeight()), 0.0f};
 
     const Vec3 normal{Vec3::normalize(Vec3::cross(t1,t2))};
-    pushVertex(normal, tris);
+    pushPosGradient(v, tris);
+    pushNormal(normal, tris, 1.0f-Vec3::dot(normal, Vec3{0,1,0}));
 }
 
 const std::vector<float> convertHeightFieldToTriangles(const Grid2D& heightField) {
@@ -124,14 +131,13 @@ const std::vector<float> convertHeightFieldToTriangles(const Grid2D& heightField
     
     for (size_t y = 1;y<heightField.getHeight()-2;++y) {
         for (size_t x = 1;x<heightField.getWidth()-2;++x) {
-            pushValue(x,y+1,heightField,tris);             tris.push_back(0.0f);
-            pushValue(x+1,y,heightField,tris);             tris.push_back(0.0f);
-            pushValue(x,y,heightField,tris);               tris.push_back(0.0f);
+            pushValue(x,y+1,heightField,tris);
+            pushValue(x+1,y,heightField,tris);
+            pushValue(x,y,heightField,tris);
 
-            pushValue(x,y+1,heightField,tris);             tris.push_back(0.0f);
-            pushValue(x+1,y+1,heightField,tris);            tris.push_back(0.0f);
-            pushValue(x+1,y,heightField,tris);             tris.push_back(0.0f);
-            
+            pushValue(x,y+1,heightField,tris);
+            pushValue(x+1,y+1,heightField,tris);
+            pushValue(x+1,y,heightField,tris);
         }
     }
     
@@ -177,16 +183,38 @@ int main(int argc, char ** argv) {
     float pointSize = 2000.0f / sqrt(count * 1.0f);
     ParticleSystem particleSystem{count, starter,
                                   Vec3{-0.07,0.01,-0.07}, Vec3{0.07,0.12,0.07}, Vec3{0,-0.05, 0},
-                                  Vec3{-0.5f,0.0f,-0.5f}, Vec3{0.5f,1.0f,0.5f}, 30, pointSize, Vec3{1.0f,0.14f,0.04f}, true, heightField};
-    
+                                  Vec3{-0.5f,0.0f,-0.5f}, Vec3{0.5f,1.0f,0.5f}, 30, pointSize,
+                                  Vec3{1.0f,0.14f,0.04f}, true, SmoothEruption, heightField};
     particleSystem.setBounce(false);
     
+    std::shared_ptr<GradientGenerator> gend1 = std::make_shared<GradientGenerator>();
+    gend1->addColor(0.0f,  Vec4{ 0.09f, 0.27f, 0.63f, 1.0f });   //water
+    gend1->addColor(0.2f,  Vec4{ 0.09f, 0.27f, 0.63f, 1.0f });   //water
+    gend1->addColor(0.25f, Vec4{ 0.79f, 0.62f, 0.41f, 0.0f });   //beach
+    gend1->addColor(0.3f,  Vec4{ 0.79f, 0.62f, 0.41f, 0.0f });   //beach
+    gend1->addColor(0.35f, Vec4{ 0.23f, 0.50f, 0.17f, 0.0f });  //chlorophyll 1
+    gend1->addColor(0.50f, Vec4{ 0.11f, 0.38f, 0.08f, 0.0f });  //chlorophyll 2
+    gend1->addColor(0.6f,  Vec4{ 0.32f, 0.31f, 0.31f, 0.0f });  //rock
+    gend1->addColor(0.7f,  Vec4{ 0.32f, 0.31f, 0.31f, 0.0f });  //rock
+    gend1->addColor(0.8f,  Vec4{ 1.00f, 1.00f, 1.00f, 0.5f });  //snow
+    gend1->addColor(1.0f,  Vec4{ 1.00f, 1.00f, 1.00f, 0.5f });  //snow
     
-    BMP::Image heightTextureImage{BMP::load("gradientTex.bmp")};
+    std::shared_ptr<GradientGenerator> gend2 = std::make_shared<GradientGenerator>();
+    gend2->addColor(0.0f,  Vec4{ 0.09f, 0.27f, 0.63f, 1.0f });   //water
+    gend2->addColor(0.2f,  Vec4{ 0.09f, 0.27f, 0.63f, 1.0f });   //water
+    gend2->addColor(0.25f, Vec4{ 0.50f, 0.50f, 0.50f, 0.0f });   //beach
+    gend2->addColor(0.3f,  Vec4{ 0.50f, 0.50f, 0.50f, 0.0f });   //beach
+    gend2->addColor(0.35f, Vec4{ 0.50f, 0.50f, 0.50f, 0.0f });  //chlorophyll 1
+    gend2->addColor(0.50f, Vec4{ 0.50f, 0.50f, 0.50f, 0.0f });  //chlorophyll 2
+    gend2->addColor(0.6f,  Vec4{ 0.50f, 0.50f, 0.50f, 0.0f });  //rock
+    gend2->addColor(0.7f,  Vec4{ 0.50f, 0.50f, 0.50f, 0.0f });  //rock
+    gend2->addColor(0.8f,  Vec4{ 0.70f, 0.70f, 0.70f, 1.0f });  //snow
+    gend2->addColor(1.0f,  Vec4{ 0.70f, 0.70f, 0.70f, 1.0f });  //snow
+        
+    std::vector<std::shared_ptr<GradientGenerator>> gens{gend1, gend2};
+    BMP::Image heightTextureImage = GradientGenerator::buildImage(gens, 256);
     GLTexture2D heightTexture{GL_LINEAR, GL_LINEAR};
     heightTexture.setData(heightTextureImage.data, heightTextureImage.width, heightTextureImage.height, heightTextureImage.componentCount);
-    
-    
     
     GLProgram prog{GLProgram::createFromFile("terrain-vs.glsl", "terrain-fs.glsl")};
     GLint mvpLocation{prog.getUniformLocation("MVP")};

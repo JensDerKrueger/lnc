@@ -37,6 +37,13 @@ GLTexture2D& GLTexture2D::operator=(GLTexture2D other) {
     minFilter = other.minFilter;
     wrapX = other.wrapX;
     wrapY = other.wrapY;
+    
+    glBindTexture(GL_TEXTURE_2D, id);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapX);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapY);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
+    
     setData(other.data, other.height, other.width, other.componentCount);
     return *this;
 }

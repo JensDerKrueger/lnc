@@ -78,16 +78,22 @@ private:
     std::shared_ptr<Grid2D> grid;
 };
 
+enum EruptionType {DefaultEruption, SmoothEruption, MagicChaoticVulcano};
+
 class ParticleSystem : public AbstractParticleSystem {
 public:
 	ParticleSystem(	uint32_t particleCount, std::shared_ptr<StartVolume> starter,
 					const Vec3& initialSpeedMin, const Vec3& initialSpeedMax, 
 					const Vec3& acceleration, const Vec3& minPos, const Vec3& maxPos,
 					float maxAge, float pointSize, const Vec3& color=RANDOM_COLOR,
-                    bool autorestart=true, std::shared_ptr<Grid2D> grid=nullptr);
+                    bool autorestart=true, EruptionType eruptionType=DefaultEruption,
+                    std::shared_ptr<Grid2D> grid=nullptr);
 
 	void update(float t);
 	
+    void setEruptionType(EruptionType eruptionType) {this->eruptionType = eruptionType;}
+    EruptionType getEruptionType() const {return eruptionType;}
+    
 	void setStarter(const std::shared_ptr<StartVolume> starter);
 	
 	void setColor(const Vec3& color);
@@ -123,7 +129,8 @@ private:
 	float lastT;
     bool autorestart;
     std::shared_ptr<Grid2D> grid;
-	
+    EruptionType eruptionType;
+
 	Vec3 computeStart() const;
 	Vec3 computeDirection() const;
 };

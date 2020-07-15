@@ -31,6 +31,12 @@ GLTexture1D& GLTexture1D::operator=(GLTexture1D other) {
     magFilter = other.magFilter;
     minFilter = other.minFilter;
     wrapX = other.wrapX;
+    
+    glBindTexture(GL_TEXTURE_1D, id);
+    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, wrapX);
+    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, magFilter);
+    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, minFilter);
+    
     setData(other.data, other.size, other.componentCount);
     return *this;
 }

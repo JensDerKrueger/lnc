@@ -12,8 +12,6 @@ out vec4 FragColor;
 void main() {
     vec3 lightDir = normalize(lightPos-pos);
     float diffuse = dot(normalize(normal), lightDir);
-    //vec4 texValue = texture(heightSampler, height*reduction);
-    
     vec4 texValue = texture(heightSampler, vec2(gradient,height*reduction));
     
     vec3 eyeDir = normalize(-pos);
