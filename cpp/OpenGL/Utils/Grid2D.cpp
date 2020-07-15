@@ -84,6 +84,38 @@ float Grid2D::sample(float x, float y) const {
     return (va * (1.0f-alpha) + vb * alpha) * (1.0f-beta) + (vc * (1.0f-alpha) + vd * alpha) * beta;
 }
 
+
+Vec3 Grid2D::normal(const Vec2& pos) const {
+    return normal(pos.x(), pos.y());
+}
+
+Vec3 Grid2D::normal(float x, float y) const {
+    x = std::max(std::min(x, 1.0f), 0.0f);
+    y = std::max(std::min(y, 1.0f), 0.0f);
+
+    float sx = x * (width - 1);
+    float sy = y * (height - 1);
+
+    float alpha = sx - floorf(sx);
+    float beta = sy - floorf(sy);
+
+    Vec2ui a{ uint32_t(floorf(sx)),uint32_t(floorf(sy)) };
+    Vec2ui b{ uint32_t(ceilf(sx)),uint32_t(floorf(sy)) };
+    Vec2ui c{ uint32_t(floorf(sx)),uint32_t(ceilf(sy)) };
+    Vec2ui d{ uint32_t(ceilf(sx)),uint32_t(ceilf(sy)) };
+
+    float va = getValue(a.x(), a.y());
+    float vb = getValue(b.x(), b.y());
+    float vc = getValue(c.x(), c.y());
+    float vd = getValue(d.x(), d.y());
+
+    Vec3 n1 = Vec3::cross(Vec3(1.0f/width,(vb-va), 0.0f), Vec3(0.0f,(vc-va), 1.0f/height ));
+    Vec3 n2 = Vec3::cross(Vec3(-1.0f/width,(vc - vd), 0.0f), Vec3(0.0f, (vb - vd), -1.0f/height));
+
+    
+    return Vec3::normalize((n1 + n2) / 2.0f);
+}
+
 Grid2D Grid2D::genRandom(size_t x, size_t y) {
     Grid2D result{x,y};
     for (size_t i = 0;i<result.data.size();++i) {

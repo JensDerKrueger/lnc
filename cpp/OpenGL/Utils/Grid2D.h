@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "Vec2.h"
-
+#include "Vec3.h"
 
 struct MaxData {
     float value;
@@ -26,6 +26,9 @@ public:
     float getValue(size_t x, size_t y) const;
     float sample(float x, float y) const ;
     float sample(const Vec2& pos) const ;
+    Vec3 normal(float x, float y) const;
+    Vec3 normal(const Vec2& pos) const;
+
     static Grid2D genRandom(size_t x, size_t y);
     Grid2D operator*(const float& value) const;
     Grid2D operator/(const float& value) const;
