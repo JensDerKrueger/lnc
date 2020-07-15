@@ -173,9 +173,11 @@ int main(int argc, char ** argv) {
     GLEnv gl{1024,768,4,"Terrain Generator", true, true, 4, 1, true};
 
     std::shared_ptr<SphereStart> starter = std::make_shared<SphereStart>(mountainTop, 0.001f);
-    ParticleSystem particleSystem{20000, starter,
-                                  Vec3{-0.01,0.0,-0.01}, Vec3{0.02,0.04,0.02}, Vec3{0,-0.01, 0},
-                                  Vec3{-0.5f,0.0f,-0.5f}, Vec3{0.5f,1.0f,0.5f}, 10, 3, Vec3{1.0f,0.5f,0.0f}, true, heightField};
+    uint32_t count = 20000;
+    float pointSize = 2000.0f / sqrt(count * 1.0f);
+    ParticleSystem particleSystem{count, starter,
+                                  Vec3{-0.07,0.01,-0.07}, Vec3{0.07,0.12,0.07}, Vec3{0,-0.05, 0},
+                                  Vec3{-0.5f,0.0f,-0.5f}, Vec3{0.5f,1.0f,0.5f}, 30, pointSize, Vec3{1.0f,0.14f,0.04f}, true, heightField};
     
     particleSystem.setBounce(false);
     

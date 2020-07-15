@@ -54,11 +54,11 @@ void ParticleSystem::restart(size_t count) {
 void ParticleSystem::update(float t) {
 	const float deltaT = t-lastT;
 	lastT = t;
-	
-	for (Particle& p : particles) {
-		p.update(deltaT);
-		if (p.isDead() && getAutoRestart()) {
-			p.restart(computeStart(), computeDirection(), acceleration, computeColor(color), 1.0f, maxAge*Rand::rand01());
+#pragma omp parallel for
+	for (int i = 0; i < particles.size();++i) {		
+		particles[i].update(deltaT);
+		if (particles[i].isDead() && getAutoRestart()) {
+			particles[i].restart(computeStart(), computeDirection(), acceleration, computeColor(color), 1.0f, maxAge*Rand::rand01());
 		}
 	}	
 }
@@ -79,7 +79,29 @@ Vec3 ParticleSystem::computeStart() const {
 }
 
 Vec3 ParticleSystem::computeDirection() const {
-	return initialSpeedMin + (initialSpeedMax - initialSpeedMin) * Vec3{Rand::rand01(),Rand::rand01(),Rand::rand01()};
+	float radius = 1.0f;
+	float t = glfwGetTime();
+
+	switch (2) {	//eruption type
+		case 1:	//default		
+			return initialSpeedMin + (initialSpeedMax - initialSpeedMin) * Vec3{ Rand::rand01(),Rand::rand01(),Rand::rand01() };
+
+		case 2: //smooth eruption
+			radius = (initialSpeedMax - initialSpeedMin).length() * (0.6f + 0.4f * Rand::rand01()) * 0.15f;
+			return Vec3::randomPointInSphere() * radius + Vec3{ 0.0f, 0.15f, 0.0f };
+
+
+		case 3:	//magic chaotic vulcano :		
+			radius = (initialSpeedMax - initialSpeedMin).length() * (0.6f + 0.4f * Rand::rand01()) * 0.1f;
+			return Vec3::randomPointInSphere() * radius + Vec3{ 0.04f * cos(floorf(t * 3.5f) * 10.0f),
+																0.05f + 0.2f * (1.2f + cos(floorf(t * 13.0f))) * 0.2f * Rand::rand01(),
+																0.04f * sin(floorf(t * 4.0f) * 20.0f) }
+																*1.0f;
+
+	}
+
+
+	
 }
 
 void ParticleSystem::setColor(const Vec3& color) {
@@ -137,13 +159,18 @@ void Particle::update(float deltaT) {
                 direction = direction * Vec3(0.0f,0.0f,-0.5f);
             nextPosition = position + direction*deltaT;
         } else {
-            if (nextPosition.x() < minPos.x() || nextPosition.x() > maxPos.x() ||
+			const float reduceAir = 0.999f;
+			const float reduceHit = 0.4f;
+			if (nextPosition.x() < minPos.x() || nextPosition.x() > maxPos.x() ||
                 nextPosition.y() < gridHeight || nextPosition.y() > maxPos.y() ||
                 nextPosition.z() < minPos.z() || nextPosition.z() > maxPos.z()) {
-                direction = Vec3(0,0,0);
-                acceleration = Vec3(0,0,0);
-                nextPosition = position;
+
+				Vec3 n = grid->normal(posOverGrid);
+				direction = (Vec3::reflect(direction, n))*reduceHit;
+				nextPosition = position + direction * deltaT;
+				
             }
+			direction = direction * reduceAir;
         }
     } else {
         if (bounce) {
@@ -170,7 +197,8 @@ void Particle::update(float deltaT) {
 	
 std::vector<float> Particle::getData() const {
 	Vec3 c = color == RAINBOW_COLOR ? Vec3::hsvToRgb({age*100,1.0,1.0}) : color;
-	return {position.x(), position.y(), position.z(), c.x(), c.y(), c.z(), opacity*((maxAge-age)/maxAge)};
+	//return {position.x(), position.y(), position.z(), c.x(), c.y(), c.z(), opacity*((maxAge-age)/maxAge)};
+	return { position.x(), position.y(), position.z(), c.x(), c.y(), c.z(), opacity  };
 }
 
 void Particle::restart(const Vec3& position, const Vec3& direction, const Vec3& acceleration, const Vec3& color, float opacity, float maxAge) {	
