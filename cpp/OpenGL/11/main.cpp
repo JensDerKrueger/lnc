@@ -201,7 +201,7 @@ int main(int argc, char ** argv) {
     gl.setKeyCallback(keyCallback);
     glfwSetTime(0);
     
-    glEnable(GL_CULL_FACE);
+    glEnable(GL_CULL_FACE);th
     glCullFace(GL_BACK);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
