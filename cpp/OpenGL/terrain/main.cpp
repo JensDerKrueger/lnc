@@ -34,6 +34,7 @@ typedef std::chrono::high_resolution_clock Clock;
 
 bool terminateSimulation{false};
 bool newSimulationDataReady{false};
+bool erode{false};
 
 typedef std::vector<float> floatVec;
 typedef std::shared_ptr<floatVec> floatVecPtr;
@@ -48,6 +49,12 @@ void simulate() {
     std::shared_ptr<Grid2D> heightFieldTarget = std::make_shared<Grid2D>(heightField->getWidth(), heightField->getHeight());
 
     while (!terminateSimulation) {
+        
+        if (!erode) {
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+            continue;
+        }
+        
         // smooth data from heightField to heightFieldTarget
         for (size_t y = 1;y<heightField->getHeight()-1;++y) {
             for (size_t x = 1;x<heightField->getWidth()-1;++x) {
@@ -90,6 +97,9 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
                 break;
             case GLFW_KEY_D:
                 camera.moveRight(true);
+                break;
+            case GLFW_KEY_E:
+                erode = !erode;
                 break;
             default:
                 break;
