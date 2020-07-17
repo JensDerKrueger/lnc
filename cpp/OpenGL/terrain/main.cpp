@@ -56,8 +56,8 @@ void simulate() {
         }
         
         // smooth data from heightField to heightFieldTarget
-        for (size_t y = 1;y<heightField->getHeight()-1;++y) {
-            for (size_t x = 1;x<heightField->getWidth()-1;++x) {
+        for (size_t y = 0;y<heightField->getHeight();++y) {
+            for (size_t x = 0;x<heightField->getWidth();++x) {
                 float value = heightField->getValue(x-1,y-1) + heightField->getValue(x,y-1) + heightField->getValue(x+1,y-1) +
                               heightField->getValue(x-1,y)   + heightField->getValue(x,y)   + heightField->getValue(x+1,y) +
                               heightField->getValue(x-1,y+1) + heightField->getValue(x,y+1) + heightField->getValue(x+1,y+1);
@@ -162,10 +162,15 @@ void setNormal(const Vec3& v, floatVecPtr a, float gradient, size_t& targetIndex
 void setValue(size_t x,size_t y, const Grid2D& heightField, floatVecPtr tris, size_t& targetIndex) {
     Vec3 v{float(x)/heightField.getWidth()-0.5f,heightField.getValue(x,y),float(y)/heightField.getHeight()-0.5f};
     
-    const Vec3 t1{0.0f,(heightField.getValue(x,y+1) - heightField.getValue(x,y-1))/(2.0f/heightField.getWidth()), 1.0f};
-    const Vec3 t2{1.0f,(heightField.getValue(x+1,y) - heightField.getValue(x-1,y))/(2.0f/heightField.getHeight()), 0.0f};
+    Vec3 normal{0,1,0};
+    if (x>0 && x < heightField.getWidth()-1 &&
+        y>0 && y < heightField.getHeight()-1) {
+    
+        const Vec3 t1{0.0f,(heightField.getValue(x,y+1) - heightField.getValue(x,y-1))/(2.0f/heightField.getWidth()), 1.0f};
+        const Vec3 t2{1.0f,(heightField.getValue(x+1,y) - heightField.getValue(x-1,y))/(2.0f/heightField.getHeight()), 0.0f};
 
-    const Vec3 normal{Vec3::normalize(Vec3::cross(t1,t2))};
+        normal = Vec3::normalize(Vec3::cross(t1,t2));
+    }
     
     setPosGradient(v, tris, targetIndex);
     setNormal(normal, tris, 1.0f-Vec3::dot(normal, Vec3{0,1,0}), targetIndex);
