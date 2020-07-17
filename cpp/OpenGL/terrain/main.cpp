@@ -46,7 +46,7 @@ std::mutex simulationMutex;
 void convertHeightFieldToTriangles(const Grid2D& heightField, floatVecPtr tris);
 
 void simulate() {
-    std::shared_ptr<Grid2D> heightFieldTarget = std::make_shared<Grid2D>(heightField->getWidth(), heightField->getHeight());
+    std::shared_ptr<Grid2D> heightFieldTarget = std::make_shared<Grid2D>(*heightField);
 
     while (!terminateSimulation) {
         
@@ -54,10 +54,10 @@ void simulate() {
             std::this_thread::sleep_for(std::chrono::seconds(1));
             continue;
         }
-        
+
         // smooth data from heightField to heightFieldTarget
-        for (size_t y = 0;y<heightField->getHeight();++y) {
-            for (size_t x = 0;x<heightField->getWidth();++x) {
+        for (size_t y = 1;y<heightField->getHeight()-1;++y) {
+            for (size_t x = 1;x<heightField->getWidth()-1;++x) {
                 float value = heightField->getValue(x-1,y-1) + heightField->getValue(x,y-1) + heightField->getValue(x+1,y-1) +
                               heightField->getValue(x-1,y)   + heightField->getValue(x,y)   + heightField->getValue(x+1,y) +
                               heightField->getValue(x-1,y+1) + heightField->getValue(x,y+1) + heightField->getValue(x+1,y+1);
@@ -304,6 +304,7 @@ int main(int argc, char ** argv) {
     
     tris->resize(7*heightField->getHeight()*heightField->getWidth());
     trisTarget->resize(tris->size());
+    
     
     convertHeightFieldToTriangles(*heightField, tris);
     vbTerrain.setData(*tris,7,GL_STATIC_DRAW);
