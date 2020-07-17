@@ -64,7 +64,6 @@ void simulate() {
                 heightFieldTarget->setValue(x,y,value/9.0f);
             }
         }
-
         
         std::swap(heightField, heightFieldTarget);
         convertHeightFieldToTriangles(*heightField, trisTarget);
@@ -174,19 +173,31 @@ void setValue(size_t x,size_t y, const Grid2D& heightField, floatVecPtr tris, si
 
 void convertHeightFieldToTriangles(const Grid2D& heightField, floatVecPtr tris) {
     size_t targetIndex{0};
-    for (size_t y = 1;y<heightField.getHeight()-2;++y) {
-        for (size_t x = 1;x<heightField.getWidth()-2;++x) {
-            setValue(x,y+1,heightField,tris,targetIndex);
-            setValue(x+1,y,heightField,tris,targetIndex);
+    for (size_t y = 0;y<heightField.getHeight();++y) {
+        for (size_t x = 0;x<heightField.getWidth();++x) {
             setValue(x,y,heightField,tris,targetIndex);
-
-            setValue(x,y+1,heightField,tris,targetIndex);
-            setValue(x+1,y+1,heightField,tris,targetIndex);
-            setValue(x+1,y,heightField,tris,targetIndex);
         }
     }
 }
 
+std::vector<uint32_t> generateIndices(size_t width, size_t height) {
+    std::vector<uint32_t> indices;
+    for (size_t y = 1;y<height-2;++y) {
+        for (size_t x = 1;x<width-2;++x) {
+            const size_t row    = y - 1;
+            const size_t column = x - 1;
+                        
+            indices.push_back((row+1)*width+column);
+            indices.push_back((row+1)*width+column+1);
+            indices.push_back(row*width+column);
+            
+            indices.push_back((row+1)*width+1+column);
+            indices.push_back(row*width+column+1);
+            indices.push_back(row*width+column);
+        }
+    }
+    return indices;
+}
 
 int main(int argc, char ** argv) {
     Grid2D parameterField{Grid2D::fromBMP("param.bmp")};
@@ -286,37 +297,46 @@ int main(int argc, char ** argv) {
     GLArray terrainArray{};
     GLBuffer vbTerrain{GL_ARRAY_BUFFER};
     
-    tris->resize(7*6*(heightField->getHeight()-3)*(heightField->getWidth()-3));
+    tris->resize(7*heightField->getHeight()*heightField->getWidth());
     trisTarget->resize(tris->size());
     
     convertHeightFieldToTriangles(*heightField, tris);
-    vbTerrain.setData(*tris,7,GL_DYNAMIC_DRAW);
+    vbTerrain.setData(*tris,7,GL_STATIC_DRAW);
 
+    GLBuffer ibTerrain{GL_ELEMENT_ARRAY_BUFFER};
+    const std::vector<uint32_t> terrainIndices = generateIndices(heightField->getWidth(), heightField->getHeight());
+    ibTerrain.setData(terrainIndices);
+    
     terrainArray.bind();
     terrainArray.connectVertexAttrib(vbTerrain, prog, "vPos", 3);
     terrainArray.connectVertexAttrib(vbTerrain, prog, "vNormal", 3, 3);
     terrainArray.connectVertexAttrib(vbTerrain, prog, "vGradient", 1, 6);
- 
+    terrainArray.connectIndexBuffer(ibTerrain);
+    
     GLArray waterArray{};
     GLBuffer vbWater{GL_ARRAY_BUFFER};
-    const float waterLevel = 0.2f/reduction;
-    const floatVec waterVertices{-0.5f,waterLevel,-0.5f, 0.0f,1.0f,0.0f,  0.0f,
-                                            0.5f,waterLevel,-0.5f, 0.0f,1.0f,0.0f,  0.0f,
-                                            0.5f,waterLevel,0.5f, 0.0f,1.0f,0.0f,   0.0f,
-                                           -0.5f,waterLevel,-0.5f, 0.0f,1.0f,0.0f,  0.0f,
-                                            0.5f,waterLevel,0.5f, 0.0f,1.0f,0.0f,   0.0f,
-                                           -0.5f,waterLevel,0.5f, 0.0f,1.0f,0.0f,   0.0f};
+    
+    const float waterLevel = 0.25f/reduction;
+    const floatVec waterVertices{-0.5f, waterLevel, 0.5f, 0.0f,1.0f,0.0f, 0.5f,
+                                  0.5f, waterLevel, 0.5f, 0.0f,1.0f,0.0f, 0.5f,
+                                 -0.5f, waterLevel, -0.5f, 0.0f,1.0f,0.0f, 0.5f,
+                                  0.5f, waterLevel, -0.5f, 0.0f,1.0f,0.0f, 0.5f};
     vbWater.setData(waterVertices,7,GL_STATIC_DRAW);
-
+    
+    const std::vector<uint32_t> waterIndices{0,1,2,1,3,2};
+    GLBuffer ibWater{GL_ELEMENT_ARRAY_BUFFER};
+    ibWater.setData(waterIndices);
+    
     waterArray.bind();
     waterArray.connectVertexAttrib(vbWater, prog, "vPos", 3);
     waterArray.connectVertexAttrib(vbWater, prog, "vNormal", 3, 3);
-    waterArray.connectVertexAttrib(vbTerrain, prog, "vGradient", 1, 6);
+    waterArray.connectVertexAttrib(vbWater, prog, "vGradient", 1, 6);
+    waterArray.connectIndexBuffer(ibWater);
 
     gl.setKeyCallback(keyCallback);
     gl.setMouseCallbacks(cursorPositionCallback, mouseButtonCallback, scrollCallback);
     
-    glDisable(GL_CULL_FACE);
+    glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
@@ -357,8 +377,8 @@ int main(int argc, char ** argv) {
         prog.setTexture(heightTextureLocation,heightTexture);
 
         terrainArray.bind();
-        glDrawArrays(GL_TRIANGLES, 0, tris->size()/7 );
-      
+        glDrawElements(GL_TRIANGLES, terrainIndices.size(), GL_UNSIGNED_INT, (void*)0);
+
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glBlendEquation(GL_FUNC_ADD);
@@ -368,14 +388,15 @@ int main(int argc, char ** argv) {
         prog.setUniform(reductionLocation, 1.0f);
         
         waterArray.bind();
-        glDrawArrays(GL_TRIANGLES, 0, waterVertices.size()/7 );
+        glDrawElements(GL_TRIANGLES, waterIndices.size(), GL_UNSIGNED_INT, (void*)0);
+        
 
         glDisable(GL_BLEND);
         glDepthMask(GL_TRUE);
-
+        
         particleSystem.render(m*v,p);
         particleSystem.update(glfwGetTime());
-
+        
         GLEnv::checkGLError("endOfFrame");
         gl.endOfFrame();
     } while (!gl.shouldClose());  
