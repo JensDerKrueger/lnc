@@ -15,6 +15,7 @@ struct MaxData {
 class Grid2D {
 public:
     Grid2D(size_t width, size_t height);
+    Grid2D(const Grid2D& other);
 
     size_t getWidth() const;
     size_t getHeight() const;

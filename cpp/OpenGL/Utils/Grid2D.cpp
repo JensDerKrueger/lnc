@@ -12,6 +12,13 @@ Grid2D::Grid2D(size_t width, size_t height) :
     data(width*height)
 {
 }
+
+Grid2D::Grid2D(const Grid2D& other) :
+    width(other.width),
+    height(other.height),
+    data(other.data)
+{
+}
     
 size_t Grid2D::getWidth() const {
     return width;
