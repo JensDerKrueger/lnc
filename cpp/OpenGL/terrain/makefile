@@ -1,9 +1,11 @@
 CC=g++
-CFLAGS=-c -Wall -std=c++17 -Wunreachable-code
+
+CFLAGS=-c -Wall -std=c++17 -Wunreachable-code -Xclang -fopenmp
 LFLAGS=-lglfw -lGLEW -framework OpenGL -L../Utils -lutils 
 # for linux use this line LFLAGS=-lglfw -lGLEW -lGL -L../Utils -lutils
-LIBS=
-INCLUDES=-I. -I../Utils
+
+LIBS=-lomp -L ../../openmp/lib
+INCLUDES=-I. -I../Utils -I ../../openmp/include 
 SRC = main.cpp GradientGenerator.cpp
 OBJ = $(SRC:.cpp=.o)
 TARGET = terrain

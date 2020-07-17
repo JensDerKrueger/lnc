@@ -2,8 +2,8 @@
 
 CC=g++
 CFLAGS=-c -Wall -std=c++17 -Wunreachable-code -Xclang -fopenmp
-LIBS=-lomp -L /Users/krueger/online/lnc/cpp/openmp/lib
-INCLUDES=-I. -I /Users/krueger/online/lnc/cpp/openmp/include 
+LIBS=-lomp -L ../openmp/lib
+INCLUDES=-I. -I ../openmp/include 
 SRC = Rand.cpp HitableList.cpp HitRecord.cpp main.cpp Vec3.cpp Ray.cpp Camera.cpp Sphere.cpp Dielectric.cpp Metal.cpp Lambertian.cpp Mat4.cpp
 OBJ = $(SRC:.cpp=.o)
 TARGET = raytrace
