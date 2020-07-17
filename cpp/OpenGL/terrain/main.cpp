@@ -305,7 +305,6 @@ int main(int argc, char ** argv) {
     tris->resize(7*heightField->getHeight()*heightField->getWidth());
     trisTarget->resize(tris->size());
     
-    
     convertHeightFieldToTriangles(*heightField, tris);
     vbTerrain.setData(*tris,7,GL_STATIC_DRAW);
 
@@ -358,7 +357,7 @@ int main(int argc, char ** argv) {
     do {
         if (newSimulationDataReady) {
             simulationMutex.lock();
-            vbTerrain.setData(*tris,7,GL_DYNAMIC_DRAW);
+            vbTerrain.setData(*tris,7,GL_STATIC_DRAW);
             newSimulationDataReady = false;
             simulationMutex.unlock();
         }
@@ -399,10 +398,10 @@ int main(int argc, char ** argv) {
 
         glDisable(GL_BLEND);
         glDepthMask(GL_TRUE);
-        
+    
         particleSystem.render(m*v,p);
         particleSystem.update(glfwGetTime());
-        
+      
         GLEnv::checkGLError("endOfFrame");
         gl.endOfFrame();
     } while (!gl.shouldClose());  
