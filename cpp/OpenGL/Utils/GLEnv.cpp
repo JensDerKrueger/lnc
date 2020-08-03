@@ -10,10 +10,12 @@ typedef std::chrono::high_resolution_clock Clock;
 #include "GLEnv.h"
 
 
-void GLEnv::checkGLError(const std::string& id) {
+void GLEnv::checkGLError(const std::string& id, std::experimental::source_location where) {
 	GLenum e = glGetError();
 	if (e != GL_NO_ERROR) {
-		std::cerr << "An openGL error occured:" << e << " at " << id << std::endl;
+		std::cerr << "An openGL error occured:" << e << " at " << id
+			<< " in " << where.file_name() << ":" << where.line()
+			<< std::endl;
 	}
 }
 

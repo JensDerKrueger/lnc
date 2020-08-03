@@ -3,6 +3,7 @@
 #include <exception>
 #include <string>
 #include <chrono>
+#include <experimental/source_location>
 
 #include <GL/glew.h>  
 #include <GLFW/glfw3.h>
@@ -38,7 +39,7 @@ class GLEnv {
 		void setFPSCounter(bool fpsCounter);
 		void setSync(bool sync);
 
-		static void checkGLError(const std::string& id);
+		static void checkGLError(const std::string& id, std::experimental::source_location where = std::experimental::source_location::current());
 
 	private:
 		GLFWwindow* window;
