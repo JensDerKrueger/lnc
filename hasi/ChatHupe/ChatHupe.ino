@@ -33,7 +33,7 @@ protected:
 
   virtual void sendInit() {
     initItem("Temperatur", "Grad C");
-    initItem("Luftfeuchtgkeit", "%");    
+    initItem("Rel. Luftfeuchtigkeit", "%");
   }
 
   virtual void sendData() {
