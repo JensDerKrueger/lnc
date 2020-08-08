@@ -1,15 +1,21 @@
-function honkCallback(info) {
-  // nothing yet
-}
-
 function honk(melody) {
-    var xmlHttp = new XMLHttpRequest();
-    xmlHttp.onreadystatechange = function() {
-        if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
-            x(xmlHttp.responseText);
-    }
-    xmlHttp.open("GET", "http://134.91.11.186:11111/set?variable=CH.1&value="+melody, true);
-    xmlHttp.send(null);
+  setValue("CH.1",melody)
+
+  /*
+  var xmlHttp = new XMLHttpRequest();
+  xmlHttp.onreadystatechange = function() {
+      if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+          x(xmlHttp.responseText);
+  }
+  xmlHttp.open("GET", "http://134.91.11.186:11111/set?variable=CH.1&value="+melody, true);
+  xmlHttp.send(null);
+
+
+  function honkCallback(info) {
+    // nothing yet
+  }
+
+  */
 }
 
 function updatePage() {
