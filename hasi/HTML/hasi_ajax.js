@@ -1,6 +1,6 @@
 var root;
 var url = "134.91.11.186";
-var port = 11111:
+var port = 11111;
 
 function setValue(name, value) {
   var xmlHttp = new XMLHttpRequest();
