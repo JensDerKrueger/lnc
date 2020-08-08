@@ -1,0 +1,609 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Main">
+      <UniqueIdentifier>{8b963a76-aa7a-4eff-9fed-ba74f7a3516a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="I2C">
+      <UniqueIdentifier>{769304a2-d4bd-436b-a6e1-47e0fbb92937}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Network">
+      <UniqueIdentifier>{75b43273-7a38-442d-8812-0358e188173f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="other-devices">
+      <UniqueIdentifier>{0e93457d-7a07-4b63-8e25-763050b3b935}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="script">
+      <UniqueIdentifier>{73a535b6-b311-438f-b6b4-7ed01c6fdf29}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tools">
+      <UniqueIdentifier>{48a5ef08-6654-4fff-97bf-29df5a21c6ee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WebServices">
+      <UniqueIdentifier>{35457bce-e46d-4c9f-b68f-16749cea7839}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tools\DebugOut">
+      <UniqueIdentifier>{7ef5b1b5-031f-40eb-a01c-8bb85c83a186}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\HASBasics.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="..\HASBus.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="..\HASConfig.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="..\HASMember.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="..\main.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Has.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="..\I2C\HKAnalogPCF8591.cpp">
+      <Filter>I2C</Filter>
+    </ClCompile>
+    <ClCompile Include="..\I2C\I2CBase.cpp">
+      <Filter>I2C</Filter>
+    </ClCompile>
+    <ClCompile Include="..\I2C\I2CBus.cpp">
+      <Filter>I2C</Filter>
+    </ClCompile>
+    <ClCompile Include="..\I2C\I2CMember.cpp">
+      <Filter>I2C</Filter>
+    </ClCompile>
+    <ClCompile Include="..\I2C\InputBlock.cpp">
+      <Filter>I2C</Filter>
+    </ClCompile>
+    <ClCompile Include="..\I2C\LuminosityTSL2561.cpp">
+      <Filter>I2C</Filter>
+    </ClCompile>
+    <ClCompile Include="..\I2C\MB1242.cpp">
+      <Filter>I2C</Filter>
+    </ClCompile>
+    <ClCompile Include="..\I2C\Mcp4725DAC.cpp">
+      <Filter>I2C</Filter>
+    </ClCompile>
+    <ClCompile Include="..\I2C\OLED.cpp">
+      <Filter>I2C</Filter>
+    </ClCompile>
+    <ClCompile Include="..\I2C\ProxiVCNL4000.cpp">
+      <Filter>I2C</Filter>
+    </ClCompile>
+    <ClCompile Include="..\I2C\RelayBlock.cpp">
+      <Filter>I2C</Filter>
+    </ClCompile>
+    <ClCompile Include="..\I2C\ThermoHKLM75.cpp">
+      <Filter>I2C</Filter>
+    </ClCompile>
+    <ClCompile Include="..\I2C\AI418S.cpp">
+      <Filter>I2C</Filter>
+    </ClCompile>
+    <ClCompile Include="..\I2C\ArduPiDAC.cpp">
+      <Filter>I2C</Filter>
+    </ClCompile>
+    <ClCompile Include="..\I2C\BlinkM.cpp">
+      <Filter>I2C</Filter>
+    </ClCompile>
+    <ClCompile Include="..\I2C\BV4627.cpp">
+      <Filter>I2C</Filter>
+    </ClCompile>
+    <ClCompile Include="..\I2C\HIH-6130.cpp">
+      <Filter>I2C</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Network\NetworkServer.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Network\RemoteListener.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Network\RemotePoolThread.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Network\HASIRemote.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Network\NetworkBus.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Network\NetworkDevice.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Network\NetworkInputOutputClient.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Network\NetworkInputOutputServer.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Network\NetworkInputServer.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\other-devices\SysInfo.cpp">
+      <Filter>other-devices</Filter>
+    </ClCompile>
+    <ClCompile Include="..\script\RandomManager.cpp">
+      <Filter>script</Filter>
+    </ClCompile>
+    <ClCompile Include="..\script\ScriptExecuteCommand.cpp">
+      <Filter>script</Filter>
+    </ClCompile>
+    <ClCompile Include="..\script\ScriptExecuteManager.cpp">
+      <Filter>script</Filter>
+    </ClCompile>
+    <ClCompile Include="..\script\StateCommand.cpp">
+      <Filter>script</Filter>
+    </ClCompile>
+    <ClCompile Include="..\script\StateManager.cpp">
+      <Filter>script</Filter>
+    </ClCompile>
+    <ClCompile Include="..\script\StopWatchCommand.cpp">
+      <Filter>script</Filter>
+    </ClCompile>
+    <ClCompile Include="..\script\StopWatchManager.cpp">
+      <Filter>script</Filter>
+    </ClCompile>
+    <ClCompile Include="..\script\TimerCommand.cpp">
+      <Filter>script</Filter>
+    </ClCompile>
+    <ClCompile Include="..\script\TimerManager.cpp">
+      <Filter>script</Filter>
+    </ClCompile>
+    <ClCompile Include="..\script\Value.cpp">
+      <Filter>script</Filter>
+    </ClCompile>
+    <ClCompile Include="..\script\VarAssignments.cpp">
+      <Filter>script</Filter>
+    </ClCompile>
+    <ClCompile Include="..\script\Variable.cpp">
+      <Filter>script</Filter>
+    </ClCompile>
+    <ClCompile Include="..\script\ClockManager.cpp">
+      <Filter>script</Filter>
+    </ClCompile>
+    <ClCompile Include="..\script\Command.cpp">
+      <Filter>script</Filter>
+    </ClCompile>
+    <ClCompile Include="..\script\CommandLine.cpp">
+      <Filter>script</Filter>
+    </ClCompile>
+    <ClCompile Include="..\script\CommandLooper.cpp">
+      <Filter>script</Filter>
+    </ClCompile>
+    <ClCompile Include="..\script\CompoundExpression.cpp">
+      <Filter>script</Filter>
+    </ClCompile>
+    <ClCompile Include="..\script\ExpressionCommand.cpp">
+      <Filter>script</Filter>
+    </ClCompile>
+    <ClCompile Include="..\script\ExpressionParser.cpp">
+      <Filter>script</Filter>
+    </ClCompile>
+    <ClCompile Include="..\script\Operator.cpp">
+      <Filter>script</Filter>
+    </ClCompile>
+    <ClCompile Include="..\script\OutputCommand.cpp">
+      <Filter>script</Filter>
+    </ClCompile>
+    <ClCompile Include="..\script\ParserTools.cpp">
+      <Filter>script</Filter>
+    </ClCompile>
+    <ClCompile Include="..\script\Primary.cpp">
+      <Filter>script</Filter>
+    </ClCompile>
+    <ClCompile Include="..\script\PulseCommand.cpp">
+      <Filter>script</Filter>
+    </ClCompile>
+    <ClCompile Include="..\script\PulseManager.cpp">
+      <Filter>script</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Tools\DebugOut\ConsoleOut.cpp">
+      <Filter>Tools\DebugOut</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Tools\DebugOut\MultiplexOut.cpp">
+      <Filter>Tools\DebugOut</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Tools\DebugOut\TextfileOut.cpp">
+      <Filter>Tools\DebugOut</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Tools\DebugOut\AbstrDebugOut.cpp">
+      <Filter>Tools\DebugOut</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Tools\DebugOut\CommandLineOut.cpp">
+      <Filter>Tools\DebugOut</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Tools\Timer.cpp">
+      <Filter>Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Tools\Watchdog.cpp">
+      <Filter>Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Tools\DebugOutHandler.cpp">
+      <Filter>Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Tools\FilePlotter.cpp">
+      <Filter>Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Tools\KeyValueFileParser.cpp">
+      <Filter>Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Tools\MailPlotter.cpp">
+      <Filter>Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Tools\MailReporter.cpp">
+      <Filter>Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Tools\SmallImage.cpp">
+      <Filter>Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Tools\Sockets.cpp">
+      <Filter>Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Tools\SysTools.cpp">
+      <Filter>Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Tools\Threads.cpp">
+      <Filter>Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\WebServices\WebServiceBus.cpp">
+      <Filter>WebServices</Filter>
+    </ClCompile>
+    <ClCompile Include="..\WebServices\WebServiceDevice.cpp">
+      <Filter>WebServices</Filter>
+    </ClCompile>
+    <ClCompile Include="..\WebServices\HTTPRequest.cpp">
+      <Filter>WebServices</Filter>
+    </ClCompile>
+    <ClCompile Include="..\WebServices\JSON.cpp">
+      <Filter>WebServices</Filter>
+    </ClCompile>
+    <ClCompile Include="..\WebServices\WeatherForecast.cpp">
+      <Filter>WebServices</Filter>
+    </ClCompile>
+    <ClCompile Include="..\WebServices\WeatherWebServiceDevice.cpp">
+      <Filter>WebServices</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Tools\DebugOut\HTMLFileOut.cpp">
+      <Filter>Tools\DebugOut</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Network\HarmonyHubDevice.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Network\HarmonyHubControl.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\I2C\BMP280Controller.cpp">
+      <Filter>I2C</Filter>
+    </ClCompile>
+    <ClCompile Include="..\I2C\BoschBMP.cpp">
+      <Filter>I2C</Filter>
+    </ClCompile>
+    <ClCompile Include="..\I2C\BMP085_180Controller.cpp">
+      <Filter>I2C</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Tools\AES.cpp">
+      <Filter>Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Tools\Base64.cpp">
+      <Filter>Tools</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Has.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="..\HASBasics.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="..\HASBus.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="..\HASConfig.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="..\HASExceptions.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="..\HASMember.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="..\IAnalogIn.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="..\IAnalogOut.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LogWatcher.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="..\I2C\HKAnalogPCF8591.h">
+      <Filter>I2C</Filter>
+    </ClInclude>
+    <ClInclude Include="..\I2C\I2CBase.h">
+      <Filter>I2C</Filter>
+    </ClInclude>
+    <ClInclude Include="..\I2C\I2CBus.h">
+      <Filter>I2C</Filter>
+    </ClInclude>
+    <ClInclude Include="..\I2C\I2CExceptions.h">
+      <Filter>I2C</Filter>
+    </ClInclude>
+    <ClInclude Include="..\I2C\I2CMember.h">
+      <Filter>I2C</Filter>
+    </ClInclude>
+    <ClInclude Include="..\I2C\IDigitalIn.h">
+      <Filter>I2C</Filter>
+    </ClInclude>
+    <ClInclude Include="..\I2C\IDigitalOut.h">
+      <Filter>I2C</Filter>
+    </ClInclude>
+    <ClInclude Include="..\I2C\InputBlock.h">
+      <Filter>I2C</Filter>
+    </ClInclude>
+    <ClInclude Include="..\I2C\LuminosityTSL2561.h">
+      <Filter>I2C</Filter>
+    </ClInclude>
+    <ClInclude Include="..\I2C\MB1242.h">
+      <Filter>I2C</Filter>
+    </ClInclude>
+    <ClInclude Include="..\I2C\Mcp4725DAC.h">
+      <Filter>I2C</Filter>
+    </ClInclude>
+    <ClInclude Include="..\I2C\OLED.h">
+      <Filter>I2C</Filter>
+    </ClInclude>
+    <ClInclude Include="..\I2C\ProxiVCNL4000.h">
+      <Filter>I2C</Filter>
+    </ClInclude>
+    <ClInclude Include="..\I2C\RelayBlock.h">
+      <Filter>I2C</Filter>
+    </ClInclude>
+    <ClInclude Include="..\I2C\ThermoHKLM75.h">
+      <Filter>I2C</Filter>
+    </ClInclude>
+    <ClInclude Include="..\I2C\AI418S.h">
+      <Filter>I2C</Filter>
+    </ClInclude>
+    <ClInclude Include="..\I2C\ArduPiDAC.h">
+      <Filter>I2C</Filter>
+    </ClInclude>
+    <ClInclude Include="..\I2C\BlinkM.h">
+      <Filter>I2C</Filter>
+    </ClInclude>
+    <ClInclude Include="..\I2C\BV4627.h">
+      <Filter>I2C</Filter>
+    </ClInclude>
+    <ClInclude Include="..\I2C\HIH-6130.h">
+      <Filter>I2C</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Network\NetworkInputServer.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Network\NetworkServer.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Network\RemoteListener.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Network\RemotePoolThread.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Network\HASIRemote.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Network\NetworkBus.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Network\NetworkDevice.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Network\NetworkInputOutputClient.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Network\NetworkInputOutputServer.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\other-devices\SysInfo.h">
+      <Filter>other-devices</Filter>
+    </ClInclude>
+    <ClInclude Include="..\script\PulseManager.h">
+      <Filter>script</Filter>
+    </ClInclude>
+    <ClInclude Include="..\script\RandomManager.h">
+      <Filter>script</Filter>
+    </ClInclude>
+    <ClInclude Include="..\script\ScriptExecuteCommand.h">
+      <Filter>script</Filter>
+    </ClInclude>
+    <ClInclude Include="..\script\ScriptExecuteManager.h">
+      <Filter>script</Filter>
+    </ClInclude>
+    <ClInclude Include="..\script\StateCommand.h">
+      <Filter>script</Filter>
+    </ClInclude>
+    <ClInclude Include="..\script\StateManager.h">
+      <Filter>script</Filter>
+    </ClInclude>
+    <ClInclude Include="..\script\StopWatchCommand.h">
+      <Filter>script</Filter>
+    </ClInclude>
+    <ClInclude Include="..\script\StopWatchManager.h">
+      <Filter>script</Filter>
+    </ClInclude>
+    <ClInclude Include="..\script\TimerCommand.h">
+      <Filter>script</Filter>
+    </ClInclude>
+    <ClInclude Include="..\script\TimerManager.h">
+      <Filter>script</Filter>
+    </ClInclude>
+    <ClInclude Include="..\script\Value.h">
+      <Filter>script</Filter>
+    </ClInclude>
+    <ClInclude Include="..\script\VarAssignments.h">
+      <Filter>script</Filter>
+    </ClInclude>
+    <ClInclude Include="..\script\Variable.h">
+      <Filter>script</Filter>
+    </ClInclude>
+    <ClInclude Include="..\script\ClockManager.h">
+      <Filter>script</Filter>
+    </ClInclude>
+    <ClInclude Include="..\script\Command.h">
+      <Filter>script</Filter>
+    </ClInclude>
+    <ClInclude Include="..\script\CommandLine.h">
+      <Filter>script</Filter>
+    </ClInclude>
+    <ClInclude Include="..\script\CommandLooper.h">
+      <Filter>script</Filter>
+    </ClInclude>
+    <ClInclude Include="..\script\CompoundExpression.h">
+      <Filter>script</Filter>
+    </ClInclude>
+    <ClInclude Include="..\script\Expression.h">
+      <Filter>script</Filter>
+    </ClInclude>
+    <ClInclude Include="..\script\ExpressionCommand.h">
+      <Filter>script</Filter>
+    </ClInclude>
+    <ClInclude Include="..\script\ExpressionExceptions.h">
+      <Filter>script</Filter>
+    </ClInclude>
+    <ClInclude Include="..\script\ExpressionParser.h">
+      <Filter>script</Filter>
+    </ClInclude>
+    <ClInclude Include="..\script\Operator.h">
+      <Filter>script</Filter>
+    </ClInclude>
+    <ClInclude Include="..\script\OutputCommand.h">
+      <Filter>script</Filter>
+    </ClInclude>
+    <ClInclude Include="..\script\ParserTools.h">
+      <Filter>script</Filter>
+    </ClInclude>
+    <ClInclude Include="..\script\Primary.h">
+      <Filter>script</Filter>
+    </ClInclude>
+    <ClInclude Include="..\script\PulseCommand.h">
+      <Filter>script</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Tools\DebugOut\CommandLineOut.h">
+      <Filter>Tools\DebugOut</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Tools\DebugOut\ConsoleOut.h">
+      <Filter>Tools\DebugOut</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Tools\DebugOut\MultiplexOut.h">
+      <Filter>Tools\DebugOut</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Tools\DebugOut\TextfileOut.h">
+      <Filter>Tools\DebugOut</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Tools\DebugOut\AbstrDebugOut.h">
+      <Filter>Tools\DebugOut</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Tools\Timer.h">
+      <Filter>Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Tools\Vectors.h">
+      <Filter>Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Tools\Watchdog.h">
+      <Filter>Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Tools\Console.h">
+      <Filter>Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Tools\DebugOutHandler.h">
+      <Filter>Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Tools\FilePlotter.h">
+      <Filter>Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Tools\KeyValueFileParser.h">
+      <Filter>Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Tools\MailPlotter.h">
+      <Filter>Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Tools\MailReporter.h">
+      <Filter>Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Tools\Singleton.h">
+      <Filter>Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Tools\SmallImage.h">
+      <Filter>Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Tools\Sockets.h">
+      <Filter>Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Tools\StdDefines.h">
+      <Filter>Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Tools\SysTools.h">
+      <Filter>Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Tools\Threads.h">
+      <Filter>Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\WebServices\WeatherWebServiceDevice.h">
+      <Filter>WebServices</Filter>
+    </ClInclude>
+    <ClInclude Include="..\WebServices\WebServiceBus.h">
+      <Filter>WebServices</Filter>
+    </ClInclude>
+    <ClInclude Include="..\WebServices\WebServiceDevice.h">
+      <Filter>WebServices</Filter>
+    </ClInclude>
+    <ClInclude Include="..\WebServices\HTTPRequest.h">
+      <Filter>WebServices</Filter>
+    </ClInclude>
+    <ClInclude Include="..\WebServices\JSON.h">
+      <Filter>WebServices</Filter>
+    </ClInclude>
+    <ClInclude Include="..\WebServices\WeatherForecast.h">
+      <Filter>WebServices</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Tools\DebugOut\HTMLFileOut.h">
+      <Filter>Tools\DebugOut</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Tools\RingBuffer.h">
+      <Filter>Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Network\HarmonyHubDevice.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Network\HarmonyHubControl.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\I2C\BMP280Controller.h">
+      <Filter>I2C</Filter>
+    </ClInclude>
+    <ClInclude Include="..\I2C\BMPControllerAbstr.h">
+      <Filter>I2C</Filter>
+    </ClInclude>
+    <ClInclude Include="..\I2C\BoschBMP.h">
+      <Filter>I2C</Filter>
+    </ClInclude>
+    <ClInclude Include="..\I2C\BMP085_180Controller.h">
+      <Filter>I2C</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Tools\AES.h">
+      <Filter>Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Tools\Base64.h">
+      <Filter>Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\I2C\TCA9548ABusManager.h">
+      <Filter>I2C</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\makefile" />
+  </ItemGroup>
+</Project>
