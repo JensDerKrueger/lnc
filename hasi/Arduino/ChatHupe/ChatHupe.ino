@@ -18,7 +18,7 @@ public:
     humidity(0) 
     {}
 
-  bool beep;
+  uint32_t beep;
   float temperature;
   float humidity;
 
@@ -28,7 +28,7 @@ protected:
     String s;
     int start = 0;
     if (!extractDataLine(start, str, s)) return;
-    beep = s.toInt() == 0 ? false : true;     
+    beep = s.toInt();
   }
 
   virtual void sendInit() {
@@ -56,8 +56,8 @@ void loop() {
     actor.humidity = sensor.getRH();
     actor.loop(50);
 
-    if (actor.beep) {
-      tone(BEEP_PIN, 3400, 1000);
+    switch (actor.beep) {
+      case 1 : tone(BEEP_PIN, 3400, 100); break;
     }
     delay(100);
 }
