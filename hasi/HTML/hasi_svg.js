@@ -130,7 +130,7 @@ function createGraph(svgElemName, rawData, graphCaption, unit, sugMin, sugMax, s
       tickCaption.setAttribute("y",imageY-1);
       tickCaption.setAttribute("font-size",10);
       tickCaption.setAttribute("fill","blue");
-      tickCaption.textContent = tickScale == 60 ? mod2Time(point[0]) : point[0];
+      tickCaption.textContent = tickScale == 60 ? modToTime(point[0]) : point[0];
       svg.appendChild(tickCaption);
     }
     
@@ -365,7 +365,7 @@ function createMultiGraph(svgElemName, rawData, graphCaptions, unit, sugMin, sug
         tickCaption.setAttribute("y",imageY-1);
         tickCaption.setAttribute("font-size",10);
         tickCaption.setAttribute("fill","blue");
-        tickCaption.textContent = tickScale == 60 ? mod2Time(point[0]) : point[0]
+        tickCaption.textContent = tickScale == 60 ? modToTime(point[0]) : point[0]
         svg.appendChild(tickCaption);
       }
       pointData[i] = "" + data2posX(point[0]) + " " + data2posY(point[j+1]);
