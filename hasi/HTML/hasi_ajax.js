@@ -3,7 +3,12 @@ var url = "134.91.11.186";
 var port = 11111;
 
 function setValue(name, value) {
-  var xmlHttp = new XMLHttpRequest();
+  var xmlhttp;
+  if (window.XMLHttpRequest) {
+    xmlhttp=new XMLHttpRequest(); // code for practically any reasonable browser
+  } else {
+    xmlhttp=new ActiveXObject("Microsoft.XMLHTTP"); // code for IE6, IE5
+  }
   xmlHttp.open("GET", "http://"+url+":"+port+"/set?variable="+name+"&value="+value, true);
   xmlHttp.send(null);
 }
@@ -17,13 +22,10 @@ function getValue(name) {
 
 function refreshHASValues() {
   var xmlhttp;
-  if (window.XMLHttpRequest)
-  {
-    // code for IE7+, Firefox, Chrome, Opera, Safari
-    xmlhttp=new XMLHttpRequest();
+  if (window.XMLHttpRequest) {
+    xmlhttp=new XMLHttpRequest(); // code for practically any reasonable browser
   } else {
-    // code for IE6, IE5
-    xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+    xmlhttp=new ActiveXObject("Microsoft.XMLHTTP"); // code for IE6, IE5
   }
   xmlhttp.onreadystatechange=function()
   {
@@ -32,7 +34,6 @@ function refreshHASValues() {
       root = xmlhttp.responseXML.documentElement;
       updatePage();
     }
-
   }
   xmlhttp.open("GET","volatile/hasStates.xml",true);
   xmlhttp.send();
