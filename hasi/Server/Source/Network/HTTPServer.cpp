@@ -207,11 +207,16 @@ void HTTPServer::respondToRequest(const std::string& request) {
   
   // write header
   ss << "HTTP/1.1 200 OK\n"
-  // << "Date: Fri, 13 Jul 2018 23:38:21 GMT\n"
-  << "Server: HAS-Server\n"
-  << "Accept-Ranges: bytes\n"
-  << "Content-Type: text/plain\n"
-  << "\n" << SysTools::ToString(processRequest(parseURL(request)));
+     << "Server: HAS-Server\n"
+     << "Accept-Ranges: bytes\n"
+     << "Content-Type: text/plain\n";
+  
+  if (m_config && !m_config->getCORSAllowOrigin().empty()) {
+    ss << "Access-Control-Allow-Origin: " << m_config->getCORSAllowOrigin() << "\n";
+    ss << "Access-Control-Allow-Methods: GET\n";
+  }
+  
+  ss << "\n" << SysTools::ToString(processRequest(parseURL(request)));
   
   try {
     m_pClient->SendData((const int8_t*)(ss.str().data()), uint32_t(ss.str().length()), m_iTimeout);

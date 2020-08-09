@@ -81,6 +81,9 @@ namespace HAS {
     const std::string& getHTTPWhitelist() const {
       return m_strHTTPWhitelist;
     }
+    const std::string& getCORSAllowOrigin() const {
+      return m_strCORSAllowOrigin;
+    }
     uint16_t getRemotePort() const {
       return m_RemotePort;
     }
@@ -145,6 +148,7 @@ namespace HAS {
     bool m_ReportNetworkActivities;
     uint16_t m_HTTPPort;
     std::string m_strHTTPWhitelist;
+    std::string m_strCORSAllowOrigin;
     uint16_t m_RemotePort;
     uint32_t m_RemoteTimeout;
     uint32_t m_MaxRemoteTimeoutsToKeepAlive;

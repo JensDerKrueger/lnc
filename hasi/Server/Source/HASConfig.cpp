@@ -9,7 +9,7 @@ using namespace HAS;
 using namespace IVDA;
 
 HASConfig::HASConfig(const std::string& configFilename) :
-m_strHASIFile("program.hasi"),
+m_strHASIFile("house.hasi"),
 m_strLogFile("event.log"),
 m_strStateSerialFile("states.save"),
 m_strTimerSerialFile("timers.save"),
@@ -28,6 +28,7 @@ m_ReportHTTPActivities(false),
 m_ReportNetworkActivities(false),
 m_HTTPPort(0),
 m_strHTTPWhitelist(""),
+m_strCORSAllowOrigin(""),
 m_RemotePort(0),
 m_RemoteTimeout(30000),
 m_MaxRemoteTimeoutsToKeepAlive(4),
@@ -121,7 +122,8 @@ void HASConfig::readConfig(const std::string& configFilename) {
     getValueFromConfig(parser, "RestorePointInterval", m_RestorePointInterval, uint32_t(60), "restore point interval");
     getValueFromConfig(parser, "RemotePort", m_RemotePort, uint16_t(0), "port for HASI remotes");
     getValueFromConfig(parser, "HTTPPort", m_HTTPPort, uint16_t(0), "port for HTTP state server");
-    getStringValueFromConfig(parser, "m_strHTTPWhitelist", m_strHTTPWhitelist, m_strHTTPWhitelist, "allow only specific values to be accessed via the http server, one such parameter per line in the whitelist file, empty filename disables this feature, default is empty filename");
+    getStringValueFromConfig(parser, "HTTPWhitelistFile", m_strHTTPWhitelist, m_strHTTPWhitelist, "allow only specific values to be accessed via the http server, one such parameter per line in the whitelist file, empty filename disables this feature, default is empty filename");
+    getStringValueFromConfig(parser, "CORSAllowOrigin", m_strCORSAllowOrigin, m_strCORSAllowOrigin, "Comma seperated list of CORS sites, default is empty (none)");
     getValueFromConfig(parser, "RemoteTimeout", m_RemoteTimeout, uint32_t(30000), "timeout in ms for HASI remotes");
     getValueFromConfig(parser, "MaxRemoteTimeoutsToKeepAlive", m_MaxRemoteTimeoutsToKeepAlive, uint32_t(4), "max number of timeouts before a message is expected to keep the connection alive");
     getValueFromConfig(parser, "RemoteConnectionInterval", m_RemoteConnectionInterval, uint32_t(10000), "interval in ms to check for disconnected remotes");
