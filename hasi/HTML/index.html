@@ -4,11 +4,13 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <link href="day.css" type="text/css" rel="stylesheet"/>
     <title>LNC Status</title>
+    <script type="text/javascript" src="tableData.js"></script>
     <script type="text/javascript" src="hasi_ajax.js"></script>
     <script type="text/javascript" src="index.js"></script>
+    <script type="text/javascript" src="hasi_svg.js"></script>
   </head>
 
-  <body onload="refreshHASValues()">
+  <body onload="pageLoad()">
     <div id="page">
       <div id="header"><h1><a href="hist.html">LNC Status</a></h1></div>
       <div id="body">
@@ -25,6 +27,8 @@
             </td>
           </tr>
         </table>
+        <hr/>
+        <svg id="tempGraph" height="400" width="100%" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" />
       </div>
     </div>
   </body>
