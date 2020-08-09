@@ -1,6 +1,16 @@
 var svgNS = "http://www.w3.org/2000/svg";
 var imageX, imageY, sizeX, sizeY, minValX, minValY, border=10;
 
+function padMinutes(number) {
+  return (number < 10) ? ("0" + number) : ("" + number);
+}
+
+function modToTime(mod) {
+  var hour = Math.floor(mod/60);
+  var min = mod % 60;
+  return hour + ":" + padMinutes(min);
+}
+
 function data2posX(x) {
   return border + (imageX-2*border) * (x-minValX)/sizeX;
 }
