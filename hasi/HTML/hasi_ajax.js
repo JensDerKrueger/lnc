@@ -9,8 +9,8 @@ function setValue(name, value) {
   } else {
     xmlhttp=new ActiveXObject("Microsoft.XMLHTTP"); // code for IE6, IE5
   }
-  xmlHttp.open("GET", "http://"+url+":"+port+"/set?variable="+name+"&value="+value, true);
-  xmlHttp.send(null);
+  xmlhttp.open("GET", "http://"+url+":"+port+"/set?variable="+name+"&value="+value, true);
+  xmlhttp.send(null);
 }
 
 function getValue(name) {
