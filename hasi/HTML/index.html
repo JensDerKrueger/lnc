@@ -4,21 +4,19 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <link href="day.css" type="text/css" rel="stylesheet"/>
     <title>LNC Status</title>
-    <script type="text/javascript" src="tableData.js"></script>
     <script type="text/javascript" src="hasi_ajax.js"></script>
     <script type="text/javascript" src="index.js"></script>
-    <script type="text/javascript" src="hasi_svg.js"></script>
   </head>
 
   <body onload="pageLoad()">
     <div id="page">
-      <div id="header"><h1><a href="hist.html">LNC Status</a></h1></div>
+      <div id="header"><h1 id="statusMessage">LNC Status</h1></div>
       <div id="body">
-        <p> <button onclick="honk(1)" type="button">Honk on</button> <button onclick="honk(0)" type="button">Honk off</button></p>
+        <p><button onclick="honk(1)" type="button">Honk</button> </p>
           <table border="0" align="center">
           <tr>
             <td>
-              <span id="temp">Temperatur: wird geladen</span>
+              <a href="detail.html" id="temp">Temperatur: wird geladen</a>
             </td>
           </tr>
           <tr>
@@ -27,8 +25,6 @@
             </td>
           </tr>
         </table>
-        <hr/>
-        <svg id="tempGraph" height="400" width="100%" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" />
       </div>
     </div>
   </body>
