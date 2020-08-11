@@ -87,7 +87,7 @@ function createGraph(svgElemName, rawData, graphCaption, unit, sugMin, sugMax, s
     avgY += 1*point[1];
   }
   
-  avgY /= data.length;
+  if (data.length != 0) avgY /= data.length;
   
   var realMin = minValY;
   var realMax = maxValY;
