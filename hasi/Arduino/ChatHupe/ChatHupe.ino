@@ -12,7 +12,7 @@ Weather sensor;
 class MyActorArray : public ActorArray {
 public:
   MyActorArray() :
-    ActorArray(10018, 10019, "xvdm7zq34vse.bu33", A0, IPAddress(134,91,11,186)),
+    ActorArray(10018, 10019, "svdm7zq34vse.bu34", A0, IPAddress(134,91,11,186)),
     beep(false),
     temperature(0),
     humidity(0) 
