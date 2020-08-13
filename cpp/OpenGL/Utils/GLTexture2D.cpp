@@ -1,6 +1,5 @@
 #include "GLTexture2D.h"
 
-
 GLTexture2D::GLTexture2D(GLint magFilter, GLint minFilter, GLint wrapX, GLint wrapY) :
 	id(0),
 	internalformat(0),
