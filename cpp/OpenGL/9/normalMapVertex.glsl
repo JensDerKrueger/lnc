@@ -14,8 +14,8 @@ out vec2 tc;
 
 void main() {
 	gl_Position = MVP * vec4(vPos, 1.0);
-    pos = (M * vec4(vPos, 1.0)).xyz;
+  pos = (M * vec4(vPos, 1.0)).xyz;
 	normal = (Mit * vec4(vNorm, 0.0)).xyz;
-    tang = (Mit * vec4(vTan, 0.0)).xyz;
-    tc = vTc;
+  tang = (Mit * vec4(vTan, 0.0)).xyz;
+  tc = vTc;
 }

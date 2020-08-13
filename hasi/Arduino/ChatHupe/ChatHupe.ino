@@ -84,6 +84,63 @@ void tetris() {
   noTone(BEEP_PIN);
 }
 
+void cantina() {
+  tone(BEEP_PIN, 880, 147); delay(258);
+  tone(BEEP_PIN, 587, 147); delay(258);
+  tone(BEEP_PIN, 880, 147); delay(258);
+  tone(BEEP_PIN, 587, 147); delay(258);
+  tone(BEEP_PIN, 880, 92); delay(129);
+  tone(BEEP_PIN, 587, 147); delay(258);
+  tone(BEEP_PIN, 880, 184); delay(258);
+  tone(BEEP_PIN, 831, 92); delay(129);
+  tone(BEEP_PIN, 880, 147); delay(258);
+  tone(BEEP_PIN, 880, 92); delay(129);
+  tone(BEEP_PIN, 831, 92); delay(129);
+  tone(BEEP_PIN, 880, 92); delay(129);
+  tone(BEEP_PIN, 784, 184); delay(258);
+  tone(BEEP_PIN, 740, 92); delay(129);
+  tone(BEEP_PIN, 784, 92); delay(129);
+  tone(BEEP_PIN, 740, 92); delay(129);
+  tone(BEEP_PIN, 698, 276); delay(387);
+  tone(BEEP_PIN, 587, 276); delay(387);
+  noTone(BEEP_PIN);
+}
+
+void gilgamesh() {
+  tone(BEEP_PIN, 698, 120); delay(168);
+  tone(BEEP_PIN, 784, 96); delay(168);
+  tone(BEEP_PIN, 831, 96); delay(168);
+  tone(BEEP_PIN, 698, 96); delay(168);
+  tone(BEEP_PIN, 932, 96); delay(168);
+  tone(BEEP_PIN, 831, 96); delay(168);
+  tone(BEEP_PIN, 784, 96); delay(168);
+  tone(BEEP_PIN, 698, 96); delay(168);
+  tone(BEEP_PIN, 1047, 96); delay(168);
+  tone(BEEP_PIN, 698, 120); delay(168);
+  tone(BEEP_PIN, 1109, 96); delay(168);
+  tone(BEEP_PIN, 698, 120); delay(168);
+  tone(BEEP_PIN, 1047, 96); delay(168);
+  tone(BEEP_PIN, 831, 288); delay(336);
+  tone(BEEP_PIN, 831, 120); delay(168);
+  tone(BEEP_PIN, 932, 96); delay(168);
+  tone(BEEP_PIN, 659, 120); delay(168);
+  tone(BEEP_PIN, 1047, 96); delay(168);
+  tone(BEEP_PIN, 659, 120); delay(168);
+  tone(BEEP_PIN, 932, 96); delay(168);
+  tone(BEEP_PIN, 784, 288); delay(336);
+  tone(BEEP_PIN, 784, 120); delay(168);
+  tone(BEEP_PIN, 831, 144); delay(168);
+  tone(BEEP_PIN, 784, 144); delay(168);
+  tone(BEEP_PIN, 698, 144); delay(168);
+  tone(BEEP_PIN, 784, 144); delay(168);
+  tone(BEEP_PIN, 831, 144); delay(168);
+  tone(BEEP_PIN, 932, 144); delay(168);
+  tone(BEEP_PIN, 831, 144); delay(168);
+  tone(BEEP_PIN, 784, 144); delay(168);
+  tone(BEEP_PIN, 698, 288); delay(336);
+  noTone(BEEP_PIN);
+}
+
 void loop() {
     actor.temperature = sensor.getTemp();;
     actor.humidity = sensor.getRH();
@@ -91,7 +148,9 @@ void loop() {
 
     switch (actor.beep) {
       case 1 : tone(BEEP_PIN, 3400, 100); break;
-      case 2 : tetris();
+      case 2 : tetris(); break;
+      case 3 : cantina(); break;
+      case 4 : gilgamesh(); break;
     }
     delay(100);
 }

@@ -72,7 +72,7 @@ void GLTexture2D::setData(const std::vector<GLubyte>& data, uint32_t width, uint
 	switch (componentCount) {
 		case 1 : 
 			internalformat = GL_R8;
-			format = GL_R;
+			format = GL_RED;
 			break;
 		case 2 : 
 			internalformat = GL_RG8;
@@ -86,7 +86,7 @@ void GLTexture2D::setData(const std::vector<GLubyte>& data, uint32_t width, uint
 			internalformat = GL_RGBA8;
 			format = GL_RGBA;
 			break;
-	} 
-	
+	}
+  
 	glTexImage2D(GL_TEXTURE_2D, 0, internalformat, GLuint(width), GLuint(height), 0, format, type, (GLvoid*)data.data());
 }
