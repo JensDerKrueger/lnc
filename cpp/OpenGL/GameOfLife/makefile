@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-c -Wall -std=c++17 -Wunreachable-code
+CFLAGS=-c -Wall -std=c++17 -Wunreachable-code -Wno-deprecated-declarations
 LFLAGS=-lglfw -lGLEW -framework OpenGL -L../Utils -lutils 
 # for linux use this line LFLAGS=-lglfw -lGLEW -lGL -L../Utils -lutils
 LIBS=
@@ -15,11 +15,10 @@ release: LFLAGS += -flto
 release: $(TARGET)
 
 ../Utils/libutils.a:
-	cd ../Utils && make
+	cd ../Utils && $(MAKE) $(MAKECMDGOALS) 
 
 $(TARGET): $(OBJ) ../Utils/libutils.a
 	$(CC) $(INCLUDES) $^ $(LFLAGS) $(LIBS) -o $@
-
 
 %.o: %.cpp
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@
