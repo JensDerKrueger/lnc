@@ -7,6 +7,8 @@
 #include <GL/glew.h>  
 #include <GLFW/glfw3.h>
 
+#include "GLDebug.h"
+
 class GLException : public std::exception {
 	public:
 		GLException(const std::string& whatStr) : whatStr(whatStr) {}

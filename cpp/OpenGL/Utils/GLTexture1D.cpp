@@ -14,11 +14,11 @@ GLTexture1D::GLTexture1D(GLint magFilter, GLint minFilter, GLint wrapX) :
     size(0),
     componentCount(0)
 {
-	glGenTextures(1, &id);
-	glBindTexture(GL_TEXTURE_1D, id);
-	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, wrapX);
-	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, magFilter);
-	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, minFilter);
+	GL(glGenTextures(1, &id));
+	GL(glBindTexture(GL_TEXTURE_1D, id));
+	GL(glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, wrapX));
+	GL(glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, magFilter));
+	GL(glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, minFilter));
 }
 
 GLTexture1D::GLTexture1D(const GLTexture1D& other) :
@@ -32,17 +32,17 @@ GLTexture1D& GLTexture1D::operator=(GLTexture1D other) {
     minFilter = other.minFilter;
     wrapX = other.wrapX;
     
-    glBindTexture(GL_TEXTURE_1D, id);
-    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, wrapX);
-    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, magFilter);
-    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, minFilter);
+    GL(glBindTexture(GL_TEXTURE_1D, id));
+    GL(glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, wrapX));
+    GL(glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, magFilter));
+    GL(glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, minFilter));
     
     setData(other.data, other.size, other.componentCount);
     return *this;
 }
 
 GLTexture1D::~GLTexture1D() {
-	glDeleteTextures(1, &id);
+	GL(glDeleteTextures(1, &id));
 }
 
 
@@ -59,10 +59,10 @@ void GLTexture1D::setData(const std::vector<GLubyte>& data, uint32_t size, uint3
     this->size = size;
     this->componentCount = componentCount;
     
-	glBindTexture(GL_TEXTURE_1D, id);
+	GL(glBindTexture(GL_TEXTURE_1D, id));
 
-	glPixelStorei(GL_PACK_ALIGNMENT ,1);
-	glPixelStorei(GL_UNPACK_ALIGNMENT ,1);
+	GL(glPixelStorei(GL_PACK_ALIGNMENT ,1));
+	GL(glPixelStorei(GL_UNPACK_ALIGNMENT ,1));
 	
 	type = GL_UNSIGNED_BYTE;	
 	switch (componentCount) {
@@ -84,5 +84,5 @@ void GLTexture1D::setData(const std::vector<GLubyte>& data, uint32_t size, uint3
 			break;
 	} 
 	
-	glTexImage1D(GL_TEXTURE_1D, 0, internalformat, GLuint(size), 0, format, type, (GLvoid*)data.data());
+	GL(glTexImage1D(GL_TEXTURE_1D, 0, internalformat, GLuint(size), 0, format, type, (GLvoid*)data.data()));
 }

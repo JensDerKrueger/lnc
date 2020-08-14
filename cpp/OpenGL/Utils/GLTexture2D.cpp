@@ -13,22 +13,22 @@ GLTexture2D::GLTexture2D(GLint magFilter, GLint minFilter, GLint wrapX, GLint wr
     height(0),
     componentCount(0)
 {
-	glGenTextures(1, &id);
-	glBindTexture(GL_TEXTURE_2D, id);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapX);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapY);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
+	GL(glGenTextures(1, &id));
+	GL(glBindTexture(GL_TEXTURE_2D, id));
+	GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapX));
+	GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapY));
+	GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter));
+	GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter));
 }
 
 GLTexture2D::~GLTexture2D() {
-	glDeleteTextures(1, &id);
+	GL(glDeleteTextures(1, &id));
 }
 
 GLTexture2D::GLTexture2D(const GLTexture2D& other) :
     GLTexture2D(other.magFilter, other.minFilter, other.wrapX, other.wrapY)
 {
-    setData(other.data, other.height, other.width, other.componentCount);
+  setData(other.data, other.height, other.width, other.componentCount);
 }
 
 GLTexture2D& GLTexture2D::operator=(GLTexture2D other) {
@@ -37,11 +37,11 @@ GLTexture2D& GLTexture2D::operator=(GLTexture2D other) {
     wrapX = other.wrapX;
     wrapY = other.wrapY;
     
-    glBindTexture(GL_TEXTURE_2D, id);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapX);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapY);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
+    GL(glBindTexture(GL_TEXTURE_2D, id));
+    GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapX));
+    GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapY));
+    GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter));
+    GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter));
     
     setData(other.data, other.height, other.width, other.componentCount);
     return *this;
@@ -56,16 +56,16 @@ void GLTexture2D::setData(const std::vector<GLubyte>& data, uint32_t width, uint
 		throw GLException{"Data size and texure dimensions do not match."};
 	}
 	
-    this->data = data;
-    this->width = width;
-    this->height = height;
-    this->componentCount = componentCount;
+  this->data = data;
+  this->width = width;
+  this->height = height;
+  this->componentCount = componentCount;
 
     
-	glBindTexture(GL_TEXTURE_2D, id);
+	GL(glBindTexture(GL_TEXTURE_2D, id));
 
-	glPixelStorei(GL_PACK_ALIGNMENT ,1);
-	glPixelStorei(GL_UNPACK_ALIGNMENT ,1);
+	GL(glPixelStorei(GL_PACK_ALIGNMENT ,1));
+	GL(glPixelStorei(GL_UNPACK_ALIGNMENT ,1));
 	
 	
 	type = GL_UNSIGNED_BYTE;	
@@ -88,5 +88,5 @@ void GLTexture2D::setData(const std::vector<GLubyte>& data, uint32_t width, uint
 			break;
 	}
   
-	glTexImage2D(GL_TEXTURE_2D, 0, internalformat, GLuint(width), GLuint(height), 0, format, type, (GLvoid*)data.data());
+	GL(glTexImage2D(GL_TEXTURE_2D, 0, internalformat, GLuint(width), GLuint(height), 0, format, type, (GLvoid*)data.data()));
 }

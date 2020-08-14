@@ -1,16 +1,16 @@
 #include "GLArray.h"
 
 GLArray::GLArray() {
-	glGenVertexArrays(1, &glId);
-	glBindVertexArray(glId);	
+	GL(glGenVertexArrays(1, &glId));
+	GL(glBindVertexArray(glId));
 }
 
 GLArray::~GLArray() {
-	glDeleteVertexArrays(1, &glId);
+	GL(glDeleteVertexArrays(1, &glId));
 }
 
 void GLArray::bind() const {
-	glBindVertexArray(glId);
+	GL(glBindVertexArray(glId));
 }
 
 void GLArray::connectVertexAttrib(const GLBuffer& buffer, const GLProgram& program, const std::string& variable, size_t elemCount, size_t offset) const {
