@@ -11,3 +11,5 @@ cpp/OpenGL/12/VS/lsystem/bin/*
 cpp/OpenGL/12/VS/lsystem/tmp/*
 cpp/OpenGL/terrain/VS/terrain/bin/*
 cpp/OpenGL/terrain/VS/terrain/tmp/*
+cpp/GameOfLife/VS/GameOfLife/bin/*
+cpp/GameOfLife/VS/GameOfLife/tmp/*
