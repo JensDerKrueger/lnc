@@ -1,0 +1,346 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{A228AE73-D81D-4B5E-A981-8DA2109ED209}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>hasVS</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>NWDOG;NI2C;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(solutionDir)..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>NWDOG;NI2C;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(solutionDir)..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>SVN_REVISION=783;NWDOG;NI2C;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(solutionDir)..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>SVN_REVISION=783;NWDOG;NI2C;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(solutionDir)..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\Has.cpp" />
+    <ClCompile Include="..\HASBasics.cpp" />
+    <ClCompile Include="..\HASBus.cpp" />
+    <ClCompile Include="..\HASConfig.cpp" />
+    <ClCompile Include="..\HASMember.cpp" />
+    <ClCompile Include="..\I2C\AI418S.cpp" />
+    <ClCompile Include="..\I2C\ArduPiDAC.cpp" />
+    <ClCompile Include="..\I2C\BlinkM.cpp" />
+    <ClCompile Include="..\I2C\BMP085_180Controller.cpp" />
+    <ClCompile Include="..\I2C\BMP280Controller.cpp" />
+    <ClCompile Include="..\I2C\BoschBMP.cpp" />
+    <ClCompile Include="..\I2C\BV4627.cpp" />
+    <ClCompile Include="..\I2C\HIH-6130.cpp" />
+    <ClCompile Include="..\I2C\HKAnalogPCF8591.cpp" />
+    <ClCompile Include="..\I2C\I2CBase.cpp" />
+    <ClCompile Include="..\I2C\I2CBus.cpp" />
+    <ClCompile Include="..\I2C\I2CMember.cpp" />
+    <ClCompile Include="..\I2C\InputBlock.cpp" />
+    <ClCompile Include="..\I2C\LuminosityTSL2561.cpp" />
+    <ClCompile Include="..\I2C\MB1242.cpp" />
+    <ClCompile Include="..\I2C\Mcp4725DAC.cpp" />
+    <ClCompile Include="..\I2C\OLED.cpp" />
+    <ClCompile Include="..\I2C\ProxiVCNL4000.cpp" />
+    <ClCompile Include="..\I2C\RelayBlock.cpp" />
+    <ClCompile Include="..\I2C\ThermoHKLM75.cpp" />
+    <ClCompile Include="..\main.cpp" />
+    <ClCompile Include="..\Network\HarmonyHubControl.cpp" />
+    <ClCompile Include="..\Network\HarmonyHubDevice.cpp" />
+    <ClCompile Include="..\Network\HASIRemote.cpp" />
+    <ClCompile Include="..\Network\NetworkBus.cpp" />
+    <ClCompile Include="..\Network\NetworkDevice.cpp" />
+    <ClCompile Include="..\Network\NetworkInputOutputClient.cpp" />
+    <ClCompile Include="..\Network\NetworkInputOutputServer.cpp" />
+    <ClCompile Include="..\Network\NetworkInputServer.cpp" />
+    <ClCompile Include="..\Network\NetworkServer.cpp" />
+    <ClCompile Include="..\Network\RemoteListener.cpp" />
+    <ClCompile Include="..\Network\RemotePoolThread.cpp" />
+    <ClCompile Include="..\other-devices\SysInfo.cpp" />
+    <ClCompile Include="..\script\ClockManager.cpp" />
+    <ClCompile Include="..\script\Command.cpp" />
+    <ClCompile Include="..\script\CommandLine.cpp" />
+    <ClCompile Include="..\script\CommandLooper.cpp" />
+    <ClCompile Include="..\script\CompoundExpression.cpp" />
+    <ClCompile Include="..\script\ExpressionCommand.cpp" />
+    <ClCompile Include="..\script\ExpressionParser.cpp" />
+    <ClCompile Include="..\script\Operator.cpp" />
+    <ClCompile Include="..\script\OutputCommand.cpp" />
+    <ClCompile Include="..\script\ParserTools.cpp" />
+    <ClCompile Include="..\script\Primary.cpp" />
+    <ClCompile Include="..\script\PulseCommand.cpp" />
+    <ClCompile Include="..\script\PulseManager.cpp" />
+    <ClCompile Include="..\script\RandomManager.cpp" />
+    <ClCompile Include="..\script\ScriptExecuteCommand.cpp" />
+    <ClCompile Include="..\script\ScriptExecuteManager.cpp" />
+    <ClCompile Include="..\script\StateCommand.cpp" />
+    <ClCompile Include="..\script\StateManager.cpp" />
+    <ClCompile Include="..\script\StopWatchCommand.cpp" />
+    <ClCompile Include="..\script\StopWatchManager.cpp" />
+    <ClCompile Include="..\script\TimerCommand.cpp" />
+    <ClCompile Include="..\script\TimerManager.cpp" />
+    <ClCompile Include="..\script\Value.cpp" />
+    <ClCompile Include="..\script\VarAssignments.cpp" />
+    <ClCompile Include="..\script\Variable.cpp" />
+    <ClCompile Include="..\Tools\AES.cpp" />
+    <ClCompile Include="..\Tools\Base64.cpp" />
+    <ClCompile Include="..\Tools\DebugOutHandler.cpp" />
+    <ClCompile Include="..\Tools\DebugOut\AbstrDebugOut.cpp" />
+    <ClCompile Include="..\Tools\DebugOut\CommandLineOut.cpp" />
+    <ClCompile Include="..\Tools\DebugOut\ConsoleOut.cpp" />
+    <ClCompile Include="..\Tools\DebugOut\HTMLFileOut.cpp" />
+    <ClCompile Include="..\Tools\DebugOut\MultiplexOut.cpp" />
+    <ClCompile Include="..\Tools\DebugOut\TextfileOut.cpp" />
+    <ClCompile Include="..\Tools\FilePlotter.cpp" />
+    <ClCompile Include="..\Tools\KeyValueFileParser.cpp" />
+    <ClCompile Include="..\Tools\MailPlotter.cpp" />
+    <ClCompile Include="..\Tools\MailReporter.cpp" />
+    <ClCompile Include="..\Tools\SmallImage.cpp" />
+    <ClCompile Include="..\Tools\Sockets.cpp" />
+    <ClCompile Include="..\Tools\SysTools.cpp" />
+    <ClCompile Include="..\Tools\Threads.cpp" />
+    <ClCompile Include="..\Tools\Timer.cpp" />
+    <ClCompile Include="..\Tools\Watchdog.cpp" />
+    <ClCompile Include="..\WebServices\HTTPRequest.cpp" />
+    <ClCompile Include="..\WebServices\JSON.cpp" />
+    <ClCompile Include="..\WebServices\WeatherForecast.cpp" />
+    <ClCompile Include="..\WebServices\WeatherWebServiceDevice.cpp" />
+    <ClCompile Include="..\WebServices\WebServiceBus.cpp" />
+    <ClCompile Include="..\WebServices\WebServiceDevice.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Has.h" />
+    <ClInclude Include="..\HASBasics.h" />
+    <ClInclude Include="..\HASBus.h" />
+    <ClInclude Include="..\HASConfig.h" />
+    <ClInclude Include="..\HASExceptions.h" />
+    <ClInclude Include="..\HASMember.h" />
+    <ClInclude Include="..\I2C\AI418S.h" />
+    <ClInclude Include="..\I2C\ArduPiDAC.h" />
+    <ClInclude Include="..\I2C\BlinkM.h" />
+    <ClInclude Include="..\I2C\BMP085_180Controller.h" />
+    <ClInclude Include="..\I2C\BMP280Controller.h" />
+    <ClInclude Include="..\I2C\BMPControllerAbstr.h" />
+    <ClInclude Include="..\I2C\BoschBMP.h" />
+    <ClInclude Include="..\I2C\BV4627.h" />
+    <ClInclude Include="..\I2C\HIH-6130.h" />
+    <ClInclude Include="..\I2C\HKAnalogPCF8591.h" />
+    <ClInclude Include="..\I2C\I2CBase.h" />
+    <ClInclude Include="..\I2C\I2CBus.h" />
+    <ClInclude Include="..\I2C\I2CExceptions.h" />
+    <ClInclude Include="..\I2C\I2CMember.h" />
+    <ClInclude Include="..\I2C\IDigitalIn.h" />
+    <ClInclude Include="..\I2C\IDigitalOut.h" />
+    <ClInclude Include="..\I2C\InputBlock.h" />
+    <ClInclude Include="..\I2C\LuminosityTSL2561.h" />
+    <ClInclude Include="..\I2C\MB1242.h" />
+    <ClInclude Include="..\I2C\Mcp4725DAC.h" />
+    <ClInclude Include="..\I2C\OLED.h" />
+    <ClInclude Include="..\I2C\ProxiVCNL4000.h" />
+    <ClInclude Include="..\I2C\RelayBlock.h" />
+    <ClInclude Include="..\I2C\TCA9548ABusManager.h" />
+    <ClInclude Include="..\I2C\ThermoHKLM75.h" />
+    <ClInclude Include="..\IAnalogIn.h" />
+    <ClInclude Include="..\IAnalogOut.h" />
+    <ClInclude Include="..\LogWatcher.h" />
+    <ClInclude Include="..\Network\HarmonyHubControl.h" />
+    <ClInclude Include="..\Network\HarmonyHubDevice.h" />
+    <ClInclude Include="..\Network\HASIRemote.h" />
+    <ClInclude Include="..\Network\NetworkBus.h" />
+    <ClInclude Include="..\Network\NetworkDevice.h" />
+    <ClInclude Include="..\Network\NetworkInputOutputClient.h" />
+    <ClInclude Include="..\Network\NetworkInputOutputServer.h" />
+    <ClInclude Include="..\Network\NetworkInputServer.h" />
+    <ClInclude Include="..\Network\NetworkServer.h" />
+    <ClInclude Include="..\Network\RemoteListener.h" />
+    <ClInclude Include="..\Network\RemotePoolThread.h" />
+    <ClInclude Include="..\other-devices\SysInfo.h" />
+    <ClInclude Include="..\script\ClockManager.h" />
+    <ClInclude Include="..\script\Command.h" />
+    <ClInclude Include="..\script\CommandLine.h" />
+    <ClInclude Include="..\script\CommandLooper.h" />
+    <ClInclude Include="..\script\CompoundExpression.h" />
+    <ClInclude Include="..\script\Expression.h" />
+    <ClInclude Include="..\script\ExpressionCommand.h" />
+    <ClInclude Include="..\script\ExpressionExceptions.h" />
+    <ClInclude Include="..\script\ExpressionParser.h" />
+    <ClInclude Include="..\script\Operator.h" />
+    <ClInclude Include="..\script\OutputCommand.h" />
+    <ClInclude Include="..\script\ParserTools.h" />
+    <ClInclude Include="..\script\Primary.h" />
+    <ClInclude Include="..\script\PulseCommand.h" />
+    <ClInclude Include="..\script\PulseManager.h" />
+    <ClInclude Include="..\script\RandomManager.h" />
+    <ClInclude Include="..\script\ScriptExecuteCommand.h" />
+    <ClInclude Include="..\script\ScriptExecuteManager.h" />
+    <ClInclude Include="..\script\StateCommand.h" />
+    <ClInclude Include="..\script\StateManager.h" />
+    <ClInclude Include="..\script\StopWatchCommand.h" />
+    <ClInclude Include="..\script\StopWatchManager.h" />
+    <ClInclude Include="..\script\TimerCommand.h" />
+    <ClInclude Include="..\script\TimerManager.h" />
+    <ClInclude Include="..\script\Value.h" />
+    <ClInclude Include="..\script\VarAssignments.h" />
+    <ClInclude Include="..\script\Variable.h" />
+    <ClInclude Include="..\Tools\AES.h" />
+    <ClInclude Include="..\Tools\Base64.h" />
+    <ClInclude Include="..\Tools\Console.h" />
+    <ClInclude Include="..\Tools\DebugOutHandler.h" />
+    <ClInclude Include="..\Tools\DebugOut\AbstrDebugOut.h" />
+    <ClInclude Include="..\Tools\DebugOut\CommandLineOut.h" />
+    <ClInclude Include="..\Tools\DebugOut\ConsoleOut.h" />
+    <ClInclude Include="..\Tools\DebugOut\HTMLFileOut.h" />
+    <ClInclude Include="..\Tools\DebugOut\MultiplexOut.h" />
+    <ClInclude Include="..\Tools\DebugOut\TextfileOut.h" />
+    <ClInclude Include="..\Tools\FilePlotter.h" />
+    <ClInclude Include="..\Tools\KeyValueFileParser.h" />
+    <ClInclude Include="..\Tools\MailPlotter.h" />
+    <ClInclude Include="..\Tools\MailReporter.h" />
+    <ClInclude Include="..\Tools\RingBuffer.h" />
+    <ClInclude Include="..\Tools\Singleton.h" />
+    <ClInclude Include="..\Tools\SmallImage.h" />
+    <ClInclude Include="..\Tools\Sockets.h" />
+    <ClInclude Include="..\Tools\StdDefines.h" />
+    <ClInclude Include="..\Tools\SysTools.h" />
+    <ClInclude Include="..\Tools\Threads.h" />
+    <ClInclude Include="..\Tools\Timer.h" />
+    <ClInclude Include="..\Tools\Vectors.h" />
+    <ClInclude Include="..\Tools\Watchdog.h" />
+    <ClInclude Include="..\WebServices\HTTPRequest.h" />
+    <ClInclude Include="..\WebServices\JSON.h" />
+    <ClInclude Include="..\WebServices\WeatherForecast.h" />
+    <ClInclude Include="..\WebServices\WeatherWebServiceDevice.h" />
+    <ClInclude Include="..\WebServices\WebServiceBus.h" />
+    <ClInclude Include="..\WebServices\WebServiceDevice.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\makefile" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

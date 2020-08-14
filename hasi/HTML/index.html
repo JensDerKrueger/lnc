@@ -1,0 +1,31 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link href="day.css" type="text/css" rel="stylesheet"/>
+    <title>LNC Status</title>
+    <script type="text/javascript" src="hasi_ajax.js"></script>
+    <script type="text/javascript" src="index.js"></script>
+  </head>
+
+  <body onload="pageLoad()">
+    <div id="page">
+      <div id="header"><h1 id="statusMessage">LNC Status</h1></div>
+      <div id="body">
+        <p><button onclick="honk(1)" type="button">BeepBeepBeep</button> <button onclick="honk(2)" type="button">Tetris</button> </p>
+          <table border="0" align="center">
+          <tr>
+            <td>
+              <a href="detail.html" id="temp">Temperatur: wird geladen</a>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <span id="humid">Luftfeuchtigeit: wird geladen</span>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </body>
+</html>
