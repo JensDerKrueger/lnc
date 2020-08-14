@@ -13,3 +13,4 @@ cpp/OpenGL/terrain/VS/terrain/bin/*
 cpp/OpenGL/terrain/VS/terrain/tmp/*
 cpp/OpenGL/GameOfLife/VS/GameOfLife/bin/*
 cpp/OpenGL/GameOfLife/VS/GameOfLife/tmp/*
+cpp/OpenGL/GameOfLife/VS/GameOfLife/*.glsl
