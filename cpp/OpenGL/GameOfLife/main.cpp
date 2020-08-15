@@ -18,8 +18,7 @@ GLBuffer vbFullScreenQuad{GL_ARRAY_BUFFER};
 GLBuffer ibFullScreenQuad{GL_ELEMENT_ARRAY_BUFFER};
 GLArray fullScreenQuadArray;
 GLProgram progFullscreenQuad{GLProgram::createFromFile("fullScreenQuadVS.glsl", "fullScreenQuadFS.glsl")};
-GLProgram progPlay{GLProgram::createFromFile("fullScreenQuadVS.glsl", "playFS.glsl")};
-
+//GLProgram progevolve{GLProgram::createFromFile("fullScreenQuadVS.glsl", "evolveFS.glsl")};
 
 class Grid2D {
 public:
@@ -116,9 +115,9 @@ void setColor(float r, float g, float b) {
 
 void clear() {
   Dimensions dim{gl.getFramebufferSize()};
-  glViewport(0, 0, dim.width, dim.height);
-  glClearColor(0.0,1.0,0.0,0.0);
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  GL(glViewport(0, 0, dim.width, dim.height));
+  GL(glClearColor(0.0,1.0,0.0,0.0));
+  GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 }
 
 void render(const Grid2D& g) {
@@ -127,13 +126,13 @@ void render(const Grid2D& g) {
 
   progFullscreenQuad.enable();
   fullScreenQuadArray.bind();
-  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*)0);
+  GL(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*)0));
 }
 
-void play(const Grid2D& currentGrid, Grid2D& nextGrid) {
+void evolve(const Grid2D& currentGrid, Grid2D& nextGrid) {
   // enable next buffer for writing
   // enable current buffer (texture) for reading
-  // enable playShader
+  // enable evolveShader
   // render quad
   // disable next buffer
   // disable current buffer
@@ -168,7 +167,7 @@ int main(int argc, char** argv) {
   GLEnv::checkGLError("BeforeFirstLoop");
   do {
     render(currentGrid);
-    play(currentGrid, nextGrid);
+    evolve(currentGrid, nextGrid);
     std::swap(currentGrid, nextGrid);
 //    std::this_thread::sleep_for(std::chrono::milliseconds(100));
     GLEnv::checkGLError("endOfFrame");
