@@ -150,6 +150,12 @@ void GLProgram::setTexture(GLint id, const GLTexture1D& texture, GLuint unit) co
   GL(glUniform1i(id, unit));
 }
 
+void GLProgram::unsetTexture(GLint id, GLuint unit) const {
+  GL(glActiveTexture(GL_TEXTURE0 + unit));
+  GL(glBindTexture(GL_TEXTURE_1D, 0));
+  GL(glUniform1i(0, unit));
+}
+
 void GLProgram::checkAndThrow() {
 	GLenum e = glGetError();
 	if (e != GL_NO_ERROR) {
