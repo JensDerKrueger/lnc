@@ -5,13 +5,13 @@ GLTexture2D::GLTexture2D(GLint magFilter, GLint minFilter, GLint wrapX, GLint wr
 	internalformat(0),
 	format(0),
 	type(0),
-    magFilter(magFilter),
-    minFilter(minFilter),
-    wrapX(wrapX),
-    wrapY(wrapY),
-    width(0),
-    height(0),
-    componentCount(0)
+  magFilter(magFilter),
+  minFilter(minFilter),
+  wrapX(wrapX),
+  wrapY(wrapY),
+  width(0),
+  height(0),
+  componentCount(0)
 {
 	GL(glGenTextures(1, &id));
 	GL(glBindTexture(GL_TEXTURE_2D, id));
@@ -26,9 +26,10 @@ GLTexture2D::~GLTexture2D() {
 }
 
 GLTexture2D::GLTexture2D(const GLTexture2D& other) :
-    GLTexture2D(other.magFilter, other.minFilter, other.wrapX, other.wrapY)
+  GLTexture2D(other.magFilter, other.minFilter, other.wrapX, other.wrapY)
 {
-  setData(other.data, other.height, other.width, other.componentCount);
+  if (other.height > 0 && other.width > 0)
+    setData(other.data, other.height, other.width, other.componentCount);
 }
 
 GLTexture2D& GLTexture2D::operator=(GLTexture2D other) {
@@ -43,7 +44,8 @@ GLTexture2D& GLTexture2D::operator=(GLTexture2D other) {
     GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter));
     GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter));
     
-    setData(other.data, other.height, other.width, other.componentCount);
+    if (other.height > 0 && other.width > 0)
+      setData(other.data, other.height, other.width, other.componentCount);
     return *this;
 }
 
