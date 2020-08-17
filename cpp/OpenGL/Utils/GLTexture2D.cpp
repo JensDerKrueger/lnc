@@ -53,6 +53,10 @@ const GLint GLTexture2D::getId() const {
 	return id;
 }
 
+void GLTexture2D::setEmpty(uint32_t width, uint32_t height, uint32_t componentCount) {
+  setData(std::vector<GLubyte>(width*height*componentCount), width, height, componentCount);
+}
+
 void GLTexture2D::setData(const std::vector<GLubyte>& data, uint32_t width, uint32_t height, uint32_t componentCount) {
 	if (data.size() != componentCount*width*height) {
 		throw GLException{"Data size and texure dimensions do not match."};
