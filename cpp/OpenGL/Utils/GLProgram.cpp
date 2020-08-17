@@ -133,9 +133,8 @@ void GLProgram::setUniform(GLint id, const Vec4& value) const {
   GL(glUniform4fv(id, 1, value));
 }
 
-
 void GLProgram::setUniform(GLint id, const Mat4& value, bool transpose) const {
-	glUniformMatrix4fv(id, 1, transpose, value);
+	GL(glUniformMatrix4fv(id, 1, transpose, value));
 }
 
 void GLProgram::setTexture(GLint id, const GLTexture2D& texture, GLuint unit) const {
@@ -153,7 +152,6 @@ void GLProgram::setTexture(GLint id, const GLTexture1D& texture, GLuint unit) co
 void GLProgram::unsetTexture(GLint id, GLuint unit) const {
   GL(glActiveTexture(GL_TEXTURE0 + unit));
   GL(glBindTexture(GL_TEXTURE_1D, 0));
-  GL(glUniform1i(0, unit));
 }
 
 void GLProgram::checkAndThrow() {
