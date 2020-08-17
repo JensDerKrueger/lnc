@@ -63,17 +63,17 @@ static void mouseButtonCallback(GLFWwindow* window, int button, int state, int m
 static void scrollCallback(GLFWwindow* window, double x_offset, double y_offset) {
 }
 
-void init() {
-  Vec2 gridSize{512,512};
-
-  gridTextures[0].setEmpty( gridSize.x(), gridSize.y(), 1);
-  gridTextures[1].setEmpty( gridSize.x(), gridSize.y(), 1);
+void init(const size_t width, const size_t height) {
+  gridTextures[0].setEmpty( width, height, 1);
+  gridTextures[1].setEmpty( width, height, 1);
   Tesselation fullScreenQuad{Tesselation::genRectangle({0,0,0},2,2)};
   vbFullScreenQuad.setData(fullScreenQuad.getVertices(),3);
   ibFullScreenQuad.setData(fullScreenQuad.getIndices());
   fullScreenQuadArray.bind();
   fullScreenQuadArray.connectVertexAttrib(vbFullScreenQuad,progFullscreenQuad,"vPos",3);
   fullScreenQuadArray.connectIndexBuffer(ibFullScreenQuad);
+  
+  GL(glDisable(GL_DEPTH_TEST));
 }
 
 void render() {
@@ -88,7 +88,6 @@ void render() {
 
 void evolve() {
   framebuffer.bind( gridTextures[1-current] );
-  GL(glViewport(0, 0, gridTextures[1-current].getWidth(), gridTextures[1-current].getHeight()));
   progEvolve.enable();
   progEvolve.setUniform(progEvolve.getUniformLocation("paintPos"), paintPosition);
   progEvolve.setTexture(progEvolve.getUniformLocation("gridSampler"),gridTextures[current],0);
@@ -103,7 +102,7 @@ int main(int argc, char** argv) {
   gl.setMouseCallbacks(cursorPositionCallback, mouseButtonCallback, scrollCallback);
   gl.setKeyCallback(keyCallback);
 
-  init();
+  init(512,512);
     
   GLEnv::checkGLError("BeforeFirstLoop");
   do {
