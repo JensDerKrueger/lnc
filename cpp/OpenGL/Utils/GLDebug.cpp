@@ -1,15 +1,9 @@
+#include "GLEnv.h"
 #include "GLDebug.h"
 
-void errorOut(const char* source, const char* format, ...) {
-  const size_t buffSize = 16384;
-  char buff[buffSize];
-  va_list args;
-  va_start(args, format);
-#ifdef _WIN32
-  _vsnprintf_s(buff, buffSize, sizeof(buff), format, args);
-#else
-  vsnprintf(buff, sizeof(buff), format, args);
-#endif
-  va_end(args);
-  std::cerr << source << " " << buff << std::endl;
+void errorOut(const std::string& statement, const std::string& location,
+              uint32_t line, const std::string& file, const GLubyte * errorDesc,
+              uint32_t errnum) {
+  std::cerr << "GL error calling" << statement << " " << location <<  " " << line
+            << " (" << file << "):" <<  errorDesc << " (" << errnum << ")" << std::endl;
 }

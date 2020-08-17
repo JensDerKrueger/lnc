@@ -10,35 +10,29 @@
 // still do
 #define MAX_GL_ERROR_COUNT 10
 
-#define T_ERROR(...)                                              \
-  do {                                                            \
-    errorOut(__func__, __VA_ARGS__);   \
-  } while(0)
-
-
-void errorOut(const char* source, const char* format, ...);
+void errorOut(const std::string& statement, const std::string& location,
+              uint32_t line, const std::string& file,
+              const GLubyte * errorDesc, uint32_t errnum);
 
 # define GL(stmt)                                                      \
   do {                                                                 \
     GLenum glerr;                                                      \
-    uint32_t counter = 0;                                         \
+    uint32_t counter = 0;                                              \
     while((glerr = glGetError()) != GL_NO_ERROR) {                     \
-      T_ERROR("GL error calling %s before line %u (%s): %s (%#x)",     \
-              #stmt, __LINE__, __FILE__,                               \
+      errorOut(#stmt, "before", __LINE__, __FILE__,                    \
               gluErrorString(glerr),                                   \
               static_cast<uint32_t>(glerr));                           \
-      counter++;                                                      \
-      if (counter > MAX_GL_ERROR_COUNT) break;                        \
+      counter++;                                                       \
+      if (counter > MAX_GL_ERROR_COUNT) break;                         \
     }                                                                  \
     stmt;                                                              \
-    counter = 0;                                                      \
+    counter = 0;                                                       \
     while((glerr = glGetError()) != GL_NO_ERROR) {                     \
-      T_ERROR("'%s' on line %u (%s) caused GL error: %s (%#x)", #stmt, \
-              __LINE__, __FILE__,                                      \
+      errorOut(#stmt, "in", __LINE__, __FILE__,                        \
               gluErrorString(glerr),                                   \
               static_cast<uint32_t>(glerr));                           \
-      counter++;                                                      \
-      if (counter > MAX_GL_ERROR_COUNT) break;                        \
+      counter++;                                                       \
+      if (counter > MAX_GL_ERROR_COUNT) break;                         \
     }                                                                  \
   } while(0)
 
