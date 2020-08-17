@@ -46,7 +46,7 @@ public:
 	void setTexture(GLint id, const GLTexture2D& texture, GLuint unit=0) const;
     void setTexture(GLint id, const GLTexture1D& texture, GLuint unit=0) const;
 	
-  void unsetTexture(GLint id, GLuint unit) const;
+  void unsetTexture(GLuint unit) const;
 
 	void enable() const;
 	void disable() const;
