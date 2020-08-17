@@ -35,8 +35,6 @@ void errorOut(const std::string& statement, const std::string& location,
       if (counter > MAX_GL_ERROR_COUNT) break;                         \
     }                                                                  \
   } while(0)
-
-
 #else
 # define GL(stmt) do { stmt; } while(0)
 #endif
