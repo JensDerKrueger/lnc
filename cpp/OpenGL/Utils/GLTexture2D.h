@@ -13,7 +13,8 @@ public:
   GLTexture2D(const GLTexture2D& other);
   GLTexture2D& operator=(GLTexture2D other);
     
-	const GLint getId() const;	
+	const GLint getId() const;
+  void setEmpty(uint32_t width, uint32_t height, uint32_t componentCount);
 	void setData(const std::vector<GLubyte>& data, uint32_t width, uint32_t height, uint32_t componentCount=4);
 		  
   uint32_t getHeight() const {return height;}
