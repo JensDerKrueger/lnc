@@ -10,6 +10,7 @@
 #include <GLArray.h>
 #include <GLProgram.h>
 #include <GLFramebuffer.h>
+#include <Rand.h>
 
 #include <Tesselation.h>
 
@@ -24,32 +25,58 @@ GLProgram progFullscreenQuad{GLProgram::createFromFile("fullScreenQuadVS.glsl", 
 GLFramebuffer framebuffer;
 GLProgram progEvolve{GLProgram::createFromFile("fullScreenQuadVS.glsl", "evolveFS.glsl")};
 size_t current = 0;
+int32_t paintState = 0;
+float brushSize = 1.0f;
 Vec2 paintPosition{-1,-1};
+
+
+void randomizeGrid() {
+  std::vector<uint8_t> data(gridTextures[0].getSize());
+  
+  for (size_t i = 0;i<data.size();i+=3) {
+    data[i] = Rand::rand01() >= 0.5 ? 255 : 0;
+  }
+  
+  gridTextures[0].setData(data);
+  gridTextures[1].setData(data);
+}
+
+void clearGrid() {
+  gridTextures[0].clear();
+  gridTextures[1].clear();
+}
 
 static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
   if (action == GLFW_PRESS) {
-      switch (key) {
-          case GLFW_KEY_ESCAPE:
-              glfwSetWindowShouldClose(window, GL_TRUE);
-              break;
-      }
+    switch (key) {
+      case GLFW_KEY_ESCAPE:
+        glfwSetWindowShouldClose(window, GL_TRUE);
+        break;
+      case GLFW_KEY_R:
+        randomizeGrid();
+        break;
+      case GLFW_KEY_C:
+        clearGrid();
+        break;
+    }
   }
 }
 
 void paint(GLFWwindow* window) {
   int state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
   
-  if (state == GLFW_PRESS) {
-    double xPosition, yPosition;
-    glfwGetCursorPos(window, &xPosition, &yPosition);
-    
-    int xsize, ysize;
-    glfwGetWindowSize(window, &xsize, &ysize);
-    paintPosition = Vec2{float(xPosition/xsize),float(yPosition/ysize)};
-  } else if (state == GLFW_RELEASE) {
-    paintPosition = Vec2{-1,-1};
-  }
+  double xPosition, yPosition;
+  glfwGetCursorPos(window, &xPosition, &yPosition);
   
+  int xsize, ysize;
+  glfwGetWindowSize(window, &xsize, &ysize);
+  paintPosition = Vec2{float(xPosition/xsize),1.0f-float(yPosition/ysize)};
+
+  if (state == GLFW_PRESS) {
+    paintState = 1;
+  } else if (state == GLFW_RELEASE) {
+    paintState = 0;
+  }
 }
 
 static void cursorPositionCallback(GLFWwindow* window, double xPosition, double yPosition) {
@@ -61,11 +88,12 @@ static void mouseButtonCallback(GLFWwindow* window, int button, int state, int m
 }
 
 static void scrollCallback(GLFWwindow* window, double x_offset, double y_offset) {
+  brushSize = std::max<float>(brushSize + y_offset, 1.0f);
 }
 
 void init(const size_t width, const size_t height) {
-  gridTextures[0].setEmpty( width, height, 1);
-  gridTextures[1].setEmpty( width, height, 1);
+  gridTextures[0].setEmpty( width, height, 3);
+  gridTextures[1].setEmpty( width, height, 3);
   Tesselation fullScreenQuad{Tesselation::genRectangle({0,0,0},2,2)};
   vbFullScreenQuad.setData(fullScreenQuad.getVertices(),3);
   ibFullScreenQuad.setData(fullScreenQuad.getIndices());
@@ -90,6 +118,8 @@ void evolve() {
   framebuffer.bind( gridTextures[1-current] );
   progEvolve.enable();
   progEvolve.setUniform(progEvolve.getUniformLocation("paintPos"), paintPosition);
+  progEvolve.setUniform(progEvolve.getUniformLocation("brushSize"), brushSize);
+  progEvolve.setUniform(progEvolve.getUniformLocation("paintState"), paintState);
   progEvolve.setTexture(progEvolve.getUniformLocation("gridSampler"),gridTextures[current],0);
   fullScreenQuadArray.bind();
   GL(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*)0));
