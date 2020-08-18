@@ -53,6 +53,14 @@ const GLint GLTexture2D::getId() const {
 	return id;
 }
 
+void GLTexture2D::clear() {
+  setEmpty(width,height,componentCount);
+}
+
+void GLTexture2D::setData(const std::vector<GLubyte>& data) {
+  setData(data,width,height,componentCount);
+}
+
 void GLTexture2D::setEmpty(uint32_t width, uint32_t height, uint32_t componentCount) {
   setData(std::vector<GLubyte>(width*height*componentCount), width, height, componentCount);
 }
@@ -67,12 +75,10 @@ void GLTexture2D::setData(const std::vector<GLubyte>& data, uint32_t width, uint
   this->height = height;
   this->componentCount = componentCount;
 
-    
 	GL(glBindTexture(GL_TEXTURE_2D, id));
 
 	GL(glPixelStorei(GL_PACK_ALIGNMENT ,1));
 	GL(glPixelStorei(GL_UNPACK_ALIGNMENT ,1));
-	
 	
 	type = GL_UNSIGNED_BYTE;	
 	switch (componentCount) {

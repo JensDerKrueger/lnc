@@ -14,11 +14,15 @@ public:
   GLTexture2D& operator=(GLTexture2D other);
     
 	const GLint getId() const;
+  void clear();
   void setEmpty(uint32_t width, uint32_t height, uint32_t componentCount);
 	void setData(const std::vector<GLubyte>& data, uint32_t width, uint32_t height, uint32_t componentCount=4);
-		  
+  void setData(const std::vector<GLubyte>& data);
+
   uint32_t getHeight() const {return height;}
   uint32_t getWidth() const {return width;}
+  uint32_t getComponentCount() const {return componentCount;}
+  uint32_t getSize() const {return height*width*componentCount;}
   
 private:
 	GLuint id;
