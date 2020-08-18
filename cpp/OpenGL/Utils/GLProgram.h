@@ -28,8 +28,10 @@ class GLProgram {
 public:
 	~GLProgram();
 	
-	static GLProgram createFromFiles(const std::vector<std::string>& vs, const std::vector<std::string>& fs, const std::vector<std::string>& gs);
-	static GLProgram createFromStrings(const std::vector<std::string>& vs, const std::vector<std::string>& fs, const std::vector<std::string>& gs);
+	static GLProgram createFromFiles(const std::vector<std::string>& vs, const std::vector<std::string>& fs,
+                                   const std::vector<std::string>& gs);
+	static GLProgram createFromStrings(const std::vector<std::string>& vs, const std::vector<std::string>& fs,
+                                     const std::vector<std::string>& gs);
 
 	static GLProgram createFromFile(const std::string& vs, const std::string& fs, const std::string& gs="");
 	static GLProgram createFromString(const std::string& vs, const std::string& fs, const std::string& gs="");
@@ -38,13 +40,15 @@ public:
 	GLint getUniformLocation(const std::string& id) const;
 			
 	void setUniform(GLint id, float value) const;
-    void setUniform(GLint id, const Vec2& value) const;
+  void setUniform(GLint id, const Vec2& value) const;
 	void setUniform(GLint id, const Vec3& value) const;
-    void setUniform(GLint id, const Vec4& value) const;
+  void setUniform(GLint id, const Vec4& value) const;
+  void setUniform(GLint id, int value) const;
+  void setUniform(GLint id, const Vec2i& value) const;
 	void setUniform(GLint id, const Mat4& value, bool transpose=false) const;
 	
 	void setTexture(GLint id, const GLTexture2D& texture, GLuint unit=0) const;
-    void setTexture(GLint id, const GLTexture1D& texture, GLuint unit=0) const;
+  void setTexture(GLint id, const GLTexture1D& texture, GLuint unit=0) const;
 	
   void unsetTexture(GLuint unit) const;
 

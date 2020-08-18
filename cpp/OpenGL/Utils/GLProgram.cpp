@@ -133,6 +133,14 @@ void GLProgram::setUniform(GLint id, const Vec4& value) const {
   GL(glUniform4fv(id, 1, value));
 }
 
+void GLProgram::setUniform(GLint id, int value) const {
+  GL(glUniform1i(id, value));
+}
+
+void GLProgram::setUniform(GLint id, const Vec2i& value) const {
+  GL(glUniform2iv(id, 1, value));
+}
+
 void GLProgram::setUniform(GLint id, const Mat4& value, bool transpose) const {
 	GL(glUniformMatrix4fv(id, 1, transpose, value));
 }
