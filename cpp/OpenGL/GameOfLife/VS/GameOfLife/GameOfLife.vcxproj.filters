@@ -57,6 +57,12 @@
     <ClCompile Include="..\..\..\Utils\Tesselation.cpp">
       <Filter>Quelldateien\Utils</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Utils\GLFramebuffer.cpp">
+      <Filter>Quelldateien\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Utils\GLDepthBuffer.cpp">
+      <Filter>Quelldateien\Utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Utils\GLEnv.h">
@@ -95,6 +101,12 @@
     <ClInclude Include="..\..\..\Utils\Tesselation.h">
       <Filter>Headerdateien\Utils</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Utils\GLFramebuffer.h">
+      <Filter>Headerdateien\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Utils\GLDepthBuffer.h">
+      <Filter>Headerdateien\Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\fullScreenQuadFS.glsl">
@@ -103,7 +115,7 @@
     <None Include="..\..\fullScreenQuadVS.glsl">
       <Filter>Ressourcendateien</Filter>
     </None>
-    <None Include="..\..\playFS.glsl">
+    <None Include="..\..\evolveFS.glsl">
       <Filter>Ressourcendateien</Filter>
     </None>
   </ItemGroup>
