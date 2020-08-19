@@ -177,7 +177,9 @@ XCOPY "$(ProjectDir)..\..\*.glsl" "$(ProjectDir)*.*" /Y</Command>
   <ItemGroup>
     <ClCompile Include="..\..\..\Utils\GLArray.cpp" />
     <ClCompile Include="..\..\..\Utils\GLBuffer.cpp" />
+    <ClCompile Include="..\..\..\Utils\GLDepthBuffer.cpp" />
     <ClCompile Include="..\..\..\Utils\GLEnv.cpp" />
+    <ClCompile Include="..\..\..\Utils\GLFramebuffer.cpp" />
     <ClCompile Include="..\..\..\Utils\GLProgram.cpp" />
     <ClCompile Include="..\..\..\Utils\GLTexture1D.cpp" />
     <ClCompile Include="..\..\..\Utils\GLTexture2D.cpp" />
@@ -191,7 +193,9 @@ XCOPY "$(ProjectDir)..\..\*.glsl" "$(ProjectDir)*.*" /Y</Command>
   <ItemGroup>
     <ClInclude Include="..\..\..\Utils\GLArray.h" />
     <ClInclude Include="..\..\..\Utils\GLBuffer.h" />
+    <ClInclude Include="..\..\..\Utils\GLDepthBuffer.h" />
     <ClInclude Include="..\..\..\Utils\GLEnv.h" />
+    <ClInclude Include="..\..\..\Utils\GLFramebuffer.h" />
     <ClInclude Include="..\..\..\Utils\GLProgram.h" />
     <ClInclude Include="..\..\..\Utils\GLTexture1D.h" />
     <ClInclude Include="..\..\..\Utils\GLTexture2D.h" />
@@ -203,9 +207,9 @@ XCOPY "$(ProjectDir)..\..\*.glsl" "$(ProjectDir)*.*" /Y</Command>
     <ClInclude Include="..\..\..\Utils\Vec4.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\evolveFS.glsl" />
     <None Include="..\..\fullScreenQuadFS.glsl" />
     <None Include="..\..\fullScreenQuadVS.glsl" />
-    <None Include="..\..\playFS.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
