@@ -1,0 +1,28 @@
+﻿  main.cpp
+C:\programmieren\hans\GtHub\lnc\cpp\OpenGL\GameOfLife\main.cpp(91,41): warning C4244: "Argument": Konvertierung von "double" in "const _Ty", möglicher Datenverlust
+          with
+          [
+              _Ty=float
+          ]
+C:\programmieren\hans\GtHub\lnc\cpp\OpenGL\GameOfLife\main.cpp(95,45): warning C4267: "Argument": Konvertierung von "size_t" nach "uint32_t", Datenverlust möglich
+C:\programmieren\hans\GtHub\lnc\cpp\OpenGL\GameOfLife\main.cpp(96,45): warning C4267: "Argument": Konvertierung von "size_t" nach "uint32_t", Datenverlust möglich
+LINK : warning LNK4098: Standardbibliothek "LIBCMT" steht in Konflikt mit anderen Bibliotheken; /NODEFAULTLIB:Bibliothek verwenden.
+  Code wird generiert.
+  44 of 709 functions ( 6.2%) were compiled, the rest were copied from previous compilation.
+    35 functions were new in current compilation
+    42 functions had inline decision re-evaluated but remain unchanged
+  Codegenerierung ist abgeschlossen.
+glew32s.lib(glew.obj) : warning LNK4099: PDB "vc120.pdb" wurde nicht mit "glew32s.lib(glew.obj)" oder an "C:\programmieren\hans\GtHub\lnc\cpp\OpenGL\GameOfLife\VS\GameOfLife\bin\x64-Release\vc120.pdb" gefunden; Objekt wird verknüpft, als ob keine Debuginformationen vorhanden wären.
+  GameOfLife.vcxproj -> C:\programmieren\hans\GtHub\lnc\cpp\OpenGL\GameOfLife\VS\GameOfLife\bin\x64-Release\GameOfLife.exe
+  Datei *.bmp nicht gefunden
+  0 Datei(en) kopiert
+  C:\programmieren\hans\GtHub\lnc\cpp\OpenGL\GameOfLife\VS\GameOfLife\..\..\evolveFS.glsl
+  C:\programmieren\hans\GtHub\lnc\cpp\OpenGL\GameOfLife\VS\GameOfLife\..\..\fullScreenQuadFS.glsl
+  C:\programmieren\hans\GtHub\lnc\cpp\OpenGL\GameOfLife\VS\GameOfLife\..\..\fullScreenQuadVS.glsl
+  3 Datei(en) kopiert
+  Datei *.bmp nicht gefunden
+  0 Datei(en) kopiert
+  C:\programmieren\hans\GtHub\lnc\cpp\OpenGL\GameOfLife\VS\GameOfLife\..\..\evolveFS.glsl
+  C:\programmieren\hans\GtHub\lnc\cpp\OpenGL\GameOfLife\VS\GameOfLife\..\..\fullScreenQuadFS.glsl
+  C:\programmieren\hans\GtHub\lnc\cpp\OpenGL\GameOfLife\VS\GameOfLife\..\..\fullScreenQuadVS.glsl
+  3 Datei(en) kopiert
