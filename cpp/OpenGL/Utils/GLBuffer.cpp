@@ -11,28 +11,28 @@ GLBuffer::GLBuffer(GLenum target) :
 	stride(0),
 	type(0)
 {
-	glGenBuffers(1, &bufferID);	
+	GL(glGenBuffers(1, &bufferID));
 }
 
 GLBuffer::~GLBuffer()  {
-	glBindBuffer(target, 0);
-	glDeleteBuffers(1, &bufferID);
+	GL(glBindBuffer(target, 0));
+	GL(glDeleteBuffers(1, &bufferID));
 }
 
 void GLBuffer::setData(const std::vector<float>& data, size_t valuesPerElement, GLenum usage) {
 	elemSize = sizeof(data[0]);
 	stride = valuesPerElement*elemSize;
 	type = GL_FLOAT;
-	glBindBuffer(target, bufferID);
-	glBufferData(target, elemSize*data.size(), data.data(), usage); 	
+	GL(glBindBuffer(target, bufferID));
+	GL(glBufferData(target, elemSize*data.size(), data.data(), usage));
 }
 
 void GLBuffer::setData(const std::vector<GLuint>& data) {
 	elemSize = sizeof(data[0]);
 	stride = 1*elemSize;
 	type = GL_UNSIGNED_INT;
-	glBindBuffer(target, bufferID);
-	glBufferData(target, elemSize*data.size(), data.data(), GL_STATIC_DRAW); 	
+	GL(glBindBuffer(target, bufferID));
+	GL(glBufferData(target, elemSize*data.size(), data.data(), GL_STATIC_DRAW));
 }
 
 void GLBuffer::connectVertexAttrib(GLint location, size_t elemCount, size_t offset) const {
@@ -40,11 +40,11 @@ void GLBuffer::connectVertexAttrib(GLint location, size_t elemCount, size_t offs
         throw GLException{"Need to call setData before connectVertexAttrib"};
     }
     
-	glBindBuffer(target, bufferID);
-	glEnableVertexAttribArray(location);
-	glVertexAttribPointer(location, GLsizei(elemCount), type, GL_FALSE, GLsizei(stride), (void*)(offset*elemSize));
+	GL(glBindBuffer(target, bufferID));
+	GL(glEnableVertexAttribArray(location));
+	GL(glVertexAttribPointer(location, GLsizei(elemCount), type, GL_FALSE, GLsizei(stride), (void*)(offset*elemSize)));
 }
 
 void GLBuffer::bind() const {
-	glBindBuffer(target, bufferID);
+	GL(glBindBuffer(target, bufferID));
 }

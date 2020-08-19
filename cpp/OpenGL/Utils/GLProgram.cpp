@@ -32,9 +32,9 @@ GLProgram::GLProgram(const GLchar** vertexShaderTexts, GLsizei vsCount, const GL
 }
 
 GLProgram::~GLProgram() {
-	glDeleteShader(glVertexShader);
-	glDeleteShader(glFragmentShader);
-	glDeleteProgram(glProgram);
+	GL(glDeleteShader(glVertexShader));
+	GL(glDeleteShader(glFragmentShader));
+	GL(glDeleteProgram(glProgram));
 }
 
 GLProgram GLProgram::createFromFiles(const std::vector<std::string>& vs, const std::vector<std::string>& fs, const std::vector<std::string>& gs) {
@@ -110,44 +110,56 @@ GLint GLProgram::getUniformLocation(const std::string& id) const {
 }
 
 void GLProgram::enable() const {
-	glUseProgram(glProgram);
+	GL(glUseProgram(glProgram));
 }
 
 void GLProgram::disable() const {
-	glUseProgram(0);
+	GL(glUseProgram(0));
 }
 
 void GLProgram::setUniform(GLint id, float value) const {
-	glUniform1f(id, value);	
+	GL(glUniform1f(id, value));
 }
 
 void GLProgram::setUniform(GLint id, const Vec2& value) const {
-    glUniform2fv(id, 1, value);
+  GL(glUniform2fv(id, 1, value));
 }
 
 void GLProgram::setUniform(GLint id, const Vec3& value) const {
-	glUniform3fv(id, 1, value);	
+	GL(glUniform3fv(id, 1, value));
 }
 
 void GLProgram::setUniform(GLint id, const Vec4& value) const {
-    glUniform4fv(id, 1, value);
+  GL(glUniform4fv(id, 1, value));
 }
 
+void GLProgram::setUniform(GLint id, int value) const {
+  GL(glUniform1i(id, value));
+}
+
+void GLProgram::setUniform(GLint id, const Vec2i& value) const {
+  GL(glUniform2iv(id, 1, value));
+}
 
 void GLProgram::setUniform(GLint id, const Mat4& value, bool transpose) const {
-	glUniformMatrix4fv(id, 1, transpose, value);
+	GL(glUniformMatrix4fv(id, 1, transpose, value));
 }
 
 void GLProgram::setTexture(GLint id, const GLTexture2D& texture, GLuint unit) const {
-	glActiveTexture(GL_TEXTURE0 + unit);
-	glBindTexture(GL_TEXTURE_2D, texture.getId());
-	glUniform1i(id, unit);
+	GL(glActiveTexture(GL_TEXTURE0 + unit));
+	GL(glBindTexture(GL_TEXTURE_2D, texture.getId()));
+	GL(glUniform1i(id, unit));
 }
 
 void GLProgram::setTexture(GLint id, const GLTexture1D& texture, GLuint unit) const {
-    glActiveTexture(GL_TEXTURE0 + unit);
-    glBindTexture(GL_TEXTURE_1D, texture.getId());
-    glUniform1i(id, unit);
+  GL(glActiveTexture(GL_TEXTURE0 + unit));
+  GL(glBindTexture(GL_TEXTURE_1D, texture.getId()));
+  GL(glUniform1i(id, unit));
+}
+
+void GLProgram::unsetTexture(GLuint unit) const {
+  GL(glActiveTexture(GL_TEXTURE0 + unit));
+  GL(glBindTexture(GL_TEXTURE_1D, 0));
 }
 
 void GLProgram::checkAndThrow() {

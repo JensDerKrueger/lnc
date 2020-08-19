@@ -41,40 +41,40 @@ PlanarMirror::PlanarMirror(const Vec3& a, const Vec3& b, const Vec3& c, const Ve
 
 
 void PlanarMirror::start(const Mat4& MVP) const {
-	glEnable(GL_STENCIL_TEST);
-	glClearStencil(0);
-	glClear(GL_STENCIL_BUFFER_BIT);
-	glStencilFunc(GL_NEVER, 1, 0xffffffff);
-	glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
+	GL(glEnable(GL_STENCIL_TEST));
+	GL(glClearStencil(0));
+	GL(glClear(GL_STENCIL_BUFFER_BIT));
+	GL(glStencilFunc(GL_NEVER, 1, 0xffffffff));
+	GL(glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE));
 	
 	
-	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);	
+	GL(glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE));
 	
 	prog.enable();
 	prog.setUniform(mvpLoc, MVP);
 	arMirror.bind();
-	glDrawElements(GL_TRIANGLES, GLsizei(mirrorTess.getIndices().size()), GL_UNSIGNED_INT, (void*)0);	
+	GL(glDrawElements(GL_TRIANGLES, GLsizei(mirrorTess.getIndices().size()), GL_UNSIGNED_INT, (void*)0));
 	
-	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);	
+	GL(glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE));
 	
-	glStencilFunc(GL_EQUAL, 1, 0xffffffff);
-	glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-	glCullFace(GL_FRONT);
+	GL(glStencilFunc(GL_EQUAL, 1, 0xffffffff));
+	GL(glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP));
+	GL(glCullFace(GL_FRONT));
 }
 
 
 void PlanarMirror::end(const Mat4& MVP) const {
-	glDisable(GL_STENCIL_TEST);
-	glCullFace(GL_BACK);
+	GL(glDisable(GL_STENCIL_TEST));
+	GL(glCullFace(GL_BACK));
 
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glBlendEquation(GL_FUNC_ADD);
+	GL(glEnable(GL_BLEND));
+	GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+	GL(glBlendEquation(GL_FUNC_ADD));
 
 	prog.enable();
 	prog.setUniform(mvpLoc, MVP);
 	arMirror.bind();
-	glDrawElements(GL_TRIANGLES, GLsizei(mirrorTess.getIndices().size()), GL_UNSIGNED_INT, (void*)0);	
+	GL(glDrawElements(GL_TRIANGLES, GLsizei(mirrorTess.getIndices().size()), GL_UNSIGNED_INT, (void*)0));
 	
-	glDisable(GL_BLEND);
+	GL(glDisable(GL_BLEND));
 }

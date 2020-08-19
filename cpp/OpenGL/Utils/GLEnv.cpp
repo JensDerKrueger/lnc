@@ -6,7 +6,6 @@
 
 typedef std::chrono::high_resolution_clock Clock;
 
-
 #include "GLEnv.h"
 
 
@@ -105,9 +104,9 @@ void GLEnv::setKeyCallback(GLFWkeyfun f) {
 }
 
 void GLEnv::setMouseCallbacks(GLFWcursorposfun p, GLFWmousebuttonfun b, GLFWscrollfun s) {
-    glfwSetCursorPosCallback(window, p);
-    glfwSetMouseButtonCallback(window, b);
-    glfwSetScrollCallback(window, s);
+  glfwSetCursorPosCallback(window, p);
+  glfwSetMouseButtonCallback(window, b);
+  glfwSetScrollCallback(window, s);
 }
 
 Dimensions GLEnv::getFramebufferSize() const {	
