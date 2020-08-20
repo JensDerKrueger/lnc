@@ -29,6 +29,15 @@ int32_t paintState = 0;
 float brushSize = 1.0f;
 Vec2 paintPosition{-1,-1};
 
+// torus for visualization
+Tesselation torus{Tesselation::genTorus({0, 0, 0}, 0.7f, 0.3f)};
+GLBuffer vbTorus{GL_ARRAY_BUFFER};
+GLBuffer nbTorus{GL_ARRAY_BUFFER};
+GLBuffer txTorus{GL_ARRAY_BUFFER};
+GLBuffer ibTorus{GL_ELEMENT_ARRAY_BUFFER};
+GLArray torusArray;
+GLProgram progTorus{GLProgram::createFromFile("visualizeVS.glsl", "visualizeFS.glsl")};
+
 
 void randomizeGrid() {
   std::vector<uint8_t> data(gridTextures[0].getSize());
@@ -95,23 +104,70 @@ void init(const size_t width, const size_t height) {
   gridTextures[0].setEmpty( width, height, 3);
   gridTextures[1].setEmpty( width, height, 3);
   Tesselation fullScreenQuad{Tesselation::genRectangle({0,0,0},2,2)};
+  fullScreenQuadArray.bind();
   vbFullScreenQuad.setData(fullScreenQuad.getVertices(),3);
   ibFullScreenQuad.setData(fullScreenQuad.getIndices());
-  fullScreenQuadArray.bind();
   fullScreenQuadArray.connectVertexAttrib(vbFullScreenQuad,progFullscreenQuad,"vPos",3);
   fullScreenQuadArray.connectIndexBuffer(ibFullScreenQuad);
-  
-  GL(glDisable(GL_DEPTH_TEST));
 }
+
+void initTorus() {
+  glEnable(GL_CULL_FACE);
+  glCullFace(GL_BACK);
+
+  glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_LESS);
+
+  torusArray.bind();
+  vbTorus.setData(torus.getVertices(), 3);
+  nbTorus.setData(torus.getVertices(), 3);
+  txTorus.setData(torus.getTexCoords(), 2);
+  ibTorus.setData(torus.getIndices());
+  torusArray.connectVertexAttrib(vbTorus, progTorus, "vPos", 3);
+  torusArray.connectVertexAttrib(nbTorus, progTorus, "vNorm", 3);
+  torusArray.connectVertexAttrib(txTorus, progTorus, "vTc", 2);
+  torusArray.connectIndexBuffer(ibTorus);
+
+  glClearDepth(1.0f);
+  glClearColor(0.1f, 0.4f, 0.2f, 1.0f);
+}
+
 
 void render() {
   Dimensions dim{gl.getFramebufferSize()};
   GL(glViewport(0, 0, dim.width, dim.height));
+  glDisable(GL_DEPTH_TEST);
   progFullscreenQuad.enable();
   progFullscreenQuad.setTexture(progFullscreenQuad.getUniformLocation("gridSampler"),gridTextures[current],0);
   fullScreenQuadArray.bind();
   GL(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*)0));
   progFullscreenQuad.unsetTexture(0);
+}
+
+void renderTorus() {
+  Dimensions dim{gl.getFramebufferSize()};
+  GL(glViewport(0, 0, dim.width, dim.height));
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glEnable(GL_DEPTH_TEST);
+
+  const float t0 = glfwGetTime()/5.0;
+  const Mat4 m{Mat4::translation({0.0f, 0.0f, 0.8f})*Mat4::rotationX(t0*157)*Mat4::translation({0.8f, 0.0f, 0.0f})*Mat4::rotationY(t0*47)};
+  const Mat4 v{Mat4::lookAt({0, 0, 5}, {0, 0, 0}, {0, 1, 0})};
+  const Mat4 p{Mat4::perspective(45, dim.aspect(), 0.0001, 100)};
+  const Mat4 mvp{m*v*p};
+
+  progTorus.enable();
+  progTorus.setUniform(progTorus.getUniformLocation("MVP"), mvp);
+  progTorus.setUniform(progTorus.getUniformLocation("M"), m);
+  progTorus.setUniform(progTorus.getUniformLocation("Mit"), Mat4::inverse(m), true);
+  progTorus.setUniform(progTorus.getUniformLocation("invV"), Mat4::inverse(m));
+  Vec3 lightPos{Mat4::rotationY(t0*55)*Vec3{0, 0, 1}};
+  progTorus.setUniform(progTorus.getUniformLocation("vLightPos"), lightPos);
+  progTorus.setTexture(progTorus.getUniformLocation("textureSampler"),gridTextures[current],0);
+  torusArray.bind();
+
+  GL(glDrawElements(GL_TRIANGLES, torus.getIndices().size(), GL_UNSIGNED_INT, (void*)0));
+  progTorus.unsetTexture(0);
 }
 
 void evolve() {
@@ -133,10 +189,11 @@ int main(int argc, char** argv) {
   gl.setKeyCallback(keyCallback);
 
   init(512,512);
+  initTorus();
     
   GLEnv::checkGLError("BeforeFirstLoop");
   do {
-    render();
+    renderTorus();
     evolve();
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
     GLEnv::checkGLError("endOfFrame");
