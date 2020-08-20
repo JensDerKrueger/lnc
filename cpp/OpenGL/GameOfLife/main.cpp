@@ -119,7 +119,6 @@ void initTorus() {
   glEnable(GL_CULL_FACE);
   glCullFace(GL_BACK);
 
-  glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LESS);
 
   torusArray.bind();
@@ -131,16 +130,12 @@ void initTorus() {
   torusArray.connectVertexAttrib(nbTorus, progTorus, "vNorm", 3);
   torusArray.connectVertexAttrib(txTorus, progTorus, "vTc", 2);
   torusArray.connectIndexBuffer(ibTorus);
-
-  glClearDepth(1.0f);
-  glClearColor(0.1f, 0.4f, 0.2f, 1.0f);
 }
 
 
 void render() {
   Dimensions dim{gl.getFramebufferSize()};
   GL(glViewport(0, 0, dim.width, dim.height));
-  glDisable(GL_DEPTH_TEST);
   progFullscreenQuad.enable();
   progFullscreenQuad.setTexture(progFullscreenQuad.getUniformLocation("gridSampler"),gridTextures[current],0);
   fullScreenQuadArray.bind();
@@ -151,6 +146,9 @@ void render() {
 void renderTorus() {
   Dimensions dim{gl.getFramebufferSize()};
   GL(glViewport(0, 0, dim.width, dim.height));
+  
+  glClearDepth(1.0f);
+  glClearColor(0.1f, 0.4f, 0.2f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glEnable(GL_DEPTH_TEST);
 
@@ -172,6 +170,7 @@ void renderTorus() {
 
   GL(glDrawElements(GL_TRIANGLES, torus.getIndices().size(), GL_UNSIGNED_INT, (void*)0));
   progTorus.unsetTexture(0);
+  glDisable(GL_DEPTH_TEST);
 }
 
 void evolve() {
