@@ -38,6 +38,7 @@ GLBuffer ibTorus{GL_ELEMENT_ARRAY_BUFFER};
 GLArray torusArray;
 GLProgram progTorus{GLProgram::createFromFile("visualizeVS.glsl", "visualizeFS.glsl")};
 
+bool drawTorus{false};
 
 void randomizeGrid() {
   std::vector<uint8_t> data(gridTextures[0].getSize());
@@ -67,6 +68,9 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
       case GLFW_KEY_C:
         clearGrid();
         break;
+      case GLFW_KEY_T:
+	drawTorus = !drawTorus;
+	break;
     }
   }
 }
@@ -193,7 +197,11 @@ int main(int argc, char** argv) {
     
   GLEnv::checkGLError("BeforeFirstLoop");
   do {
-    renderTorus();
+    if (drawTorus) {
+      renderTorus();
+    } else {
+      render();
+    }
     evolve();
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
     GLEnv::checkGLError("endOfFrame");
