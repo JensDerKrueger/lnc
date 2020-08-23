@@ -1,6 +1,8 @@
 #include <cmath>
 #include <iostream>
 
+#include "Vec2.h"
+
 constexpr float PI = 3.14159265358979323846f;
 
 #include "Tesselation.h"
@@ -318,5 +320,58 @@ Tesselation Tesselation::genBrick(const Vec3& center, const Vec3& size, const Ve
 		20,21,22,20,22,23
 	};
 	
+	return tess;
+}
+
+// Torus
+// can be moved around by center, but the normal to the torus plane is always (0, 0, 1)
+Tesselation Tesselation::genTorus(const Vec3 &center, float majorRadius, float minorRadius, uint32_t majorSteps, uint32_t minorSteps) {
+	Tesselation tess{};
+
+	for (uint32_t x = 0; x <= majorSteps; x++) {
+		const float phi = (2.0f * PI * x) / majorSteps;
+		for (uint32_t y = 0; y <= minorSteps; y++) {
+			const float theta = (2.0 * PI * y) / minorSteps;
+
+			const Vec3 vertice{(majorRadius + minorRadius*std::cos(theta))*std::cos(phi),
+					   (majorRadius + minorRadius*std::cos(theta))*std::sin(phi),
+					   minorRadius * std::sin(theta)};
+			const Vec3 normal{Vec3::normalize(vertice - Vec3{majorRadius*std::cos(phi), majorRadius*std::sin(phi), 0})};
+			// select tangent in toroidal direction
+			const Vec3 tangent{-majorRadius*std::sin(phi), majorRadius*std::cos(phi), 0};
+			const Vec2 texture{static_cast<float>(x)/static_cast<float>(majorSteps),
+					   static_cast<float>(y)/static_cast<float>(minorSteps)};
+
+
+			tess.vertices.push_back(vertice.x() + center.x());
+			tess.vertices.push_back(vertice.y() + center.y());
+			tess.vertices.push_back(vertice.z() + center.z());
+
+			tess.normals.push_back(normal.x());
+			tess.normals.push_back(normal.y());
+			tess.normals.push_back(normal.z());
+
+			tess.tangents.push_back(tangent.x());
+			tess.tangents.push_back(tangent.y());
+			tess.tangents.push_back(tangent.z());
+
+			tess.texCoords.push_back(texture.x());
+			tess.texCoords.push_back(texture.y());
+		}
+	}
+
+	for (uint32_t x = 0; x < majorSteps; x++) {
+		for (uint32_t y = 0; y < minorSteps; y++) {
+			// push 2 triangles per point
+			tess.indices.push_back((x+0)*(minorSteps+1) + (y+0));
+			tess.indices.push_back((x+1)*(minorSteps+1) + (y+0));
+			tess.indices.push_back((x+1)*(minorSteps+1) + (y+1));
+
+			tess.indices.push_back((x+0)*(minorSteps+1) + (y+0));
+			tess.indices.push_back((x+1)*(minorSteps+1) + (y+1));
+			tess.indices.push_back((x+0)*(minorSteps+1) + (y+1));
+		}
+	}
+
 	return tess;
 }
