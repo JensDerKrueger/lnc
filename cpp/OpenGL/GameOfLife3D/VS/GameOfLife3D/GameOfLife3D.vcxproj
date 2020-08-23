@@ -140,7 +140,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;glew32s.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glew32s.lib;glfw3.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)..\..\..\VS\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -165,7 +165,7 @@ XCOPY "$(ProjectDir)..\..\*.glsl" "$(ProjectDir)*.*" /Y</Command>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;glew32s.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glew32s.lib;glfw3.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)..\..\..\VS\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -178,6 +178,7 @@ XCOPY "$(ProjectDir)..\..\*.glsl" "$(ProjectDir)*.*" /Y</Command>
   <ItemGroup>
     <ClCompile Include="..\..\..\Utils\GLArray.cpp" />
     <ClCompile Include="..\..\..\Utils\GLBuffer.cpp" />
+    <ClCompile Include="..\..\..\Utils\GLDebug.cpp" />
     <ClCompile Include="..\..\..\Utils\GLDepthBuffer.cpp" />
     <ClCompile Include="..\..\..\Utils\GLEnv.cpp" />
     <ClCompile Include="..\..\..\Utils\GLFramebuffer.cpp" />
@@ -194,6 +195,7 @@ XCOPY "$(ProjectDir)..\..\*.glsl" "$(ProjectDir)*.*" /Y</Command>
   <ItemGroup>
     <ClInclude Include="..\..\..\Utils\GLArray.h" />
     <ClInclude Include="..\..\..\Utils\GLBuffer.h" />
+    <ClInclude Include="..\..\..\Utils\GLDebug.h" />
     <ClInclude Include="..\..\..\Utils\GLDepthBuffer.h" />
     <ClInclude Include="..\..\..\Utils\GLEnv.h" />
     <ClInclude Include="..\..\..\Utils\GLFramebuffer.h" />
