@@ -15,7 +15,7 @@
 
 #include <Tesselation.h>
 
-GLEnv gl{1024,1024,4,"OpenGL Game of Life 3D", true, false, 4, 1, true};
+GLEnv gl{1024,1024,1,"OpenGL Game of Life 3D", true, false, 4, 1, true};
 
 GLFramebuffer framebuffer;
 GLTexture2D frontFaceTexture{GL_NEAREST, GL_NEAREST};
