@@ -69,8 +69,8 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
         clearGrid();
         break;
       case GLFW_KEY_T:
-	drawTorus = !drawTorus;
-	break;
+  drawTorus = !drawTorus;
+  break;
     }
   }
 }
@@ -140,7 +140,7 @@ void render() {
   progFullscreenQuad.setTexture(progFullscreenQuad.getUniformLocation("gridSampler"),gridTextures[current],0);
   fullScreenQuadArray.bind();
   GL(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*)0));
-  progFullscreenQuad.unsetTexture(0);
+  progFullscreenQuad.unsetTexture2D(0);
 }
 
 void renderTorus() {
@@ -169,7 +169,7 @@ void renderTorus() {
   torusArray.bind();
 
   GL(glDrawElements(GL_TRIANGLES, torus.getIndices().size(), GL_UNSIGNED_INT, (void*)0));
-  progTorus.unsetTexture(0);
+  progTorus.unsetTexture2D(0);
   GL(glDisable(GL_DEPTH_TEST));
 }
 
@@ -183,7 +183,7 @@ void evolve() {
   fullScreenQuadArray.bind();
   GL(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*)0));
   framebuffer.unbind();
-  progEvolve.unsetTexture(0);
+  progEvolve.unsetTexture2D(0);
   current = 1-current;
 }
 
