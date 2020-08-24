@@ -140,7 +140,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;glew32s.lib;glfw3.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glew32s.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)..\..\..\VS\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -165,7 +165,7 @@ XCOPY "$(ProjectDir)..\..\*.glsl" "$(ProjectDir)*.*" /Y</Command>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;glew32s.lib;glfw3.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glew32s.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)..\..\..\VS\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -185,6 +185,7 @@ XCOPY "$(ProjectDir)..\..\*.glsl" "$(ProjectDir)*.*" /Y</Command>
     <ClCompile Include="..\..\..\Utils\GLProgram.cpp" />
     <ClCompile Include="..\..\..\Utils\GLTexture1D.cpp" />
     <ClCompile Include="..\..\..\Utils\GLTexture2D.cpp" />
+    <ClCompile Include="..\..\..\Utils\GLTexture3D.cpp" />
     <ClCompile Include="..\..\..\Utils\Mat4.cpp" />
     <ClCompile Include="..\..\..\Utils\Rand.cpp" />
     <ClCompile Include="..\..\..\Utils\Tesselation.cpp" />
@@ -202,6 +203,7 @@ XCOPY "$(ProjectDir)..\..\*.glsl" "$(ProjectDir)*.*" /Y</Command>
     <ClInclude Include="..\..\..\Utils\GLProgram.h" />
     <ClInclude Include="..\..\..\Utils\GLTexture1D.h" />
     <ClInclude Include="..\..\..\Utils\GLTexture2D.h" />
+    <ClInclude Include="..\..\..\Utils\GLTexture3D.h" />
     <ClInclude Include="..\..\..\Utils\Mat4.h" />
     <ClInclude Include="..\..\..\Utils\Rand.h" />
     <ClInclude Include="..\..\..\Utils\Tesselation.h" />
