@@ -6,6 +6,7 @@
 
 #include <GLEnv.h>
 #include <GLTexture2D.h>
+#include <GLTexture3D.h>
 #include <GLBuffer.h>
 #include <GLArray.h>
 #include <GLProgram.h>
@@ -19,6 +20,8 @@ GLEnv gl{1024,1024,4,"OpenGL Game of Life 3D", true, false, 4, 1, true};
 GLFramebuffer framebuffer;
 GLTexture2D frontFaceTexture{GL_NEAREST, GL_NEAREST};
 
+std::shared_ptr<GLTexture3D> currentGrid = std::make_shared<GLTexture3D>(GL_NEAREST, GL_NEAREST);
+std::shared_ptr<GLTexture3D> nextGrid = std::make_shared<GLTexture3D>(GL_NEAREST, GL_NEAREST);
 
 Tesselation cube{Tesselation::genBrick({0, 0, 0}, {1, 1, 1})};
 GLBuffer vbCube{GL_ARRAY_BUFFER};
@@ -38,6 +41,9 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
   }
 }
 
+static void sizeCallback(GLFWwindow* window, int width, int height) {
+  frontFaceTexture.setEmpty( width, height, 3, true);
+}
 
 void init() {
   GL(glEnable(GL_CULL_FACE));
@@ -49,11 +55,25 @@ void init() {
   cubeArray.connectVertexAttrib(vbCube, progCubeFront, "vPos", 3);
   cubeArray.connectIndexBuffer(ibCube);
 
-  // TODO: recreate on window resize
-  frontFaceTexture.setEmpty( 1024, 1024, 3);
+  Dimensions dim{gl.getFramebufferSize()};
+  sizeCallback(nullptr, dim.width, dim.height);
+
+  size_t gridSize(32);
+  std::vector<GLubyte> dummy(gridSize*gridSize*gridSize);
+  for (size_t i = 0;i<dummy.size();++i) {
+    float x = (i % gridSize) / float(gridSize);
+    float y = ((i / gridSize) % gridSize) / float(gridSize);
+    float z = (i / (gridSize*gridSize)) / float(gridSize);
+    
+    dummy[i] = (0.8660f - ((x-0.5f)*(x-0.5f) + (y-0.5f)*(y-0.5f) + (z-0.5f)*(z-0.5f)))*255;
+  }
+  
+  currentGrid->setData(dummy,gridSize,gridSize,gridSize,1);
+  //currentGrid->setEmpty(gridSize,gridSize,gridSize,1);
+  nextGrid->setEmpty(gridSize,gridSize,gridSize,1);
   
   GL(glClearDepth(1.0f));
-  GL(glClearColor(0,0,0,0));
+  GL(glClearColor(0,0,0.5,0));
   GL(glEnable(GL_DEPTH_TEST));
 }
 
@@ -62,7 +82,6 @@ void render() {
   GL(glViewport(0, 0, dim.width, dim.height));
 
   GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-
 
   const float t0 = glfwGetTime()/5.0;
   const Mat4 m{Mat4::rotationX(t0*157)*Mat4::rotationY(t0*47)};
@@ -79,20 +98,27 @@ void render() {
   GL(glDrawElements(GL_TRIANGLES, cube.getIndices().size(), GL_UNSIGNED_INT, (void*)0));
   framebuffer.unbind();
   
-  
   GL(glCullFace(GL_FRONT));
-
+  GL(glEnable(GL_BLEND));
+  GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+  GL(glBlendEquation(GL_FUNC_ADD));
+  
   progCubeBack.enable();
   progCubeBack.setTexture(progCubeBack.getUniformLocation("frontFaces"),frontFaceTexture,0);
+  progCubeBack.setTexture(progCubeBack.getUniformLocation("grid"),*currentGrid,1);
   progCubeBack.setUniform(progCubeBack.getUniformLocation("MVP"), mvp);
   GL(glDrawElements(GL_TRIANGLES, cube.getIndices().size(), GL_UNSIGNED_INT, (void*)0));
-  progCubeBack.unsetTexture(0);
+  progCubeBack.unsetTexture2D(0);
+  progCubeBack.unsetTexture3D(0);
+  
+  GL(glDisable(GL_BLEND));
 }
 
 
 int main(int argc, char** argv) {
  // gl.setMouseCallbacks(cursorPositionCallback, mouseButtonCallback, scrollCallback);
   gl.setKeyCallback(keyCallback);
+  gl.setResizeCallback(sizeCallback);
 
   init();
   GLEnv::checkGLError("BeforeFirstLoop");

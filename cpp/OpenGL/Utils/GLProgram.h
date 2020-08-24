@@ -13,6 +13,7 @@
 #include "Mat4.h"
 #include "GLTexture1D.h"
 #include "GLTexture2D.h"
+#include "GLTexture3D.h"
 
 class ProgramException : public std::exception {
 	public:
@@ -47,10 +48,13 @@ public:
   void setUniform(GLint id, const Vec2i& value) const;
 	void setUniform(GLint id, const Mat4& value, bool transpose=false) const;
 	
-	void setTexture(GLint id, const GLTexture2D& texture, GLuint unit=0) const;
   void setTexture(GLint id, const GLTexture1D& texture, GLuint unit=0) const;
+  void setTexture(GLint id, const GLTexture2D& texture, GLuint unit=0) const;
+	void setTexture(GLint id, const GLTexture3D& texture, GLuint unit=0) const;
 	
-  void unsetTexture(GLuint unit) const;
+  void unsetTexture1D(GLuint unit) const;
+  void unsetTexture2D(GLuint unit) const;
+  void unsetTexture3D(GLuint unit) const;
 
 	void enable() const;
 	void disable() const;

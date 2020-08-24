@@ -27,27 +27,28 @@ struct Dimensions {
 };
 
 class GLEnv {
-	public:
-		GLEnv(uint32_t w, uint32_t h, uint32_t s, const std::string& title, bool fpsCounter=false, bool sync=true, int major=2, int minor=1, bool core=false);
-		~GLEnv();
-		void setKeyCallback(GLFWkeyfun f);
-        void setMouseCallbacks(GLFWcursorposfun p, GLFWmousebuttonfun b, GLFWscrollfun s);
-		
-		Dimensions getFramebufferSize() const;	
-		bool shouldClose() const;
-		void endOfFrame();
-		
-		void setFPSCounter(bool fpsCounter);
-		void setSync(bool sync);
+public:
+  GLEnv(uint32_t w, uint32_t h, uint32_t s, const std::string& title, bool fpsCounter=false, bool sync=true, int major=2, int minor=1, bool core=false);
+  ~GLEnv();
+  void setKeyCallback(GLFWkeyfun f);
+  void setMouseCallbacks(GLFWcursorposfun p, GLFWmousebuttonfun b, GLFWscrollfun s);
+  void setResizeCallback(GLFWframebuffersizefun f);
+  
+  Dimensions getFramebufferSize() const;
+  bool shouldClose() const;
+  void endOfFrame();
+  
+  void setFPSCounter(bool fpsCounter);
+  void setSync(bool sync);
 
-		static void checkGLError(const std::string& id);
+  static void checkGLError(const std::string& id);
 
-	private:
-		GLFWwindow* window;
-		std::string title;
-		bool fpsCounter;
-		std::chrono::high_resolution_clock::time_point last;
-		uint64_t frameCount;
+private:
+  GLFWwindow* window;
+  std::string title;
+  bool fpsCounter;
+  std::chrono::high_resolution_clock::time_point last;
+  uint64_t frameCount;
 		
 		static void errorCallback(int error, const char* description);		
 };

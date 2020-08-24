@@ -145,21 +145,37 @@ void GLProgram::setUniform(GLint id, const Mat4& value, bool transpose) const {
 	GL(glUniformMatrix4fv(id, 1, transpose, value));
 }
 
-void GLProgram::setTexture(GLint id, const GLTexture2D& texture, GLuint unit) const {
-	GL(glActiveTexture(GL_TEXTURE0 + unit));
-	GL(glBindTexture(GL_TEXTURE_2D, texture.getId()));
-	GL(glUniform1i(id, unit));
-}
-
 void GLProgram::setTexture(GLint id, const GLTexture1D& texture, GLuint unit) const {
   GL(glActiveTexture(GL_TEXTURE0 + unit));
   GL(glBindTexture(GL_TEXTURE_1D, texture.getId()));
   GL(glUniform1i(id, unit));
 }
 
-void GLProgram::unsetTexture(GLuint unit) const {
+void GLProgram::setTexture(GLint id, const GLTexture2D& texture, GLuint unit) const {
+	GL(glActiveTexture(GL_TEXTURE0 + unit));
+	GL(glBindTexture(GL_TEXTURE_2D, texture.getId()));
+	GL(glUniform1i(id, unit));
+}
+
+void GLProgram::setTexture(GLint id, const GLTexture3D& texture, GLuint unit) const {
+  GL(glActiveTexture(GL_TEXTURE0 + unit));
+  GL(glBindTexture(GL_TEXTURE_3D, texture.getId()));
+  GL(glUniform1i(id, unit));
+}
+
+void GLProgram::unsetTexture1D(GLuint unit) const {
   GL(glActiveTexture(GL_TEXTURE0 + unit));
   GL(glBindTexture(GL_TEXTURE_1D, 0));
+}
+
+void GLProgram::unsetTexture2D(GLuint unit) const {
+  GL(glActiveTexture(GL_TEXTURE0 + unit));
+  GL(glBindTexture(GL_TEXTURE_2D, 0));
+}
+
+void GLProgram::unsetTexture3D(GLuint unit) const {
+  GL(glActiveTexture(GL_TEXTURE0 + unit));
+  GL(glBindTexture(GL_TEXTURE_3D, 0));
 }
 
 void GLProgram::checkAndThrow() {
