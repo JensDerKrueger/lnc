@@ -37,7 +37,7 @@ GLTexture2D::GLTexture2D(const GLTexture2D& other) :
   }
 }
 
-GLTexture2D& GLTexture2D::operator=(GLTexture2D other) {
+GLTexture2D& GLTexture2D::operator=(const GLTexture2D& other) {
     magFilter = other.magFilter;
     minFilter = other.minFilter;
     wrapX = other.wrapX;

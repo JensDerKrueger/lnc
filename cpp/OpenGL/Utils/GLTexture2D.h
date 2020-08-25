@@ -11,7 +11,7 @@ public:
 	~GLTexture2D();
 	
   GLTexture2D(const GLTexture2D& other);
-  GLTexture2D& operator=(GLTexture2D other);
+  GLTexture2D& operator=(const GLTexture2D& other);
     
 	const GLint getId() const;
   void clear();
