@@ -31,11 +31,48 @@ GLProgram progCubeFront{GLProgram::createFromFile("cubeVS.glsl", "frontFS.glsl")
 GLProgram progCubeBack{GLProgram::createFromFile("cubeVS.glsl", "backFS.glsl")};
 
 
+GLBuffer vbEvolve{GL_ARRAY_BUFFER};
+GLBuffer ibEvolve{GL_ELEMENT_ARRAY_BUFFER};
+GLArray evolveArray;
+GLProgram progEvolve{GLProgram::createFromFiles(std::vector<std::string>{"evolveVS.glsl"},
+                                                std::vector<std::string>{"evolveFS.glsl", "evolutionRule.glsl"} )};
+
+
+void genRandomGrid() {
+  size_t gridSize = currentGrid->getDepth();
+  std::vector<GLubyte> dummy(gridSize*gridSize*gridSize);
+  for (size_t i = 0;i<dummy.size();++i) {
+    float x = (i % gridSize) / float(gridSize);
+    float y = ((i / gridSize) % gridSize) / float(gridSize);
+    float z = (i / (gridSize*gridSize)) / float(gridSize);
+    
+    float dist = ((x-0.5f)*(x-0.5f) + (y-0.5f)*(y-0.5f) + (z-0.5f)*(z-0.5f));
+    
+    dummy[i] = dist < 0.01 && Rand::rand01() >= 0.985 ? 255 : 0; ;
+  }
+  currentGrid->setData(dummy);
+}
+
+
+void loadShader() {
+  progEvolve = GLProgram::createFromFiles(std::vector<std::string>{"evolveVS.glsl"},
+                                          std::vector<std::string>{"evolveFS.glsl", "evolutionRule.glsl"});
+
+  evolveArray.bind();
+  evolveArray.connectVertexAttrib(vbEvolve,progEvolve,"vPos",3);
+}
+
 static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
   if (action == GLFW_PRESS) {
     switch (key) {
       case GLFW_KEY_ESCAPE:
         glfwSetWindowShouldClose(window, GL_TRUE);
+        break;
+      case GLFW_KEY_R:
+        genRandomGrid();
+        break;
+      case GLFW_KEY_S:
+        loadShader();
         break;
     }
   }
@@ -47,7 +84,7 @@ static void sizeCallback(GLFWwindow* window, int width, int height) {
 
 void init() {
   GL(glEnable(GL_CULL_FACE));
-  GL(glDepthFunc(GL_LESS));
+  GL(glDisable(GL_DEPTH_TEST));
 
   cubeArray.bind();
   vbCube.setData(cube.getVertices(), 3);
@@ -57,33 +94,35 @@ void init() {
 
   Dimensions dim{gl.getFramebufferSize()};
   sizeCallback(nullptr, dim.width, dim.height);
-
-  size_t gridSize(32);
-  std::vector<GLubyte> dummy(gridSize*gridSize*gridSize);
-  for (size_t i = 0;i<dummy.size();++i) {
-    float x = (i % gridSize) / float(gridSize);
-    float y = ((i / gridSize) % gridSize) / float(gridSize);
-    float z = (i / (gridSize*gridSize)) / float(gridSize);
-    
-    dummy[i] = (0.8660f - ((x-0.5f)*(x-0.5f) + (y-0.5f)*(y-0.5f) + (z-0.5f)*(z-0.5f)))*255;
-  }
   
-  currentGrid->setData(dummy,gridSize,gridSize,gridSize,1);
-  //currentGrid->setEmpty(gridSize,gridSize,gridSize,1);
+  size_t gridSize{128};
+  currentGrid->setEmpty(gridSize,gridSize,gridSize,1);
   nextGrid->setEmpty(gridSize,gridSize,gridSize,1);
+  
+  genRandomGrid();
   
   GL(glClearDepth(1.0f));
   GL(glClearColor(0,0,0.5,0));
   GL(glEnable(GL_DEPTH_TEST));
+  
+  Tesselation fullScreenQuad{Tesselation::genRectangle({0,0,0},2,2)};
+  evolveArray.bind();
+  vbEvolve.setData(fullScreenQuad.getVertices(),3);
+  ibEvolve.setData(fullScreenQuad.getIndices());
+  evolveArray.connectVertexAttrib(vbEvolve,progEvolve,"vPos",3);
+  evolveArray.connectIndexBuffer(ibEvolve);
 }
 
 void render() {
+  
+  GL(glEnable(GL_CULL_FACE));
+  
   Dimensions dim{gl.getFramebufferSize()};
   GL(glViewport(0, 0, dim.width, dim.height));
 
   GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
-  const float t0 = glfwGetTime()/5.0;
+  const float t0 = glfwGetTime()/500.0;
   const Mat4 m{Mat4::rotationX(t0*157)*Mat4::rotationY(t0*47)};
   const Mat4 v{Mat4::lookAt({0, 0, 3}, {0, 0, 0}, {0, 1, 0})};
   const Mat4 p{Mat4::perspective(45, dim.aspect(), 0.0001, 100)};
@@ -96,7 +135,7 @@ void render() {
   progCubeFront.setUniform(progCubeFront.getUniformLocation("MVP"), mvp);
   cubeArray.bind();
   GL(glDrawElements(GL_TRIANGLES, cube.getIndices().size(), GL_UNSIGNED_INT, (void*)0));
-  framebuffer.unbind();
+  framebuffer.unbind2D();
   
   GL(glCullFace(GL_FRONT));
   GL(glEnable(GL_BLEND));
@@ -114,6 +153,23 @@ void render() {
   GL(glDisable(GL_BLEND));
 }
 
+void evolve() {
+  GL(glDisable(GL_CULL_FACE));
+  
+  progEvolve.enable();
+  progEvolve.setTexture(progEvolve.getUniformLocation("gridSampler"),*currentGrid,0);
+  evolveArray.bind();
+  
+  for (size_t i = 0;i<currentGrid->getDepth();++i) {
+    progEvolve.setUniform(progEvolve.getUniformLocation("gridPos"),float(i)/currentGrid->getDepth());
+    framebuffer.bind( *nextGrid, i );
+    GL(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*)0));
+  }
+  framebuffer.unbind3D();
+  progEvolve.unsetTexture3D(0);
+  
+  std::swap(currentGrid, nextGrid);
+}
 
 int main(int argc, char** argv) {
  // gl.setMouseCallbacks(cursorPositionCallback, mouseButtonCallback, scrollCallback);
@@ -124,7 +180,9 @@ int main(int argc, char** argv) {
   GLEnv::checkGLError("BeforeFirstLoop");
   do {
     render();
+    evolve();
     GLEnv::checkGLError("endOfFrame");
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
     gl.endOfFrame();
   } while (!gl.shouldClose());
   
