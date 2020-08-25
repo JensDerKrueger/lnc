@@ -30,13 +30,16 @@ public:
 	~GLProgram();
 	
 	static GLProgram createFromFiles(const std::vector<std::string>& vs, const std::vector<std::string>& fs,
-                                   const std::vector<std::string>& gs);
+                                   const std::vector<std::string>& gs = std::vector<std::string>());
 	static GLProgram createFromStrings(const std::vector<std::string>& vs, const std::vector<std::string>& fs,
-                                     const std::vector<std::string>& gs);
+                                     const std::vector<std::string>& gs = std::vector<std::string>());
 
 	static GLProgram createFromFile(const std::string& vs, const std::string& fs, const std::string& gs="");
 	static GLProgram createFromString(const std::string& vs, const std::string& fs, const std::string& gs="");
 	
+  GLProgram(const GLProgram& other);
+  GLProgram& operator=(const GLProgram& other);
+  
 	GLint getAttributeLocation(const std::string& id) const;
 	GLint getUniformLocation(const std::string& id) const;
 			
@@ -64,8 +67,11 @@ private:
 	GLuint glFragmentShader;
 	GLuint glGeometryShader;
 	GLuint glProgram;
+  
+  std::vector<std::string> vertexShaderStrings;
+  std::vector<std::string> fragmentShaderStrings;
+  std::vector<std::string> geometryShaderStrings;
 	
-	GLProgram(const GLchar** vertexShaderTexts, GLsizei vsCount, const GLchar** framentShaderTexts, GLsizei fsCount, const GLchar** geometryShaderTexts=nullptr, GLsizei gsCount=0);
 	static std::string loadFile(const std::string& filename);
 	
 	static GLuint createShader(GLenum type, const GLchar** src, GLsizei count);
@@ -73,4 +79,7 @@ private:
 	static void checkAndThrowShader(GLuint shader);
 	static void checkAndThrowProgram(GLuint program);
 
+  GLProgram(std::vector<std::string> vertexShaderStrings, std::vector<std::string> fragmentShaderStrings, std::vector<std::string> geometryShaderStrings);
+
+  void programFromVectors(std::vector<std::string> vs, std::vector<std::string> fs, std::vector<std::string> gs);
 };
