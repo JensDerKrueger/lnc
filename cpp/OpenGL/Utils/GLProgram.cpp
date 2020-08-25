@@ -3,6 +3,21 @@
 #include <iostream>
 
 #include "GLProgram.h"
+#include "GLDebug.h"
+
+GLProgram::GLProgram(const GLProgram& other) :
+  GLProgram(other.vertexShaderStrings, other.fragmentShaderStrings, other.geometryShaderStrings)
+{
+}
+
+GLProgram& GLProgram::operator=(const GLProgram& other) {
+  GL(glDeleteShader(glVertexShader));
+  GL(glDeleteShader(glFragmentShader));
+  GL(glDeleteShader(glGeometryShader));
+  GL(glDeleteProgram(glProgram));
+  programFromVectors(other.vertexShaderStrings, other.fragmentShaderStrings, other.geometryShaderStrings);
+  return *this;
+}
 
 GLuint GLProgram::createShader(GLenum type, const GLchar** src, GLsizei count) {
 	if (count==0) return 0;
@@ -12,28 +27,22 @@ GLuint GLProgram::createShader(GLenum type, const GLchar** src, GLsizei count) {
 	return s;
 }
 
-GLProgram::GLProgram(const GLchar** vertexShaderTexts, GLsizei vsCount, const GLchar** framentShaderTexts, GLsizei fsCount, const GLchar** geometryShaderTexts, GLsizei gsCount) :
-	glVertexShader(0),
-	glFragmentShader(0),
-	glGeometryShader(0),
-	glProgram(0)
+GLProgram::GLProgram(std::vector<std::string> vertexShaderStrings, std::vector<std::string> fragmentShaderStrings, std::vector<std::string> geometryShaderStrings):
+  glVertexShader(0),
+  glFragmentShader(0),
+  glGeometryShader(0),
+  glProgram(0),
+  vertexShaderStrings(vertexShaderStrings),
+  fragmentShaderStrings(fragmentShaderStrings),
+  geometryShaderStrings(geometryShaderStrings)
 {
-	
-	glVertexShader = createShader(GL_VERTEX_SHADER, vertexShaderTexts, vsCount);
-	glFragmentShader = createShader(GL_FRAGMENT_SHADER, framentShaderTexts, fsCount);
-	glGeometryShader = createShader(GL_GEOMETRY_SHADER, geometryShaderTexts, gsCount);
-	
-
-	glProgram = glCreateProgram(); checkAndThrow();
-	if (glVertexShader) glAttachShader(glProgram, glVertexShader); checkAndThrow();
-	if (glFragmentShader) glAttachShader(glProgram, glFragmentShader); checkAndThrow();
-	if (glGeometryShader) glAttachShader(glProgram, glGeometryShader); checkAndThrow();
-	glLinkProgram(glProgram); checkAndThrowProgram(glProgram);
+  programFromVectors(vertexShaderStrings, fragmentShaderStrings, geometryShaderStrings);
 }
 
 GLProgram::~GLProgram() {
 	GL(glDeleteShader(glVertexShader));
 	GL(glDeleteShader(glFragmentShader));
+  GL(glDeleteShader(glGeometryShader));
 	GL(glDeleteProgram(glProgram));
 }
 
@@ -55,21 +64,7 @@ GLProgram GLProgram::createFromFiles(const std::vector<std::string>& vs, const s
 }
 
 GLProgram GLProgram::createFromStrings(const std::vector<std::string>& vs, const std::vector<std::string>& fs, const std::vector<std::string>& gs) {
-	std::vector<const GLchar*> vertexShaderTexts;
-	for (const std::string& s : vs)
-		vertexShaderTexts.push_back(s.c_str());
-
-	std::vector<const GLchar*> framentShaderTexts;
-	for (const std::string& s : fs)
-		framentShaderTexts.push_back(s.c_str());
-		
-	std::vector<const GLchar*> geometryShaderTexts;
-	for (const std::string& s : gs)
-		if (!s.empty())
-			geometryShaderTexts.push_back(s.c_str());
-
-	
-	return {vertexShaderTexts.data(), GLsizei(vertexShaderTexts.size()), framentShaderTexts.data(), GLsizei(framentShaderTexts.size()), geometryShaderTexts.data(), GLsizei(geometryShaderTexts.size())};
+	return {vs,fs,gs};
 }
 
 GLProgram GLProgram::createFromFile(const std::string& vs, const std::string& fs, const std::string& gs) {
@@ -182,7 +177,7 @@ void GLProgram::checkAndThrow() {
 	GLenum e = glGetError();
 	if (e != GL_NO_ERROR) {
 		std::stringstream s;
-		s << "An openGL error occured:" << e;
+		s << "An openGL error occured:" << errorString(e);
 		throw ProgramException{s.str()};
 	}	
 }
@@ -213,4 +208,33 @@ void GLProgram::checkAndThrowProgram(GLuint program) {
 		std::string str{log.data()};
 		throw ProgramException{str};
 	}		
+}
+
+void GLProgram::programFromVectors(std::vector<std::string> vs, std::vector<std::string> fs, std::vector<std::string> gs) {
+  vertexShaderStrings   = vs;
+  fragmentShaderStrings = fs;
+  geometryShaderStrings = gs;
+
+  std::vector<const GLchar*> vertexShaderTexts;
+  for (const std::string& s : vertexShaderStrings)
+   vertexShaderTexts.push_back(s.c_str());
+
+  std::vector<const GLchar*> fragmentShaderTexts;
+  for (const std::string& s : fragmentShaderStrings)
+   fragmentShaderTexts.push_back(s.c_str());
+   
+  std::vector<const GLchar*> geometryShaderTexts;
+  for (const std::string& s : geometryShaderStrings)
+   if (!s.empty())
+     geometryShaderTexts.push_back(s.c_str());
+
+  glVertexShader = createShader(GL_VERTEX_SHADER, vertexShaderTexts.data(), GLsizei(vertexShaderTexts.size()));
+  glFragmentShader = createShader(GL_FRAGMENT_SHADER, fragmentShaderTexts.data(), GLsizei(fragmentShaderTexts.size()));
+  glGeometryShader = createShader(GL_GEOMETRY_SHADER, geometryShaderTexts.data(), GLsizei(geometryShaderTexts.size()));
+
+  glProgram = glCreateProgram(); checkAndThrow();
+  if (glVertexShader) {glAttachShader(glProgram, glVertexShader); checkAndThrow();}
+  if (glFragmentShader) {glAttachShader(glProgram, glFragmentShader); checkAndThrow();}
+  if (glGeometryShader) {glAttachShader(glProgram, glGeometryShader); checkAndThrow();}
+  glLinkProgram(glProgram); checkAndThrowProgram(glProgram);
 }

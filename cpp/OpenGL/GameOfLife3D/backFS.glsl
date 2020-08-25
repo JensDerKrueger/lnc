@@ -8,12 +8,12 @@ uniform sampler3D grid;
 
 uniform float stepCount = 100;
 
-vec4 transferFunction(float v) {
-  return v < 0.5 ? vec4(0.0) : vec4(v);
+vec4 transferFunction(float v, vec3 pos) {
+  return v < 0.5 ? vec4(0.0) : vec4(pos,1.0);
 }
 
-vec4 blend(float currentScalar, vec4 last) {
-  vec4 current = transferFunction(currentScalar);
+vec4 blend(float currentScalar, vec4 last, vec3 pos) {
+  vec4 current = transferFunction(currentScalar, pos);
   last.rgb = last.rgb + (1.0-last.a) * current.a * current.rgb;
   last.a = last.a + (1.0-last.a) * current.a;
   return last;
@@ -32,7 +32,7 @@ void main() {
   fc = vec4(0.0);
   while (inBounds(currentPoint)) {
     float gridValue = texture(grid, currentPoint).r;
-    fc = blend(gridValue, fc);
+    fc = blend(gridValue, fc, currentPoint);
     currentPoint+=direction;
     if (fc.a > 0.95) break;
   }
