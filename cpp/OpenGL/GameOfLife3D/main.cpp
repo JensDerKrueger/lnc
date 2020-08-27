@@ -114,22 +114,18 @@ void init() {
 }
 
 void render() {
-  
   GL(glEnable(GL_CULL_FACE));
-  
   Dimensions dim{gl.getFramebufferSize()};
   GL(glViewport(0, 0, dim.width, dim.height));
-
   GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
-  const float t0 = glfwGetTime()/500.0;
+  const float t0 = glfwGetTime()/5.0;
   const Mat4 m{Mat4::rotationX(t0*157)*Mat4::rotationY(t0*47)};
   const Mat4 v{Mat4::lookAt({0, 0, 3}, {0, 0, 0}, {0, 1, 0})};
   const Mat4 p{Mat4::perspective(45, dim.aspect(), 0.0001, 100)};
   const Mat4 mvp{m*v*p};
 
   GL(glCullFace(GL_BACK));
-  
   framebuffer.bind( frontFaceTexture );
   progCubeFront.enable();
   progCubeFront.setUniform(progCubeFront.getUniformLocation("MVP"), mvp);
@@ -155,11 +151,9 @@ void render() {
 
 void evolve() {
   GL(glDisable(GL_CULL_FACE));
-  
   progEvolve.enable();
   progEvolve.setTexture(progEvolve.getUniformLocation("gridSampler"),*currentGrid,0);
   evolveArray.bind();
-  
   for (size_t i = 0;i<currentGrid->getDepth();++i) {
     progEvolve.setUniform(progEvolve.getUniformLocation("gridPos"),float(i)/currentGrid->getDepth());
     framebuffer.bind( *nextGrid, i );
@@ -167,7 +161,6 @@ void evolve() {
   }
   framebuffer.unbind3D();
   progEvolve.unsetTexture3D(0);
-  
   std::swap(currentGrid, nextGrid);
 }
 
@@ -182,7 +175,7 @@ int main(int argc, char** argv) {
     render();
     evolve();
     GLEnv::checkGLError("endOfFrame");
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+//    std::this_thread::sleep_for(std::chrono::milliseconds(100));
     gl.endOfFrame();
   } while (!gl.shouldClose());
   
