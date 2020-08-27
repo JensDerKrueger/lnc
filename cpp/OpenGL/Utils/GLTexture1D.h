@@ -23,10 +23,10 @@ private:
 	GLenum format;
 	GLenum type;
 
-    GLint magFilter;
-    GLint minFilter;
-    GLint wrapX;
-    std::vector<GLubyte> data;
-    uint32_t size;
-    uint32_t componentCount;
+  GLint magFilter;
+  GLint minFilter;
+  GLint wrapX;
+  std::vector<GLubyte> data;
+  uint32_t size;
+  uint32_t componentCount;
 };
