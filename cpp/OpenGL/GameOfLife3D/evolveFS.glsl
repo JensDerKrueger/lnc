@@ -6,7 +6,7 @@ uniform float gridPos;
 in vec2 tc;
 out float fc;
 
-float evolutionRule(float center, float n);
+int evolutionRule(int center, int n);
 
 void main() {
   vec3 texSize = vec3(textureSize(gridSampler,0));
@@ -32,5 +32,5 @@ void main() {
 
   float gridValue = texture(gridSampler, vec3(tc.x, tc.y, gridPos)).r;
 
-  fc = evolutionRule(gridValue, n);
+  fc = float(evolutionRule(int(gridValue), int(n)));
 }
