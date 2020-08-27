@@ -48,7 +48,7 @@ void genRandomGrid() {
     
     float dist = ((x-0.5f)*(x-0.5f) + (y-0.5f)*(y-0.5f) + (z-0.5f)*(z-0.5f));
     
-    dummy[i] = dist < 0.01 && Rand::rand01() >= 0.985 ? 255 : 0; ;
+    dummy[i] = dist < 0.01 && Rand::rand01() >= 0.9 ? 255 : 0; ;
   }
   currentGrid->setData(dummy);
 }
