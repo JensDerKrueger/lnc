@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include "ArcBall.h"
 
 
@@ -18,7 +16,7 @@ void ArcBall::click(const Vec2ui& position) {
   startDrag = mapToSphere(position);
 }
 
-Mat4 ArcBall::drag(const Vec2ui& position) {
+Quaternion ArcBall::drag(const Vec2ui& position) {
   // Map the point to the sphere
   const Vec3 current = mapToSphere(position);
 
@@ -27,9 +25,9 @@ Mat4 ArcBall::drag(const Vec2ui& position) {
   const float dot = Vec3::dot(current, startDrag);
 
   if (cross.length() > 1.0e-5f)
-    return Quaternion(cross, dot).computeRotation();
+    return {cross, dot};
   else
-    return Quaternion(0,0,0,0).computeRotation();
+    return {0.0f,0.0f,0.0f,0.0f};
 }
 
 Vec3 ArcBall::mapToSphere(const Vec2ui& position) const {
@@ -41,11 +39,6 @@ Vec3 ArcBall::mapToSphere(const Vec2ui& position) const {
 
   // compute the length of the vector to the point from the center
   const float length = normPosition.length();
-  
-  std::cout << "position " << position << std::endl;
-  std::cout << "winDim " << winDim << std::endl;
-  std::cout << "normPosition " << normPosition << std::endl;
-  std::cout << "length " << length << std::endl;
 
   // if the point is mapped outside of the sphere... (length > radius)
   if (length > radius) {
@@ -56,9 +49,6 @@ Vec3 ArcBall::mapToSphere(const Vec2ui& position) const {
     return {normPosition.x() * norm, normPosition.y() * norm,0.0f};
   } else {   // rlse it's inside
     // return a vector to a point mapped inside the sphere
-    std::cout << "xxxx" << std::endl;
-    
-    
     return {normPosition.x(), normPosition.y(), length-radius};
   }
 }

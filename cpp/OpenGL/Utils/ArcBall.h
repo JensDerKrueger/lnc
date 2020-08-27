@@ -12,7 +12,7 @@ public:
   void setWindowSize(const Vec2ui& winDim);
   void setRadius(float radius);
   void click(const Vec2ui& position);
-  Mat4 drag(const Vec2ui& vPosition);
+  Quaternion drag(const Vec2ui& vPosition);
    
 private:
   Vec3    startDrag;
