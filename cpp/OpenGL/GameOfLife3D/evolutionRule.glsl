@@ -1,3 +1,14 @@
+float evolutionRule0(float center, float n) {
+  float result;
+  if (center == 1) {
+    result = n == 2.0 || n == 3.0 ? 1.0 : 0.0;
+  } else {
+    result = n == 3.0 ? 1.0 : 0.0;
+  }
+  return result;
+}
+
+
 //no blob, weak population, small stabil configs, rare glider (seed-density: 10%)
 float evolutionRule(float center, float n) {
     float result;
