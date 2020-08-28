@@ -130,9 +130,9 @@ Mat4 Mat4::rotationX(float degree) {
 	const float sinAngle = sinf(angle);
 
 	return {1, 0, 0, 0,
-			0, cosAngle, sinAngle, 0,
-			0, -sinAngle, cosAngle, 0,
-			0, 0, 0, 1};
+          0, cosAngle, sinAngle, 0,
+          0, -sinAngle, cosAngle, 0,
+          0, 0, 0, 1};
 }
 
 

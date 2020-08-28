@@ -69,8 +69,8 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
         clearGrid();
         break;
       case GLFW_KEY_T:
-  drawTorus = !drawTorus;
-  break;
+        drawTorus = !drawTorus;
+        break;
     }
   }
 }

@@ -1,24 +1,29 @@
-//no blob, weak population, small stabil configs, rare glider (seed-density: 10%)
-float evolutionRule(float center, float n) {
-    float result;
-    const float deathRanges[6] = float[6](    	0.0, 3.0, 
-					    	                    6.0, 9.0, 
-                                        	    14.0, 27.0
-                                        );
+int evolutionRule0(int center, int n) {
+  int result;
+  if (center == 1) {
+    result = n == 2 || n == 3 ? 1 : 0;
+  } else {
+    result = n == 3 ? 1 : 0;
+  }
+  return result;
+}
 
-    const float birthRanges[4] = float[4](	5.0, 5.0,
-						                    12.0, 13.0
-					                    );
+
+//no blob, weak population, small stabil configs, rare glider (seed-density: 10%)
+int evolutionRule1(int center, int n) {
+    int result;
+    const int deathRanges[6] = int[6]( 0, 3, 6, 9, 10, 27 );
+    const int birthRanges[4] = int[4]( 5, 5, 12, 13 );
 
     result = center;    
-    if (center == 1.0) {
+    if (center == 1) {
         for (int i = 0; i < deathRanges.length(); i += 2) {
-            if (n >= deathRanges[i] && n <= deathRanges[i + 1]) result = 0.0;
+            if (n >= deathRanges[i] && n <= deathRanges[i + 1]) result = 0;
         }
     }
     else {
         for (int i = 0; i < birthRanges.length(); i += 2) {
-            if (n >= birthRanges[i] && n <= birthRanges[i + 1]) result = 1.0;
+            if (n >= birthRanges[i] && n <= birthRanges[i + 1]) result = 1;
         }
     }
     return result;
@@ -26,24 +31,23 @@ float evolutionRule(float center, float n) {
 
 
 //rare blob, small stabil configs (seed-density: 10%)
-float evolutionRule2(float center, float n) {
-    float result;
-    const float deathRanges[6] = float[6](    	0.0, 4.0, 
-					    	                    6.0, 6.0, 
-                                        	    10.0, 27.0
-                                         );
+int evolutionRule(int center, int n) {
+    int result;
+    const int deathRanges[6] = int[6](0, 4,
+                                      6, 6,
+                                      10, 27);
 
-    const float birthRanges[2] = float[2](	    5.0, 5.0);
+    const int birthRanges[4] = int[4](5, 5, 12, 13);
 
     result = center;    
-    if (center == 1.0) {
+    if (center == 1) {
         for (int i = 0; i < deathRanges.length(); i += 2) {
-            if (n >= deathRanges[i] && n <= deathRanges[i + 1]) result = 0.0;
+            if (n >= deathRanges[i] && n <= deathRanges[i + 1]) result = 0;
         }
     }
     else {
         for (int i = 0; i < birthRanges.length(); i += 2) {
-            if (n >= birthRanges[i] && n <= birthRanges[i + 1]) result = 1.0;
+            if (n >= birthRanges[i] && n <= birthRanges[i + 1]) result = 1;
         }
     }
     return result;
