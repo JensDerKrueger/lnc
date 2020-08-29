@@ -42,7 +42,19 @@ public:
   
 	GLint getAttributeLocation(const std::string& id) const;
 	GLint getUniformLocation(const std::string& id) const;
-			
+
+  void setUniform(const std::string& id, float value) const;
+  void setUniform(const std::string& id, const Vec2& value) const;
+  void setUniform(const std::string& id, const Vec3& value) const;
+  void setUniform(const std::string& id, const Vec4& value) const;
+  void setUniform(const std::string& id, int value) const;
+  void setUniform(const std::string& id, const Vec2i& value) const;
+  void setUniform(const std::string& id, const Mat4& value, bool transpose=false) const;
+  
+  void setTexture(const std::string& id, const GLTexture1D& texture, GLuint unit=0) const;
+  void setTexture(const std::string& id, const GLTexture2D& texture, GLuint unit=0) const;
+  void setTexture(const std::string& id, const GLTexture3D& texture, GLuint unit=0) const;
+
 	void setUniform(GLint id, float value) const;
   void setUniform(GLint id, const Vec2& value) const;
 	void setUniform(GLint id, const Vec3& value) const;

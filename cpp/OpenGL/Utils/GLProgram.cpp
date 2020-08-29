@@ -238,3 +238,46 @@ void GLProgram::programFromVectors(std::vector<std::string> vs, std::vector<std:
   if (glGeometryShader) {glAttachShader(glProgram, glGeometryShader); checkAndThrow();}
   glLinkProgram(glProgram); checkAndThrowProgram(glProgram);
 }
+
+
+void GLProgram::setUniform(const std::string& id, float value) const {
+  setUniform(getUniformLocation(id), value);
+}
+
+void GLProgram::setUniform(const std::string& id, const Vec2& value) const {
+  setUniform(getUniformLocation(id), value);
+}
+
+void GLProgram::setUniform(const std::string& id, const Vec3& value) const {
+  setUniform(getUniformLocation(id), value);
+}
+
+void GLProgram::setUniform(const std::string& id, const Vec4& value) const {
+  setUniform(getUniformLocation(id), value);
+}
+
+void GLProgram::setUniform(const std::string& id, int value) const {
+  setUniform(getUniformLocation(id), value);
+}
+
+void GLProgram::setUniform(const std::string& id, const Vec2i& value) const {
+  setUniform(getUniformLocation(id), value);
+}
+
+void GLProgram::setUniform(const std::string& id, const Mat4& value, bool transpose) const {
+  setUniform(getUniformLocation(id), value, transpose);
+}
+
+
+void GLProgram::setTexture(const std::string& id, const GLTexture1D& texture, GLuint unit) const {
+  setTexture(getUniformLocation(id), texture, unit);
+}
+
+void GLProgram::setTexture(const std::string& id, const GLTexture2D& texture, GLuint unit) const {
+  setTexture(getUniformLocation(id), texture, unit);
+}
+
+void GLProgram::setTexture(const std::string& id, const GLTexture3D& texture, GLuint unit) const {
+  setTexture(getUniformLocation(id), texture, unit);
+}
+

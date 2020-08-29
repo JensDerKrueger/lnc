@@ -195,13 +195,13 @@ void render() {
   GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
   progCubeBack.enable();
-  progCubeBack.setUniform(progCubeBack.getUniformLocation("cursorPos"),Vec2{xPositionMouse,yPositionMouse});
-  progCubeBack.setUniform(progCubeBack.getUniformLocation("brushSize"),brushSize);
-  progCubeBack.setTexture(progCubeBack.getUniformLocation("frontFaces"),frontFaceTexture,0);
-  progCubeBack.setTexture(progCubeBack.getUniformLocation("backFaces"),backFaceTexture,1);
-  progCubeBack.setUniform(progCubeBack.getUniformLocation("cursorDepth"),cursorDepth);
-  progCubeBack.setTexture(progCubeBack.getUniformLocation("grid"),*currentGrid,2);
-  progCubeBack.setUniform(progCubeBack.getUniformLocation("MVP"), mvp);
+  progCubeBack.setUniform("cursorPos",Vec2{xPositionMouse,yPositionMouse});
+  progCubeBack.setUniform("brushSize",brushSize);
+  progCubeBack.setTexture("frontFaces",frontFaceTexture,0);
+  progCubeBack.setTexture("backFaces",backFaceTexture,1);
+  progCubeBack.setUniform("cursorDepth",cursorDepth);
+  progCubeBack.setTexture("grid",*currentGrid,2);
+  progCubeBack.setUniform("MVP", mvp);
   GL(glDrawElements(GL_TRIANGLES, cube.getIndices().size(), GL_UNSIGNED_INT, (void*)0));
   progCubeBack.unsetTexture2D(0);
   progCubeBack.unsetTexture2D(1);
@@ -213,16 +213,16 @@ void render() {
 void evolve() {
   GL(glDisable(GL_CULL_FACE));
   progEvolve.enable();
-  progEvolve.setTexture(progEvolve.getUniformLocation("gridSampler"),*currentGrid,2);
-  progEvolve.setUniform(progEvolve.getUniformLocation("cursorPos"),Vec2{xPositionMouse,yPositionMouse});
-  progEvolve.setUniform(progEvolve.getUniformLocation("brushSize"),brushSize);
-  progEvolve.setUniform(progEvolve.getUniformLocation("cursorDepth"),cursorDepth);
-  progEvolve.setTexture(progEvolve.getUniformLocation("frontFaces"),frontFaceTexture,0);
-  progEvolve.setTexture(progEvolve.getUniformLocation("backFaces"),backFaceTexture,1);
+  progEvolve.setTexture("gridSampler",*currentGrid,2);
+  progEvolve.setUniform("cursorPos",Vec2{xPositionMouse,yPositionMouse});
+  progEvolve.setUniform("brushSize",brushSize);
+  progEvolve.setUniform("cursorDepth",cursorDepth);
+  progEvolve.setTexture("frontFaces",frontFaceTexture,0);
+  progEvolve.setTexture("backFaces",backFaceTexture,1);
 
   evolveArray.bind();
   for (size_t i = 0;i<currentGrid->getDepth();++i) {
-    progEvolve.setUniform(progEvolve.getUniformLocation("gridPos"),float(i)/currentGrid->getDepth());
+    progEvolve.setUniform("gridPos",float(i)/currentGrid->getDepth());
     framebuffer.bind( *nextGrid, i );
     GL(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*)0));
   }
