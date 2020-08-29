@@ -4,6 +4,7 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <algorithm>
 #include <string_view>
 
 #include "bmp.h"
@@ -11,10 +12,25 @@
 namespace BMP {
 
     bool save(const std::string& filename, const Image& source) {
-        return save(filename, source.width, source.height, source.data, source.componentCount);
+        return save(filename, source.width, source.height,
+                    source.data, source.componentCount);
     }
 
-    bool save(const std::string& filename, uint32_t w, uint32_t h, const std::vector<uint8_t>& data, uint8_t iComponentCount) {
+
+    uint8_t floatToByte(float x) {  return uint8_t(x*255); }
+
+    bool save(const std::string& filename, uint32_t w, uint32_t h,
+              const std::vector<float>& data, uint8_t iComponentCount) {
+      
+      std::vector<uint8_t> byteData(data.size());
+      std::transform(data.begin(), data.end(), byteData.begin(), floatToByte);
+      
+      return save(filename, w, h, byteData, iComponentCount);
+    }
+
+
+    bool save(const std::string& filename, uint32_t w, uint32_t h,
+              const std::vector<uint8_t>& data, uint8_t iComponentCount) {
 		
 		std::ofstream outStream(filename.c_str(), std::ofstream::binary);
 		if (!outStream.is_open()) return false;
