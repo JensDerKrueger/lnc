@@ -12,6 +12,7 @@
 #include <GLProgram.h>
 #include <GLFramebuffer.h>
 #include <Rand.h>
+#include <bmp.h>
 
 #include <Tesselation.h>
 
@@ -101,8 +102,9 @@ static void sizeCallback(GLFWwindow* window, int width, int height) {
 }
 
 static void cursorPositionCallback(GLFWwindow* window, double xPosition, double yPosition) {
-  xPositionMouse = xPosition;
-  yPositionMouse = yPosition;
+  Dimensions dim{gl.getWindowSize()};
+  xPositionMouse = std::clamp(xPosition/dim.width,  0.0, 1.0);
+  yPositionMouse = 1.0-std::clamp(yPosition/dim.height, 0.0, 1.0);
 }
 
 static void mouseButtonCallback(GLFWwindow* window, int button, int state, int mods) {
@@ -160,11 +162,9 @@ void init() {
 }
 
 void render() {
-  
-  GL(glEnable(GL_CULL_FACE));
   Dimensions dim{gl.getFramebufferSize()};
-  GL(glViewport(0, 0, dim.width, dim.height));
-  GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+
+  GL(glEnable(GL_CULL_FACE));
 
   if (paintState == 1) {
     glfwSetTime(stopT);
@@ -178,6 +178,9 @@ void render() {
 
   GL(glCullFace(GL_BACK));
   framebuffer.bind( frontFaceTexture );
+  GL(glClearColor(0,0,0.0,0));
+  GL(glClear(GL_COLOR_BUFFER_BIT));
+
   progCubeFront.enable();
   progCubeFront.setUniform(progCubeFront.getUniformLocation("MVP"), mvp);
   cubeArray.bind();
@@ -185,18 +188,24 @@ void render() {
   framebuffer.unbind2D();
   
   const std::vector<GLfloat> frontFaceData = frontFaceTexture.getDataFloat();
-  const size_t dataPos = 3*(size_t(xPositionMouse) + frontFaceTexture.getWidth()*(frontFaceTexture.getHeight()-size_t(yPositionMouse)));
-
+  const size_t pixelX = size_t(xPositionMouse*frontFaceTexture.getWidth());
+  const size_t pixelY = size_t(yPositionMouse*frontFaceTexture.getHeight());
+  
+  const size_t dataPos = 3*(pixelX+pixelY*frontFaceTexture.getWidth());
   
   Vec3 entryPos = (dataPos < frontFaceData.size()-2) ?
   Vec3{frontFaceData[dataPos+0], frontFaceData[dataPos+1], frontFaceData[dataPos+2]} :
-  Vec3{-2.0f,-2.0f,-2.0f};
-    
+  Vec3{-20.0f,-20.0f,-20.0f};
+  
   GL(glCullFace(GL_FRONT));
   GL(glEnable(GL_BLEND));
   GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
   GL(glBlendEquation(GL_FUNC_ADD));
   
+  GL(glViewport(0, 0, dim.width, dim.height));
+  GL(glClearColor(0,0,0.5,0));
+  GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+
   progCubeBack.enable();
   progCubeBack.setUniform(progCubeBack.getUniformLocation("cursorPos"),entryPos);
   progCubeBack.setTexture(progCubeBack.getUniformLocation("frontFaces"),frontFaceTexture,0);
