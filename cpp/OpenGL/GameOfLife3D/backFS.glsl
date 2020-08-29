@@ -3,17 +3,17 @@
 in vec3 tc;
 out vec4 fc;
 
-uniform vec3 cursorPos;
+uniform vec2 cursorPos;
 uniform float cursorDepth;
 uniform float brushSize = 0.1;
 
 uniform sampler2D frontFaces;
+uniform sampler2D backFaces;
 uniform sampler3D grid;
 
 uniform float stepCount = 100;
 
 vec3 cursorVolumePos;
-
 
 vec4 transferFunction(float v, vec3 pos) {
   if (length(cursorVolumePos-pos) < brushSize)
@@ -39,7 +39,9 @@ void main() {
   vec3 exitPoint = tc;
   vec3 direction = normalize(exitPoint-currentPoint)/stepCount;
   
-  cursorVolumePos = cursorPos + cursorDepth * (exitPoint-currentPoint);
+  vec3 cursorEntry = texture(frontFaces, cursorPos).xyz;
+  vec3 cursorExit  = texture(backFaces, cursorPos).xyz;
+  cursorVolumePos  = cursorEntry + cursorDepth * (cursorExit-cursorEntry);
   
   fc = vec4(0.0);
   while (inBounds(currentPoint)) {

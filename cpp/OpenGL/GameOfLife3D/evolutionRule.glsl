@@ -1,4 +1,4 @@
-int evolutionRule0(int center, int n) {
+int evolutionRule(int center, int n) {
   int result;
   if (center == 1) {
     result = n == 2 || n == 3 ? 1 : 0;
@@ -31,7 +31,7 @@ int evolutionRule1(int center, int n) {
 
 
 //rare blob, small stabil configs (seed-density: 10%)
-int evolutionRule(int center, int n) {
+int evolutionRule2(int center, int n) {
     int result;
     const int deathRanges[6] = int[6](0, 4,
                                       6, 6,

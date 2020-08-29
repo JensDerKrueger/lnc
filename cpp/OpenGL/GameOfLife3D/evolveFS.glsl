@@ -3,12 +3,23 @@
 uniform sampler3D gridSampler;
 uniform float gridPos;
 
+uniform sampler2D frontFaces;
+uniform sampler2D backFaces;
+uniform vec2 cursorPos;
+uniform float cursorDepth;
+uniform float brushSize = 0.1;
+
 in vec2 tc;
 out float fc;
 
 int evolutionRule(int center, int n);
 
 void main() {
+  vec3 cursorEntry = texture(frontFaces, cursorPos).xyz;
+  vec3 cursorExit  = texture(backFaces, cursorPos).xyz;
+  vec3 cursorVolumePos  = cursorEntry + cursorDepth * (cursorExit-cursorEntry);
+
+  
   vec3 texSize = vec3(textureSize(gridSampler,0));
   
   vec2 pixOffset[9] = vec2[]( vec2(-1,-1), vec2(0,-1), vec2(1,-1),
