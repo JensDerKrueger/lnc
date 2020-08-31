@@ -13,17 +13,22 @@ uniform sampler3D grid;
 
 uniform float stepCount = 100;
 
-vec3 cursorVolumePos;
+vec3 computeCursorVolumePos() {
+  vec3 cursorEntry = texture(frontFaces, cursorPos).xyz;
+  vec3 cursorExit  = texture(backFaces, cursorPos).xyz;
+  return cursorEntry + cursorDepth * (cursorExit-cursorEntry);
+}
 
-vec4 transferFunction(float v, vec3 pos) {
-  if (cursorVolumePos != vec3(0,0,0) && length(cursorVolumePos-pos) < brushSize)
-    return vec4(1.0);
+
+vec4 transferFunction(float v, vec3 pos, vec3 cursorPos) {
+  if (cursorPos != vec3(0,0,0) && length(cursorPos-pos) < brushSize)
+    return vec4(1.0,1.0,1.0,0.2);
   else
     return v < 0.5 ? vec4(0.0) : vec4(pos,1.0);
 }
 
-vec4 blend(float currentScalar, vec4 last, vec3 pos) {
-  vec4 current = transferFunction(currentScalar, pos);
+vec4 blend(float currentScalar, vec4 last, vec3 pos, vec3 cursorPos) {
+  vec4 current = transferFunction(currentScalar, pos, cursorPos);
   last.rgb = last.rgb + (1.0-last.a) * current.a * current.rgb;
   last.a = last.a + (1.0-last.a) * current.a;
   return last;
@@ -39,14 +44,13 @@ void main() {
   vec3 exitPoint = tc;
   vec3 direction = normalize(exitPoint-currentPoint)/stepCount;
   
-  vec3 cursorEntry = texture(frontFaces, cursorPos).xyz;
-  vec3 cursorExit  = texture(backFaces, cursorPos).xyz;
-  cursorVolumePos  = cursorEntry + cursorDepth * (cursorExit-cursorEntry);
+  vec3 cursorVolumePos  = computeCursorVolumePos();
+  
   
   fc = vec4(0.0);
   while (inBounds(currentPoint)) {
     float gridValue = texture(grid, currentPoint).r;
-    fc = blend(gridValue, fc, currentPoint);
+    fc = blend(gridValue, fc, currentPoint, cursorVolumePos);
     currentPoint+=direction;
     if (fc.a > 0.95) break;
   }
