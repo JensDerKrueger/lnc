@@ -16,7 +16,7 @@ uniform float stepCount = 100;
 vec3 cursorVolumePos;
 
 vec4 transferFunction(float v, vec3 pos) {
-  if (length(cursorVolumePos-pos) < brushSize)
+  if (cursorVolumePos != vec3(0,0,0) && length(cursorVolumePos-pos) < brushSize)
     return vec4(1.0);
   else
     return v < 0.5 ? vec4(0.0) : vec4(pos,1.0);
