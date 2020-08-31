@@ -54,9 +54,7 @@ void genRandomGrid() {
     float x = (i % gridSize) / float(gridSize);
     float y = ((i / gridSize) % gridSize) / float(gridSize);
     float z = (i / (gridSize*gridSize)) / float(gridSize);
-    
     float dist = ((x-0.5f)*(x-0.5f) + (y-0.5f)*(y-0.5f) + (z-0.5f)*(z-0.5f));
-    
     dummy[i] = dist < 0.1 && Rand::rand01() >= 0.9 ? 255 : 0;
   }
   currentGrid->setData(dummy);
@@ -118,7 +116,6 @@ static void mouseButtonCallback(GLFWwindow* window, int button, int state, int m
 
 static void scrollCallback(GLFWwindow* window, double x_offset, double y_offset) {
   float delta = float(y_offset)/frontFaceTexture.getWidth();
-  
   if (brushSizeMode)
     brushSize = brushSize + delta;
   else
@@ -160,9 +157,7 @@ void render() {
   Dimensions dim{gl.getFramebufferSize()};
   GL(glEnable(GL_CULL_FACE));
 
-  if (paintState == 1) {
-    glfwSetTime(stopT);
-  }
+  if (paintState == 1) glfwSetTime(stopT);
   const float animationTime = glfwGetTime();
   
   const Mat4 m{Mat4::rotationX(animationTime*157)*Mat4::rotationY(animationTime*47)};
