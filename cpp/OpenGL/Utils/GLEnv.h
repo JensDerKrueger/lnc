@@ -35,6 +35,7 @@ public:
   void setResizeCallback(GLFWframebuffersizefun f);
   
   Dimensions getFramebufferSize() const;
+  Dimensions getWindowSize() const;
   bool shouldClose() const;
   void endOfFrame();
   

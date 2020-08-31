@@ -12,6 +12,7 @@
 #include <GLProgram.h>
 #include <GLFramebuffer.h>
 #include <Rand.h>
+#include <bmp.h>
 
 #include <Tesselation.h>
 
@@ -19,7 +20,9 @@ GLEnv gl{1024,1024,1,"OpenGL Game of Life 3D", true, false, 4, 1, true};
 
 GLFramebuffer framebuffer;
 GLTexture2D frontFaceTexture{GL_NEAREST, GL_NEAREST};
+GLTexture2D backFaceTexture{GL_NEAREST, GL_NEAREST};
 
+GLTexture3D noiseVolume{GL_NEAREST, GL_NEAREST};
 std::shared_ptr<GLTexture3D> currentGrid = std::make_shared<GLTexture3D>(GL_NEAREST, GL_NEAREST);
 std::shared_ptr<GLTexture3D> nextGrid = std::make_shared<GLTexture3D>(GL_NEAREST, GL_NEAREST);
 
@@ -30,42 +33,49 @@ GLArray cubeArray;
 GLProgram progCubeFront{GLProgram::createFromFile("cubeVS.glsl", "frontFS.glsl")};
 GLProgram progCubeBack{GLProgram::createFromFile("cubeVS.glsl", "backFS.glsl")};
 
-
 GLBuffer vbEvolve{GL_ARRAY_BUFFER};
 GLBuffer ibEvolve{GL_ELEMENT_ARRAY_BUFFER};
 GLArray evolveArray;
 GLProgram progEvolve{GLProgram::createFromFiles(std::vector<std::string>{"evolveVS.glsl"},
                                                 std::vector<std::string>{"evolveFS.glsl", "evolutionRule.glsl"} )};
-
+bool autoRotation = false;
 float cursorDepth = 0;
 float brushSize = 0.1;
-bool brushSizeMode = false;
+float brushDensity = 0.2;
+Mat4 evolutionParameters{
+  0, 3, 6, 9, 10, 27, 100, 100,
+  5, 5, 12, 13, 100, 100, 100, 100,
+};
+enum BRUSH_MODE {
+  BRUSH_MODE_DEPTH,
+  BRUSH_MODE_SIZE,
+  BRUSH_MODE_DENSITY,
+};
+
+BRUSH_MODE brushMode = BRUSH_MODE_DEPTH;
 uint8_t paintState = 0;
 float stopT = 0;
-double xPositionMouse;
-double yPositionMouse;
+float xPositionMouse;
+float yPositionMouse;
 
-
-void genRandomGrid() {
+void clearGrid() {
   size_t gridSize = currentGrid->getDepth();
-  std::vector<GLubyte> dummy(gridSize*gridSize*gridSize);
-  for (size_t i = 0;i<dummy.size();++i) {
-    float x = (i % gridSize) / float(gridSize);
-    float y = ((i / gridSize) % gridSize) / float(gridSize);
-    float z = (i / (gridSize*gridSize)) / float(gridSize);
-    
-    float dist = ((x-0.5f)*(x-0.5f) + (y-0.5f)*(y-0.5f) + (z-0.5f)*(z-0.5f));
-    
-    dummy[i] = dist < 0.1 && Rand::rand01() >= 0.9 ? 255 : 0;
+  currentGrid->setEmpty(gridSize,gridSize,gridSize,1);
+}
+
+void genRandomData() {
+  size_t gridSize = currentGrid->getDepth();
+  std::vector<GLubyte> noiseData(gridSize*gridSize*gridSize);
+  for (size_t i = 0;i<noiseData.size();++i) {
+    noiseData[i] = GLubyte(Rand::rand01()*256);
   }
-  currentGrid->setData(dummy);
+  noiseVolume.setData(noiseData, gridSize,gridSize,gridSize,1);
 }
 
 
 void loadShader() {
   progEvolve = GLProgram::createFromFiles(std::vector<std::string>{"evolveVS.glsl"},
                                           std::vector<std::string>{"evolveFS.glsl", "evolutionRule.glsl"});
-
   evolveArray.bind();
   evolveArray.connectVertexAttrib(vbEvolve,progEvolve,"vPos",3);
 }
@@ -76,21 +86,29 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
       case GLFW_KEY_ESCAPE:
         glfwSetWindowShouldClose(window, GL_TRUE);
         break;
-      case GLFW_KEY_R:
-        genRandomGrid();
-        break;
       case GLFW_KEY_S:
         loadShader();
         break;
+      case GLFW_KEY_C:
+        clearGrid();
+        break;
+      case GLFW_KEY_R:
+        autoRotation = !autoRotation;
+        if (!autoRotation) stopT = glfwGetTime();
+        break;
       case GLFW_KEY_LEFT_SHIFT:
-        brushSizeMode = true;
+        brushMode = BRUSH_MODE_SIZE;
+        break;
+      case GLFW_KEY_LEFT_ALT:
+        brushMode = BRUSH_MODE_DENSITY;
         break;
     }
   }
   if (action == GLFW_RELEASE) {
     switch (key) {
       case GLFW_KEY_LEFT_SHIFT:
-        brushSizeMode = false;
+      case GLFW_KEY_LEFT_ALT:
+        brushMode = BRUSH_MODE_DEPTH;
         break;
     }
   }
@@ -98,34 +116,37 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
 
 static void sizeCallback(GLFWwindow* window, int width, int height) {
   frontFaceTexture.setEmpty( width, height, 3, true);
+  backFaceTexture.setEmpty( width, height, 3, true);
 }
 
 static void cursorPositionCallback(GLFWwindow* window, double xPosition, double yPosition) {
-  xPositionMouse = xPosition;
-  yPositionMouse = yPosition;
+  Dimensions dim{gl.getWindowSize()};
+  xPositionMouse = float(std::clamp(xPosition/dim.width,  0.0, 1.0));
+  yPositionMouse = float(1.0-std::clamp(yPosition/dim.height, 0.0, 1.0));
 }
 
 static void mouseButtonCallback(GLFWwindow* window, int button, int state, int mods) {
   if (state == GLFW_PRESS) {
     paintState = 1;
-    stopT = glfwGetTime();
   } else if (state == GLFW_RELEASE) {
      paintState = 0;
   }
 }
 
 static void scrollCallback(GLFWwindow* window, double x_offset, double y_offset) {
-  
   float delta = float(y_offset)/frontFaceTexture.getWidth();
-  
-  if (brushSizeMode)
-    brushSize = brushSize + delta;
-  else
-    cursorDepth = std::clamp(cursorDepth + delta, 0.0f, 1.0f);
-
-  progCubeBack.enable();
-  progCubeBack.setUniform(progCubeBack.getUniformLocation("cursorDepth"),cursorDepth);
-  progCubeBack.setUniform(progCubeBack.getUniformLocation("brushSize"),brushSize);
+  switch (brushMode) {
+    case BRUSH_MODE_DEPTH:
+      cursorDepth = std::clamp(cursorDepth + delta, 0.0f, 1.0f);
+      break;
+    case BRUSH_MODE_SIZE:
+      brushSize = brushSize + delta;
+      break;
+    case BRUSH_MODE_DENSITY:
+      brushDensity = brushDensity + delta;
+      break;
+  }
+    
 }
 
 void init() {
@@ -144,8 +165,8 @@ void init() {
   size_t gridSize{128};
   currentGrid->setEmpty(gridSize,gridSize,gridSize,1);
   nextGrid->setEmpty(gridSize,gridSize,gridSize,1);
-  
-  genRandomGrid();
+    
+  genRandomData();
   
   GL(glClearDepth(1.0f));
   GL(glClearColor(0,0,0.5,0));
@@ -160,15 +181,10 @@ void init() {
 }
 
 void render() {
-  
-  GL(glEnable(GL_CULL_FACE));
   Dimensions dim{gl.getFramebufferSize()};
-  GL(glViewport(0, 0, dim.width, dim.height));
-  GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+  GL(glEnable(GL_CULL_FACE));
 
-  if (paintState == 1) {
-    glfwSetTime(stopT);
-  }
+  if (!autoRotation) glfwSetTime(stopT);
   const float animationTime = glfwGetTime();
   
   const Mat4 m{Mat4::rotationX(animationTime*157)*Mat4::rotationY(animationTime*47)};
@@ -178,33 +194,43 @@ void render() {
 
   GL(glCullFace(GL_BACK));
   framebuffer.bind( frontFaceTexture );
+  GL(glClearColor(0,0,0.0,0));
+  GL(glClear(GL_COLOR_BUFFER_BIT));
+
   progCubeFront.enable();
   progCubeFront.setUniform(progCubeFront.getUniformLocation("MVP"), mvp);
   cubeArray.bind();
   GL(glDrawElements(GL_TRIANGLES, cube.getIndices().size(), GL_UNSIGNED_INT, (void*)0));
-  framebuffer.unbind2D();
   
-  const std::vector<GLfloat> frontFaceData = frontFaceTexture.getDataFloat();
-  const size_t dataPos = 3*(size_t(xPositionMouse) + frontFaceTexture.getWidth()*(frontFaceTexture.getHeight()-size_t(yPositionMouse)));
-
-  
-  Vec3 entryPos = (dataPos < frontFaceData.size()-2) ?
-  Vec3{frontFaceData[dataPos+0], frontFaceData[dataPos+1], frontFaceData[dataPos+2]} :
-  Vec3{-2.0f,-2.0f,-2.0f};
-    
   GL(glCullFace(GL_FRONT));
+  framebuffer.bind( backFaceTexture );
+  GL(glClear(GL_COLOR_BUFFER_BIT));
+  GL(glDrawElements(GL_TRIANGLES, cube.getIndices().size(), GL_UNSIGNED_INT, (void*)0));
+  framebuffer.unbind2D();
+
   GL(glEnable(GL_BLEND));
   GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
   GL(glBlendEquation(GL_FUNC_ADD));
   
+  GL(glViewport(0, 0, dim.width, dim.height));
+  GL(glClearColor(0,0,0.5,0));
+  GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+
   progCubeBack.enable();
-  progCubeBack.setUniform(progCubeBack.getUniformLocation("cursorPos"),entryPos);
-  progCubeBack.setTexture(progCubeBack.getUniformLocation("frontFaces"),frontFaceTexture,0);
-  progCubeBack.setTexture(progCubeBack.getUniformLocation("grid"),*currentGrid,1);
-  progCubeBack.setUniform(progCubeBack.getUniformLocation("MVP"), mvp);
+  progCubeBack.setUniform("cursorPos",Vec2{xPositionMouse,yPositionMouse});
+  progCubeBack.setUniform("brushSize",brushSize);
+  progCubeBack.setTexture("noise",noiseVolume,3);
+  progCubeBack.setUniform("brushDensity",brushDensity);
+  progCubeBack.setTexture("frontFaces",frontFaceTexture,0);
+  progCubeBack.setTexture("backFaces",backFaceTexture,1);
+  progCubeBack.setUniform("cursorDepth",cursorDepth);
+  progCubeBack.setTexture("grid",*currentGrid,2);
+  progCubeBack.setUniform("MVP", mvp);
   GL(glDrawElements(GL_TRIANGLES, cube.getIndices().size(), GL_UNSIGNED_INT, (void*)0));
   progCubeBack.unsetTexture2D(0);
-  progCubeBack.unsetTexture3D(0);
+  progCubeBack.unsetTexture2D(1);
+  progCubeBack.unsetTexture3D(2);
+  progCubeBack.unsetTexture3D(3);
   
   GL(glDisable(GL_BLEND));
 }
@@ -212,15 +238,28 @@ void render() {
 void evolve() {
   GL(glDisable(GL_CULL_FACE));
   progEvolve.enable();
-  progEvolve.setTexture(progEvolve.getUniformLocation("gridSampler"),*currentGrid,0);
+  progEvolve.setTexture("gridSampler",*currentGrid,2);
+  progEvolve.setTexture("noise",noiseVolume,3);
+  progEvolve.setUniform("cursorPos",Vec2{xPositionMouse,yPositionMouse});
+  progEvolve.setUniform("brushSize",brushSize);
+  progEvolve.setUniform("brushDensity",brushDensity);
+  progEvolve.setUniform("paintState",paintState);
+  progEvolve.setUniform("cursorDepth",cursorDepth);
+  progEvolve.setUniform("evolutionParameters",evolutionParameters);
+  progEvolve.setTexture("frontFaces",frontFaceTexture,0);
+  progEvolve.setTexture("backFaces",backFaceTexture,1);
+
   evolveArray.bind();
   for (size_t i = 0;i<currentGrid->getDepth();++i) {
-    progEvolve.setUniform(progEvolve.getUniformLocation("gridPos"),float(i)/currentGrid->getDepth());
+    progEvolve.setUniform("gridPos",float(i)/currentGrid->getDepth());
     framebuffer.bind( *nextGrid, i );
     GL(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*)0));
   }
   framebuffer.unbind3D();
-  progEvolve.unsetTexture3D(0);
+  progEvolve.unsetTexture2D(0);
+  progEvolve.unsetTexture2D(1);
+  progEvolve.unsetTexture3D(2);
+  progEvolve.unsetTexture3D(3);
   std::swap(currentGrid, nextGrid);
 }
 

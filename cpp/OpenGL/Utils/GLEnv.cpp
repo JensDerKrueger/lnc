@@ -120,6 +120,13 @@ Dimensions GLEnv::getFramebufferSize() const {
   return Dimensions{uint32_t(width), uint32_t(height)};
 }
 
+
+Dimensions GLEnv::getWindowSize() const {
+  int width, height;
+  glfwGetWindowSize(window, &width, &height);
+  return Dimensions{uint32_t(width), uint32_t(height)};
+}
+
 bool GLEnv::shouldClose() const {
   return glfwWindowShouldClose(window);
 }
