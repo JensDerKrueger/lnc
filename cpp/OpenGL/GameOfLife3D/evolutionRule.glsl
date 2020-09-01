@@ -1,29 +1,15 @@
-uniform mat4 evolutionParameters;
+uniform int deathMap;
+uniform int birthMap;
 
 int evolutionRule(int center, int n) {
-    int result;
-    int deathRanges[8] = int[8]( int(evolutionParameters[0][0]), int(evolutionParameters[0][1]),
-                                 int(evolutionParameters[0][2]), int(evolutionParameters[0][3]),
-                                 int(evolutionParameters[1][0]), int(evolutionParameters[1][1]),
-                                 int(evolutionParameters[1][2]), int(evolutionParameters[1][3]));
-    int birthRanges[8] = int[8]( int(evolutionParameters[2][0]), int(evolutionParameters[2][1]),
-                                 int(evolutionParameters[2][2]), int(evolutionParameters[2][3]),
-                                 int(evolutionParameters[3][0]), int(evolutionParameters[3][1]),
-                                 int(evolutionParameters[3][2]), int(evolutionParameters[3][3]));
-
-    result = center;
-    if (center == 1) {
-        for (int i = 0; i < deathRanges.length(); i += 2) {
-            if (n >= deathRanges[i] && n <= deathRanges[i + 1]) result = 0;
-        }
-    } else {
-        for (int i = 0; i < birthRanges.length(); i += 2) {
-            if (n >= birthRanges[i] && n <= birthRanges[i + 1]) result = 1;
-        }
-    }
-    return result;
+  int result = center;
+  if (center == 1) {
+    if ( ((1<<n) & deathMap) > 0) result = 0;
+  } else {
+    if ( ((1<<n) & birthMap) > 0) result = 1;
+  }
+  return result;
 }
-
 
 
 int evolutionRule0(int center, int n) {
