@@ -38,18 +38,22 @@ GLBuffer ibEvolve{GL_ELEMENT_ARRAY_BUFFER};
 GLArray evolveArray;
 GLProgram progEvolve{GLProgram::createFromFiles(std::vector<std::string>{"evolveVS.glsl"},
                                                 std::vector<std::string>{"evolveFS.glsl", "evolutionRule.glsl"} )};
+
 bool autoRotation = false;
 float cursorDepth = 0;
 float brushSize = 0.1;
 float brushDensity = 0.2;
-Mat4 evolutionParameters{
-  0, 3, 6, 9, 10, 27, 100, 100,
-  5, 5, 12, 13, 100, 100, 100, 100,
-};
 
+int vec2bitmap(const std::vector<uint8_t>& bitData) {
+  int result = 0;
+  for (uint8_t bit : bitData) {
+    result += 1<<bit;
+  }
+  return result;
+}
 
-int deathMap = 0;
-int birthMap = 0;
+int deathMap = vec2bitmap(std::vector<uint8_t>{0,1,2,3,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27});
+int birthMap = vec2bitmap(std::vector<uint8_t>{5,12,13});
 
 enum BRUSH_MODE {
   BRUSH_MODE_DEPTH,
@@ -94,6 +98,15 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
       case GLFW_KEY_S:
         loadShader();
         break;
+      case GLFW_KEY_SPACE: {
+        std::random_device rd{};
+        std::mt19937 rng(rd());
+        deathMap = std::uniform_int_distribution<int>(0, (1<<28)-1)(rng);
+        birthMap = std::uniform_int_distribution<int>(0, (1<<28)-1)(rng);
+        clearGrid();
+        std::cout << deathMap << " " << birthMap << std::endl;
+        break;
+      }
       case GLFW_KEY_C:
         clearGrid();
         break;
@@ -269,18 +282,8 @@ void evolve() {
   std::swap(currentGrid, nextGrid);
 }
 
-int vec2bitmap(const std::vector<uint8_t>& bitData) {
-  int result = 0;
-  for (uint8_t bit : bitData) {
-    result += 1<<bit;
-  }
-  return result;
-}
 
 int main(int argc, char** argv) {
-  deathMap = vec2bitmap(std::vector<uint8_t>{0,1,2,3,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27});
-  birthMap = vec2bitmap(std::vector<uint8_t>{5,12,13});
-  
   gl.setMouseCallbacks(cursorPositionCallback, mouseButtonCallback, scrollCallback);
   gl.setKeyCallback(keyCallback);
   gl.setResizeCallback(sizeCallback);
