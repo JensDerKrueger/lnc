@@ -46,6 +46,11 @@ Mat4 evolutionParameters{
   0, 3, 6, 9, 10, 27, 100, 100,
   5, 5, 12, 13, 100, 100, 100, 100,
 };
+
+
+int deathMap = 0;
+int birthMap = 0;
+
 enum BRUSH_MODE {
   BRUSH_MODE_DEPTH,
   BRUSH_MODE_SIZE,
@@ -245,7 +250,8 @@ void evolve() {
   progEvolve.setUniform("brushDensity",brushDensity);
   progEvolve.setUniform("paintState",paintState);
   progEvolve.setUniform("cursorDepth",cursorDepth);
-  progEvolve.setUniform("evolutionParameters",evolutionParameters);
+  progEvolve.setUniform("deathMap",deathMap);
+  progEvolve.setUniform("birthMap",birthMap);
   progEvolve.setTexture("frontFaces",frontFaceTexture,0);
   progEvolve.setTexture("backFaces",backFaceTexture,1);
 
@@ -263,7 +269,18 @@ void evolve() {
   std::swap(currentGrid, nextGrid);
 }
 
+int vec2bitmap(const std::vector<uint8_t>& bitData) {
+  int result = 0;
+  for (uint8_t bit : bitData) {
+    result += 1<<bit;
+  }
+  return result;
+}
+
 int main(int argc, char** argv) {
+  deathMap = vec2bitmap(std::vector<uint8_t>{0,1,2,3,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27});
+  birthMap = vec2bitmap(std::vector<uint8_t>{5,12,13});
+  
   gl.setMouseCallbacks(cursorPositionCallback, mouseButtonCallback, scrollCallback);
   gl.setKeyCallback(keyCallback);
   gl.setResizeCallback(sizeCallback);
