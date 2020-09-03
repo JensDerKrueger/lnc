@@ -326,6 +326,12 @@ Mat4 Mat4::perspective(float fovy, float aspect, float znear, float zfar) {
 			0.0f, 0.0f, -2.0f*(zfar*znear)/(zfar-znear), 0.0f};
 }
 
+Mat4 Mat4::perspective(float left, float right, float bottom, float top, float znear, float zfar) {
+  return {2.0f*znear/(right-left), 0.0f, 0.0f, 0.0f,
+          0.0f,2.0f*znear/(top-bottom), 0.0f, 0.0f,
+          (right+left)/(right-left), (top+bottom)/(top-bottom), -(zfar+znear)/(zfar-znear), -1.0f,
+          0.0f, 0.0f, -2.0f*(zfar*znear)/(zfar-znear), 0.0f};
+}
 
 Mat4 Mat4::ortho(float left, float right, float bottom, float top, float znear, float zfar ) {
 	return {2.0f/(right-left), 0.0f, 0.0f, 0.0f,
@@ -360,4 +366,32 @@ Mat4 Mat4::mirror(const Vec3& p, const Vec3& n) {
 			-2*n.x()*n.y(),1-2*n.y()*n.y(),-2*n.z()*n.y(),0,
 			-2*n.x()*n.z(),-2*n.y()*n.z(),1-2*n.z()*n.z(),0,
 			2*k*n.x(),2*k*n.y(),2*k*n.z(),1};
+}
+
+
+StereoMatrices Mat4::stereoLookAtAndProjection(const Vec3& eye, const Vec3& at, const Vec3& up,
+                                               float fovy, float aspect, float znear, float zfar,
+                                               float focalLength, float eyeDist) {
+  
+  StereoMatrices result;
+    
+  float wd2     = znear * tanf(Mat4::deg2Rad(fovy)/2.0f);
+  float nfdl    = znear / focalLength;
+  float shift   =   eyeDist * nfdl;
+  float top     =   wd2;
+  float bottom  = - wd2;
+
+  // projection matrices
+  float left    = - aspect * wd2 - shift;
+  float right   =   aspect * wd2 - shift;
+  result.leftProj = Mat4::perspective(left, right, bottom, top, znear, zfar);
+  left    = - aspect * wd2 + shift;
+  right   =   aspect * wd2 + shift;
+  result.rightProj = Mat4::perspective(left, right, bottom, top, znear, znear);
+  
+  // view matrices
+  result.leftView = Mat4::lookAt(eye, at, up) * Mat4::translation(-eyeDist/2, 0.0f, 0.0f);
+  result.rightView = Mat4::lookAt(eye, at, up) * Mat4::translation(eyeDist/2, 0.0f, 0.0f);
+  
+  return result;
 }
