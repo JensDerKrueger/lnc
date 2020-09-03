@@ -57,7 +57,7 @@ public:
   static Mat4 lookAt(const Vec3& vEye, const Vec3& vAt, const Vec3& vUp);
   static Mat4 mirror(const Vec3& p, const Vec3& n);
   
-  StereoMatrices stereoLookAtAndProjection(const Vec3& vEye, const Vec3& vAt, const Vec3& vUp,
+  static StereoMatrices stereoLookAtAndProjection(const Vec3& vEye, const Vec3& vAt, const Vec3& vUp,
                                            float fovy, float aspect, float znear, float zfar, float focalLength,
                                            float eyeDist);
 
