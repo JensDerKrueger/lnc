@@ -378,12 +378,12 @@ StereoMatrices Mat4::stereoLookAtAndProjection(const Vec3& eye, const Vec3& at, 
   float wd2     = znear * tanf(Mat4::deg2Rad(fovy)/2.0f);
   float nfdl    = znear / focalLength;
   float shift   =   eyeDist * nfdl;
-  float left    = - aspect * wd2 - shift;
-  float right   =   aspect * wd2 - shift;
   float top     =   wd2;
   float bottom  = - wd2;
 
   // projection matrices
+  float left    = - aspect * wd2 - shift;
+  float right   =   aspect * wd2 - shift;
   result.leftProj = Mat4::perspective(left, right, bottom, top, znear, zfar);
   left    = - aspect * wd2 + shift;
   right   =   aspect * wd2 + shift;
