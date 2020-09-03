@@ -22,6 +22,10 @@ GLFramebuffer framebuffer;
 GLTexture2D frontFaceTexture{GL_NEAREST, GL_NEAREST};
 GLTexture2D backFaceTexture{GL_NEAREST, GL_NEAREST};
 
+GLTexture2D leftEyeTexture{GL_NEAREST, GL_NEAREST};
+GLTexture2D rightEyeTexture{GL_NEAREST, GL_NEAREST};
+
+
 GLTexture3D noiseVolume{GL_NEAREST, GL_NEAREST};
 std::shared_ptr<GLTexture3D> currentGrid = std::make_shared<GLTexture3D>(GL_NEAREST, GL_NEAREST);
 std::shared_ptr<GLTexture3D> nextGrid = std::make_shared<GLTexture3D>(GL_NEAREST, GL_NEAREST);
@@ -39,6 +43,10 @@ GLArray evolveArray;
 GLProgram progEvolve{GLProgram::createFromFiles(std::vector<std::string>{"evolveVS.glsl"},
                                                 std::vector<std::string>{"evolveFS.glsl", "evolutionRule.glsl"} )};
 
+GLArray stereoArray;
+GLProgram progStereo{GLProgram::createFromFile("stereoVS.glsl", "stereoFS.glsl")};
+
+
 bool autoRotation = false;
 float cursorDepth = 0;
 float brushSize = 0.1;
@@ -52,7 +60,7 @@ int vec2bitmap(const std::vector<uint8_t>& bitData) {
   return result;
 }
 
-int deathMap = vec2bitmap(std::vector<uint8_t>{0,1,2,3,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27});
+int deathMap = vec2bitmap(std::vector<uint8_t>{0,1,2,3,6,7,8,9});
 int birthMap = vec2bitmap(std::vector<uint8_t>{5,12,13});
 
 enum BRUSH_MODE {
@@ -135,6 +143,8 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
 static void sizeCallback(GLFWwindow* window, int width, int height) {
   frontFaceTexture.setEmpty( width, height, 3, true);
   backFaceTexture.setEmpty( width, height, 3, true);
+  leftEyeTexture.setEmpty( width, height, 4, false);
+  rightEyeTexture.setEmpty( width, height, 4, false);
 }
 
 static void cursorPositionCallback(GLFWwindow* window, double xPosition, double yPosition) {
@@ -196,20 +206,13 @@ void init() {
   ibEvolve.setData(fullScreenQuad.getIndices());
   evolveArray.connectVertexAttrib(vbEvolve,progEvolve,"vPos",3);
   evolveArray.connectIndexBuffer(ibEvolve);
+  
+  stereoArray.bind();
+  stereoArray.connectVertexAttrib(vbEvolve,progStereo,"vPos",3);
+  stereoArray.connectIndexBuffer(ibEvolve);
 }
 
-void render() {
-  Dimensions dim{gl.getFramebufferSize()};
-  GL(glEnable(GL_CULL_FACE));
-
-  if (!autoRotation) glfwSetTime(stopT);
-  const float animationTime = glfwGetTime();
-  
-  const Mat4 m{Mat4::rotationX(animationTime*157)*Mat4::rotationY(animationTime*47)};
-  const Mat4 v{Mat4::lookAt({0, 0, 3}, {0, 0, 0}, {0, 1, 0})};
-  const Mat4 p{Mat4::perspective(45, dim.aspect(), 0.0001, 100)};
-  const Mat4 mvp{m*v*p};
-
+void renderCube(const Dimensions& dim, const Mat4& mvp, GLTexture2D& eyeTexture) {
   GL(glCullFace(GL_BACK));
   framebuffer.bind( frontFaceTexture );
   GL(glClearColor(0,0,0.0,0));
@@ -230,8 +233,10 @@ void render() {
   GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
   GL(glBlendEquation(GL_FUNC_ADD));
   
+  framebuffer.bind( eyeTexture );
+  
   GL(glViewport(0, 0, dim.width, dim.height));
-  GL(glClearColor(0,0,0.5,0));
+  GL(glClearColor(0,0,0,0));
   GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
   progCubeBack.enable();
@@ -250,7 +255,45 @@ void render() {
   progCubeBack.unsetTexture3D(2);
   progCubeBack.unsetTexture3D(3);
   
+  framebuffer.unbind2D();
+  
   GL(glDisable(GL_BLEND));
+}
+
+void composeStereoImages() {
+  GL(glClearColor(0,0,0.0,0));
+  GL(glClear(GL_COLOR_BUFFER_BIT));
+  GL(glDisable(GL_CULL_FACE));
+  GL(glDisable(GL_DEPTH_TEST));
+
+  progStereo.enable();
+  progStereo.setTexture("leftEye",leftEyeTexture,0);
+  progStereo.setTexture("rightEye",rightEyeTexture,1);
+  stereoArray.bind();
+  GL(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*)0));
+  progStereo.unsetTexture2D(0);
+  progStereo.unsetTexture2D(1);
+}
+
+void render() {
+  Dimensions dim{gl.getFramebufferSize()};
+  GL(glEnable(GL_CULL_FACE));
+
+  if (!autoRotation) glfwSetTime(stopT);
+  const float animationTime = glfwGetTime();
+  
+  const Mat4 m{Mat4::rotationX(animationTime*157)*Mat4::rotationY(animationTime*47)};
+  
+  const StereoMatrices sm = Mat4::stereoLookAtAndProjection({0, 0, 3}, {0, 0, 0}, {0, 1, 0},
+                                                      45, dim.aspect(), 0.0001, 100, 3,
+                                                      0.04);
+  
+ 
+
+  renderCube(dim, Mat4{m*sm.leftView*sm.leftProj}, leftEyeTexture);
+  renderCube(dim, Mat4{m*sm.rightView*sm.rightProj}, rightEyeTexture);
+  
+  composeStereoImages();
 }
 
 void evolve() {
