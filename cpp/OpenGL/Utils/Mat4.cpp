@@ -387,11 +387,11 @@ StereoMatrices Mat4::stereoLookAtAndProjection(const Vec3& eye, const Vec3& at, 
   result.leftProj = Mat4::perspective(left, right, bottom, top, znear, zfar);
   left    = - aspect * wd2 + shift;
   right   =   aspect * wd2 + shift;
-  result.rightProj = Mat4::perspective(left, right, bottom, top, znear, znear);
+  result.rightProj = Mat4::perspective(left, right, bottom, top, znear, zfar);
   
   // view matrices
-  result.leftView = Mat4::lookAt(eye, at, up) * Mat4::translation(-eyeDist/2, 0.0f, 0.0f);
-  result.rightView = Mat4::lookAt(eye, at, up) * Mat4::translation(eyeDist/2, 0.0f, 0.0f);
+  result.leftView  = Mat4::lookAt(eye, at, up) * Mat4::translation(-eyeDist/2.0f, 0.0f, 0.0f);
+  result.rightView = Mat4::lookAt(eye, at, up) * Mat4::translation(eyeDist/2.0f, 0.0f, 0.0f);
   
   return result;
 }
