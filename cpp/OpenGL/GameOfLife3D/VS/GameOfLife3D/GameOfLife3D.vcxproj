@@ -219,6 +219,8 @@ XCOPY "$(ProjectDir)..\..\*.glsl" "$(ProjectDir)*.*" /Y</Command>
     <None Include="..\..\evolveFS.glsl" />
     <None Include="..\..\evolveVS.glsl" />
     <None Include="..\..\frontFS.glsl" />
+    <None Include="..\..\stereoFS.glsl" />
+    <None Include="..\..\stereoVS.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -142,5 +142,11 @@
     <None Include="..\..\evolveVS.glsl">
       <Filter>Ressourcendateien</Filter>
     </None>
+    <None Include="..\..\stereoFS.glsl">
+      <Filter>Ressourcendateien</Filter>
+    </None>
+    <None Include="..\..\stereoVS.glsl">
+      <Filter>Ressourcendateien</Filter>
+    </None>
   </ItemGroup>
 </Project>

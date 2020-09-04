@@ -3,6 +3,7 @@
 #include <iostream>
 #include <thread>
 #include <chrono>
+#include <string>
 
 #include <GLEnv.h>
 #include <GLTexture2D.h>
@@ -47,6 +48,15 @@ GLArray stereoArray;
 GLProgram progStereo{GLProgram::createFromFile("stereoVS.glsl", "stereoFS.glsl")};
 
 
+enum class RENDER_MODE {
+    STANDARD, 
+    ANAGLYPH,
+};
+RENDER_MODE renderMode = RENDER_MODE::STANDARD;
+
+const uint32_t maxNeighbours = 27;
+uint32_t neighbourEditPosition = 0;
+
 bool autoRotation = false;
 float cursorDepth = 0;
 float brushSize = 0.1;
@@ -59,8 +69,19 @@ int vec2bitmap(const std::vector<uint8_t>& bitData) {
   }
   return result;
 }
+std::string bitmap2vecstring(int map) {
+    std::string result = "{";
+    int pos = 0;
+    while (map) {
+        if (map % 2)result += std::to_string(pos) + ",";
+        map /= 2;
+        pos++;
+    }    
+    if (pos)result.pop_back();    
+    return result+"}";
+}
 
-int deathMap = vec2bitmap(std::vector<uint8_t>{0,1,2,3,6,7,8,9});
+int deathMap = vec2bitmap(std::vector<uint8_t>{0,1,2,3,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27});
 int birthMap = vec2bitmap(std::vector<uint8_t>{5,12,13});
 
 enum BRUSH_MODE {
@@ -109,10 +130,11 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
       case GLFW_KEY_SPACE: {
         std::random_device rd{};
         std::mt19937 rng(rd());
-        deathMap = std::uniform_int_distribution<int>(0, (1<<28)-1)(rng);
-        birthMap = std::uniform_int_distribution<int>(0, (1<<28)-1)(rng);
+        deathMap = std::uniform_int_distribution<int>(0, (1<<(maxNeighbours+1))-1)(rng);
+        birthMap = std::uniform_int_distribution<int>(0, (1<<(maxNeighbours+1))-1)(rng);
         clearGrid();
-        std::cout << deathMap << " " << birthMap << std::endl;
+        std::cout << "deathMap = " << deathMap << " = " << bitmap2vecstring(deathMap) << std::endl;
+        std::cout << "birthMap = " << birthMap << " = " << bitmap2vecstring(birthMap) << std::endl;
         break;
       }
       case GLFW_KEY_C:
@@ -128,6 +150,33 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
       case GLFW_KEY_LEFT_ALT:
         brushMode = BRUSH_MODE_DENSITY;
         break;
+      case GLFW_KEY_1:
+          renderMode = RENDER_MODE::STANDARD;
+          break;
+      case GLFW_KEY_2:
+          renderMode = RENDER_MODE::ANAGLYPH;
+          break;
+      case GLFW_KEY_D:
+        deathMap = deathMap ^ (1 << neighbourEditPosition);
+        std::cout << "deathMap = " << deathMap<<" = "<<bitmap2vecstring(deathMap)<<std::endl;
+        break;
+      case GLFW_KEY_B:
+        birthMap = birthMap ^ (1 << neighbourEditPosition);
+        std::cout << "birthMap = " << birthMap << " = " << bitmap2vecstring(birthMap) << std::endl;
+        break;
+      case GLFW_KEY_RIGHT:
+        neighbourEditPosition = (neighbourEditPosition + 1) % maxNeighbours;
+        std::cout << "neighbourEditPosition = " << neighbourEditPosition << std::endl;
+        break;
+      case GLFW_KEY_LEFT:
+        neighbourEditPosition = (neighbourEditPosition + maxNeighbours - 1) % maxNeighbours;
+        std::cout << "neighbourEditPosition = " << neighbourEditPosition << std::endl;
+        break;
+      case GLFW_KEY_F1:
+          std::cout << "neighbourEditPosition = " << neighbourEditPosition << std::endl;
+          std::cout << "deathMap = " << deathMap << " = " << bitmap2vecstring(deathMap) << std::endl;
+          std::cout << "birthMap = " << birthMap << " = " << bitmap2vecstring(birthMap) << std::endl;
+          break;
     }
   }
   if (action == GLFW_RELEASE) {
@@ -275,6 +324,57 @@ void composeStereoImages() {
   progStereo.unsetTexture2D(1);
 }
 
+
+void renderStandard(const Dimensions& dim, const Mat4& mvp) {
+    GL(glEnable(GL_CULL_FACE));
+
+    if (!autoRotation) glfwSetTime(stopT);
+    const float animationTime = glfwGetTime();
+
+    GL(glCullFace(GL_BACK));
+    framebuffer.bind(frontFaceTexture);
+    GL(glClearColor(0, 0, 0.0, 0));
+    GL(glClear(GL_COLOR_BUFFER_BIT));
+
+    progCubeFront.enable();
+    progCubeFront.setUniform(progCubeFront.getUniformLocation("MVP"), mvp);
+    cubeArray.bind();
+    GL(glDrawElements(GL_TRIANGLES, cube.getIndices().size(), GL_UNSIGNED_INT, (void*)0));
+
+    GL(glCullFace(GL_FRONT));
+    framebuffer.bind(backFaceTexture);
+    GL(glClear(GL_COLOR_BUFFER_BIT));
+    GL(glDrawElements(GL_TRIANGLES, cube.getIndices().size(), GL_UNSIGNED_INT, (void*)0));
+    framebuffer.unbind2D();
+
+    GL(glEnable(GL_BLEND));
+    GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+    GL(glBlendEquation(GL_FUNC_ADD));
+
+    GL(glViewport(0, 0, dim.width, dim.height));
+    GL(glClearColor(0, 0, 0.5, 0));
+    GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+
+    progCubeBack.enable();
+    progCubeBack.setUniform("cursorPos", Vec2{ xPositionMouse,yPositionMouse });
+    progCubeBack.setUniform("brushSize", brushSize);
+    progCubeBack.setTexture("noise", noiseVolume, 3);
+    progCubeBack.setUniform("brushDensity", brushDensity);
+    progCubeBack.setTexture("frontFaces", frontFaceTexture, 0);
+    progCubeBack.setTexture("backFaces", backFaceTexture, 1);
+    progCubeBack.setUniform("cursorDepth", cursorDepth);
+    progCubeBack.setTexture("grid", *currentGrid, 2);
+    progCubeBack.setUniform("MVP", mvp);
+    GL(glDrawElements(GL_TRIANGLES, cube.getIndices().size(), GL_UNSIGNED_INT, (void*)0));
+    progCubeBack.unsetTexture2D(0);
+    progCubeBack.unsetTexture2D(1);
+    progCubeBack.unsetTexture3D(2);
+    progCubeBack.unsetTexture3D(3);
+
+    GL(glDisable(GL_BLEND));
+}
+
+
 void render() {
   Dimensions dim{gl.getFramebufferSize()};
   GL(glEnable(GL_CULL_FACE));
@@ -283,17 +383,26 @@ void render() {
   const float animationTime = glfwGetTime();
   
   const Mat4 m{Mat4::rotationX(animationTime*157)*Mat4::rotationY(animationTime*47)};
-  
-  const StereoMatrices sm = Mat4::stereoLookAtAndProjection({0, 0, 3}, {0, 0, 0}, {0, 1, 0},
-                                                      45, dim.aspect(), 0.0001, 100, 3,
-                                                      0.04);
-  
- 
+  const Mat4 v{ Mat4::lookAt({ 0, 0, 3 }, { 0, 0, 0 }, { 0, 1, 0 })};
+  const Mat4 p{ Mat4::perspective(45, dim.aspect(), 0.0001, 100) };
 
-  renderCube(dim, Mat4{m*sm.leftView*sm.leftProj}, leftEyeTexture);
-  renderCube(dim, Mat4{m*sm.rightView*sm.rightProj}, rightEyeTexture);
-  
-  composeStereoImages();
+
+  switch (renderMode) {
+  case RENDER_MODE::STANDARD:
+      renderStandard(dim, Mat4{ m * v * p });
+      break;
+
+  case RENDER_MODE::ANAGLYPH:
+      const StereoMatrices sm = Mat4::stereoLookAtAndProjection({ 0, 0, 3 }, { 0, 0, 0 }, { 0, 1, 0 },
+          45, dim.aspect(), 0.0001, 100, 3,
+          0.04);
+      renderCube(dim, Mat4{ m * sm.leftView * sm.leftProj }, leftEyeTexture);
+      renderCube(dim, Mat4{ m * sm.rightView * sm.rightProj }, rightEyeTexture);
+
+      composeStereoImages();
+      break;
+  }
+
 }
 
 void evolve() {
