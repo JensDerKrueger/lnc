@@ -23,8 +23,8 @@ GLFramebuffer framebuffer;
 GLTexture2D frontFaceTexture{GL_NEAREST, GL_NEAREST};
 GLTexture2D backFaceTexture{GL_NEAREST, GL_NEAREST};
 
-GLTexture2D leftEyeTexture{GL_NEAREST, GL_NEAREST};
-GLTexture2D rightEyeTexture{GL_NEAREST, GL_NEAREST};
+std::shared_ptr<GLTexture2D> leftEyeTexture = std::make_shared<GLTexture2D>(GL_NEAREST, GL_NEAREST);
+std::shared_ptr<GLTexture2D> rightEyeTexture = std::make_shared<GLTexture2D>(GL_NEAREST, GL_NEAREST);
 
 
 GLTexture3D noiseVolume{GL_NEAREST, GL_NEAREST};
@@ -192,8 +192,8 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
 static void sizeCallback(GLFWwindow* window, int width, int height) {
   frontFaceTexture.setEmpty( width, height, 3, true);
   backFaceTexture.setEmpty( width, height, 3, true);
-  leftEyeTexture.setEmpty( width, height, 4, false);
-  rightEyeTexture.setEmpty( width, height, 4, false);
+  leftEyeTexture->setEmpty( width, height, 4, false);
+  rightEyeTexture->setEmpty( width, height, 4, false);
 }
 
 static void cursorPositionCallback(GLFWwindow* window, double xPosition, double yPosition) {
@@ -261,7 +261,7 @@ void init() {
   stereoArray.connectIndexBuffer(ibEvolve);
 }
 
-void renderCube(const Dimensions& dim, const Mat4& mvp, GLTexture2D& eyeTexture) {
+void renderInternal(const Dimensions& dim, const Mat4& mvp, std::shared_ptr<GLTexture2D> eyeTexture = nullptr) {
   GL(glCullFace(GL_BACK));
   framebuffer.bind( frontFaceTexture );
   GL(glClearColor(0,0,0.0,0));
@@ -282,7 +282,7 @@ void renderCube(const Dimensions& dim, const Mat4& mvp, GLTexture2D& eyeTexture)
   GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
   GL(glBlendEquation(GL_FUNC_ADD));
   
-  framebuffer.bind( eyeTexture );
+  if (eyeTexture) framebuffer.bind( *eyeTexture );
   
   GL(glViewport(0, 0, dim.width, dim.height));
   GL(glClearColor(0,0,0,0));
@@ -304,7 +304,7 @@ void renderCube(const Dimensions& dim, const Mat4& mvp, GLTexture2D& eyeTexture)
   progCubeBack.unsetTexture3D(2);
   progCubeBack.unsetTexture3D(3);
   
-  framebuffer.unbind2D();
+  if (eyeTexture) framebuffer.unbind2D();
   
   GL(glDisable(GL_BLEND));
 }
@@ -316,64 +316,13 @@ void composeStereoImages() {
   GL(glDisable(GL_DEPTH_TEST));
 
   progStereo.enable();
-  progStereo.setTexture("leftEye",leftEyeTexture,0);
-  progStereo.setTexture("rightEye",rightEyeTexture,1);
+  progStereo.setTexture("leftEye",*leftEyeTexture,0);
+  progStereo.setTexture("rightEye",*rightEyeTexture,1);
   stereoArray.bind();
   GL(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*)0));
   progStereo.unsetTexture2D(0);
   progStereo.unsetTexture2D(1);
 }
-
-
-void renderStandard(const Dimensions& dim, const Mat4& mvp) {
-    GL(glEnable(GL_CULL_FACE));
-
-    if (!autoRotation) glfwSetTime(stopT);
-    const float animationTime = glfwGetTime();
-
-    GL(glCullFace(GL_BACK));
-    framebuffer.bind(frontFaceTexture);
-    GL(glClearColor(0, 0, 0.0, 0));
-    GL(glClear(GL_COLOR_BUFFER_BIT));
-
-    progCubeFront.enable();
-    progCubeFront.setUniform(progCubeFront.getUniformLocation("MVP"), mvp);
-    cubeArray.bind();
-    GL(glDrawElements(GL_TRIANGLES, cube.getIndices().size(), GL_UNSIGNED_INT, (void*)0));
-
-    GL(glCullFace(GL_FRONT));
-    framebuffer.bind(backFaceTexture);
-    GL(glClear(GL_COLOR_BUFFER_BIT));
-    GL(glDrawElements(GL_TRIANGLES, cube.getIndices().size(), GL_UNSIGNED_INT, (void*)0));
-    framebuffer.unbind2D();
-
-    GL(glEnable(GL_BLEND));
-    GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-    GL(glBlendEquation(GL_FUNC_ADD));
-
-    GL(glViewport(0, 0, dim.width, dim.height));
-    GL(glClearColor(0, 0, 0.5, 0));
-    GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-
-    progCubeBack.enable();
-    progCubeBack.setUniform("cursorPos", Vec2{ xPositionMouse,yPositionMouse });
-    progCubeBack.setUniform("brushSize", brushSize);
-    progCubeBack.setTexture("noise", noiseVolume, 3);
-    progCubeBack.setUniform("brushDensity", brushDensity);
-    progCubeBack.setTexture("frontFaces", frontFaceTexture, 0);
-    progCubeBack.setTexture("backFaces", backFaceTexture, 1);
-    progCubeBack.setUniform("cursorDepth", cursorDepth);
-    progCubeBack.setTexture("grid", *currentGrid, 2);
-    progCubeBack.setUniform("MVP", mvp);
-    GL(glDrawElements(GL_TRIANGLES, cube.getIndices().size(), GL_UNSIGNED_INT, (void*)0));
-    progCubeBack.unsetTexture2D(0);
-    progCubeBack.unsetTexture2D(1);
-    progCubeBack.unsetTexture3D(2);
-    progCubeBack.unsetTexture3D(3);
-
-    GL(glDisable(GL_BLEND));
-}
-
 
 void render() {
   Dimensions dim{gl.getFramebufferSize()};
@@ -383,24 +332,24 @@ void render() {
   const float animationTime = glfwGetTime();
   
   const Mat4 m{Mat4::rotationX(animationTime*157)*Mat4::rotationY(animationTime*47)};
-  const Mat4 v{ Mat4::lookAt({ 0, 0, 3 }, { 0, 0, 0 }, { 0, 1, 0 })};
-  const Mat4 p{ Mat4::perspective(45, dim.aspect(), 0.0001, 100) };
-
 
   switch (renderMode) {
-  case RENDER_MODE::STANDARD:
-      renderStandard(dim, Mat4{ m * v * p });
-      break;
+    case RENDER_MODE::STANDARD: {
+        const Mat4 v{ Mat4::lookAt({ 0, 0, 3 }, { 0, 0, 0 }, { 0, 1, 0 })};
+        const Mat4 p{ Mat4::perspective(45, dim.aspect(), 0.0001, 100) };
+        renderInternal(dim, Mat4{ m * v * p });
+        break;
+    }
+    case RENDER_MODE::ANAGLYPH: {
+        const StereoMatrices sm = Mat4::stereoLookAtAndProjection({ 0, 0, 3 }, { 0, 0, 0 }, { 0, 1, 0 },
+            45, dim.aspect(), 0.0001, 100, 3,
+            0.04);
+        renderInternal(dim, Mat4{ m * sm.leftView * sm.leftProj }, leftEyeTexture);
+        renderInternal(dim, Mat4{ m * sm.rightView * sm.rightProj }, rightEyeTexture);
 
-  case RENDER_MODE::ANAGLYPH:
-      const StereoMatrices sm = Mat4::stereoLookAtAndProjection({ 0, 0, 3 }, { 0, 0, 0 }, { 0, 1, 0 },
-          45, dim.aspect(), 0.0001, 100, 3,
-          0.04);
-      renderCube(dim, Mat4{ m * sm.leftView * sm.leftProj }, leftEyeTexture);
-      renderCube(dim, Mat4{ m * sm.rightView * sm.rightProj }, rightEyeTexture);
-
-      composeStereoImages();
-      break;
+        composeStereoImages();
+        break;
+    }
   }
 
 }
