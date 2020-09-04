@@ -6,6 +6,8 @@
 
 #include "Vec3.h"
 
+struct StereoMatrices;
+
 class Mat4 {
 public:
   Mat4();
@@ -50,13 +52,25 @@ public:
   static Mat4 inverse(const Mat4& m);
   
   static Mat4 perspective(float fovy, float aspect, float znear, float zfar);
+  static Mat4 perspective(float left, float right, float bottom, float top, float znear, float zfar);
   static Mat4 ortho(float left, float right, float bottom, float top, float znear, float zfar );
   static Mat4 lookAt(const Vec3& vEye, const Vec3& vAt, const Vec3& vUp);
   static Mat4 mirror(const Vec3& p, const Vec3& n);
   
+  static StereoMatrices stereoLookAtAndProjection(const Vec3& vEye, const Vec3& vAt, const Vec3& vUp,
+                                           float fovy, float aspect, float znear, float zfar, float focalLength,
+                                           float eyeDist);
+
 private:
   std::array<float, 16> e;
   
   static float deg2Rad(const float d);
   
+};
+
+struct StereoMatrices {
+  Mat4 leftView;
+  Mat4 rightView;
+  Mat4 leftProj;
+  Mat4 rightProj;
 };
