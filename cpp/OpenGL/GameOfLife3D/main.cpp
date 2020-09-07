@@ -1,6 +1,7 @@
 #include <vector>
 #include <algorithm>
 #include <iostream>
+#include <fstream>
 #include <thread>
 #include <chrono>
 #include <string>
@@ -61,6 +62,9 @@ bool autoRotation = false;
 float cursorDepth = 0.2;
 float brushSize = 0.1;
 float brushDensity = 0.2;
+int32_t delay = 0;
+uint32_t delayCounter = 0;
+float zoom = 3.0;
 
 int vec2bitmap(const std::vector<uint8_t>& bitData) {
   int result = 0;
@@ -82,7 +86,22 @@ std::string bitmap2vecstring(int map) {
 }
 
 
-struct Rule {int birthMap;  int deathMap;};
+class Rule {
+public:
+  int birthMap;
+  int deathMap;
+  
+  void save(std::ostream& outStr) {
+    outStr.write((char*)&birthMap,sizeof(int));
+    outStr.write((char*)&deathMap,sizeof(int));
+  }
+  
+  void load(std::istream& inStr) {
+    inStr.read((char*)&birthMap,sizeof(int));
+    inStr.read((char*)&deathMap,sizeof(int));
+  }
+
+};
 
 std::vector<Rule> rules = {
     { //rare glider, small stable configs, fast die out
@@ -137,6 +156,49 @@ void loadShader() {
   evolveArray.connectVertexAttrib(vbEvolve,progEvolve,"vPos",3);
 }
 
+void loadState() {
+  std::ifstream inFile{"dump.dat"};
+
+
+
+
+  uint32_t w,h,d;
+  inFile.read((char*)&w,sizeof(uint32_t));
+  inFile.read((char*)&h,sizeof(uint32_t));
+  inFile.read((char*)&d,sizeof(uint32_t));
+  std::vector<GLubyte> gridData(w*h*d);
+  
+  inFile.read((char*)gridData.data(), gridData.size()*sizeof(GLubyte));
+  
+  if (currentGrid->getWidth() == w &&
+      currentGrid->getHeight() == h &&
+      currentGrid->getDepth() == d) {
+    currentGrid->setData(gridData);
+  } else {
+    currentGrid->setData(gridData,w,h,d,1);
+    nextGrid->setEmpty(w,h,d,1);
+  }
+  rule.load(inFile);
+  inFile.close();
+}
+
+void saveState() {
+  std::vector<GLubyte> gridData = currentGrid->getDataByte();
+
+  std::ofstream outFile{"dump.dat"};
+  
+  uint32_t w = currentGrid->getWidth();
+  uint32_t h = currentGrid->getHeight();
+  uint32_t d = currentGrid->getDepth();
+  
+  outFile.write((char*)&w,sizeof(uint32_t));
+  outFile.write((char*)&h,sizeof(uint32_t));
+  outFile.write((char*)&d,sizeof(uint32_t));
+  outFile.write((char*)gridData.data(), gridData.size()*sizeof(GLubyte));
+  rule.save(outFile);
+  outFile.close();
+}
+
 static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
   if (action == GLFW_PRESS) {
     switch (key) {
@@ -169,11 +231,11 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
         brushMode = BRUSH_MODE_DENSITY;
         break;
       case GLFW_KEY_1:
-          renderMode = RENDER_MODE::STANDARD;
-          break;
+        renderMode = RENDER_MODE::STANDARD;
+        break;
       case GLFW_KEY_2:
-          renderMode = RENDER_MODE::ANAGLYPH;
-          break;
+        renderMode = RENDER_MODE::ANAGLYPH;
+        break;
       case GLFW_KEY_D:
         rule.deathMap = rule.deathMap ^ (1 << neighbourEditPosition);
         std::cout << "deathMap = " << rule.deathMap<<" = "<<bitmap2vecstring(rule.deathMap)<<std::endl;
@@ -191,14 +253,32 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
         std::cout << "neighbourEditPosition = " << neighbourEditPosition << std::endl;
         break;
       case GLFW_KEY_F1:
-          std::cout << "neighbourEditPosition = " << neighbourEditPosition << std::endl;
-          ruleInfo(rule);
-          break;
-      case GLFW_KEY_F5: 
-          ruleIndex = (ruleIndex + 1) % rules.size(); 
-          rule = rules[ruleIndex]; 
-          ruleInfo(rule);
-          break;
+        std::cout << "neighbourEditPosition = " << neighbourEditPosition << std::endl;
+        ruleInfo(rule);
+        break;
+      case GLFW_KEY_F9:
+        saveState();
+        break;
+      case GLFW_KEY_F10:
+        loadState();
+        break;
+      case GLFW_KEY_F5:
+        ruleIndex = (ruleIndex + 1) % rules.size();
+        rule = rules[ruleIndex];
+        ruleInfo(rule);
+        break;
+      case GLFW_KEY_RIGHT_BRACKET:   // US key for german +
+        delay -= 10;
+        break;
+      case GLFW_KEY_SLASH:           // US key for german -
+        delay += 10;
+        break;
+      case GLFW_KEY_PAGE_UP :
+        zoom -= 1;
+        break;
+      case GLFW_KEY_PAGE_DOWN :
+        zoom += 1;
+        break;
     }
   }
   if (action == GLFW_RELEASE) {
@@ -357,13 +437,13 @@ void render() {
 
   switch (renderMode) {
     case RENDER_MODE::STANDARD: {
-        const Mat4 v{ Mat4::lookAt({ 0, 0, 3 }, { 0, 0, 0 }, { 0, 1, 0 })};
+        const Mat4 v{ Mat4::lookAt({ 0, 0, zoom }, { 0, 0, 0 }, { 0, 1, 0 })};
         const Mat4 p{ Mat4::perspective(45, dim.aspect(), 0.0001, 100) };
         renderInternal(dim, Mat4{ m * v * p });
         break;
     }
     case RENDER_MODE::ANAGLYPH: {
-        const StereoMatrices sm = Mat4::stereoLookAtAndProjection({ 0, 0, 3 }, { 0, 0, 0 }, { 0, 1, 0 },
+        const StereoMatrices sm = Mat4::stereoLookAtAndProjection({ 0, 0, zoom }, { 0, 0, 0 }, { 0, 1, 0 },
             45, dim.aspect(), 0.0001, 100, 3,
             0.04);
         renderInternal(dim, Mat4{ m * sm.leftView * sm.leftProj }, leftEyeTexture);
@@ -415,9 +495,14 @@ int main(int argc, char** argv) {
   GLEnv::checkGLError("BeforeFirstLoop");
   do {
     render();
-    evolve();
+    
+    if (delayCounter >= delay) {
+      evolve();
+      delayCounter = 0;
+    } else {
+      delayCounter++;
+    }
     GLEnv::checkGLError("endOfFrame");
-//    std::this_thread::sleep_for(std::chrono::milliseconds(100));
     gl.endOfFrame();
   } while (!gl.shouldClose());
   

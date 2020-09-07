@@ -12,5 +12,5 @@ void main() {
   float fGrayLeftEye  = dot(leftPixel.rgb, vec3(0.3,0.59,0.11));
   float fGrayRightEye = dot(rightPixel.rgb, vec3(0.3,0.59,0.11));
 
-  fc = vec4(fGrayLeftEye, 0.0, fGrayRightEye, 1.0);
+  fc = vec4(fGrayLeftEye, fGrayRightEye, 0.0, 1.0);
 }
