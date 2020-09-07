@@ -58,7 +58,7 @@ const uint32_t maxNeighbours = 27;
 uint32_t neighbourEditPosition = 0;
 
 bool autoRotation = false;
-float cursorDepth = 0;
+float cursorDepth = 0.2;
 float brushSize = 0.1;
 float brushDensity = 0.2;
 
@@ -81,8 +81,27 @@ std::string bitmap2vecstring(int map) {
     return result+"}";
 }
 
-int deathMap = vec2bitmap(std::vector<uint8_t>{0,1,2,3,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27});
-int birthMap = vec2bitmap(std::vector<uint8_t>{5,12,13});
+
+struct Rule {int birthMap;  int deathMap;};
+
+std::vector<Rule> rules = {
+    { //rare glider, small stable configs, fast die out
+        vec2bitmap(std::vector<uint8_t>{5,12,13}), 
+        vec2bitmap(std::vector<uint8_t>{0,1,2,3,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27}),
+    },
+    {256, 268434447}, //chrystal, it collapses if 10 is added to birthMap
+    {4352, 268434447} //fireball, slowly growing if seed is big enough
+};
+
+void ruleInfo(Rule r) {
+    std::cout << "birthMap = " << r.birthMap << " = " << bitmap2vecstring(r.birthMap) << std::endl;
+    std::cout << "deathMap = " << r.deathMap << " = " << bitmap2vecstring(r.deathMap) << std::endl;
+}
+
+
+
+uint32_t ruleIndex = 0;
+Rule rule = rules[ruleIndex];
 
 enum BRUSH_MODE {
   BRUSH_MODE_DEPTH,
@@ -130,11 +149,10 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
       case GLFW_KEY_SPACE: {
         std::random_device rd{};
         std::mt19937 rng(rd());
-        deathMap = std::uniform_int_distribution<int>(0, (1<<(maxNeighbours+1))-1)(rng);
-        birthMap = std::uniform_int_distribution<int>(0, (1<<(maxNeighbours+1))-1)(rng);
+        rule.deathMap = std::uniform_int_distribution<int>(0, (1<<(maxNeighbours+1))-1)(rng);
+        rule.birthMap = std::uniform_int_distribution<int>(0, (1<<(maxNeighbours+1))-1)(rng);
         clearGrid();
-        std::cout << "deathMap = " << deathMap << " = " << bitmap2vecstring(deathMap) << std::endl;
-        std::cout << "birthMap = " << birthMap << " = " << bitmap2vecstring(birthMap) << std::endl;
+        ruleInfo(rule);
         break;
       }
       case GLFW_KEY_C:
@@ -157,12 +175,12 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
           renderMode = RENDER_MODE::ANAGLYPH;
           break;
       case GLFW_KEY_D:
-        deathMap = deathMap ^ (1 << neighbourEditPosition);
-        std::cout << "deathMap = " << deathMap<<" = "<<bitmap2vecstring(deathMap)<<std::endl;
+        rule.deathMap = rule.deathMap ^ (1 << neighbourEditPosition);
+        std::cout << "deathMap = " << rule.deathMap<<" = "<<bitmap2vecstring(rule.deathMap)<<std::endl;
         break;
       case GLFW_KEY_B:
-        birthMap = birthMap ^ (1 << neighbourEditPosition);
-        std::cout << "birthMap = " << birthMap << " = " << bitmap2vecstring(birthMap) << std::endl;
+        rule.birthMap = rule.birthMap ^ (1 << neighbourEditPosition);
+        std::cout << "birthMap = " << rule.birthMap << " = " << bitmap2vecstring(rule.birthMap) << std::endl;
         break;
       case GLFW_KEY_RIGHT:
         neighbourEditPosition = (neighbourEditPosition + 1) % maxNeighbours;
@@ -174,8 +192,12 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
         break;
       case GLFW_KEY_F1:
           std::cout << "neighbourEditPosition = " << neighbourEditPosition << std::endl;
-          std::cout << "deathMap = " << deathMap << " = " << bitmap2vecstring(deathMap) << std::endl;
-          std::cout << "birthMap = " << birthMap << " = " << bitmap2vecstring(birthMap) << std::endl;
+          ruleInfo(rule);
+          break;
+      case GLFW_KEY_F5: 
+          ruleIndex = (ruleIndex + 1) % rules.size(); 
+          rule = rules[ruleIndex]; 
+          ruleInfo(rule);
           break;
     }
   }
@@ -364,8 +386,8 @@ void evolve() {
   progEvolve.setUniform("brushDensity",brushDensity);
   progEvolve.setUniform("paintState",paintState);
   progEvolve.setUniform("cursorDepth",cursorDepth);
-  progEvolve.setUniform("deathMap",deathMap);
-  progEvolve.setUniform("birthMap",birthMap);
+  progEvolve.setUniform("deathMap",rule.deathMap);
+  progEvolve.setUniform("birthMap",rule.birthMap);
   progEvolve.setTexture("frontFaces",frontFaceTexture,0);
   progEvolve.setTexture("backFaces",backFaceTexture,1);
 
