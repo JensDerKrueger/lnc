@@ -13,7 +13,7 @@ uniform sampler2D frontFaces;
 uniform sampler2D backFaces;
 uniform sampler3D grid;
 
-uniform float stepCount = 100;
+uniform float stepCount = 200;
 
 vec3 computeCursorVolumePos() {
   vec3 cursorEntry = texture(frontFaces, cursorPos).xyz;

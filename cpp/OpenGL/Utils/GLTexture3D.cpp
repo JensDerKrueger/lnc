@@ -132,3 +132,19 @@ void GLTexture3D::setData(GLvoid* data, uint32_t width, uint32_t height, uint32_
   
   GL(glTexImage3D(GL_TEXTURE_3D, 0, internalformat, GLuint(width), GLuint(height), GLuint(depth), 0, format, type, data));
 }
+
+const std::vector<GLubyte>& GLTexture3D::getDataByte() {
+  GL(glPixelStorei(GL_PACK_ALIGNMENT, 1));
+  GL(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
+  GL(glBindTexture(GL_TEXTURE_3D, id));
+  GL(glGetTexImage(GL_TEXTURE_3D, 0, format, type, data.data()));
+  return data;
+}
+
+const std::vector<GLfloat>& GLTexture3D::getDataFloat() {
+  GL(glPixelStorei(GL_PACK_ALIGNMENT, 1));
+  GL(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
+  GL(glBindTexture(GL_TEXTURE_3D, id));
+  GL(glGetTexImage(GL_TEXTURE_3D, 0, format, type, fdata.data()));
+  return fdata;
+}

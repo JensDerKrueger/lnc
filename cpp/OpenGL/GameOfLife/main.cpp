@@ -182,7 +182,7 @@ void evolve() {
   progEvolve.setTexture(progEvolve.getUniformLocation("gridSampler"),gridTextures[current],0);
   fullScreenQuadArray.bind();
   GL(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*)0));
-  framebuffer.unbind();
+  framebuffer.unbind2D();
   progEvolve.unsetTexture2D(0);
   current = 1-current;
 }
