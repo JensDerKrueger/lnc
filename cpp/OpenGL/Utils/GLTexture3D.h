@@ -28,6 +28,9 @@ public:
   uint32_t getSize() const {return height*width*depth*componentCount;}
   bool getIsFloat() const {return isFloat;}
   
+  const std::vector<GLubyte>& getDataByte();
+  const std::vector<GLfloat>& getDataFloat();
+
 private:
 	GLuint id;
 	GLenum internalformat;
