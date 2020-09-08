@@ -368,8 +368,6 @@ Mat4 Mat4::mirror(const Vec3& p, const Vec3& n) {
 			2*k*n.x(),2*k*n.y(),2*k*n.z(),1};
 }
 
-#include <iostream>
-
 StereoMatrices Mat4::stereoLookAtAndProjection(const Vec3& eye, const Vec3& at, const Vec3& up,
                                                float fovy, float aspect, float znear, float zfar,
                                                float focalLength, float eyeDist) {
@@ -381,15 +379,7 @@ StereoMatrices Mat4::stereoLookAtAndProjection(const Vec3& eye, const Vec3& at, 
   float shift   =   eyeDist * nfdl;
   float top     =   wd2;
   float bottom  = - wd2;
-/*
-  std::cout << fovy << std::endl;
-  std::cout << tanf(Mat4::deg2Rad(fovy)/2.0f) << std::endl;
-  std::cout << znear << std::endl;
-  std::cout << focalLength << std::endl;
-  std::cout << nfdl << std::endl;
-  std::cout << wd2 << std::endl;
-  std::cout << shift << std::endl;
- */
+
   // projection matrices
   float left    = - aspect * wd2 - shift;
   float right   =   aspect * wd2 - shift;
