@@ -50,8 +50,8 @@ GLProgram progStereo{GLProgram::createFromFile("stereoVS.glsl", "stereoFS.glsl")
 
 
 enum class RENDER_MODE {
-    STANDARD, 
-    ANAGLYPH,
+  STANDARD, 
+  ANAGLYPH,
 };
 RENDER_MODE renderMode = RENDER_MODE::STANDARD;
 
@@ -74,15 +74,15 @@ int vec2bitmap(const std::vector<uint8_t>& bitData) {
   return result;
 }
 std::string bitmap2vecstring(int map) {
-    std::string result = "{";
-    int pos = 0;
-    while (map) {
-        if (map % 2)result += std::to_string(pos) + ",";
-        map /= 2;
-        pos++;
-    }    
-    if (pos)result.pop_back();    
-    return result+"}";
+  std::string result = "{";
+  int pos = 0;
+  while (map) {
+    if (map % 2)result += std::to_string(pos) + ",";
+    map /= 2;
+    pos++;
+  }    
+  if (pos)result.pop_back();    
+  return result+"}";
 }
 
 
@@ -104,17 +104,17 @@ public:
 };
 
 std::vector<Rule> rules = {
-    { //rare glider, small stable configs, fast die out
-        vec2bitmap(std::vector<uint8_t>{5,12,13}), 
-        vec2bitmap(std::vector<uint8_t>{0,1,2,3,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27}),
-    },
-    {256, 268434447}, //chrystal, it collapses if 10 is added to birthMap
-    {4352, 268434447} //fireball, slowly growing if seed is big enough
+  { //rare glider, small stable configs, fast die out
+    vec2bitmap(std::vector<uint8_t>{5,12,13}), 
+    vec2bitmap(std::vector<uint8_t>{0,1,2,3,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27}),
+  },
+  {256, 268434447}, //chrystal, it collapses if 10 is added to birthMap
+  {4352, 268434447} //fireball, slowly growing if seed is big enough
 };
 
 void ruleInfo(Rule r) {
-    std::cout << "birthMap = " << r.birthMap << " = " << bitmap2vecstring(r.birthMap) << std::endl;
-    std::cout << "deathMap = " << r.deathMap << " = " << bitmap2vecstring(r.deathMap) << std::endl;
+  std::cout << "deathMap = " << bitmap2vecstring(r.deathMap) << " " << r.deathMap << std::endl;
+  std::cout << "birthMap = " << bitmap2vecstring(r.birthMap) << " " << r.birthMap << std::endl;
 }
 
 
@@ -199,9 +199,46 @@ void saveState() {
   outFile.close();
 }
 
+static void displayInfo() {
+  std::cout << "Keys:" << std::endl;
+  std::cout << "    F1/H   Display this Page" << std::endl;
+  std::cout << "    ESC    Quit" << std::endl;
+  std::cout << "    S      Reload Shaders (evolveVS.glsl, evolveFS.glsl, evolutionRule.glsl)" << std::endl;
+  std::cout << "    C      clear the grid" << std::endl;
+  std::cout << "    F9     safe" << std::endl;
+  std::cout << "    F10    load" << std::endl;
+  std::cout << "Paint the Seeds:" << std::endl;
+  std::cout << "    left Mousekey        set random cells to be alive" << std::endl;
+  std::cout << "    MouseWheel           change the Depth of the seed brush" << std::endl;
+  std::cout << "    L_SHIFT+ MouseWheel  change the Size of the seed brush" << std::endl;
+  std::cout << "    L_ALT+ MouseWheel    change the Density of the seed brush" << std::endl;
+  std::cout << "Rules: cell is dead: birthMap defines at how many neighbours this cell will live" << std::endl;
+  std::cout << "       cell is alive: deathMap defines at how many neighbours this cell will die" << std::endl;
+  std::cout << "    F5           select the next predefined ruleset" << std::endl;
+  std::cout << "    F2           display the active ruleset" << std::endl;
+  std::cout << "    SPACE        randomize ruleset (good luck)" << std::endl;
+  std::cout << "    LEFT ARROW   select next neighbournumber (doesn't change the ruleset)" << std::endl;
+  std::cout << "    RIGHT ARROW  select previous neighbournumber (doesn't change the ruleset)" << std::endl;
+  std::cout << "    b            inserts/removes the neighbournumber into/from birthMap" << std::endl;
+  std::cout << "    d            inserts/removes the neighbournumber into/from deathMap" << std::endl;
+  std::cout << "Visuals:" << std::endl;
+  std::cout << "    R         turn auto rotation on/off" << std::endl;
+  std::cout << "    1         set Render mode: Standart" << std::endl;
+  std::cout << "    2         set Render mode: Anaglyph" << std::endl;
+  std::cout << "    PageUP    zoom in" << std::endl;
+  std::cout << "    PageDWON  zoom out" << std::endl;
+  std::cout << "    +         decrease delay" << std::endl;
+  std::cout << "    -         increase delay" << std::endl;
+}
+
+
 static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
   if (action == GLFW_PRESS) {
     switch (key) {
+      case GLFW_KEY_H:
+      case GLFW_KEY_F1:
+        displayInfo();
+        break;
       case GLFW_KEY_ESCAPE:
         glfwSetWindowShouldClose(window, GL_TRUE);
         break;
@@ -238,11 +275,11 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
         break;
       case GLFW_KEY_D:
         rule.deathMap = rule.deathMap ^ (1 << neighbourEditPosition);
-        std::cout << "deathMap = " << rule.deathMap<<" = "<<bitmap2vecstring(rule.deathMap)<<std::endl;
+        std::cout << "deathMap = "<<bitmap2vecstring(rule.deathMap)<<" " << rule.deathMap <<std::endl;
         break;
       case GLFW_KEY_B:
         rule.birthMap = rule.birthMap ^ (1 << neighbourEditPosition);
-        std::cout << "birthMap = " << rule.birthMap << " = " << bitmap2vecstring(rule.birthMap) << std::endl;
+        std::cout << "birthMap = " << bitmap2vecstring(rule.birthMap) << " " << rule.birthMap << std::endl;
         break;
       case GLFW_KEY_RIGHT:
         neighbourEditPosition = (neighbourEditPosition + 1) % maxNeighbours;
@@ -252,7 +289,7 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
         neighbourEditPosition = (neighbourEditPosition + maxNeighbours - 1) % maxNeighbours;
         std::cout << "neighbourEditPosition = " << neighbourEditPosition << std::endl;
         break;
-      case GLFW_KEY_F1:
+      case GLFW_KEY_F2:
         std::cout << "neighbourEditPosition = " << neighbourEditPosition << std::endl;
         ruleInfo(rule);
         break;
@@ -437,20 +474,20 @@ void render() {
 
   switch (renderMode) {
     case RENDER_MODE::STANDARD: {
-        const Mat4 v{ Mat4::lookAt({ 0, 0, zoom }, { 0, 0, 0 }, { 0, 1, 0 })};
-        const Mat4 p{ Mat4::perspective(45, dim.aspect(), 0.0001, 100) };
-        renderInternal(dim, Mat4{ m * v * p });
-        break;
+      const Mat4 v{ Mat4::lookAt({ 0, 0, zoom }, { 0, 0, 0 }, { 0, 1, 0 })};
+      const Mat4 p{ Mat4::perspective(45, dim.aspect(), 0.0001, 100) };
+      renderInternal(dim, Mat4{ m * v * p });
+      break;
     }
     case RENDER_MODE::ANAGLYPH: {
-        const StereoMatrices sm = Mat4::stereoLookAtAndProjection({ 0, 0, zoom }, { 0, 0, 0 }, { 0, 1, 0 },
-            45, dim.aspect(), 0.0001, 100, 3,
-            0.04);
-        renderInternal(dim, Mat4{ m * sm.leftView * sm.leftProj }, leftEyeTexture);
-        renderInternal(dim, Mat4{ m * sm.rightView * sm.rightProj }, rightEyeTexture);
+      const StereoMatrices sm = Mat4::stereoLookAtAndProjection({ 0, 0, zoom }, { 0, 0, 0 }, { 0, 1, 0 },
+                                                                45, dim.aspect(), 0.0001, 100, 3,
+                                                                0.04);
+      renderInternal(dim, Mat4{ m * sm.leftView * sm.leftProj }, leftEyeTexture);
+      renderInternal(dim, Mat4{ m * sm.rightView * sm.rightProj }, rightEyeTexture);
 
-        composeStereoImages();
-        break;
+      composeStereoImages();
+      break;
     }
   }
 
@@ -492,7 +529,8 @@ int main(int argc, char** argv) {
   gl.setResizeCallback(sizeCallback);
 
   init();
-  GLEnv::checkGLError("BeforeFirstLoop");
+  displayInfo();
+  GLEnv::checkGLError("BeforeFirstLoop");  
   do {
     render();
     
