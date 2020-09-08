@@ -64,7 +64,9 @@ float brushSize = 0.1;
 float brushDensity = 0.2;
 int32_t delay = 0;
 uint32_t delayCounter = 0;
-float zoom = 3.0;
+float zoom = 3.0f;
+float eyeDistance = 0.05f;
+float focalDistance = 3.0f;
 
 int vec2bitmap(const std::vector<uint8_t>& bitData) {
   int result = 0;
@@ -225,6 +227,8 @@ static void displayInfo() {
   std::cout << "    R         turn auto rotation on/off" << std::endl;
   std::cout << "    1         set Render mode: Standart" << std::endl;
   std::cout << "    2         set Render mode: Anaglyph" << std::endl;
+  std::cout << "    3/4       increase/decrease eye distance" << std::endl;
+  std::cout << "    5/6       increase/decrease focal distance" << std::endl;
   std::cout << "    PageUP    zoom in" << std::endl;
   std::cout << "    PageDWON  zoom out" << std::endl;
   std::cout << "    +         decrease delay" << std::endl;
@@ -309,6 +313,22 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
         break;
       case GLFW_KEY_SLASH:           // US key for german -
         delay += 10;
+        break;
+      case GLFW_KEY_3:
+        eyeDistance += 0.001;
+        std::cout << "eyeDistance = " << eyeDistance << std::endl;
+        break;
+      case GLFW_KEY_4:
+        eyeDistance -= 0.001;
+        std::cout << "eyeDistance = " << eyeDistance << std::endl;
+        break;
+      case GLFW_KEY_5:
+        focalDistance += 0.001;
+        std::cout << "focalDistance = " << focalDistance << std::endl;
+        break;
+      case GLFW_KEY_6:
+        focalDistance -= 0.001;
+        std::cout << "focalDistance = " << focalDistance << std::endl;
         break;
       case GLFW_KEY_PAGE_UP :
         zoom -= 1;
@@ -481,8 +501,8 @@ void render() {
     }
     case RENDER_MODE::ANAGLYPH: {
       const StereoMatrices sm = Mat4::stereoLookAtAndProjection({ 0, 0, zoom }, { 0, 0, 0 }, { 0, 1, 0 },
-                                                                45, dim.aspect(), 0.0001, 100, 3,
-                                                                0.04);
+                                                                45, dim.aspect(), 0.0001, 100, focalDistance,
+                                                                eyeDistance);
       renderInternal(dim, Mat4{ m * sm.leftView * sm.leftProj }, leftEyeTexture);
       renderInternal(dim, Mat4{ m * sm.rightView * sm.rightProj }, rightEyeTexture);
 
