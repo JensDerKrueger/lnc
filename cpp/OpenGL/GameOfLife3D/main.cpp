@@ -90,6 +90,25 @@ std::string bitmap2vecstring(int map) {
 
 class Rule {
 public:
+  Rule() :
+    birthMap{0},
+    deathMap{0} {}
+  
+  Rule(int birthMap, int deathMap) :
+    birthMap{birthMap},
+    deathMap{deathMap} {}
+  
+  Rule(const Rule& other) :
+    birthMap{other.birthMap},
+    deathMap{other.deathMap} {}
+  
+  Rule(std::istream& inStr) :
+    birthMap{0},
+    deathMap{0} {
+      load(inStr);
+  }
+
+  
   int birthMap;
   int deathMap;
   
@@ -158,30 +177,84 @@ void loadShader() {
   evolveArray.connectVertexAttrib(vbEvolve,progEvolve,"vPos",3);
 }
 
-void loadState() {
-  std::ifstream inFile{"dump.dat"};
+class FileData {
+public:
+  FileData(const std::string& filename) {
+    std::ifstream inFile{filename};
 
-
-
-
-  uint32_t w,h,d;
-  inFile.read((char*)&w,sizeof(uint32_t));
-  inFile.read((char*)&h,sizeof(uint32_t));
-  inFile.read((char*)&d,sizeof(uint32_t));
-  std::vector<GLubyte> gridData(w*h*d);
-  
-  inFile.read((char*)gridData.data(), gridData.size()*sizeof(GLubyte));
-  
-  if (currentGrid->getWidth() == w &&
-      currentGrid->getHeight() == h &&
-      currentGrid->getDepth() == d) {
-    currentGrid->setData(gridData);
-  } else {
-    currentGrid->setData(gridData,w,h,d,1);
-    nextGrid->setEmpty(w,h,d,1);
+    inFile.read((char*)&w,sizeof(uint32_t));
+    inFile.read((char*)&h,sizeof(uint32_t));
+    inFile.read((char*)&d,sizeof(uint32_t));
+    gridData.resize(w*h*d);
+    
+    inFile.read((char*)gridData.data(), gridData.size()*sizeof(GLubyte));
+    
+    r = Rule{inFile};
+    inFile.close();
   }
-  rule.load(inFile);
-  inFile.close();
+
+  uint32_t w;
+  uint32_t h;
+  uint32_t d;
+  std::vector<GLubyte> gridData;
+  Rule r;
+};
+
+void uploadData(const FileData fd) {
+  if (currentGrid->getWidth() == fd.w &&
+      currentGrid->getHeight() == fd.h &&
+      currentGrid->getDepth() == fd.d) {
+    currentGrid->setData(fd.gridData);
+  } else {
+    currentGrid->setData(fd.gridData,fd.w,fd.h,fd.d,1);
+    nextGrid->setEmpty(fd.w,fd.h,fd.d,1);
+  }
+}
+
+void loadState() {
+  FileData fd{"dump.dat"};
+  uploadData(fd);
+  rule = fd.r;
+}
+
+void addState() {
+  FileData fd{"dump.dat"};
+
+  if (currentGrid->getWidth() != fd.w ||
+      currentGrid->getHeight() != fd.h ||
+      currentGrid->getDepth() != fd.d) {
+    std::cerr << "File data resolution does not match current grid resolution." << std::endl;
+    return;
+  }
+  
+  std::vector<GLubyte> current = currentGrid->getDataByte();
+  
+  for (size_t i = 0;i<current.size();++i) {
+    fd.gridData[i] += current[i];
+  }
+  
+  uploadData(fd);
+  rule = fd.r;
+}
+
+void subtractState() {
+  FileData fd{"dump.dat"};
+
+  if (currentGrid->getWidth() != fd.w ||
+      currentGrid->getHeight() != fd.h ||
+      currentGrid->getDepth() != fd.d) {
+    std::cerr << "File data resolution does not match current grid resolution." << std::endl;
+    return;
+  }
+  
+  std::vector<GLubyte> current = currentGrid->getDataByte();
+  
+  for (size_t i = 0;i<current.size();++i) {
+    fd.gridData[i] = abs(current[i]-fd.gridData[i]);
+  }
+  
+  uploadData(fd);
+  rule = fd.r;
 }
 
 void saveState() {
@@ -207,8 +280,10 @@ static void displayInfo() {
   std::cout << "    ESC    Quit" << std::endl;
   std::cout << "    S      Reload Shaders (evolveVS.glsl, evolveFS.glsl, evolutionRule.glsl)" << std::endl;
   std::cout << "    C      clear the grid" << std::endl;
-  std::cout << "    F9     safe" << std::endl;
-  std::cout << "    F10    load" << std::endl;
+  std::cout << "    F9     save state" << std::endl;
+  std::cout << "    F10    load state" << std::endl;
+  std::cout << "    F11    subtract saved state" << std::endl;
+  std::cout << "    F12    add saved state" << std::endl;
   std::cout << "Paint the Seeds:" << std::endl;
   std::cout << "    left Mousekey        set random cells to be alive" << std::endl;
   std::cout << "    MouseWheel           change the Depth of the seed brush" << std::endl;
@@ -302,6 +377,12 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
         break;
       case GLFW_KEY_F10:
         loadState();
+        break;
+      case GLFW_KEY_F7:
+        subtractState();
+        break;
+      case GLFW_KEY_F8:
+        addState();
         break;
       case GLFW_KEY_F5:
         ruleIndex = (ruleIndex + 1) % rules.size();
