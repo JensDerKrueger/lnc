@@ -65,8 +65,8 @@ float brushDensity = 0.2;
 int32_t delay = 0;
 uint32_t delayCounter = 0;
 float zoom = 3.0f;
-float eyeDistance = 0.05f;
-float focalDistance = 3.0f;
+float eyeDistance = 0.5f;
+float focalDistance = 6.5f;
 
 int vec2bitmap(const std::vector<uint8_t>& bitData) {
   int result = 0;
@@ -225,12 +225,12 @@ static void displayInfo() {
   std::cout << "    d            inserts/removes the neighbournumber into/from deathMap" << std::endl;
   std::cout << "Visuals:" << std::endl;
   std::cout << "    R         turn auto rotation on/off" << std::endl;
-  std::cout << "    1         set Render mode: Standart" << std::endl;
-  std::cout << "    2         set Render mode: Anaglyph" << std::endl;
-  std::cout << "    3/4       increase/decrease eye distance" << std::endl;
-  std::cout << "    5/6       increase/decrease focal distance" << std::endl;
+  std::cout << "    1         set render mode: Standard" << std::endl;
+  std::cout << "    2         set render mode: Anaglyph" << std::endl;
+  std::cout << "    3/4       decrease/increase eye distance" << std::endl;
+  std::cout << "    5/6       decrease/increase focal distance" << std::endl;
   std::cout << "    PageUP    zoom in" << std::endl;
-  std::cout << "    PageDWON  zoom out" << std::endl;
+  std::cout << "    PageDOWN  zoom out" << std::endl;
   std::cout << "    +         decrease delay" << std::endl;
   std::cout << "    -         increase delay" << std::endl;
 }
@@ -315,19 +315,19 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
         delay += 10;
         break;
       case GLFW_KEY_3:
-        eyeDistance += 0.001;
-        std::cout << "eyeDistance = " << eyeDistance << std::endl;
-        break;
-      case GLFW_KEY_4:
         eyeDistance -= 0.001;
         std::cout << "eyeDistance = " << eyeDistance << std::endl;
         break;
+      case GLFW_KEY_4:
+        eyeDistance += 0.001;
+        std::cout << "eyeDistance = " << eyeDistance << std::endl;
+        break;
       case GLFW_KEY_5:
-        focalDistance += 0.001;
+        focalDistance -= 0.1;
         std::cout << "focalDistance = " << focalDistance << std::endl;
         break;
       case GLFW_KEY_6:
-        focalDistance -= 0.001;
+        focalDistance += 0.1;
         std::cout << "focalDistance = " << focalDistance << std::endl;
         break;
       case GLFW_KEY_PAGE_UP :
@@ -495,13 +495,13 @@ void render() {
   switch (renderMode) {
     case RENDER_MODE::STANDARD: {
       const Mat4 v{ Mat4::lookAt({ 0, 0, zoom }, { 0, 0, 0 }, { 0, 1, 0 })};
-      const Mat4 p{ Mat4::perspective(45, dim.aspect(), 0.0001, 100) };
+      const Mat4 p{ Mat4::perspective(45, dim.aspect(), 0.1, 100) };
       renderInternal(dim, Mat4{ m * v * p });
       break;
     }
     case RENDER_MODE::ANAGLYPH: {
       const StereoMatrices sm = Mat4::stereoLookAtAndProjection({ 0, 0, zoom }, { 0, 0, 0 }, { 0, 1, 0 },
-                                                                45, dim.aspect(), 0.0001, 100, focalDistance,
+                                                                45, dim.aspect(), 0.1, 100, focalDistance,
                                                                 eyeDistance);
       renderInternal(dim, Mat4{ m * sm.leftView * sm.leftProj }, leftEyeTexture);
       renderInternal(dim, Mat4{ m * sm.rightView * sm.rightProj }, rightEyeTexture);
