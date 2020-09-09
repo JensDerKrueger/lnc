@@ -282,8 +282,8 @@ static void displayInfo() {
   std::cout << "    C      clear the grid" << std::endl;
   std::cout << "    F9     save state" << std::endl;
   std::cout << "    F10    load state" << std::endl;
-  std::cout << "    F11    subtract saved state" << std::endl;
-  std::cout << "    F12    add saved state" << std::endl;
+  std::cout << "    F7     subtract saved state" << std::endl;
+  std::cout << "    F8     add saved state" << std::endl;
   std::cout << "Paint the Seeds:" << std::endl;
   std::cout << "    left Mousekey        set random cells to be alive" << std::endl;
   std::cout << "    MouseWheel           change the Depth of the seed brush" << std::endl;
@@ -296,8 +296,8 @@ static void displayInfo() {
   std::cout << "    SPACE        randomize ruleset (good luck)" << std::endl;
   std::cout << "    LEFT ARROW   select next neighbournumber (doesn't change the ruleset)" << std::endl;
   std::cout << "    RIGHT ARROW  select previous neighbournumber (doesn't change the ruleset)" << std::endl;
-  std::cout << "    b            inserts/removes the neighbournumber into/from birthMap" << std::endl;
-  std::cout << "    d            inserts/removes the neighbournumber into/from deathMap" << std::endl;
+  std::cout << "    B            inserts/removes the neighbournumber into/from birthMap" << std::endl;
+  std::cout << "    D            inserts/removes the neighbournumber into/from deathMap" << std::endl;
   std::cout << "Visuals:" << std::endl;
   std::cout << "    R         turn auto rotation on/off" << std::endl;
   std::cout << "    1         set render mode: Standard" << std::endl;
