@@ -1,0 +1,9 @@
+- Basistransformationen
+- neue Sprache 
+  - LISP
+  - PROLOG
+  - Fortran
+  - C
+  - JS
+  - Java
+  - ASM

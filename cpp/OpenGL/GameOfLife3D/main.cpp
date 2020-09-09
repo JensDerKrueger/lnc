@@ -64,7 +64,9 @@ float brushSize = 0.1;
 float brushDensity = 0.2;
 int32_t delay = 0;
 uint32_t delayCounter = 0;
-float zoom = 3.0;
+float zoom = 3.0f;
+float eyeDistance = 0.5f;
+float focalDistance = 6.5f;
 
 int vec2bitmap(const std::vector<uint8_t>& bitData) {
   int result = 0;
@@ -88,6 +90,25 @@ std::string bitmap2vecstring(int map) {
 
 class Rule {
 public:
+  Rule() :
+    birthMap{0},
+    deathMap{0} {}
+  
+  Rule(int birthMap, int deathMap) :
+    birthMap{birthMap},
+    deathMap{deathMap} {}
+  
+  Rule(const Rule& other) :
+    birthMap{other.birthMap},
+    deathMap{other.deathMap} {}
+  
+  Rule(std::istream& inStr) :
+    birthMap{0},
+    deathMap{0} {
+      load(inStr);
+  }
+
+  
   int birthMap;
   int deathMap;
   
@@ -156,30 +177,84 @@ void loadShader() {
   evolveArray.connectVertexAttrib(vbEvolve,progEvolve,"vPos",3);
 }
 
-void loadState() {
-  std::ifstream inFile{"dump.dat"};
+class FileData {
+public:
+  FileData(const std::string& filename) {
+    std::ifstream inFile{filename};
 
-
-
-
-  uint32_t w,h,d;
-  inFile.read((char*)&w,sizeof(uint32_t));
-  inFile.read((char*)&h,sizeof(uint32_t));
-  inFile.read((char*)&d,sizeof(uint32_t));
-  std::vector<GLubyte> gridData(w*h*d);
-  
-  inFile.read((char*)gridData.data(), gridData.size()*sizeof(GLubyte));
-  
-  if (currentGrid->getWidth() == w &&
-      currentGrid->getHeight() == h &&
-      currentGrid->getDepth() == d) {
-    currentGrid->setData(gridData);
-  } else {
-    currentGrid->setData(gridData,w,h,d,1);
-    nextGrid->setEmpty(w,h,d,1);
+    inFile.read((char*)&w,sizeof(uint32_t));
+    inFile.read((char*)&h,sizeof(uint32_t));
+    inFile.read((char*)&d,sizeof(uint32_t));
+    gridData.resize(w*h*d);
+    
+    inFile.read((char*)gridData.data(), gridData.size()*sizeof(GLubyte));
+    
+    r = Rule{inFile};
+    inFile.close();
   }
-  rule.load(inFile);
-  inFile.close();
+
+  uint32_t w;
+  uint32_t h;
+  uint32_t d;
+  std::vector<GLubyte> gridData;
+  Rule r;
+};
+
+void uploadData(const FileData fd) {
+  if (currentGrid->getWidth() == fd.w &&
+      currentGrid->getHeight() == fd.h &&
+      currentGrid->getDepth() == fd.d) {
+    currentGrid->setData(fd.gridData);
+  } else {
+    currentGrid->setData(fd.gridData,fd.w,fd.h,fd.d,1);
+    nextGrid->setEmpty(fd.w,fd.h,fd.d,1);
+  }
+}
+
+void loadState() {
+  FileData fd{"dump.dat"};
+  uploadData(fd);
+  rule = fd.r;
+}
+
+void addState() {
+  FileData fd{"dump.dat"};
+
+  if (currentGrid->getWidth() != fd.w ||
+      currentGrid->getHeight() != fd.h ||
+      currentGrid->getDepth() != fd.d) {
+    std::cerr << "File data resolution does not match current grid resolution." << std::endl;
+    return;
+  }
+  
+  std::vector<GLubyte> current = currentGrid->getDataByte();
+  
+  for (size_t i = 0;i<current.size();++i) {
+    fd.gridData[i] += current[i];
+  }
+  
+  uploadData(fd);
+  rule = fd.r;
+}
+
+void subtractState() {
+  FileData fd{"dump.dat"};
+
+  if (currentGrid->getWidth() != fd.w ||
+      currentGrid->getHeight() != fd.h ||
+      currentGrid->getDepth() != fd.d) {
+    std::cerr << "File data resolution does not match current grid resolution." << std::endl;
+    return;
+  }
+  
+  std::vector<GLubyte> current = currentGrid->getDataByte();
+  
+  for (size_t i = 0;i<current.size();++i) {
+    fd.gridData[i] = abs(current[i]-fd.gridData[i]);
+  }
+  
+  uploadData(fd);
+  rule = fd.r;
 }
 
 void saveState() {
@@ -205,8 +280,10 @@ static void displayInfo() {
   std::cout << "    ESC    Quit" << std::endl;
   std::cout << "    S      Reload Shaders (evolveVS.glsl, evolveFS.glsl, evolutionRule.glsl)" << std::endl;
   std::cout << "    C      clear the grid" << std::endl;
-  std::cout << "    F9     safe" << std::endl;
-  std::cout << "    F10    load" << std::endl;
+  std::cout << "    F9     save state" << std::endl;
+  std::cout << "    F10    load state" << std::endl;
+  std::cout << "    F11    subtract saved state" << std::endl;
+  std::cout << "    F12    add saved state" << std::endl;
   std::cout << "Paint the Seeds:" << std::endl;
   std::cout << "    left Mousekey        set random cells to be alive" << std::endl;
   std::cout << "    MouseWheel           change the Depth of the seed brush" << std::endl;
@@ -223,10 +300,12 @@ static void displayInfo() {
   std::cout << "    d            inserts/removes the neighbournumber into/from deathMap" << std::endl;
   std::cout << "Visuals:" << std::endl;
   std::cout << "    R         turn auto rotation on/off" << std::endl;
-  std::cout << "    1         set Render mode: Standart" << std::endl;
-  std::cout << "    2         set Render mode: Anaglyph" << std::endl;
+  std::cout << "    1         set render mode: Standard" << std::endl;
+  std::cout << "    2         set render mode: Anaglyph" << std::endl;
+  std::cout << "    3/4       decrease/increase eye distance" << std::endl;
+  std::cout << "    5/6       decrease/increase focal distance" << std::endl;
   std::cout << "    PageUP    zoom in" << std::endl;
-  std::cout << "    PageDWON  zoom out" << std::endl;
+  std::cout << "    PageDOWN  zoom out" << std::endl;
   std::cout << "    +         decrease delay" << std::endl;
   std::cout << "    -         increase delay" << std::endl;
 }
@@ -299,6 +378,12 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
       case GLFW_KEY_F10:
         loadState();
         break;
+      case GLFW_KEY_F7:
+        subtractState();
+        break;
+      case GLFW_KEY_F8:
+        addState();
+        break;
       case GLFW_KEY_F5:
         ruleIndex = (ruleIndex + 1) % rules.size();
         rule = rules[ruleIndex];
@@ -309,6 +394,22 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
         break;
       case GLFW_KEY_SLASH:           // US key for german -
         delay += 10;
+        break;
+      case GLFW_KEY_3:
+        eyeDistance -= 0.001;
+        std::cout << "eyeDistance = " << eyeDistance << std::endl;
+        break;
+      case GLFW_KEY_4:
+        eyeDistance += 0.001;
+        std::cout << "eyeDistance = " << eyeDistance << std::endl;
+        break;
+      case GLFW_KEY_5:
+        focalDistance -= 0.1;
+        std::cout << "focalDistance = " << focalDistance << std::endl;
+        break;
+      case GLFW_KEY_6:
+        focalDistance += 0.1;
+        std::cout << "focalDistance = " << focalDistance << std::endl;
         break;
       case GLFW_KEY_PAGE_UP :
         zoom -= 1;
@@ -475,14 +576,14 @@ void render() {
   switch (renderMode) {
     case RENDER_MODE::STANDARD: {
       const Mat4 v{ Mat4::lookAt({ 0, 0, zoom }, { 0, 0, 0 }, { 0, 1, 0 })};
-      const Mat4 p{ Mat4::perspective(45, dim.aspect(), 0.0001, 100) };
+      const Mat4 p{ Mat4::perspective(45, dim.aspect(), 0.1, 100) };
       renderInternal(dim, Mat4{ m * v * p });
       break;
     }
     case RENDER_MODE::ANAGLYPH: {
       const StereoMatrices sm = Mat4::stereoLookAtAndProjection({ 0, 0, zoom }, { 0, 0, 0 }, { 0, 1, 0 },
-                                                                45, dim.aspect(), 0.0001, 100, 3,
-                                                                0.04);
+                                                                45, dim.aspect(), 0.1, 100, focalDistance,
+                                                                eyeDistance);
       renderInternal(dim, Mat4{ m * sm.leftView * sm.leftProj }, leftEyeTexture);
       renderInternal(dim, Mat4{ m * sm.rightView * sm.rightProj }, rightEyeTexture);
 

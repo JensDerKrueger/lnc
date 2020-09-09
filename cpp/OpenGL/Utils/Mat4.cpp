@@ -368,7 +368,6 @@ Mat4 Mat4::mirror(const Vec3& p, const Vec3& n) {
 			2*k*n.x(),2*k*n.y(),2*k*n.z(),1};
 }
 
-
 StereoMatrices Mat4::stereoLookAtAndProjection(const Vec3& eye, const Vec3& at, const Vec3& up,
                                                float fovy, float aspect, float znear, float zfar,
                                                float focalLength, float eyeDist) {
