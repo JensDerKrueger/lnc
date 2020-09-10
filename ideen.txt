@@ -1,9 +1,15 @@
 - Basistransformationen
+- Suchen & Sortieren
+
 - neue Sprache 
   - LISP
   - PROLOG
   - Fortran
   - C
+  - C#
   - JS
   - Java
   - ASM
+
+
+------------------------------------
