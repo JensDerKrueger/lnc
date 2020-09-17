@@ -3,7 +3,7 @@
 (define (reverse-ls-int ls acc) 
 	(if (null? ls) 
 		acc 
-		(reverse-ls-int  (cdr ls) (cons (car ls) acc))))
+		(reverse-ls-int (cdr ls) (cons (car ls) acc))))
 
 (define (find-int c l p)
 		(if (char-ci=? c (car l))
