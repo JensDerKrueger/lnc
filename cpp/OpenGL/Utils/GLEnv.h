@@ -9,6 +9,8 @@
 
 #include "GLDebug.h"
 
+enum GL_DATA_TYPE {DT_BYTE, DT_HALF, DT_FLOAT};
+
 class GLException : public std::exception {
 	public:
 		GLException(const std::string& whatStr) : whatStr(whatStr) {}
