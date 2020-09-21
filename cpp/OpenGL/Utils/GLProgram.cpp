@@ -48,15 +48,15 @@ GLProgram::~GLProgram() {
 
 GLProgram GLProgram::createFromFiles(const std::vector<std::string>& vs, const std::vector<std::string>& fs, const std::vector<std::string>& gs) {
 	std::vector<std::string> vsTexts;
-	for (const std::string f : vs) {
+	for (const std::string& f : vs) {
 		vsTexts.push_back(loadFile(f));
 	}
 	std::vector<std::string> fsTexts;
-	for (const std::string f : fs) {
+	for (const std::string& f : fs) {
 		fsTexts.push_back(loadFile(f));
 	}
 	std::vector<std::string> gsTexts;
-	for (const std::string f : gs) {
+	for (const std::string& f : gs) {
 		if (!f.empty())		
 			gsTexts.push_back(loadFile(f));
 	}
