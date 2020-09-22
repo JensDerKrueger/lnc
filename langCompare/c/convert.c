@@ -21,7 +21,6 @@ unsigned char find(char c, const char* str) {
 	return 255;
 }
 
-
 unsigned long strToInt(const char* inStr, unsigned char inBase) {
 	unsigned long number = 0;
 	unsigned long multi = 1;
@@ -38,7 +37,7 @@ unsigned long strToInt(const char* inStr, unsigned char inBase) {
 
 
 char* intToStr(unsigned long number, unsigned char outBase) {
-	
+	// figure out the length of the target string
 	int _number = number;
 	size_t l = 0;
 	do {
@@ -47,8 +46,8 @@ char* intToStr(unsigned long number, unsigned char outBase) {
 		_number = _number / outBase;
 	} while (_number > 0);
 	
+	// do the actual conversion
 	char* revOutStr = malloc( (l + 1) * sizeof(char) );	
-	
 	size_t pos = 0;
 	do {
 		unsigned char digit = number % outBase;
@@ -56,7 +55,6 @@ char* intToStr(unsigned long number, unsigned char outBase) {
 		number = number / outBase;
 	} while (number > 0);
 	revOutStr[pos] = 0;
-	
 	
 	char* outStr = reverse(revOutStr);	
 	free(revOutStr);	
@@ -67,19 +65,17 @@ char* convert(const char* inStr, unsigned char inBase, unsigned char outBase) {
 	return intToStr(strToInt(inStr, inBase), outBase);
 }
 
-
 int main(int argc, char **argv) {
 	char* result = convert(argv[1], strToInt(argv[2],10), strToInt(argv[3],10));
 	printf("%s -> %s \n", argv[1], result);	
 	free(result);
-	return 0;
+	return EXIT_SUCCESS;
 }
 
-
-
-/* 
-
-char* reverse2(char* inStr) {	
+/*
+// alternative version of reverse that works in-place without
+// the need to allocate extra memory
+char* reverse(char* inStr) {	
 	const size_t l = strlen(inStr);	
 	char tmp;
 	for (size_t index = 0;index<l/2;++index){
@@ -89,6 +85,4 @@ char* reverse2(char* inStr) {
 	}	
 	return inStr;
 }
-
-
 */
