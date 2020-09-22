@@ -85,4 +85,37 @@ char* reverse(char* inStr) {
 	}	
 	return inStr;
 }
+
+
+// alternative version that uses the input string and the input and output
+// bases to conservatively estimate the length of the target string
+
+#include <math.h>
+
+double logarithm(double a, double b) {
+	return log(a) / log(b);
+}
+
+size_t computeLength(size_t l, unsigned char inBase, unsigned char outBase) {
+	return ceil(l * logarithm(inBase,outBase));
+}
+
+char* intToStr(unsigned long number, unsigned char outBase, size_t len) {
+	size_t pos = 0;
+	char* revOutStr = malloc(len+1);
+	do {
+		unsigned char digit = number % outBase;
+		revOutStr[pos++] = digits[digit];
+		number = number / outBase;
+	} while (number > 0);
+	revOutStr[pos] = 0;
+	
+	char* outStr = reverse(revOutStr);
+	free(revOutStr);
+	return outStr;
+}
+
+char* convert(const char* inStr, unsigned char inBase, unsigned char outBase) {
+	return intToStr(strToInt(inStr, inBase), outBase, computeLength(strlen(inStr), inBase, outBase));
+}
 */
