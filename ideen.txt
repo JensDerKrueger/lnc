@@ -2,12 +2,21 @@
 - Suchen & Sortieren
 
 - neue Sprache 
-  - C
+  - Pascal
   - C#
-  - LISP
   - Fortran
   - JS
-  - PROLOG
   - Java
-
+  - Cobol
+  - Ada
+  - Haskel
+  - Pearl
+  - C++ TMP
+  - PHP
+  - X86 ASM
+  - R
+  - Kotlin
+  - Dart
+  - Go
+  - Swift
 ------------------------------------
