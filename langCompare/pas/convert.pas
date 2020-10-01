@@ -3,7 +3,6 @@ program convert;
 const
 	digits : string = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 
-
 function find(c : char; str : string) : integer;
 var
 	i : integer;
@@ -46,10 +45,34 @@ begin
 	strToInt := number;
 end;
 
+function intToStr(number : integer; outBase : integer ) : string;
+var
+	digit  : integer;
+	outStr : string;
 begin
-	writeln(strToInt(paramStr(1), 20));
-end.
+	if number = 0 then exit('0');	
+	
+	outStr := '';
+	while number > 0 do
+	begin
+		digit  := number mod outBase;
+		outStr := digits[digit+1] + outStr;
+		number := number div outBase;
+	end;
+	
+	intToStr := outStr;
+end;
 
+function convert(inStr : string; inBase : integer; outBase : integer) : string;
+begin
+	convert := intToStr(strToInt(inStr,inBase),outBase);
+end;
+
+begin
+	write(paramStr(1));
+	write(' -> ');
+	writeln(convert(paramStr(1), strToInt(paramStr(2), 10), strToInt(paramStr(3), 10)));
+end.
 
 
 {
