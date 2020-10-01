@@ -3,7 +3,7 @@ CFLAGS=-c -Wall -std=c++17 -Wunreachable-code
 LFLAGS=-lglfw -lGLEW -framework OpenGL
 LIBS=
 INCLUDES=-I.
-SRC = main.cpp
+SRC = convert.cpp
 OBJ = $(SRC:.cpp=.o)
 TARGET = convert
 
