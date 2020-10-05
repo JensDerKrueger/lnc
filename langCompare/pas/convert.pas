@@ -3,10 +3,9 @@ program convert;
 const
 	digits : string = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 
-
 function find(c : char; str : string) : integer;
 var
-        i : integer;
+	i : integer;
 begin
 	for i := 1 to length(str) do
 	begin
@@ -20,77 +19,67 @@ var
 	out : string;
 	c   : char;
 begin
-        out := '';
+	out := '';	
 	for c in inStr do
 	begin
 		out := c + out;
-	end;
+	end;	
 	reverse := out;
 end;
 
-function strToInt(str : string; base : integer) : longint;
+function strToInt(str : string; base : integer) : integer;
 var
-        number : longint = 0;
-        multi  : longint = 1;
+	number : integer = 0;
+	multi  : integer = 1;
 	revStr : string;
 	c      : char;
-        digit  : integer;
+	digit  : integer;
 begin
 	revStr := reverse(str);
 	for c in revStr do
 	begin
 		digit := find(c, digits);
 		number := number + digit * multi;
-		multi := multi * base;
+		multi := multi * base;	
 	end;
 	strToInt := number;
 end;
 
-function intToStr(number : longint; outBase : integer) : string;
+function intToStr(number : integer; outBase : integer ) : string;
 var
-        revOutStr : string = '';
-        digit     : integer;
+	digit  : integer;
+	outStr : string;
 begin
-        repeat
-            digit := number mod outBase;
-            revOutStr := revOutStr + digits[digit+1];
-            number := number div outBase;
-        until number = 0;
-        intToStr := reverse(revOutStr);
+	if number = 0 then exit('0');	
+	
+	outStr := '';
+	while number > 0 do
+	begin
+		digit  := number mod outBase;
+		outStr := digits[digit+1] + outStr;
+		number := number div outBase;
+	end;
+	
+	intToStr := outStr;
 end;
 
-
-operator in (valstr : string; inbase : integer) outVal : longint;
+function convert(inStr : string; inBase : integer; outBase : integer) : string;
 begin
-        outVal := strToInt(valstr,inbase);
+	convert := intToStr(strToInt(inStr,inBase),outBase);
 end;
 
-operator in (number : longint; outBase : integer) outStr : string;
 begin
-        outStr := intToStr(number,outBase);
-end;
-
-function convert(inStr : string; inBase, outBase : integer) : string;
-begin
-        convert := inStr in inBase in outBase;
-end;
-
-
-begin
-        writeln(convert('1234',10,20));
-        writeln(1234 in 20);
-        writeln('1234' in 20);
-        writeln('1234' in 10 in 20);
-        writeln(3 in 2 in 3 in 2 in 3 in 2 in 3 in 2 in 3);
+	write(paramStr(1));
+	write(' -> ');
+	writeln(convert(paramStr(1), strToInt(paramStr(2), 10), strToInt(paramStr(3), 10)));
         readln();
 end.
-
 
 
 {
 procedure reverseInPlace(var str : string);
 var
-        i : longint;
+	i : integer;
 	t : char;
 begin
 	for i := 1 to length(str) div 2 do
