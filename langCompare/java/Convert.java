@@ -30,15 +30,15 @@ public class Convert {
 	}
 
 	static String intToStr(long number, int outBase) {
-		String revOutStr = "";		
 		if (number == 0) return "0";
 				
+		String outStr = "";		
 		while (number > 0) {
 			int digit = (int)(number % outBase);
-			revOutStr += digits.charAt(digit);
+			outStr = digits.charAt(digit) + outStr;
 			number = number / outBase;
 		}
-		return reverse(revOutStr);
+		return outStr;
 	}
 	
 	static String convert(String inStr, int inBase, int outBase) {
