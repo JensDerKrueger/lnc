@@ -7,7 +7,7 @@ function find(c : char; str : string) : integer;
 var
 	i : integer;
 begin
-	for i := 1 to length(str) do
+	for i := 1 to length(str) do 
 	begin
 		if c = str[i] then exit(i-1);
 	end;
@@ -72,7 +72,6 @@ begin
 	write(paramStr(1));
 	write(' -> ');
 	writeln(convert(paramStr(1), strToInt(paramStr(2), 10), strToInt(paramStr(3), 10)));
-        readln();
 end.
 
 
@@ -82,11 +81,11 @@ var
 	i : integer;
 	t : char;
 begin
-	for i := 1 to length(str) div 2 do
+	for i := 1 to length(str) div 2 do 
 	begin
 		t := str[i];
 		str[i] := str[length(str)-(i-1)];
 		str[length(str)-(i-1)] := t;
 	end;
-end;
+end;	
 }

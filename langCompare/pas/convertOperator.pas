@@ -8,24 +8,16 @@ function find(c : char; str : string) : integer;
 var
         i : integer;
 begin
-	for i := 1 to length(str) do
-	begin
-		if c = str[i] then exit(i-1);
-	end;
 	find := 255;
+        for i := 1 to length(str) do if c = str[i] then exit(i-1);
 end;
 
 function reverse(inStr : string) : string;
 var
-	out : string;
-	c   : char;
+        c   : char;
 begin
-        out := '';
-	for c in inStr do
-	begin
-		out := c + out;
-	end;
-	reverse := out;
+        reverse := '';
+        for c in inStr do reverse := c + reverse;
 end;
 
 function strToInt(str : string; base : integer) : longint;
@@ -81,6 +73,7 @@ begin
         writeln(1234 in 20);
         writeln('1234' in 20);
         writeln(3 in 2 in 3 in 2 in 3 in 2 in 3 in 2 in 3);
+        readln;
 end.
 
 
