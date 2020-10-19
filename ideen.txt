@@ -19,6 +19,7 @@
   - Dart
   - Go
   - Swift
+  - Julia
 ------------------------------------
 
 - Asteroids (the arcade game) in 3D 
