@@ -32,7 +32,7 @@ public:
   }
 
   void drawLines(const std::vector<float> data, LineDrawType t);
-  void drawPoints(const std::vector<float> data);
+  void drawPoints(const std::vector<float> data, float pointSize=1.0f);
   
   virtual void init() {}
   virtual void draw() {}

@@ -71,18 +71,19 @@ void GLApp::drawLines(const std::vector<float> data, LineDrawType t) {
 
   switch (t) {
     case LineDrawType::LIST :
-      glDrawArrays(GL_LINES, 0, GLsizei(data.size()/7));
+      GL(glDrawArrays(GL_LINES, 0, GLsizei(data.size()/7)));
       break;
     case LineDrawType::STRIP :
-      glDrawArrays(GL_LINE_STRIP, 0, GLsizei(data.size()/7));
+      GL(glDrawArrays(GL_LINE_STRIP, 0, GLsizei(data.size()/7)));
       break;
     case LineDrawType::LOOP :
-      glDrawArrays(GL_LINE_LOOP, 0, GLsizei(data.size()/7));
+      GL(glDrawArrays(GL_LINE_LOOP, 0, GLsizei(data.size()/7)));
       break;
   }
 }
 
-void GLApp::drawPoints(const std::vector<float> data) {
+void GLApp::drawPoints(const std::vector<float> data, float pointSize) {
   simpleVb.setData(data,7,GL_DYNAMIC_DRAW);
-  glDrawArrays(GL_POINTS, 0, GLsizei(data.size()/7));
+  GL(glPointSize(pointSize));
+  GL(glDrawArrays(GL_POINTS, 0, GLsizei(data.size()/7)));
 }
