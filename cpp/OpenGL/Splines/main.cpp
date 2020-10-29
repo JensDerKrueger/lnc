@@ -52,6 +52,11 @@ public:
       curve[i*7+6] = 1.0f;
     }
     drawLines(curve, LineDrawType::STRIP);
+    
+    drawPoints({0-0.5f,p0,0,1,0,0,0,
+                1-0.5f,p1,0,1,0,0,0,
+                0-0.5f,p2,0,1,0,0,0,
+                1-0.5f,p3,0,1,0,0,0}, 10);
 
   }
 
