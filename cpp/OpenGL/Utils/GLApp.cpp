@@ -26,7 +26,7 @@ GLApp::GLApp(uint32_t w, uint32_t h, uint32_t s,
      "}\n")},
   simpleArray{},
   simpleVb{GL_ARRAY_BUFFER},
-  animationActive{false}
+  animationActive{true}
 {
   staticAppPtr = this;
   glEnv.setMouseCallbacks(cursorPositionCallback, mouseButtonCallback, scrollCallback);
@@ -52,6 +52,8 @@ GLApp::GLApp(uint32_t w, uint32_t h, uint32_t s,
 
 void GLApp::run() {
   init();
+  Dimensions dim{ glEnv.getFramebufferSize() };
+  resize(dim.width, dim.height);
   do {
     if (animationActive) animate();
     draw();
@@ -59,3 +61,28 @@ void GLApp::run() {
   } while (!glEnv.shouldClose());
 }
  
+void GLApp::resize(int width, int height) {
+  Dimensions dim{ glEnv.getFramebufferSize() };
+  GL(glViewport(0, 0, dim.width, dim.height));
+}
+
+void GLApp::drawLines(const std::vector<float> data, LineDrawType t) {
+  simpleVb.setData(data,7,GL_DYNAMIC_DRAW);
+
+  switch (t) {
+    case LineDrawType::LIST :
+      glDrawArrays(GL_LINES, 0, GLsizei(data.size()/7));
+      break;
+    case LineDrawType::STRIP :
+      glDrawArrays(GL_LINE_STRIP, 0, GLsizei(data.size()/7));
+      break;
+    case LineDrawType::LOOP :
+      glDrawArrays(GL_LINE_LOOP, 0, GLsizei(data.size()/7));
+      break;
+  }
+}
+
+void GLApp::drawPoints(const std::vector<float> data) {
+  simpleVb.setData(data,7,GL_DYNAMIC_DRAW);
+  glDrawArrays(GL_POINTS, 0, GLsizei(data.size()/7));
+}

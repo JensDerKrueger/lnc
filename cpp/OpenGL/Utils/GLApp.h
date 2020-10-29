@@ -10,6 +10,11 @@
 #include "GLArray.h"
 #include "GLBuffer.h"
 
+enum LineDrawType {
+  LIST,
+  STRIP,
+  LOOP
+};
 
 class GLApp {
 public:
@@ -26,11 +31,14 @@ public:
     return animationActive;
   }
 
+  void drawLines(const std::vector<float> data, LineDrawType t);
+  void drawPoints(const std::vector<float> data);
+  
   virtual void init() {}
   virtual void draw() {}
   virtual void animate() {}
   
-  virtual void resize(int width, int height) {}
+  virtual void resize(int width, int height);
   virtual void keyboard(int key, int scancode, int action, int mods) {}
   virtual void mouseMove(double xPosition, double yPosition) {}
   virtual void mouseButton(int button, int state, int mods) {}
