@@ -5,7 +5,7 @@
 class MyGLApp : public GLApp {
 public:
   
-  const uint32_t maxA = 60;
+  const uint32_t maxA = 120;
   uint32_t a = 0;
   float sa = 0;
   float ca = 0;
@@ -33,19 +33,9 @@ public:
       float b1 = 3.0f*t*(1.0f-t)*(1.0f-t);
       float b2 = 3.0f*t*t*(1.0f-t);
       float b3 = t*t*t;
-
-      float stX = p0.x()*b0+
-                  p1.x()*b1+
-                  p2.x()*b2+
-                  p3.x()*b3;
       
-      float stY = p0.y()*b0+
-                  p1.y()*b1+
-                  p2.y()*b2+
-                  p3.y()*b3;
-      
-      curve[i*7+0] = stX;
-      curve[i*7+1] = stY;
+      curve[i*7+0] = p0.x()*b0+p1.x()*b1+p2.x()*b2+p3.x()*b3;
+      curve[i*7+1] = p0.y()*b0+p1.y()*b1+p2.y()*b2+p3.y()*b3;
       curve[i*7+2] = 0.0f;
       
       curve[i*7+3] = 0.0;
