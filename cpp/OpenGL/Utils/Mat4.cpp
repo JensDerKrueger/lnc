@@ -15,9 +15,9 @@ Mat4::Mat4() :
 }
 
 Mat4::Mat4(float m11, float m12, float m13, float m14,
-		float m21, float m22, float m23, float m24,
-		float m31, float m32, float m33, float m34,
-		float m41, float m42, float m43, float m44) :
+           float m21, float m22, float m23, float m24,
+           float m31, float m32, float m33, float m34,
+           float m41, float m42, float m43, float m44) :
 	e{m11,m12,m13,m14,
 	  m21,m22,m23,m24,
 	  m31,m32,m33,m34,
@@ -37,9 +37,9 @@ Mat4::Mat4(const Mat4& other) :
 
 Mat4::Mat4(const Vec3& e1, float e14, const Vec3& e2, float e24, const Vec3& e3, float e34, const Vec3& e4, float e44) :
 	Mat4(e1.x(),e1.y(),e1.z(),e14,
-		 e2.x(),e2.y(),e2.z(),e24,
-		 e3.x(),e3.y(),e3.z(),e34,
-		 e4.x(),e4.y(),e4.z(),e44)
+		   e2.x(),e2.y(),e2.z(),e24,
+		   e3.x(),e3.y(),e3.z(),e34,
+		   e4.x(),e4.y(),e4.z(),e44)
 {
 }
 
@@ -56,30 +56,30 @@ const std::string Mat4::toString() const {
 // binary operators with scalars
 Mat4 Mat4::operator* ( float scalar ) const {
 	return Mat4{e[0]*scalar,e[1]*scalar,e[2]*scalar,e[3]*scalar,
-				e[4]*scalar,e[5]*scalar,e[6]*scalar,e[7]*scalar,
-				e[8]*scalar,e[9]*scalar,e[10]*scalar,e[11]*scalar,
-				e[12]*scalar,e[13]*scalar,e[14]*scalar,e[15]*scalar};
+              e[4]*scalar,e[5]*scalar,e[6]*scalar,e[7]*scalar,
+              e[8]*scalar,e[9]*scalar,e[10]*scalar,e[11]*scalar,
+              e[12]*scalar,e[13]*scalar,e[14]*scalar,e[15]*scalar};
 }
 
 Mat4 Mat4::operator+ ( float scalar ) const {
 	return Mat4{e[0]+scalar,e[1]+scalar,e[2]+scalar,e[3]+scalar,
-				e[4]+scalar,e[5]+scalar,e[6]+scalar,e[7]+scalar,
-				e[8]+scalar,e[9]+scalar,e[10]+scalar,e[11]+scalar,
-				e[12]+scalar,e[13]+scalar,e[14]+scalar,e[15]+scalar};
+              e[4]+scalar,e[5]+scalar,e[6]+scalar,e[7]+scalar,
+              e[8]+scalar,e[9]+scalar,e[10]+scalar,e[11]+scalar,
+              e[12]+scalar,e[13]+scalar,e[14]+scalar,e[15]+scalar};
 }
 
 Mat4 Mat4::operator- ( float scalar ) const {
 	return Mat4{e[0]-scalar,e[1]-scalar,e[2]-scalar,e[3]-scalar,
-				e[4]-scalar,e[5]-scalar,e[6]-scalar,e[7]-scalar,
-				e[8]-scalar,e[9]-scalar,e[10]-scalar,e[11]-scalar,
-				e[12]-scalar,e[13]-scalar,e[14]-scalar,e[15]-scalar};
+              e[4]-scalar,e[5]-scalar,e[6]-scalar,e[7]-scalar,
+              e[8]-scalar,e[9]-scalar,e[10]-scalar,e[11]-scalar,
+              e[12]-scalar,e[13]-scalar,e[14]-scalar,e[15]-scalar};
 }
 
 Mat4 Mat4::operator/ ( float scalar ) const {
 	return Mat4{e[0]/scalar,e[1]/scalar,e[2]/scalar,e[3]/scalar,
-				e[4]/scalar,e[5]/scalar,e[6]/scalar,e[7]/scalar,
-				e[8]/scalar,e[9]/scalar,e[10]/scalar,e[11]/scalar,
-				e[12]/scalar,e[13]/scalar,e[14]/scalar,e[15]/scalar};
+              e[4]/scalar,e[5]/scalar,e[6]/scalar,e[7]/scalar,
+              e[8]/scalar,e[9]/scalar,e[10]/scalar,e[11]/scalar,
+              e[12]/scalar,e[13]/scalar,e[14]/scalar,e[15]/scalar};
 }
 
 Mat4 Mat4::operator * ( const Mat4& other ) const {
