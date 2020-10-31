@@ -103,10 +103,10 @@ int main(int argc, char ** argv) {
     
         const Mat4 mv{Mat4::rotationZ(glfwGetTime()*20)};
         const Mat4 p{Mat4::perspective(90, ratio, 0.0001, 100)};
-        const Mat4 mvp{mv*p};
+        const Mat4 mvp{mv * p};
     
         glUseProgram(program);
-        glUniformMatrix4fv(mvp_location, 1, GL_FALSE, mvp);
+        glUniformMatrix4fv(mvp_location, 1, GL_TRUE, mvp);  // OpenGL uses column-major order -> transpose
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
         glfwSwapBuffers(window);  
