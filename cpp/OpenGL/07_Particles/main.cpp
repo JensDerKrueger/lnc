@@ -197,7 +197,7 @@ int main(int argc, char ** argv) {
         // bind geometry
         wallArray.bind();
 
-        const Mat4 mLeftWall{Mat4::rotationY(90)*Mat4::translation(-2.0f,0.0f,0.0f)};
+        const Mat4 mLeftWall{Mat4::rotationY(-90)*Mat4::translation(-2.0f,0.0f,0.0f)};
         progNormalMap.setUniform(mvpLocationNormalMap, {mLeftWall*v*p});
         progNormalMap.setUniform(mLocationNormalMap, mLeftWall);
         progNormalMap.setUniform(mitLocationNormalMap, Mat4::inverse(mLeftWall), true);
@@ -207,7 +207,7 @@ int main(int argc, char ** argv) {
 
         // ************* the right wall
         
-        const Mat4 mRightWall{Mat4::rotationY(-90)*Mat4::translation(2.0f,0.0f,0.0f)};
+        const Mat4 mRightWall{Mat4::rotationY(90)*Mat4::translation(2.0f,0.0f,0.0f)};
         progNormalMap.setUniform(mvpLocationNormalMap, mRightWall*v*p);
         progNormalMap.setUniform(mLocationNormalMap, mRightWall);
         progNormalMap.setUniform(mitLocationNormalMap, Mat4::inverse(mRightWall), true);
@@ -217,7 +217,7 @@ int main(int argc, char ** argv) {
 
         // ************* the top wall
         
-        const Mat4 mTopWall{Mat4::rotationX(90)*Mat4::translation(0.0f,2.0f,0.0f)};
+        const Mat4 mTopWall{Mat4::rotationX(-90)*Mat4::translation(0.0f,2.0f,0.0f)};
         progNormalMap.setUniform(mvpLocationNormalMap, mTopWall*v*p);
         progNormalMap.setUniform(mLocationNormalMap, mTopWall);
         progNormalMap.setUniform(mitLocationNormalMap, Mat4::inverse(mTopWall), true);
@@ -230,7 +230,7 @@ int main(int argc, char ** argv) {
 
         // ************* the bottom wall
         
-        const Mat4 mBottomWall{Mat4::rotationX(-90)*Mat4::translation(0.0f,-2.0f,0.0f)};
+        const Mat4 mBottomWall{Mat4::rotationX(90)*Mat4::translation(0.0f,-2.0f,0.0f)};
         progNormalMap.setUniform(mvpLocationNormalMap, {mBottomWall*v*p});
         progNormalMap.setUniform(mLocationNormalMap, mBottomWall);
         progNormalMap.setUniform(mitLocationNormalMap, Mat4::inverse(mBottomWall), true);

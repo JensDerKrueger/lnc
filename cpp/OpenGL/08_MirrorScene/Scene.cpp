@@ -139,7 +139,7 @@ void Scene::renderWorld(float t0, const Mat4& m, const Mat4& v, const Mat4& p, c
 	// bind geometry
 	wallArray.bind();
 
-	const Mat4 mLeftWall{Mat4::rotationY(90)*Mat4::translation(-2.0f,0.0f,0.0f)*m};
+	const Mat4 mLeftWall{Mat4::rotationY(-90)*Mat4::translation(-2.0f,0.0f,0.0f)*m};
 	progNormalMap.setUniform(mvpLocationNormalMap, mLeftWall*v*p);
 	progNormalMap.setUniform(mLocationNormalMap, mLeftWall);
 	progNormalMap.setUniform(mitLocationNormalMap, Mat4::inverse(mLeftWall), true);
@@ -149,7 +149,7 @@ void Scene::renderWorld(float t0, const Mat4& m, const Mat4& v, const Mat4& p, c
 
 	// ************* the front wall
 	
-	const Mat4 mFrontWall{Mat4::rotationY(180)*Mat4::translation(0.0f,0.0f,2.0f)*m};
+	const Mat4 mFrontWall{Mat4::rotationY(-180)*Mat4::translation(0.0f,0.0f,2.0f)*m};
 	progNormalMap.setUniform(mvpLocationNormalMap, mFrontWall*v*p);
 	progNormalMap.setUniform(mLocationNormalMap, mFrontWall);
 	progNormalMap.setUniform(mitLocationNormalMap, Mat4::inverse(mFrontWall), true);
@@ -159,7 +159,7 @@ void Scene::renderWorld(float t0, const Mat4& m, const Mat4& v, const Mat4& p, c
 
 	// ************* the top wall
 	
-	const Mat4 mTopWall{Mat4::rotationX(90)*Mat4::translation(0.0f,2.0f,0.0f)*m};
+	const Mat4 mTopWall{Mat4::rotationX(-90)*Mat4::translation(0.0f,2.0f,0.0f)*m};
 	progNormalMap.setUniform(mvpLocationNormalMap, mTopWall*v*p);
 	progNormalMap.setUniform(mLocationNormalMap, mTopWall);
 	progNormalMap.setUniform(mitLocationNormalMap, Mat4::inverse(mTopWall), true);
@@ -172,7 +172,7 @@ void Scene::renderWorld(float t0, const Mat4& m, const Mat4& v, const Mat4& p, c
 
 	// ************* the bottom wall
 	
-	const Mat4 mBottomWall{Mat4::rotationX(-90)*Mat4::translation(0.0f,-2.0f,0.0f)*m};
+	const Mat4 mBottomWall{Mat4::rotationX(90)*Mat4::translation(0.0f,-2.0f,0.0f)*m};
 	progNormalMap.setUniform(mvpLocationNormalMap, mBottomWall*v*p);
 	progNormalMap.setUniform(mLocationNormalMap, mBottomWall);
 	progNormalMap.setUniform(mitLocationNormalMap, Mat4::inverse(mBottomWall), true);

@@ -142,8 +142,8 @@ Mat4 Mat4::rotationX(float degree) {
 	const float sinAngle = sinf(angle);
 
 	return {1, 0, 0, 0,
-          0, cosAngle, -sinAngle, 0,
-          0, sinAngle, cosAngle, 0,
+          0, cosAngle, sinAngle, 0,
+          0, -sinAngle, cosAngle, 0,
           0, 0, 0, 1};
 }
 
@@ -153,9 +153,9 @@ Mat4 Mat4::rotationY(float degree) {
 	const float cosAngle{cosf(angle)};
 	const float sinAngle{sinf(angle)};
 
-	return {cosAngle, 0, sinAngle, 0,
+	return {cosAngle, 0, -sinAngle, 0,
           0, 1, 0, 0,
-          -sinAngle, 0, cosAngle, 0,
+          sinAngle, 0, cosAngle, 0,
           0, 0, 0, 1};
 }
 
@@ -165,8 +165,8 @@ Mat4 Mat4::rotationZ(float degree) {
 	const float cosAngle{cosf(angle)};
 	const float sinAngle{sinf(angle)};
 
-	return {cosAngle, -sinAngle, 0, 0,
-          sinAngle, cosAngle, 0, 0,
+	return {cosAngle, sinAngle, 0, 0,
+          -sinAngle, cosAngle, 0, 0,
           0, 0, 1, 0,
           0, 0, 0, 1};
 }

@@ -155,11 +155,11 @@ const std::vector<Vertex> drawString(const std::string& s, float angle, const Ve
                 drawStack.pop();
                 break;
             case '+' :
-                currentState.dir = Mat4::rotationZ(angle)*currentState.dir;
+                currentState.dir = Mat4::rotationZ(-angle)*currentState.dir;
                 currentState.depth++;
                 break;
             case '-' :
-                currentState.dir = Mat4::rotationZ(-angle)*currentState.dir;
+                currentState.dir = Mat4::rotationZ(angle)*currentState.dir;
                 currentState.depth++;
                 break;
         }
