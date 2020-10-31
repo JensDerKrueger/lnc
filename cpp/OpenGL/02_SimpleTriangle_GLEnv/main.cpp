@@ -50,7 +50,7 @@ int main(int argc, char ** argv) {
         
         program.enable();
         
-        glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, mvp);
+        glUniformMatrix4fv(mvpLocation, 1, GL_TRUE, mvp);  // OpenGL uses column-major order -> transpose
         
         glDrawArrays(GL_TRIANGLES, 0, 3);
         
