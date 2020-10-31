@@ -172,17 +172,17 @@ Mat4 Mat4::rotationZ(float degree) {
 }
 
 Mat4 Mat4::rotationAxis(const Vec3& axis, float degree) {
-	const float angle{deg2Rad(degree)};
-	const float cosAngle{cosf(angle)};
-	const float sinAngle{sinf(angle)};
-	const float oneMinusCosAngle{1.0f-cosAngle};
+	const float a{deg2Rad(degree)};
+	const float cosA{cosf(a)};
+	const float sinA{sinf(a)};
+	const float omCosA{1.0f-cosA};
 
 	const Vec3 sqrAxis{axis * axis};
 
-  return {cosAngle+oneMinusCosAngle*sqrAxis.x(),                 oneMinusCosAngle*axis.x()*axis.y()+sinAngle*axis.z(), oneMinusCosAngle*axis.x()*axis.z()-sinAngle*axis.y(), 0,
-          oneMinusCosAngle*axis.x()*axis.y()-sinAngle*axis.z(),  cosAngle+oneMinusCosAngle*sqrAxis.y(),                oneMinusCosAngle*axis.y()*axis.z()+sinAngle*axis.x(), 0,
-          oneMinusCosAngle*axis.x()*axis.z()+sinAngle*axis.y(),  oneMinusCosAngle*axis.y()*axis.z()-sinAngle*axis.x(), cosAngle+oneMinusCosAngle*sqrAxis.z(),                0,
-          0,                                                     0,                                                    0,                                                    1
+  return {cosA+omCosA*sqrAxis.x(),                 omCosA*axis.x()*axis.y()+sinA*axis.z(), omCosA*axis.x()*axis.z()-sinA*axis.y(), 0,
+          omCosA*axis.x()*axis.y()-sinA*axis.z(),  cosA+omCosA*sqrAxis.y(),                omCosA*axis.y()*axis.z()+sinA*axis.x(), 0,
+          omCosA*axis.x()*axis.z()+sinA*axis.y(),  omCosA*axis.y()*axis.z()-sinA*axis.x(), cosA+omCosA*sqrAxis.z(),                0,
+          0,                                       0,                                      0,                                      1
   };
 }
 
@@ -195,136 +195,136 @@ Mat4 Mat4::transpose(const Mat4& m) {
 
 Mat4 Mat4::inverse(const Mat4& m) {
 
-  Mat4 result;
+   Mat4 result;
 
-  float Q =   m.e[1] *(m.e[14]*( m.e[4] * m.e[11] - m.e[8]  * m.e[7])+
-          m.e[12] *(-m.e[6] * m.e[11] + m.e[7] * m.e[10])+
-          m.e[15]*( m.e[8] *  m.e[6] - m.e[4]  * m.e[10]))
-        +
-        m.e[13] *(m.e[0] *( m.e[6] * m.e[11] - m.e[7] * m.e[10])+
-          m.e[8] *(-m.e[3]* m.e[6]  + m.e[2]  * m.e[7])+
-          m.e[4] *(-m.e[2] * m.e[11] + m.e[3] * m.e[10]))
-        +
-        m.e[15]*(m.e[5] *(-m.e[2] *  m.e[8] + m.e[0]  * m.e[10])+
-          m.e[9] *(-m.e[0] *  m.e[6] + m.e[4]  * m.e[2]))
-        +
-        m.e[14]*(m.e[0] *(-m.e[5] * m.e[11] + m.e[9]  * m.e[7])+
-          m.e[3]*( m.e[8] * m.e[5]  - m.e[9]  * m.e[4]))
-        +
-        m.e[12]* (m.e[9] *( m.e[6] * m.e[3] - m.e[7] * m.e[2])+
-          m.e[5] *( m.e[2] * m.e[11] - m.e[3] * m.e[10]));
+   float Q =   m.e[4] *(m.e[11]*( m.e[1] * m.e[14] - m.e[2]  * m.e[13])+
+           m.e[3] *(-m.e[9] * m.e[14] + m.e[13] * m.e[10])+
+           m.e[15]*( m.e[2] *  m.e[9] - m.e[1]  * m.e[10]))
+         +
+         m.e[7] *(m.e[0] *( m.e[9] * m.e[14] - m.e[13] * m.e[10])+
+           m.e[2] *(-m.e[12]* m.e[9]  + m.e[8]  * m.e[13])+
+           m.e[1] *(-m.e[8] * m.e[14] + m.e[12] * m.e[10]))
+         +
+         m.e[15]*(m.e[5] *(-m.e[8] *  m.e[2] + m.e[0]  * m.e[10])+
+           m.e[6] *(-m.e[0] *  m.e[9] + m.e[1]  * m.e[8]))
+         +
+         m.e[11]*(m.e[0] *(-m.e[5] * m.e[14] + m.e[6]  * m.e[13])+
+           m.e[12]*( m.e[2] * m.e[5]  - m.e[6]  * m.e[1]))
+         +
+         m.e[3]* (m.e[6] *( m.e[9] * m.e[12] - m.e[13] * m.e[8])+
+           m.e[5] *( m.e[8] * m.e[14] - m.e[12] * m.e[10]));
 
-  result.e[0] =  ( m.e[13]  * m.e[6]  * m.e[11]
-      + m.e[15] * m.e[5]  * m.e[10]
-      - m.e[15] * m.e[9]  * m.e[6]
-      - m.e[14] * m.e[5]  * m.e[11]
-      - m.e[13]  * m.e[7] * m.e[10]
-      + m.e[14] * m.e[9]  * m.e[7])/Q;
-    result.e[4] = -( m.e[1]  * m.e[15] * m.e[10]
-      - m.e[1]  * m.e[14] * m.e[11]
-      - m.e[15] * m.e[9]  * m.e[2]
-      + m.e[14] * m.e[9]  * m.e[3]
-      + m.e[13]  * m.e[2]  * m.e[11]
-      - m.e[13]  * m.e[3] * m.e[10])/Q;
-  result.e[8] = (- m.e[1]  * m.e[14] * m.e[7]
-      + m.e[1]  * m.e[15] * m.e[6]
-      - m.e[15] * m.e[2]  * m.e[5]
-      - m.e[13]  * m.e[3] * m.e[6]
-      + m.e[14] * m.e[3] * m.e[5]
-      + m.e[13]  * m.e[2]  * m.e[7])/Q;
-    result.e[12] =  -(m.e[1]  * m.e[6]  * m.e[11]
-      - m.e[1]  * m.e[7] * m.e[10]
-      + m.e[3] * m.e[5]  * m.e[10]
-      - m.e[6]  * m.e[9]  * m.e[3]
-      - m.e[2]  * m.e[5]  * m.e[11]
-      + m.e[7] * m.e[9]  * m.e[2])/Q;
-  /// 2
-  result.e[1] = (- m.e[4]  * m.e[15] * m.e[10]
-      + m.e[4]  * m.e[14] * m.e[11]
-      - m.e[14] * m.e[8]  * m.e[7]
-      - m.e[12]  * m.e[6]  * m.e[11]
-      + m.e[15] * m.e[8]  * m.e[6]
-      + m.e[12]  * m.e[7] * m.e[10])/Q;
+   result.e[0] =  ( m.e[7]  * m.e[9]  * m.e[14]
+       + m.e[15] * m.e[5]  * m.e[10]
+       - m.e[15] * m.e[6]  * m.e[9]
+       - m.e[11] * m.e[5]  * m.e[14]
+       - m.e[7]  * m.e[13] * m.e[10]
+       + m.e[11] * m.e[6]  * m.e[13])/Q;
+     result.e[4] = -( m.e[4]  * m.e[15] * m.e[10]
+       - m.e[4]  * m.e[11] * m.e[14]
+       - m.e[15] * m.e[6]  * m.e[8]
+       + m.e[11] * m.e[6]  * m.e[12]
+       + m.e[7]  * m.e[8]  * m.e[14]
+       - m.e[7]  * m.e[12] * m.e[10])/Q;
+   result.e[8] = (- m.e[4]  * m.e[11] * m.e[13]
+       + m.e[4]  * m.e[15] * m.e[9]
+       - m.e[15] * m.e[8]  * m.e[5]
+       - m.e[7]  * m.e[12] * m.e[9]
+       + m.e[11] * m.e[12] * m.e[5]
+       + m.e[7]  * m.e[8]  * m.e[13])/Q;
+     result.e[12] =  -(m.e[4]  * m.e[9]  * m.e[14]
+       - m.e[4]  * m.e[13] * m.e[10]
+       + m.e[12] * m.e[5]  * m.e[10]
+       - m.e[9]  * m.e[6]  * m.e[12]
+       - m.e[8]  * m.e[5]  * m.e[14]
+       + m.e[13] * m.e[6]  * m.e[8])/Q;
+   /// 2
+   result.e[1] = (- m.e[1]  * m.e[15] * m.e[10]
+       + m.e[1]  * m.e[11] * m.e[14]
+       - m.e[11] * m.e[2]  * m.e[13]
+       - m.e[3]  * m.e[9]  * m.e[14]
+       + m.e[15] * m.e[2]  * m.e[9]
+       + m.e[3]  * m.e[13] * m.e[10])/Q;
 
-  result.e[5] = (- m.e[15] * m.e[8]  * m.e[2]
-      + m.e[15] * m.e[0]  * m.e[10]
-      - m.e[14] * m.e[0]  * m.e[11]
-      - m.e[12]  * m.e[3] * m.e[10]
-      + m.e[14] * m.e[8]  * m.e[3]
-      + m.e[12]  * m.e[2]  * m.e[11])/Q;
+   result.e[5] = (- m.e[15] * m.e[2]  * m.e[8]
+       + m.e[15] * m.e[0]  * m.e[10]
+       - m.e[11] * m.e[0]  * m.e[14]
+       - m.e[3]  * m.e[12] * m.e[10]
+       + m.e[11] * m.e[2]  * m.e[12]
+       + m.e[3]  * m.e[8]  * m.e[14])/Q;
 
-  result.e[9] = -(-m.e[4]  * m.e[15] * m.e[2]
-      + m.e[4]  * m.e[14] * m.e[3]
-      + m.e[15] * m.e[0]  * m.e[6]
-      - m.e[12]  * m.e[6]  * m.e[3]
-      + m.e[12]  * m.e[7] * m.e[2]
-      - m.e[14] * m.e[0]  * m.e[7])/Q;
+   result.e[9] = -(-m.e[1]  * m.e[15] * m.e[8]
+       + m.e[1]  * m.e[11] * m.e[12]
+       + m.e[15] * m.e[0]  * m.e[9]
+       - m.e[3]  * m.e[9]  * m.e[12]
+       + m.e[3]  * m.e[13] * m.e[8]
+       - m.e[11] * m.e[0]  * m.e[13])/Q;
 
-  result.e[13] = (- m.e[4]  * m.e[2]  * m.e[11]
-      + m.e[4]  * m.e[3] * m.e[10]
-      + m.e[0]  * m.e[6]  * m.e[11]
-      - m.e[0]  * m.e[7] * m.e[10]
-      - m.e[3] * m.e[8]  * m.e[6]
-      + m.e[2]  * m.e[8]  * m.e[7])/Q;
-  /// 3
-  result.e[2] = -( m.e[15] * m.e[8]  * m.e[5]
-      - m.e[13]  * m.e[8]  * m.e[7]
-      - m.e[12]  * m.e[5]  * m.e[11]
-      + m.e[4]  * m.e[13]  * m.e[11]
-      - m.e[4]  * m.e[15] * m.e[9]
-      + m.e[12]  * m.e[7] * m.e[9])/Q;
+   result.e[13] = (- m.e[1]  * m.e[8]  * m.e[14]
+       + m.e[1]  * m.e[12] * m.e[10]
+       + m.e[0]  * m.e[9]  * m.e[14]
+       - m.e[0]  * m.e[13] * m.e[10]
+       - m.e[12] * m.e[2]  * m.e[9]
+       + m.e[8]  * m.e[2]  * m.e[13])/Q;
+   /// 3
+   result.e[2] = -( m.e[15] * m.e[2]  * m.e[5]
+       - m.e[7]  * m.e[2]  * m.e[13]
+       - m.e[3]  * m.e[5]  * m.e[14]
+       + m.e[1]  * m.e[7]  * m.e[14]
+       - m.e[1]  * m.e[15] * m.e[6]
+       + m.e[3]  * m.e[13] * m.e[6])/Q;
 
-  result.e[6] = (- m.e[1]  * m.e[12]  * m.e[11]
-      + m.e[1]  * m.e[15] * m.e[8]
-      + m.e[13]  * m.e[0]  * m.e[11]
-      - m.e[15] * m.e[9]  * m.e[0]
-      - m.e[13]  * m.e[3] * m.e[8]
-      + m.e[12]  * m.e[9]  * m.e[3])/Q;
+   result.e[6] = (- m.e[4]  * m.e[3]  * m.e[14]
+       + m.e[4]  * m.e[15] * m.e[2]
+       + m.e[7]  * m.e[0]  * m.e[14]
+       - m.e[15] * m.e[6]  * m.e[0]
+       - m.e[7]  * m.e[12] * m.e[2]
+       + m.e[3]  * m.e[6]  * m.e[12])/Q;
 
-  result.e[10] = -(-m.e[15] * m.e[0]  * m.e[5]
-      + m.e[15] * m.e[4]  * m.e[1]
-      + m.e[12]  * m.e[3] * m.e[5]
-      + m.e[13]  * m.e[0]  * m.e[7]
-      - m.e[13]  * m.e[4]  * m.e[3]
-      - m.e[12]  * m.e[1]  * m.e[7])/Q;
+   result.e[10] = -(-m.e[15] * m.e[0]  * m.e[5]
+       + m.e[15] * m.e[1]  * m.e[4]
+       + m.e[3]  * m.e[12] * m.e[5]
+       + m.e[7]  * m.e[0]  * m.e[13]
+       - m.e[7]  * m.e[1]  * m.e[12]
+       - m.e[3]  * m.e[4]  * m.e[13])/Q;
 
-  result.e[14] = -( m.e[11] * m.e[0]  * m.e[5]
-      - m.e[11] * m.e[4]  * m.e[1]
-      - m.e[8]  * m.e[3] * m.e[5]
-      - m.e[9]  * m.e[0]  * m.e[7]
-      + m.e[9]  * m.e[4]  * m.e[3]
-      + m.e[8]  * m.e[1]  * m.e[7])/Q;
-  /// 4
-  result.e[3] = (- m.e[4]  * m.e[14] * m.e[9]
-      + m.e[4]  * m.e[13]  * m.e[10]
-      - m.e[13]  * m.e[8]  * m.e[6]
-      - m.e[12]  * m.e[5]  * m.e[10]
-      + m.e[14] * m.e[8]  * m.e[5]
-      + m.e[12]  * m.e[6]  * m.e[9])/Q;
+   result.e[14] = -( m.e[14] * m.e[0]  * m.e[5]
+       - m.e[14] * m.e[1]  * m.e[4]
+       - m.e[2]  * m.e[12] * m.e[5]
+       - m.e[6]  * m.e[0]  * m.e[13]
+       + m.e[6]  * m.e[1]  * m.e[12]
+       + m.e[2]  * m.e[4]  * m.e[13])/Q;
+   /// 4
+   result.e[3] = (- m.e[1]  * m.e[11] * m.e[6]
+       + m.e[1]  * m.e[7]  * m.e[10]
+       - m.e[7]  * m.e[2]  * m.e[9]
+       - m.e[3]  * m.e[5]  * m.e[10]
+       + m.e[11] * m.e[2]  * m.e[5]
+       + m.e[3]  * m.e[9]  * m.e[6])/Q;
 
-  result.e[7] = -(-m.e[1]  * m.e[12]  * m.e[10]
-      + m.e[1]  * m.e[14] * m.e[8]
-      + m.e[13]  * m.e[0]  * m.e[10]
-      - m.e[14] * m.e[9]  * m.e[0]
-      + m.e[12]  * m.e[9]  * m.e[2]
-      - m.e[13]  * m.e[2]  * m.e[8])/Q;
+   result.e[7] = -(-m.e[4]  * m.e[3]  * m.e[10]
+       + m.e[4]  * m.e[11] * m.e[2]
+       + m.e[7]  * m.e[0]  * m.e[10]
+       - m.e[11] * m.e[6]  * m.e[0]
+       + m.e[3]  * m.e[6]  * m.e[8]
+       - m.e[7]  * m.e[8]  * m.e[2])/Q;
 
-  result.e[11] = (- m.e[14] * m.e[0]  * m.e[5]
-      + m.e[14] * m.e[4]  * m.e[1]
-      + m.e[12]  * m.e[2]  * m.e[5]
-      + m.e[13]  * m.e[0]  * m.e[6]
-      - m.e[13]  * m.e[4]  * m.e[2]
-      - m.e[12]  * m.e[1]  * m.e[6])/Q;
+   result.e[11] = (- m.e[11] * m.e[0]  * m.e[5]
+       + m.e[11] * m.e[1]  * m.e[4]
+       + m.e[3]  * m.e[8]  * m.e[5]
+       + m.e[7]  * m.e[0]  * m.e[9]
+       - m.e[7]  * m.e[1]  * m.e[8]
+       - m.e[3]  * m.e[4]  * m.e[9])/Q;
 
-  result.e[15] =  ( m.e[10] * m.e[0]  * m.e[5]
-      - m.e[10] * m.e[4]  * m.e[1]
-      - m.e[8]  * m.e[2]  * m.e[5]
-      - m.e[9]  * m.e[0]  * m.e[6]
-      + m.e[9]  * m.e[4]  * m.e[2]
-      + m.e[8]  * m.e[1]  * m.e[6])/Q;
-  return result;
-}
-
+   result.e[15] =  ( m.e[10] * m.e[0]  * m.e[5]
+       - m.e[10] * m.e[1]  * m.e[4]
+       - m.e[2]  * m.e[8]  * m.e[5]
+       - m.e[6]  * m.e[0]  * m.e[9]
+       + m.e[6]  * m.e[1]  * m.e[8]
+       + m.e[2]  * m.e[4]  * m.e[9])/Q;
+   return result;
+ }
+ 
 float Mat4::deg2Rad(const float d) {
 	return M_PI*d/180.0f;
 }
@@ -356,7 +356,6 @@ Mat4 Mat4::ortho(float left, float right, float bottom, float top, float znear, 
 
 
 Mat4 Mat4::lookAt(const Vec3& vEye, const Vec3& vAt, const Vec3& vUp) {
-
 	Vec3 f{vAt-vEye};
 	Vec3 u{vUp};
 	Vec3 s{Vec3::cross(f,u)};
@@ -366,9 +365,9 @@ Mat4 Mat4::lookAt(const Vec3& vEye, const Vec3& vAt, const Vec3& vUp) {
 	u = Vec3::normalize(u);
 	s = Vec3::normalize(s);
 
-	return {s.x(), u.x(), -f.x(), -Vec3::dot(s,vEye),
-          s.y(), u.y(), -f.y(), -Vec3::dot(u,vEye),
-          s.z(), u.z(), -f.z(), Vec3::dot(f,vEye),
+	return {s.x(), s.y(), s.z(), -Vec3::dot(s,vEye),
+          u.x(), u.y(), u.z(), -Vec3::dot(u,vEye),
+          -f.x(), -f.y(), -f.z(), Vec3::dot(f,vEye),
           0.0f,0.0f,0.0f,1.0};
 }
 
