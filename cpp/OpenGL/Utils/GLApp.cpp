@@ -5,9 +5,8 @@ GLApp* GLApp::staticAppPtr = nullptr;
 
 GLApp::GLApp(uint32_t w, uint32_t h, uint32_t s,
              const std::string& title,
-             bool fpsCounter, bool sync, int major,
-             int minor, bool core) :
-  glEnv{w,h,s,title,fpsCounter,sync,major,minor,core},
+             bool fpsCounter, bool sync) :
+  glEnv{w,h,s,title,fpsCounter,sync,4,1,true},
   simpleProg{GLProgram::createFromString(
      "#version 410\n"
      "uniform mat4 MVP;\n"
@@ -26,6 +25,7 @@ GLApp::GLApp(uint32_t w, uint32_t h, uint32_t s,
      "}\n")},
   simpleArray{},
   simpleVb{GL_ARRAY_BUFFER},
+  resumeTime{0},
   animationActive{true}
 {
   staticAppPtr = this;
@@ -55,7 +55,9 @@ void GLApp::run() {
   Dimensions dim{ glEnv.getFramebufferSize() };
   resize(dim.width, dim.height);
   do {
-    if (animationActive) animate();
+    if (animationActive) {
+      animate(glfwGetTime());
+    }
     draw();
     glEnv.endOfFrame();
   } while (!glEnv.shouldClose());

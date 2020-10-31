@@ -4,6 +4,7 @@
 #include <string>
 #include <array>
 
+#include "Vec4.h"
 #include "Vec3.h"
 
 struct StereoMatrices;
@@ -28,8 +29,8 @@ public:
   }
 
 
-  operator float*(void) {return e.data();}
-  operator const float*(void) const  {return e.data();}
+  operator float*(void);
+  operator const float*(void) const;
 
 
   Mat4 operator * ( float scalar ) const;
@@ -39,6 +40,7 @@ public:
 
   Mat4 operator * ( const Mat4& other ) const;
   Vec3 operator * ( const Vec3& other ) const;
+  Vec4 operator * ( const Vec4& other ) const;
   
   static Mat4 scaling(const Vec3& scale);
   static Mat4 translation(const Vec3& trans);

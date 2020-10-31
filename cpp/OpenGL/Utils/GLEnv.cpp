@@ -130,3 +130,7 @@ Dimensions GLEnv::getWindowSize() const {
 bool GLEnv::shouldClose() const {
   return glfwWindowShouldClose(window);
 }
+
+void GLEnv::setClose() {
+  return glfwSetWindowShouldClose(window, GL_TRUE);
+}

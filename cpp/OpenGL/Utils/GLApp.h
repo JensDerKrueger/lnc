@@ -20,11 +20,16 @@ class GLApp {
 public:
   GLApp(uint32_t w=640, uint32_t h=480, uint32_t s=4,
         const std::string& title = "My OpenGL App",
-        bool fpsCounter=true, bool sync=true, int major=4,
-        int minor=1, bool core=true);
+        bool fpsCounter=true, bool sync=true);
   
   void run();
   void setAnimation(bool animationActive) {
+    if (this->animationActive && !animationActive)
+      resumeTime = glfwGetTime();
+    
+    if (!this->animationActive && animationActive)
+      glfwSetTime(resumeTime);
+      
     this->animationActive = animationActive;
   }
   bool getAnimation() const {
@@ -33,10 +38,14 @@ public:
 
   void drawLines(const std::vector<float> data, LineDrawType t);
   void drawPoints(const std::vector<float> data, float pointSize=1.0f);
+  void setDrawTransform(const Mat4& mat) {
+    simpleProg.enable();
+    simpleProg.setUniform("MVP", mat);
+  }
   
   virtual void init() {}
   virtual void draw() {}
-  virtual void animate() {}
+  virtual void animate(double animationTime) {}
   
   virtual void resize(int width, int height);
   virtual void keyboard(int key, int scancode, int action, int mods) {}
@@ -49,7 +58,11 @@ protected:
   GLProgram simpleProg;
   GLArray simpleArray;
   GLBuffer simpleVb;
-
+  double resumeTime;
+  
+  void closeWindow() {
+    glEnv.setClose();
+  }
   
 private:
   bool animationActive;

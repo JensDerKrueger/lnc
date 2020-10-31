@@ -39,12 +39,14 @@ public:
   Dimensions getFramebufferSize() const;
   Dimensions getWindowSize() const;
   bool shouldClose() const;
+  void setClose();
   void endOfFrame();
   
   void setFPSCounter(bool fpsCounter);
   void setSync(bool sync);
 
   static void checkGLError(const std::string& id);
+  
 
 private:
   GLFWwindow* window;
@@ -53,5 +55,5 @@ private:
   std::chrono::high_resolution_clock::time_point last;
   uint64_t frameCount;
 		
-		static void errorCallback(int error, const char* description);		
+  static void errorCallback(int error, const char* description);
 };
