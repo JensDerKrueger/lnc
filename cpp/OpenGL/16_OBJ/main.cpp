@@ -4,7 +4,7 @@
 
 class MyGLApp : public GLApp {
 public:
-  float angle = 0;
+  double angle = 0;
   std::vector<float> data;
   
   virtual void init() {
@@ -12,24 +12,30 @@ public:
     GL(glDisable(GL_CULL_FACE));
     GL(glEnable(GL_DEPTH_TEST));
     GL(glClearColor(0,0,0,0));
-    
-    const OBJFile m{"bunny.obj", true};
-    for (const OBJFile::IndexType& triangle : m.indices) {
-      for (const size_t& index : triangle) {
-        data.push_back(m.vertices[index][0]);
-        data.push_back(m.vertices[index][1]);
-        data.push_back(m.vertices[index][2]);
-         
-        data.push_back(m.vertices[index][0]+0.5f);
-        data.push_back(m.vertices[index][1]+0.5f);
-        data.push_back(m.vertices[index][2]+0.5f);
-        data.push_back(1.0f);
 
-        data.push_back(m.normals[index][0]);
-        data.push_back(m.normals[index][1]);
-        data.push_back(m.normals[index][2]);
-      }
-    }
+    const OBJFile m{"bunny.obj", true};
+
+    // TODO:
+    // Replace this example block of code  by your code to
+    // convert the shared vertex represenation in the object m
+    // by an explicit representation, indices are stored in
+    // the stl-vector m.indices the vertex positions are stored
+    // in m.vertices and the normals are stored in m.normals.
+    // As color you can choose whatever you like
+    
+    data.push_back(0.0f); data.push_back(0.5f); data.push_back(0.0f);  // position
+    data.push_back(1.0f); data.push_back(0.0f); data.push_back(0.0f); data.push_back(1.0f); // color
+    data.push_back(0.0f); data.push_back(0.0f); data.push_back(1.0f); // normal
+
+    data.push_back(-0.5f); data.push_back(-0.5f); data.push_back(0.0f);
+    data.push_back(0.0f); data.push_back(0.0f); data.push_back(1.0f); data.push_back(1.0f);
+    data.push_back(0.0f); data.push_back(0.0f); data.push_back(1.0f);
+
+    data.push_back(0.5f); data.push_back(-0.5f); data.push_back(0.0f);
+    data.push_back(0.0f); data.push_back(1.0f); data.push_back(0.0f); data.push_back(1.0f);
+    data.push_back(0.0f); data.push_back(0.0f); data.push_back(1.0f);
+
+    // example block end
   }
   
   virtual void animate(double animationTime) {
@@ -38,9 +44,9 @@ public:
   
   virtual void draw() {
     GL(glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT));
-    setDrawProjection(Mat4::perspective(90, glEnv.getFramebufferSize().aspect(), 0.0001, 100));
-    setDrawTransform(Mat4::rotationY(angle) * Mat4::lookAt({0,0,1},{0,0,0},{0,1,0}));
-    drawTriangles(data, TrisDrawType::TD_LIST, true);
+    setDrawProjection(Mat4::perspective(45, glEnv.getFramebufferSize().aspect(), 0.0001f, 100.0f));
+    setDrawTransform(Mat4::rotationY(float(angle)) * Mat4::lookAt({0,0,2},{0,0,0},{0,1,0}));
+    drawTriangles(data, TrisDrawType::TD_LIST, false, true);
   }
 
 } myApp;
