@@ -64,17 +64,6 @@ GLApp::GLApp(uint32_t w, uint32_t h, uint32_t s,
   
   // setup a minimal shader and buffer
   shaderUpdate();
-
-  simpleArray.bind();
-  std::vector<float> empty;
-  simpleVb.setData(empty,10,GL_DYNAMIC_DRAW);
-
-  simpleArray.connectVertexAttrib(simpleVb, simpleProg, "vPos", 3);
-  simpleArray.connectVertexAttrib(simpleVb, simpleProg, "vColor", 4, 3);
-
-  simpleArray.connectVertexAttrib(simpleVb, simpleLightProg, "vPos", 3);
-  simpleArray.connectVertexAttrib(simpleVb, simpleLightProg, "vColor", 4, 3);
-  simpleArray.connectVertexAttrib(simpleVb, simpleLightProg, "vNormal", 3, 7);
   
   glfwSetTime(0);
   Dimensions dim{ glEnv.getFramebufferSize() };
@@ -102,6 +91,9 @@ void GLApp::resize(int width, int height) {
 void GLApp::drawLines(const std::vector<float>& data, LineDrawType t) {
   simpleProg.enable();
   simpleVb.setData(data,7,GL_DYNAMIC_DRAW);
+  simpleArray.bind();
+  simpleArray.connectVertexAttrib(simpleVb, simpleProg, "vPos", 3);
+  simpleArray.connectVertexAttrib(simpleVb, simpleProg, "vColor", 4, 3);
 
   switch (t) {
     case LineDrawType::LD_LIST :
@@ -119,19 +111,33 @@ void GLApp::drawLines(const std::vector<float>& data, LineDrawType t) {
 void GLApp::drawPoints(const std::vector<float>& data, float pointSize) {
   simpleProg.enable();
   simpleVb.setData(data,7,GL_DYNAMIC_DRAW);
+  simpleArray.bind();
+  simpleArray.connectVertexAttrib(simpleVb, simpleProg, "vPos", 3);
+  simpleArray.connectVertexAttrib(simpleVb, simpleProg, "vColor", 4, 3);
+
   GL(glPointSize(pointSize));
   GL(glDrawArrays(GL_POINTS, 0, GLsizei(data.size()/7)));
 }
 
 
 void GLApp::drawTriangles(const std::vector<float>& data, TrisDrawType t, bool lighting) {
-  if (lighting)
-    simpleLightProg.enable();
-  else
-    simpleProg.enable();
-
+  
   size_t compCount = lighting ? 10 : 7;
   simpleVb.setData(data,compCount,GL_DYNAMIC_DRAW);
+
+  if (lighting) {
+    simpleLightProg.enable();
+    simpleArray.bind();
+    simpleArray.connectVertexAttrib(simpleVb, simpleLightProg, "vPos", 3);
+    simpleArray.connectVertexAttrib(simpleVb, simpleLightProg, "vColor", 4, 3);
+    simpleArray.connectVertexAttrib(simpleVb, simpleLightProg, "vNormal", 3, 7);
+  } else {
+    simpleProg.enable();
+    simpleArray.bind();
+    simpleArray.connectVertexAttrib(simpleVb, simpleProg, "vPos", 3);
+    simpleArray.connectVertexAttrib(simpleVb, simpleProg, "vColor", 4, 3);
+  }
+
   switch (t) {
     case TrisDrawType::TD_LIST :
       GL(glDrawArrays(GL_TRIANGLES, 0, GLsizei(data.size()/compCount)));
