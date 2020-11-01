@@ -1,0 +1,204 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Quelldateien">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Headerdateien">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Ressourcendateien">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Z:\twitch\lnc\cpp\OpenGL\Utils\AbstractParticleSystem.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\twitch\lnc\cpp\OpenGL\Utils\ArcBall.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\twitch\lnc\cpp\OpenGL\Utils\bmp.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\twitch\lnc\cpp\OpenGL\Utils\FontRenderer.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\twitch\lnc\cpp\OpenGL\Utils\FresnelVisualizer.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\twitch\lnc\cpp\OpenGL\Utils\GLApp.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\twitch\lnc\cpp\OpenGL\Utils\GLArray.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\twitch\lnc\cpp\OpenGL\Utils\GLBuffer.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\twitch\lnc\cpp\OpenGL\Utils\GLDebug.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\twitch\lnc\cpp\OpenGL\Utils\GLDepthBuffer.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\twitch\lnc\cpp\OpenGL\Utils\GLEnv.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\twitch\lnc\cpp\OpenGL\Utils\GLFramebuffer.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\twitch\lnc\cpp\OpenGL\Utils\GLProgram.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\twitch\lnc\cpp\OpenGL\Utils\GLTexture1D.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\twitch\lnc\cpp\OpenGL\Utils\GLTexture2D.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\twitch\lnc\cpp\OpenGL\Utils\GLTexture3D.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\twitch\lnc\cpp\OpenGL\Utils\Grid2D.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\twitch\lnc\cpp\OpenGL\Utils\Mat4.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\twitch\lnc\cpp\OpenGL\Utils\OBJFile.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\twitch\lnc\cpp\OpenGL\Utils\ParticleSystem.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\twitch\lnc\cpp\OpenGL\Utils\PlanarMirror.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\twitch\lnc\cpp\OpenGL\Utils\PrecomputedParticleSystem.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\twitch\lnc\cpp\OpenGL\Utils\Rand.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\twitch\lnc\cpp\OpenGL\Utils\Tesselation.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\twitch\lnc\cpp\OpenGL\Utils\Vec3.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\twitch\lnc\cpp\OpenGL\Utils\Vec4.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Z:\twitch\lnc\cpp\OpenGL\Utils\AbstractParticleSystem.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\twitch\lnc\cpp\OpenGL\Utils\ArcBall.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\twitch\lnc\cpp\OpenGL\Utils\bmp.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\twitch\lnc\cpp\OpenGL\Utils\Camera.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\twitch\lnc\cpp\OpenGL\Utils\FontRenderer.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\twitch\lnc\cpp\OpenGL\Utils\FresnelVisualizer.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\twitch\lnc\cpp\OpenGL\Utils\GLApp.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\twitch\lnc\cpp\OpenGL\Utils\GLArray.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\twitch\lnc\cpp\OpenGL\Utils\GLBuffer.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\twitch\lnc\cpp\OpenGL\Utils\GLDebug.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\twitch\lnc\cpp\OpenGL\Utils\GLDepthBuffer.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\twitch\lnc\cpp\OpenGL\Utils\GLEnv.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\twitch\lnc\cpp\OpenGL\Utils\GLFramebuffer.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\twitch\lnc\cpp\OpenGL\Utils\GLProgram.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\twitch\lnc\cpp\OpenGL\Utils\GLTexture1D.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\twitch\lnc\cpp\OpenGL\Utils\GLTexture2D.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\twitch\lnc\cpp\OpenGL\Utils\GLTexture3D.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\twitch\lnc\cpp\OpenGL\Utils\Grid2D.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\twitch\lnc\cpp\OpenGL\Utils\Mat4.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\twitch\lnc\cpp\OpenGL\Utils\OBJFile.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\twitch\lnc\cpp\OpenGL\Utils\ParticleSystem.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\twitch\lnc\cpp\OpenGL\Utils\PlanarMirror.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\twitch\lnc\cpp\OpenGL\Utils\PrecomputedParticleSystem.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\twitch\lnc\cpp\OpenGL\Utils\Quaternion.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\twitch\lnc\cpp\OpenGL\Utils\Rand.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\twitch\lnc\cpp\OpenGL\Utils\Tesselation.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\twitch\lnc\cpp\OpenGL\Utils\Vec2.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\twitch\lnc\cpp\OpenGL\Utils\Vec3.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\twitch\lnc\cpp\OpenGL\Utils\Vec4.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\twitch\lnc\cpp\OpenGL\VS\include\GL\glew.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\twitch\lnc\cpp\OpenGL\VS\include\GL\glxew.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\twitch\lnc\cpp\OpenGL\VS\include\GL\wglew.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\twitch\lnc\cpp\OpenGL\VS\include\GL\eglew.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\twitch\lnc\cpp\OpenGL\VS\include\GLFW\glfw3.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\twitch\lnc\cpp\OpenGL\VS\include\GLFW\glfw3native.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
