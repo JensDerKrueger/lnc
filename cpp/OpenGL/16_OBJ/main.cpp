@@ -1,13 +1,5 @@
-#include <iostream>
-#include <vector>
-#include <array>
-#include <fstream>
-#include <sstream>
-
 #include <GLApp.h>
 #include <OBJFile.h>
-#include <Vec2.h>
-#include <Vec4.h>
 #include <Mat4.h>
 
 class MyGLApp : public GLApp {
@@ -16,6 +8,7 @@ public:
   std::vector<float> data;
   
   virtual void init() {
+    glEnv.setTitle("Shared vertices to explicit representation demo");
     GL(glDisable(GL_CULL_FACE));
     GL(glEnable(GL_DEPTH_TEST));
     GL(glClearColor(0,0,0,0));
