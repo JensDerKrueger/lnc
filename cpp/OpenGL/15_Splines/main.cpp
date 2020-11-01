@@ -11,6 +11,7 @@ public:
   float ca = 0;
   
   virtual void init() {
+    glEnv.setTitle("Spline Demo");
     GL(glDisable(GL_CULL_FACE));
     GL(glDisable(GL_DEPTH_TEST));
     GL(glClearColor(1,1,1,1));
