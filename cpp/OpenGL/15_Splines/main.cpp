@@ -11,7 +11,7 @@ public:
   float ca = 0;
   
   virtual void init() {
-    GL(glEnable(GL_CULL_FACE));
+    GL(glDisable(GL_CULL_FACE));
     GL(glDisable(GL_DEPTH_TEST));
     GL(glClearColor(1,1,1,1));
   }
@@ -42,7 +42,7 @@ public:
       curve[i*7+5] = 0.0;
       curve[i*7+6] = 1.0f;
     }
-    drawLines(curve, LineDrawType::STRIP);
+    drawLines(curve, LineDrawType::LD_STRIP);
     
     drawPoints({p0.x(),p0.y(),0,1,0,0,0,
                 p0.x()+m0.x(),p0.y()+m0.y(),0,0,0,1,0,
@@ -73,7 +73,7 @@ public:
       curve[i*7+5] = 0.0;
       curve[i*7+6] = 1.0f;
     }
-    drawLines(curve, LineDrawType::STRIP);
+    drawLines(curve, LineDrawType::LD_STRIP);
     
     drawPoints({p0.x(),p0.y(),0,1,0,0,0,
                 p1.x(),p1.y(),0,0,0,1,0,
@@ -83,7 +83,6 @@ public:
   
   virtual void draw() {
     GL(glClear(GL_COLOR_BUFFER_BIT));
-    
 
     {
       setDrawTransform(Mat4::translation(0.0f,0.5f,0.0f));

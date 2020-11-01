@@ -11,9 +11,15 @@
 #include "GLBuffer.h"
 
 enum LineDrawType {
-  LIST,
-  STRIP,
-  LOOP
+  LD_LIST,
+  LD_STRIP,
+  LD_LOOP
+};
+
+enum TrisDrawType {
+  TD_LIST,
+  TD_STRIP,
+  TD_FAN
 };
 
 class GLApp {
@@ -36,12 +42,11 @@ public:
     return animationActive;
   }
 
-  void drawLines(const std::vector<float> data, LineDrawType t);
-  void drawPoints(const std::vector<float> data, float pointSize=1.0f);
-  void setDrawTransform(const Mat4& mat) {
-    simpleProg.enable();
-    simpleProg.setUniform("MVP", mat);
-  }
+  void drawTriangles(const std::vector<float>& data, TrisDrawType t, bool lighting);
+  void drawLines(const std::vector<float>& data, LineDrawType t);
+  void drawPoints(const std::vector<float>& data, float pointSize=1.0f);
+  void setDrawProjection(const Mat4& mat);
+  void setDrawTransform(const Mat4& mat);
   
   virtual void init() {}
   virtual void draw() {}
@@ -55,7 +60,10 @@ public:
   
 protected:
   GLEnv glEnv;
+  Mat4 p;
+  Mat4 mv;
   GLProgram simpleProg;
+  GLProgram simpleLightProg;
   GLArray simpleArray;
   GLBuffer simpleVb;
   double resumeTime;
@@ -83,4 +91,6 @@ private:
   static void scrollCallback(GLFWwindow* window, double x_offset, double y_offset) {
     if (staticAppPtr) staticAppPtr->mouseWheel(x_offset, y_offset);
   }
+  
+  void shaderUpdate();
 };
