@@ -56,7 +56,7 @@ void ParticleSystem::update(float t) {
 	const float deltaT = t-lastT;
 	lastT = t;
 #pragma omp parallel for
-	for (int i = 0; i < particles.size();++i) {		
+	for (int i = 0; i < int(particles.size());++i) {		
 		particles[i].update(deltaT);
 		if (particles[i].isDead() && getAutoRestart()) {
 			particles[i].restart(computeStart(), computeDirection(), acceleration, computeColor(color), 1.0f, maxAge*Rand::rand01());
@@ -81,7 +81,7 @@ Vec3 ParticleSystem::computeStart() const {
 
 Vec3 ParticleSystem::computeDirection() const {
 	float radius = 1.0f;
-	float t = glfwGetTime();
+	float t = float(glfwGetTime());
 
 	switch (eruptionType) {
 		case DefaultEruption:
@@ -97,7 +97,7 @@ Vec3 ParticleSystem::computeDirection() const {
 																0.04f * sin(floorf(t * 4.0f) * 20.0f) }
                                                                 *1.0f;
 	}
-
+	return { 0,0,0 };
 
 	
 }

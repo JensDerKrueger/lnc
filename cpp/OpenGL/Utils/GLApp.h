@@ -42,7 +42,7 @@ public:
     return animationActive;
   }
 
-  void drawTriangles(const std::vector<float>& data, TrisDrawType t, bool lighting);
+  void drawTriangles(const std::vector<float>& data, TrisDrawType t, bool wireframe, bool lighting);
   void drawLines(const std::vector<float>& data, LineDrawType t);
   void drawPoints(const std::vector<float>& data, float pointSize=1.0f);
   void setDrawProjection(const Mat4& mat);

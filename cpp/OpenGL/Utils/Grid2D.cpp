@@ -322,7 +322,7 @@ Grid2D Grid2D::fromBMP(const std::string& filename) {
     size_t i = 0;
     for (size_t y = 0;y<g.height;++y) {
         for (size_t x = 0;x<g.width;++x) {
-            g.data[i] = bmp.getValue(x,y,0)/255.0f;
+            g.data[i] = bmp.getValue(uint32_t(x),uint32_t(y),0)/255.0f;
             i++;
         }
     }

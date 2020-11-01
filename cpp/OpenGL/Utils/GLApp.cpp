@@ -1,4 +1,4 @@
-#include <GLApp.h>
+#include "GLApp.h"
 
 
 GLApp* GLApp::staticAppPtr = nullptr;
@@ -120,7 +120,12 @@ void GLApp::drawPoints(const std::vector<float>& data, float pointSize) {
 }
 
 
-void GLApp::drawTriangles(const std::vector<float>& data, TrisDrawType t, bool lighting) {
+void GLApp::drawTriangles(const std::vector<float>& data, TrisDrawType t, bool wireframe, bool lighting) {
+  
+  if (wireframe)
+    GL(glPolygonMode( GL_FRONT_AND_BACK, GL_LINE ));
+  else
+    GL(glPolygonMode( GL_FRONT_AND_BACK, GL_FILL ));
   
   size_t compCount = lighting ? 10 : 7;
   simpleVb.setData(data,compCount,GL_DYNAMIC_DRAW);

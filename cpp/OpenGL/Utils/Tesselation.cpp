@@ -331,7 +331,7 @@ Tesselation Tesselation::genTorus(const Vec3 &center, float majorRadius, float m
 	for (uint32_t x = 0; x <= majorSteps; x++) {
 		const float phi = (2.0f * PI * x) / majorSteps;
 		for (uint32_t y = 0; y <= minorSteps; y++) {
-			const float theta = (2.0 * PI * y) / minorSteps;
+			const float theta = (2.0f * PI * y) / minorSteps;
 
 			const Vec3 vertice{(majorRadius + minorRadius*std::cos(theta))*std::cos(phi),
 					   (majorRadius + minorRadius*std::cos(theta))*std::sin(phi),
