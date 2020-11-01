@@ -46,7 +46,8 @@ public:
   void setSync(bool sync);
 
   static void checkGLError(const std::string& id);
-  
+
+  void setTitle(const std::string& title);
 
 private:
   GLFWwindow* window;

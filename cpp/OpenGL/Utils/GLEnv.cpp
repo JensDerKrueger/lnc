@@ -134,3 +134,7 @@ bool GLEnv::shouldClose() const {
 void GLEnv::setClose() {
   return glfwSetWindowShouldClose(window, GL_TRUE);
 }
+
+void GLEnv::setTitle(const std::string& title) {
+  this->title = title;
+}
