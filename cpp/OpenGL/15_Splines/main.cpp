@@ -7,8 +7,8 @@
 class MyGLApp : public GLApp {
 public:
   
-  float sa = 0;
-  float ca = 0;
+  double sa = 0;
+  double ca = 0;
   
   virtual void init() {
     glEnv.setTitle("Spline Demo");
@@ -18,8 +18,8 @@ public:
   }
   
   virtual void animate(double animationTime) {
-    sa = sinf(animationTime);
-    ca = cosf(animationTime);
+    sa = sin(animationTime);
+    ca = cos(animationTime);
   }
   
   void drawHermiteSegment(Vec2 p0, Vec2 m0, Vec2 m1, Vec2 p1) {
@@ -88,7 +88,7 @@ public:
     {
       setDrawTransform(Mat4::translation(0.0f,0.5f,0.0f));
       const Vec2 p0{-0.5,0.0f};
-      const Vec2 m0{sa*0.2f,ca*0.2f};
+      const Vec2 m0{float(sa)*0.2f,float(ca)*0.2f};
       const Vec2 m1{0.0f,0.2f};
       const Vec2 p1{0.5f,0.0f};
       drawHermiteSegment(p0,m0,m1,p1);
@@ -98,7 +98,7 @@ public:
     {
       setDrawTransform(Mat4::translation(0.0f,-0.5f,0.0f));
       const Vec2 p0{-0.5,0.0f};
-      const Vec2 p1{sa*0.2f-0.5f,ca*0.2f};
+      const Vec2 p1{float(sa)*0.2f-0.5f,float(ca)*0.2f};
       const Vec2 p2{0.5f,0.2f};
       const Vec2 p3{0.5f,0.0f};
       drawBezierSegment(p0,p1,p2,p3);
