@@ -38,9 +38,9 @@ public:
       curve[i*7+1] = p0.y()*h0+m0.y()*h1+m1.y()*h2+p1.y()*h3;
       curve[i*7+2] = 0.0f;
       
-      curve[i*7+3] = 0.0;
-      curve[i*7+4] = 0.0;
-      curve[i*7+5] = 0.0;
+      curve[i*7+3] = 0.0f;
+      curve[i*7+4] = 0.0f;
+      curve[i*7+5] = 0.0f;
       curve[i*7+6] = 1.0f;
     }
     drawLines(curve, LineDrawType::LD_STRIP);
@@ -69,9 +69,9 @@ public:
       curve[i*7+1] = p0.y()*b0+p1.y()*b1+p2.y()*b2+p3.y()*b3;
       curve[i*7+2] = 0.0f;
       
-      curve[i*7+3] = 0.0;
-      curve[i*7+4] = 0.0;
-      curve[i*7+5] = 0.0;
+      curve[i*7+3] = 0.0f;
+      curve[i*7+4] = 0.0f;
+      curve[i*7+5] = 0.0f;
       curve[i*7+6] = 1.0f;
     }
     drawLines(curve, LineDrawType::LD_STRIP);
@@ -87,17 +87,16 @@ public:
 
     {
       setDrawTransform(Mat4::translation(0.0f,0.5f,0.0f));
-      const Vec2 p0{-0.5,0.0f};
+      const Vec2 p0{-0.5f,0.0f};
       const Vec2 m0{float(sa)*0.2f,float(ca)*0.2f};
       const Vec2 m1{0.0f,0.2f};
       const Vec2 p1{0.5f,0.0f};
       drawHermiteSegment(p0,m0,m1,p1);
     }
     
-
     {
       setDrawTransform(Mat4::translation(0.0f,-0.5f,0.0f));
-      const Vec2 p0{-0.5,0.0f};
+      const Vec2 p0{-0.5f,0.0f};
       const Vec2 p1{float(sa)*0.2f-0.5f,float(ca)*0.2f};
       const Vec2 p2{0.5f,0.2f};
       const Vec2 p3{0.5f,0.0f};
