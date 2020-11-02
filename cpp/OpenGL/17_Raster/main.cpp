@@ -1,5 +1,4 @@
 #include <GLApp.h>
-#include <Mat4.h>
 
 class MyGLApp : public GLApp {
 public:
