@@ -137,7 +137,10 @@ void GLProgram::setUniform(GLint id, const Vec2i& value) const {
 }
 
 void GLProgram::setUniform(GLint id, const Mat4& value, bool transpose) const {
-	GL(glUniformMatrix4fv(id, 1, transpose, value));
+	// since OpenGL matrices are usuall expcted
+  // column major but our matrices are row major
+  // hence, we invert the transposition flag
+  GL(glUniformMatrix4fv(id, 1, !transpose, value));
 }
 
 void GLProgram::setTexture(GLint id, const GLTexture1D& texture, GLuint unit) const {

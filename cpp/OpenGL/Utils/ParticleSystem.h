@@ -89,6 +89,7 @@ public:
                     bool autorestart=true, EruptionType eruptionType=DefaultEruption,
                     std::shared_ptr<Grid2D> grid=nullptr);
 
+  virtual ~ParticleSystem() {}
 	void update(float t);
 	
     void setEruptionType(EruptionType eruptionType) {this->eruptionType = eruptionType;}

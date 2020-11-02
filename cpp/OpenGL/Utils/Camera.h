@@ -6,10 +6,7 @@
 #include "Vec3.h"
 #include "Mat4.h"
 
-
-
-class Camera
-{
+class Camera {
     Vec3 position;
     Vec3 direction;
     Vec3 right, up;
@@ -28,20 +25,18 @@ class Camera
     float mouseX{ -1.0f }, mouseY{ -1.0f };
     bool mouseEnabled{ false };
 
-    void updateDirection()
-    {
+    void updateDirection() {
         float dirX = cos(LNC_RADIANS(yaw)) * cos(LNC_RADIANS(pitch));
         float dirY = sin(LNC_RADIANS(pitch));
         float dirZ = sin(LNC_RADIANS(yaw)) * cos(LNC_RADIANS(pitch));
         direction = Vec3::normalize(Vec3(dirX, dirY, dirZ));
-        right = Vec3::normalize(Vec3::cross(direction, worldUp));
-        up = Vec3::normalize(Vec3::cross(right, direction));
+        right     = Vec3::normalize(Vec3::cross(direction, worldUp));
+        up        = Vec3::normalize(Vec3::cross(right, direction));
     }
 
 public:
 
-    Camera(Vec3 position, float moveSpeed = 0.015f, float mouseSens = 0.15f, Vec3 worldUp = Vec3(0.0f, 1.0f, 0.0f))
-    {
+    Camera(Vec3 position, float moveSpeed = 0.015f, float mouseSens = 0.15f, Vec3 worldUp = Vec3(0.0f, 1.0f, 0.0f)) {
         this->position = position;
         this->moveSpeed = moveSpeed;
         this->mouseSens = mouseSens;
@@ -59,20 +54,16 @@ public:
 
     void enableMouse() { mouseEnabled = true; }
 
-    void disableMouse()
-    {
+    void disableMouse() {
         mouseEnabled = false;
         mouseX = mouseY = -1.0f;
     }
 
-    void mouseMove(float xPosition, float yPosition)
-    {
-        if (!mouseEnabled)
-        {
+    void mouseMove(float xPosition, float yPosition) {
+        if (!mouseEnabled) {
             return;
         }
-        else if (mouseX == -1.0f && mouseY == -1.0f)
-        {
+        else if (mouseX == -1.0f && mouseY == -1.0f) {
             mouseX = xPosition;
             mouseY = yPosition;
             return;
@@ -93,16 +84,14 @@ public:
         updateDirection();
     }
 
-    void updatePosition()
-    {
+    void updatePosition() {
         if (movingFront) position = position + (direction * moveSpeed);
-        if (movingBack) position = position - (direction * moveSpeed);
+        if (movingBack)  position = position - (direction * moveSpeed);
         if (movingRight) position = position + (right * moveSpeed);
-        if (movingLeft) position = position - (right * moveSpeed);
+        if (movingLeft)  position = position - (right * moveSpeed);
     }
 
-    Mat4 viewMatrix()
-    {
+    Mat4 viewMatrix() {
         return Mat4::lookAt(position, position + direction, up);
     }
 };

@@ -40,7 +40,7 @@ class Vec4 {
 		float length() const;
 		float sqlength() const;
     
-        Vec3 vec3() const;
+    Vec3 vec3() const;
 		
 		operator float*(void) {return e.data();}
 		operator const float*(void) const  {return e.data();}
