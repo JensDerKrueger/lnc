@@ -284,7 +284,7 @@ int main(int argc, char ** argv) {
         
     GLTexture2D heightTexture{GL_LINEAR, GL_LINEAR};
     std::vector<std::shared_ptr<GradientGenerator>> gens{gen1, gen2, gen3};
-    BMP::Image heightTextureImage = GradientGenerator::buildImage(gens, 256);
+    Image heightTextureImage = GradientGenerator::buildImage(gens, 256);
     heightTexture.setData(heightTextureImage.data, heightTextureImage.width, heightTextureImage.height, heightTextureImage.componentCount);
     
     GLProgram prog{GLProgram::createFromFile("terrain-vs.glsl", "terrain-fs.glsl")};

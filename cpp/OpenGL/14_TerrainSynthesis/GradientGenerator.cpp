@@ -54,11 +54,11 @@ std::vector<GLubyte> GradientGenerator::get8BitVector(size_t texSize) const {
 }
 
 void GradientGenerator::toFile(const std::string& filename, size_t texSize) const {
-    BMP::Image image{1, uint32_t(texSize), 4, get8BitVector(texSize)};
+    Image image{1, uint32_t(texSize), 4, get8BitVector(texSize)};
     BMP::save(filename, image);
 }
 
-BMP::Image GradientGenerator::buildImage(const std::vector<std::shared_ptr<GradientGenerator>>& gens, size_t texSize) {
+Image GradientGenerator::buildImage(const std::vector<std::shared_ptr<GradientGenerator>>& gens, size_t texSize) {
     if (gens.empty())
         throw GradientGeneratorException("Generator vector cannot be empty!");
     
@@ -81,6 +81,6 @@ BMP::Image GradientGenerator::buildImage(const std::vector<std::shared_ptr<Gradi
     }
     
     
-    BMP::Image image{uint32_t(width), uint32_t(height), 4, data};
+    Image image{uint32_t(width), uint32_t(height), 4, data};
     return image;
 }

@@ -56,9 +56,9 @@ Scene::Scene() :
 	vbBallTan.setData(sphere.getTangents(),3);
 	vbBallTc.setData(sphere.getTexCoords(),2);	
 	ibBall.setData(sphere.getIndices());
-	BMP::Image ballAlbedoImage{BMP::load("ballAlbedo.bmp")};
+	Image ballAlbedoImage{BMP::load("ballAlbedo.bmp")};
 	ballAlbedo.setData(ballAlbedoImage.data, ballAlbedoImage.width, ballAlbedoImage.height, ballAlbedoImage.componentCount);
-	BMP::Image ballNormalImage{BMP::load("ballNormal.bmp")};
+	Image ballNormalImage{BMP::load("ballNormal.bmp")};
 	ballNormalMap.setData(ballNormalImage.data, ballNormalImage.width, ballNormalImage.height, ballNormalImage.componentCount);
 
 	fresnelBall = std::make_unique<FresnelVisualizer>(vbBallPos,vbBallNorm,vbBallTan,sphere.getVertices().size()/3);
@@ -71,21 +71,21 @@ Scene::Scene() :
 	ibWall.setData(square.getIndices());
 	
 	// load brick wall textures (sides)
-	BMP::Image brickWallAlbedoImage{BMP::load("brickWallAlbedo.bmp")};
+	Image brickWallAlbedoImage{BMP::load("brickWallAlbedo.bmp")};
 	brickWallAlbedo.setData(brickWallAlbedoImage.data,brickWallAlbedoImage.width, brickWallAlbedoImage.height, brickWallAlbedoImage.componentCount);
-	BMP::Image brickWallNormalImage{BMP::load("brickWallNormal.bmp")};
+	Image brickWallNormalImage{BMP::load("brickWallNormal.bmp")};
 	brickWallNormalMap.setData(brickWallNormalImage.data,brickWallNormalImage.width, brickWallNormalImage.height, brickWallNormalImage.componentCount);
 
 	// load brick wall textures (floor)
-	BMP::Image floorAlbedoImage{BMP::load("floorAlbedo.bmp")};
+	Image floorAlbedoImage{BMP::load("floorAlbedo.bmp")};
 	floorAlbedo.setData(floorAlbedoImage.data,floorAlbedoImage.width, floorAlbedoImage.height, floorAlbedoImage.componentCount);
-	BMP::Image floorNormalImage{BMP::load("floorNormal.bmp")};
+	Image floorNormalImage{BMP::load("floorNormal.bmp")};
 	floorNormalMap.setData(floorNormalImage.data,floorNormalImage.width, floorNormalImage.height, floorNormalImage.componentCount);
 
 	// load brick wall textures (ceiling)
-	BMP::Image ceilingAlbedoImage{BMP::load("ceilingAlbedo.bmp")};
+	Image ceilingAlbedoImage{BMP::load("ceilingAlbedo.bmp")};
 	ceilingAlbedo.setData(ceilingAlbedoImage.data, ceilingAlbedoImage.width, ceilingAlbedoImage.height, ceilingAlbedoImage.componentCount);
-	BMP::Image ceilingNormalImage{BMP::load("ceilingNormal.bmp")};
+	Image ceilingNormalImage{BMP::load("ceilingNormal.bmp")};
 	ceilingNormalMap.setData(ceilingNormalImage.data, ceilingNormalImage.width, ceilingNormalImage.height, ceilingNormalImage.componentCount);
 	
 	ballArray.bind();

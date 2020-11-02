@@ -10,7 +10,7 @@
 
 class Bitmap {
 public:
-    Bitmap(const BMP::Image& image, uint8_t threshold);
+    Bitmap(const Image& image, uint8_t threshold);
     Bitmap(const std::string& bmpImage, uint8_t threshold);    
     Bitmap(uint32_t width, uint32_t height) :
         width(width),

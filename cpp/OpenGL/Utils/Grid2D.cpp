@@ -315,7 +315,7 @@ std::ostream& operator<<(std::ostream &os, const Grid2D& v) {
 
 
 Grid2D Grid2D::fromBMP(const std::string& filename) {
-    BMP::Image bmp = BMP::load(filename);
+    Image bmp = BMP::load(filename);
     
     Grid2D g{bmp.width, bmp.width};
     

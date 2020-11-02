@@ -41,11 +41,11 @@ int main(int argc, char ** argv) {
     GLBuffer ib{GL_ELEMENT_ARRAY_BUFFER};
     ib.setData(sphere.getIndices());
     
-    BMP::Image image{BMP::load("albedo.bmp")};
+    Image image{BMP::load("albedo.bmp")};
     GLTexture2D lena{GL_LINEAR, GL_LINEAR};
     lena.setData(image.data,image.width, image.height, image.componentCount);
 
-    BMP::Image normals{BMP::load("normal.bmp")};
+    Image normals{BMP::load("normal.bmp")};
     GLTexture2D normalMap{GL_LINEAR, GL_LINEAR};
     normalMap.setData(normals.data,normals.width, normals.height, normals.componentCount);
     

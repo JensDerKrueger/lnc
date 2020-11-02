@@ -3,7 +3,7 @@
 #include "PrecomputedParticleSystem.h"
 #include "Rand.h"
 
-Bitmap::Bitmap(const BMP::Image& image, uint8_t threshold) {
+Bitmap::Bitmap(const Image& image, uint8_t threshold) {
     width = image.width;
     height = image.height;
     
