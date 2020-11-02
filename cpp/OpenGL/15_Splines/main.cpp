@@ -22,64 +22,76 @@ public:
     ca = cos(animationTime);
   }
   
-  void drawHermiteSegment(Vec2 p0, Vec2 p1, Vec2 m0, Vec2 m1) {
-    const size_t maxVal = 100;
-    std::vector<float> curve((maxVal+1)*7);
+     Vec2 computePoly(const Vec2& p0, const Vec2& p1,
+                      const Vec2& p2, const Vec2& p3,
+                      const Mat4& g, float t) {
+       
+       Vec4 tVec{1,t,t*t,t*t*t};
+       Vec4 pX{p0.x(), p1.x(), p2.x(), p3.x()};
+       Vec4 pY{p0.y(), p1.y(), p2.y(), p3.y()};
+       
+       return {Vec4::dot(tVec, g*pX), Vec4::dot(tVec, g*pY) };
+     }
+     
+     void drawPolySegment(const Vec2& p0, const Vec2& p1,
+                          const Vec2& p2, const Vec2& p3,
+                          const Mat4& g) {
+       const size_t maxVal = 100;
+       std::vector<float> curve((maxVal+1)*7);
+     
+       for (size_t i = 0;i<=maxVal;++i) {
+         float t = float(i)/float(maxVal);
+         
+         Vec2 p = computePoly(p0, p1, p2, p3, g, t);
+         
+         curve[i*7+0] = p.x();
+         curve[i*7+1] = p.y();
+         curve[i*7+2] = 0.0f;
+         
+         curve[i*7+3] = 0.0f;
+         curve[i*7+4] = 0.0f;
+         curve[i*7+5] = 0.0f;
+         curve[i*7+6] = 1.0f;
+       }
+       drawLines(curve, LineDrawType::LD_STRIP);
+     }
+     
+     void drawHermiteSegment(Vec2 p0, Vec2 p1, Vec2 m0, Vec2 m1) {
+       Mat4 g{
+          1, 0, 0, 0,
+          0, 0, 1, 0,
+         -3, 3,-2,-1,
+          2,-2, 1, 1
+       };
+       
+       
+       drawPolySegment(p0,p1,m0,m1,g);
+       
+       drawPoints({p0.x(),p0.y(),0,1,0,0,0,
+                   p0.x()+m0.x(),p0.y()+m0.y(),0,0,0,1,0,
+                   p1.x()+m1.x(),p1.y()-m1.y(),0,0,0,1,0,
+                   p1.x(),p1.y(),0,1,0,0,0}, 10);
+     }
+     
+   
+     
+     void drawBezierSegment(const Vec2& p0, const Vec2& p1, const Vec2& p2, const Vec2& p3) {
+       Mat4 g{
+          1, 0, 0, 0,
+         -3, 3, 0, 0,
+          3,-6, 3, 0,
+         -1, 3,-3, 1
+       };
+       
+       drawPolySegment(p0,p1,p2,p3,g);
+       
+       drawPoints({p0.x(),p0.y(),0,1,0,0,0,
+                   p1.x(),p1.y(),0,0,0,1,0,
+                   p2.x(),p2.y(),0,0,0,1,0,
+                   p3.x(),p3.y(),0,1,0,0,0}, 10);
+     }
   
-    for (size_t i = 0;i<=maxVal;++i) {
-      float t = float(i)/float(maxVal);
-      
-      float hp0 = (1.0f-t)*(1.0f-t)*(1.0f+2.0f*t);
-      float hm0 = t*(1.0f-t)*(1.0f-t);
-      float hm1 = t*t*(t-1.0f);
-      float hp1 = (3.0f-2.0f*t)*t*t;
-      
-      curve[i*7+0] = p0.x()*hp0+m0.x()*hm0+m1.x()*hm1+p1.x()*hp1;
-      curve[i*7+1] = p0.y()*hp0+m0.y()*hm0+m1.y()*hm1+p1.y()*hp1;
-      curve[i*7+2] = 0.0f;
-      
-      curve[i*7+3] = 0.0;
-      curve[i*7+4] = 0.0;
-      curve[i*7+5] = 0.0;
-      curve[i*7+6] = 1.0f;
-    }
-    drawLines(curve, LineDrawType::LD_STRIP);
     
-    drawPoints({p0.x(),p0.y(),0,1,0,0,0,
-                p0.x()+m0.x(),p0.y()+m0.y(),0,0,0,1,0,
-                p1.x()+m1.x(),p1.y()-m1.y(),0,0,0,1,0,
-                p1.x(),p1.y(),0,1,0,0,0}, 10);
-  }
-
-  
-  void drawBezierSegment(Vec2 p0, Vec2 p1, Vec2 p2, Vec2 p3) {
-    const size_t maxVal = 100;
-    std::vector<float> curve((maxVal+1)*7);
-  
-    for (size_t i = 0;i<=maxVal;++i) {
-      float t = float(i)/float(maxVal);
-      
-      float b0 = (1.0f-t)*(1.0f-t)*(1.0f-t);
-      float b1 = 3.0f*t*(1.0f-t)*(1.0f-t);
-      float b2 = 3.0f*t*t*(1.0f-t);
-      float b3 = t*t*t;
-
-      curve[i*7+0] = p0.x()*b0+p1.x()*b1+p2.x()*b2+p3.x()*b3;
-      curve[i*7+1] = p0.y()*b0+p1.y()*b1+p2.y()*b2+p3.y()*b3;
-      curve[i*7+2] = 0.0f;
-      
-      curve[i*7+3] = 0.0;
-      curve[i*7+4] = 0.0;
-      curve[i*7+5] = 0.0;
-      curve[i*7+6] = 1.0f;
-    }
-    drawLines(curve, LineDrawType::LD_STRIP);
-    
-    drawPoints({p0.x(),p0.y(),0,1,0,0,0,
-                p1.x(),p1.y(),0,0,0,1,0,
-                p2.x(),p2.y(),0,0,0,1,0,
-                p3.x(),p3.y(),0,1,0,0,0}, 10);
-  }
   
   virtual void draw() {
     GL(glClear(GL_COLOR_BUFFER_BIT));
