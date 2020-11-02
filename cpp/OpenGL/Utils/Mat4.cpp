@@ -194,10 +194,11 @@ Mat4 Mat4::transpose(const Mat4& m) {
 }
 
 Mat4 Mat4::inverse(const Mat4& m) {
+  return Mat4::inverse(m, Mat4::det(m));
+}
 
-   Mat4 result;
-
-   float Q =   m.e[4] *(m.e[11]*( m.e[1] * m.e[14] - m.e[2]  * m.e[13])+
+float Mat4::det(const Mat4& m) {
+   return   m.e[4] *(m.e[11]*( m.e[1] * m.e[14] - m.e[2]  * m.e[13])+
            m.e[3] *(-m.e[9] * m.e[14] + m.e[13] * m.e[10])+
            m.e[15]*( m.e[2] *  m.e[9] - m.e[1]  * m.e[10]))
          +
@@ -213,115 +214,121 @@ Mat4 Mat4::inverse(const Mat4& m) {
          +
          m.e[3]* (m.e[6] *( m.e[9] * m.e[12] - m.e[13] * m.e[8])+
            m.e[5] *( m.e[8] * m.e[14] - m.e[12] * m.e[10]));
+}
 
+Mat4 Mat4::inverse(const Mat4& m, float det) {
+   float Q = 1.0f/det;
+
+   Mat4 result;
+  
    result.e[0] =  ( m.e[7]  * m.e[9]  * m.e[14]
        + m.e[15] * m.e[5]  * m.e[10]
        - m.e[15] * m.e[6]  * m.e[9]
        - m.e[11] * m.e[5]  * m.e[14]
        - m.e[7]  * m.e[13] * m.e[10]
-       + m.e[11] * m.e[6]  * m.e[13])/Q;
+       + m.e[11] * m.e[6]  * m.e[13])*Q;
      result.e[4] = -( m.e[4]  * m.e[15] * m.e[10]
        - m.e[4]  * m.e[11] * m.e[14]
        - m.e[15] * m.e[6]  * m.e[8]
        + m.e[11] * m.e[6]  * m.e[12]
        + m.e[7]  * m.e[8]  * m.e[14]
-       - m.e[7]  * m.e[12] * m.e[10])/Q;
+       - m.e[7]  * m.e[12] * m.e[10])*Q;
    result.e[8] = (- m.e[4]  * m.e[11] * m.e[13]
        + m.e[4]  * m.e[15] * m.e[9]
        - m.e[15] * m.e[8]  * m.e[5]
        - m.e[7]  * m.e[12] * m.e[9]
        + m.e[11] * m.e[12] * m.e[5]
-       + m.e[7]  * m.e[8]  * m.e[13])/Q;
+       + m.e[7]  * m.e[8]  * m.e[13])*Q;
      result.e[12] =  -(m.e[4]  * m.e[9]  * m.e[14]
        - m.e[4]  * m.e[13] * m.e[10]
        + m.e[12] * m.e[5]  * m.e[10]
        - m.e[9]  * m.e[6]  * m.e[12]
        - m.e[8]  * m.e[5]  * m.e[14]
-       + m.e[13] * m.e[6]  * m.e[8])/Q;
+       + m.e[13] * m.e[6]  * m.e[8])*Q;
    /// 2
    result.e[1] = (- m.e[1]  * m.e[15] * m.e[10]
        + m.e[1]  * m.e[11] * m.e[14]
        - m.e[11] * m.e[2]  * m.e[13]
        - m.e[3]  * m.e[9]  * m.e[14]
        + m.e[15] * m.e[2]  * m.e[9]
-       + m.e[3]  * m.e[13] * m.e[10])/Q;
+       + m.e[3]  * m.e[13] * m.e[10])*Q;
 
    result.e[5] = (- m.e[15] * m.e[2]  * m.e[8]
        + m.e[15] * m.e[0]  * m.e[10]
        - m.e[11] * m.e[0]  * m.e[14]
        - m.e[3]  * m.e[12] * m.e[10]
        + m.e[11] * m.e[2]  * m.e[12]
-       + m.e[3]  * m.e[8]  * m.e[14])/Q;
+       + m.e[3]  * m.e[8]  * m.e[14])*Q;
 
    result.e[9] = -(-m.e[1]  * m.e[15] * m.e[8]
        + m.e[1]  * m.e[11] * m.e[12]
        + m.e[15] * m.e[0]  * m.e[9]
        - m.e[3]  * m.e[9]  * m.e[12]
        + m.e[3]  * m.e[13] * m.e[8]
-       - m.e[11] * m.e[0]  * m.e[13])/Q;
+       - m.e[11] * m.e[0]  * m.e[13])*Q;
 
    result.e[13] = (- m.e[1]  * m.e[8]  * m.e[14]
        + m.e[1]  * m.e[12] * m.e[10]
        + m.e[0]  * m.e[9]  * m.e[14]
        - m.e[0]  * m.e[13] * m.e[10]
        - m.e[12] * m.e[2]  * m.e[9]
-       + m.e[8]  * m.e[2]  * m.e[13])/Q;
+       + m.e[8]  * m.e[2]  * m.e[13])*Q;
    /// 3
    result.e[2] = -( m.e[15] * m.e[2]  * m.e[5]
        - m.e[7]  * m.e[2]  * m.e[13]
        - m.e[3]  * m.e[5]  * m.e[14]
        + m.e[1]  * m.e[7]  * m.e[14]
        - m.e[1]  * m.e[15] * m.e[6]
-       + m.e[3]  * m.e[13] * m.e[6])/Q;
+       + m.e[3]  * m.e[13] * m.e[6])*Q;
 
    result.e[6] = (- m.e[4]  * m.e[3]  * m.e[14]
        + m.e[4]  * m.e[15] * m.e[2]
        + m.e[7]  * m.e[0]  * m.e[14]
        - m.e[15] * m.e[6]  * m.e[0]
        - m.e[7]  * m.e[12] * m.e[2]
-       + m.e[3]  * m.e[6]  * m.e[12])/Q;
+       + m.e[3]  * m.e[6]  * m.e[12])*Q;
 
    result.e[10] = -(-m.e[15] * m.e[0]  * m.e[5]
        + m.e[15] * m.e[1]  * m.e[4]
        + m.e[3]  * m.e[12] * m.e[5]
        + m.e[7]  * m.e[0]  * m.e[13]
        - m.e[7]  * m.e[1]  * m.e[12]
-       - m.e[3]  * m.e[4]  * m.e[13])/Q;
+       - m.e[3]  * m.e[4]  * m.e[13])*Q;
 
    result.e[14] = -( m.e[14] * m.e[0]  * m.e[5]
        - m.e[14] * m.e[1]  * m.e[4]
        - m.e[2]  * m.e[12] * m.e[5]
        - m.e[6]  * m.e[0]  * m.e[13]
        + m.e[6]  * m.e[1]  * m.e[12]
-       + m.e[2]  * m.e[4]  * m.e[13])/Q;
+       + m.e[2]  * m.e[4]  * m.e[13])*Q;
    /// 4
    result.e[3] = (- m.e[1]  * m.e[11] * m.e[6]
        + m.e[1]  * m.e[7]  * m.e[10]
        - m.e[7]  * m.e[2]  * m.e[9]
        - m.e[3]  * m.e[5]  * m.e[10]
        + m.e[11] * m.e[2]  * m.e[5]
-       + m.e[3]  * m.e[9]  * m.e[6])/Q;
+       + m.e[3]  * m.e[9]  * m.e[6])*Q;
 
    result.e[7] = -(-m.e[4]  * m.e[3]  * m.e[10]
        + m.e[4]  * m.e[11] * m.e[2]
        + m.e[7]  * m.e[0]  * m.e[10]
        - m.e[11] * m.e[6]  * m.e[0]
        + m.e[3]  * m.e[6]  * m.e[8]
-       - m.e[7]  * m.e[8]  * m.e[2])/Q;
+       - m.e[7]  * m.e[8]  * m.e[2])*Q;
 
    result.e[11] = (- m.e[11] * m.e[0]  * m.e[5]
        + m.e[11] * m.e[1]  * m.e[4]
        + m.e[3]  * m.e[8]  * m.e[5]
        + m.e[7]  * m.e[0]  * m.e[9]
        - m.e[7]  * m.e[1]  * m.e[8]
-       - m.e[3]  * m.e[4]  * m.e[9])/Q;
+       - m.e[3]  * m.e[4]  * m.e[9])*Q;
 
    result.e[15] =  ( m.e[10] * m.e[0]  * m.e[5]
        - m.e[10] * m.e[1]  * m.e[4]
        - m.e[2]  * m.e[8]  * m.e[5]
        - m.e[6]  * m.e[0]  * m.e[9]
        + m.e[6]  * m.e[1]  * m.e[8]
-       + m.e[2]  * m.e[4]  * m.e[9])/Q;
+       + m.e[2]  * m.e[4]  * m.e[9])*Q;
    return result;
  }
  
