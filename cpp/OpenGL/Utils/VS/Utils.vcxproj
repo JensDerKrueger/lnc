@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\Mat3.cpp" />
     <ClCompile Include="Z:\twitch\lnc\cpp\OpenGL\Utils\AbstractParticleSystem.cpp" />
     <ClCompile Include="Z:\twitch\lnc\cpp\OpenGL\Utils\ArcBall.cpp" />
     <ClCompile Include="Z:\twitch\lnc\cpp\OpenGL\Utils\bmp.cpp" />
@@ -47,6 +48,8 @@
     <ClCompile Include="Z:\twitch\lnc\cpp\OpenGL\Utils\Vec4.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Image.h" />
+    <ClInclude Include="..\Mat3.h" />
     <ClInclude Include="Z:\twitch\lnc\cpp\OpenGL\Utils\AbstractParticleSystem.h" />
     <ClInclude Include="Z:\twitch\lnc\cpp\OpenGL\Utils\ArcBall.h" />
     <ClInclude Include="Z:\twitch\lnc\cpp\OpenGL\Utils\bmp.h" />
