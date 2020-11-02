@@ -5,11 +5,11 @@
 #include "FontRenderer.h"
 
 
-BMP::Image FontRenderer::renderNumber(uint32_t number,
+Image FontRenderer::renderNumber(uint32_t number,
                                       const std::string& imageFilename,
                                       const std::string& positionFilename) {
 
-    BMP::Image numberSource = BMP::load(imageFilename);
+    Image numberSource = BMP::load(imageFilename);
     
     std::vector<std::pair<Vec2ui, Vec2ui>> positions;
     std::ifstream posfile (positionFilename);
@@ -47,7 +47,7 @@ BMP::Image FontRenderer::renderNumber(uint32_t number,
         dims = Vec2ui{dims.x()+size.x(), std::max(dims.y(), size.y())};
     }
     
-    BMP::Image result{dims.x(),dims.y(),numberSource.componentCount,
+    Image result{dims.x(),dims.y(),numberSource.componentCount,
         std::vector<uint8_t>(dims.x()*dims.y()*numberSource.componentCount)};
     
     Vec2ui currentPos{0,0};

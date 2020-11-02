@@ -80,10 +80,10 @@ int main(int argc, char ** argv) {
     vbBallTc.setData(sphere.getTexCoords(),2);
     GLBuffer ibBall{GL_ELEMENT_ARRAY_BUFFER};
     ibBall.setData(sphere.getIndices());
-    BMP::Image ballAlbedoImage{BMP::load("ballAlbedo.bmp")};
+    Image ballAlbedoImage{BMP::load("ballAlbedo.bmp")};
     GLTexture2D ballAlbedo{GL_LINEAR, GL_LINEAR};
     ballAlbedo.setData(ballAlbedoImage.data, ballAlbedoImage.width, ballAlbedoImage.height, ballAlbedoImage.componentCount);
-    BMP::Image ballNormalImage{BMP::load("ballNormal.bmp")};
+    Image ballNormalImage{BMP::load("ballNormal.bmp")};
     GLTexture2D ballNormalMap{GL_LINEAR, GL_LINEAR};
     ballNormalMap.setData(ballNormalImage.data, ballNormalImage.width, ballNormalImage.height, ballNormalImage.componentCount);
   
@@ -116,26 +116,26 @@ int main(int argc, char ** argv) {
 
     
     // load brick wall textures (sides
-    BMP::Image brickWallAlbedoImage{BMP::load("brickWallAlbedo.bmp")};
+    Image brickWallAlbedoImage{BMP::load("brickWallAlbedo.bmp")};
     GLTexture2D brickWallAlbedo{GL_LINEAR, GL_LINEAR};
     brickWallAlbedo.setData(brickWallAlbedoImage.data,brickWallAlbedoImage.width, brickWallAlbedoImage.height, brickWallAlbedoImage.componentCount);
-    BMP::Image brickWallNormalImage{BMP::load("brickWallNormal.bmp")};
+    Image brickWallNormalImage{BMP::load("brickWallNormal.bmp")};
     GLTexture2D brickWallNormalMap{GL_LINEAR, GL_LINEAR};
     brickWallNormalMap.setData(brickWallNormalImage.data,brickWallNormalImage.width, brickWallNormalImage.height, brickWallNormalImage.componentCount);
 
     // load brick wall textures (floor)
-    BMP::Image floorAlbedoImage{BMP::load("floorAlbedo.bmp")};
+    Image floorAlbedoImage{BMP::load("floorAlbedo.bmp")};
     GLTexture2D floorAlbedo{GL_LINEAR, GL_LINEAR};
     floorAlbedo.setData(floorAlbedoImage.data,floorAlbedoImage.width, floorAlbedoImage.height, floorAlbedoImage.componentCount);
-    BMP::Image floorNormalImage{BMP::load("floorNormal.bmp")};
+    Image floorNormalImage{BMP::load("floorNormal.bmp")};
     GLTexture2D floorNormalMap{GL_LINEAR, GL_LINEAR};
     floorNormalMap.setData(floorNormalImage.data,floorNormalImage.width, floorNormalImage.height, floorNormalImage.componentCount);
 
     // load brick wall textures (ceiling)
-    BMP::Image ceilingAlbedoImage{BMP::load("ceilingAlbedo.bmp")};
+    Image ceilingAlbedoImage{BMP::load("ceilingAlbedo.bmp")};
     GLTexture2D ceilingAlbedo{GL_LINEAR, GL_LINEAR};
     ceilingAlbedo.setData(ceilingAlbedoImage.data,ceilingAlbedoImage.width, ceilingAlbedoImage.height, ceilingAlbedoImage.componentCount);
-    BMP::Image ceilingNormalImage{BMP::load("ceilingNormal.bmp")};
+    Image ceilingNormalImage{BMP::load("ceilingNormal.bmp")};
     GLTexture2D ceilingNormalMap{GL_LINEAR, GL_LINEAR};
     ceilingNormalMap.setData(ceilingNormalImage.data,ceilingNormalImage.width, ceilingNormalImage.height, ceilingNormalImage.componentCount);
     

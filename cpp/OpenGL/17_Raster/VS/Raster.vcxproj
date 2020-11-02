@@ -19,102 +19,38 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\Mat3.cpp" />
-    <ClCompile Include="..\AbstractParticleSystem.cpp" />
-    <ClCompile Include="..\ArcBall.cpp" />
-    <ClCompile Include="..\bmp.cpp" />
-    <ClCompile Include="..\FontRenderer.cpp" />
-    <ClCompile Include="..\FresnelVisualizer.cpp" />
-    <ClCompile Include="..\GLApp.cpp" />
-    <ClCompile Include="..\GLArray.cpp" />
-    <ClCompile Include="..\GLBuffer.cpp" />
-    <ClCompile Include="..\GLDebug.cpp" />
-    <ClCompile Include="..\GLDepthBuffer.cpp" />
-    <ClCompile Include="..\GLEnv.cpp" />
-    <ClCompile Include="..\GLFramebuffer.cpp" />
-    <ClCompile Include="..\GLProgram.cpp" />
-    <ClCompile Include="..\GLTexture1D.cpp" />
-    <ClCompile Include="..\GLTexture2D.cpp" />
-    <ClCompile Include="..\GLTexture3D.cpp" />
-    <ClCompile Include="..\Grid2D.cpp" />
-    <ClCompile Include="..\Mat4.cpp" />
-    <ClCompile Include="..\OBJFile.cpp" />
-    <ClCompile Include="..\ParticleSystem.cpp" />
-    <ClCompile Include="..\PlanarMirror.cpp" />
-    <ClCompile Include="..\PrecomputedParticleSystem.cpp" />
-    <ClCompile Include="..\Rand.cpp" />
-    <ClCompile Include="..\Tesselation.cpp" />
-    <ClCompile Include="..\Vec3.cpp" />
-    <ClCompile Include="..\Vec4.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\Image.h" />
-    <ClInclude Include="..\Mat3.h" />
-    <ClInclude Include="..\AbstractParticleSystem.h" />
-    <ClInclude Include="..\ArcBall.h" />
-    <ClInclude Include="..\bmp.h" />
-    <ClInclude Include="..\Camera.h" />
-    <ClInclude Include="..\FontRenderer.h" />
-    <ClInclude Include="..\FresnelVisualizer.h" />
-    <ClInclude Include="..\GLApp.h" />
-    <ClInclude Include="..\GLArray.h" />
-    <ClInclude Include="..\GLBuffer.h" />
-    <ClInclude Include="..\GLDebug.h" />
-    <ClInclude Include="..\GLDepthBuffer.h" />
-    <ClInclude Include="..\GLEnv.h" />
-    <ClInclude Include="..\GLFramebuffer.h" />
-    <ClInclude Include="..\GLProgram.h" />
-    <ClInclude Include="..\GLTexture1D.h" />
-    <ClInclude Include="..\GLTexture2D.h" />
-    <ClInclude Include="..\GLTexture3D.h" />
-    <ClInclude Include="..\Grid2D.h" />
-    <ClInclude Include="..\Mat4.h" />
-    <ClInclude Include="..\OBJFile.h" />
-    <ClInclude Include="..\ParticleSystem.h" />
-    <ClInclude Include="..\PlanarMirror.h" />
-    <ClInclude Include="..\PrecomputedParticleSystem.h" />
-    <ClInclude Include="..\Quaternion.h" />
-    <ClInclude Include="..\Rand.h" />
-    <ClInclude Include="..\Tesselation.h" />
-    <ClInclude Include="..\Vec2.h" />
-    <ClInclude Include="..\Vec3.h" />
-    <ClInclude Include="..\Vec4.h" />
-    <ClInclude Include="..\..\VS\include\GLFW\glfw3.h" />
-    <ClInclude Include="..\..\VS\include\GLFW\glfw3native.h" />
-    <ClInclude Include="..\..\VS\include\GL\eglew.h" />
-    <ClInclude Include="..\..\VS\include\GL\glew.h" />
-    <ClInclude Include="..\..\VS\include\GL\glxew.h" />
-    <ClInclude Include="..\..\VS\include\GL\wglew.h" />
+    <ClCompile Include="..\main.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{164a60b9-00ce-4cda-94dd-cc3366859398}</ProjectGuid>
-    <RootNamespace>Utils</RootNamespace>
+    <ProjectGuid>{1F8FA85C-5C6D-4198-A0C2-7C5FB2700A51}</ProjectGuid>
+    <RootNamespace>Mesh</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>Raster</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -154,24 +90,19 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>GLEW_STATIC;WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PrecompiledHeaderFile>
-      </PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>../../VS/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <OpenMPSupport>true</OpenMPSupport>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>../../Utils;../../VS/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>
-      </SubSystem>
+      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>../../VS/lib/Win32;$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>utils.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreAllDefaultLibraries>
+      </IgnoreAllDefaultLibraries>
     </Link>
-    <Lib>
-      <AdditionalDependencies>opengl32.lib;glew32s.lib;glfw3.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\..\VS\lib\Win32</AdditionalLibraryDirectories>
-    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -179,49 +110,37 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>GLEW_STATIC;WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PrecompiledHeaderFile>
-      </PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>../../VS/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <OpenMPSupport>true</OpenMPSupport>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>../../Utils;../../VS/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>
-      </SubSystem>
+      <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>utils.lib;opengl32.lib;glew32s.lib;glfw3.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>../../VS/lib/Win32;$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
-    <Lib>
-      <AdditionalDependencies>opengl32.lib;glew32s.lib;glfw3.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\..\VS\lib\Win32</AdditionalLibraryDirectories>
-    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>GLEW_STATIC;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PrecompiledHeaderFile>
-      </PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>../../VS/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <OpenMPSupport>true</OpenMPSupport>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>../../Utils;../../VS/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>
-      </SubSystem>
+      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>..\..\VS\lib\x64;$(PlatformTarget)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>utils.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreAllDefaultLibraries>
+      </IgnoreAllDefaultLibraries>
     </Link>
-    <Lib>
-      <AdditionalDependencies>opengl32.lib;glew32s.lib;glfw3.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\..\VS\lib\x64;</AdditionalLibraryDirectories>
-    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -229,26 +148,19 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>GLEW_STATIC;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PrecompiledHeaderFile>
-      </PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>../../VS/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <OpenMPSupport>true</OpenMPSupport>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>../../Utils;../../VS/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>
-      </SubSystem>
+      <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>..\..\VS\lib\x64;$(PlatformTarget)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>utils.lib;opengl32.lib;glew32s.lib;glfw3.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <Lib>
-      <AdditionalLibraryDirectories>..\..\VS\lib\x64;</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opengl32.lib;glew32s.lib;glfw3.lib</AdditionalDependencies>
-    </Lib>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

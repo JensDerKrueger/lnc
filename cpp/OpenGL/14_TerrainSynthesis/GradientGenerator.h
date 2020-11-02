@@ -37,7 +37,7 @@ public:
     
     void toFile(const std::string& filename, size_t texSize) const;
     
-    static BMP::Image buildImage(const std::vector<std::shared_ptr<GradientGenerator>>& gens, size_t texSize);
+    static Image buildImage(const std::vector<std::shared_ptr<GradientGenerator>>& gens, size_t texSize);
     
 private:
     std::vector<PosColor> colors;

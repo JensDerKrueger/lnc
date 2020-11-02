@@ -51,6 +51,9 @@ public:
   static Mat4 rotationZ(float degree);
   static Mat4 rotationAxis(const Vec3& axis, float angle);
   static Mat4 transpose(const Mat4& m);
+  
+  static float det(const Mat4& m);
+  static Mat4 inverse(const Mat4& m, float det);
   static Mat4 inverse(const Mat4& m);
   
   static Mat4 perspective(float fovy, float aspect, float znear, float zfar);

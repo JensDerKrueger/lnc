@@ -9,6 +9,8 @@
 #include "GLProgram.h"
 #include "GLArray.h"
 #include "GLBuffer.h"
+#include "GLTexture2D.h"
+#include "Image.h"
 
 enum LineDrawType {
   LD_LIST,
@@ -42,6 +44,11 @@ public:
     return animationActive;
   }
 
+  void drawImage(const Image& image,
+                 const Vec3& bl=Vec3{-1.0f,-1.0f,0.0f},
+                 const Vec3& br=Vec3{1.0f,-1.0f,0.0f},
+                 const Vec3& tl=Vec3{-1.0f,1.0f,0.0f},
+                 const Vec3& tr=Vec3{1.0f,1.0f,0.0f});
   void drawTriangles(const std::vector<float>& data, TrisDrawType t, bool wireframe, bool lighting);
   void drawLines(const std::vector<float>& data, LineDrawType t);
   void drawPoints(const std::vector<float>& data, float pointSize=1.0f);
@@ -63,9 +70,11 @@ protected:
   Mat4 p;
   Mat4 mv;
   GLProgram simpleProg;
+  GLProgram simpleTexProg;
   GLProgram simpleLightProg;
   GLArray simpleArray;
   GLBuffer simpleVb;
+  GLTexture2D raster;
   double resumeTime;
   
   void closeWindow() {

@@ -93,6 +93,9 @@
     <ClCompile Include="Z:\twitch\lnc\cpp\OpenGL\Utils\Vec4.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="..\Mat3.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Z:\twitch\lnc\cpp\OpenGL\Utils\AbstractParticleSystem.h">
@@ -198,6 +201,12 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="Z:\twitch\lnc\cpp\OpenGL\VS\include\GLFW\glfw3native.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Image.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Mat3.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

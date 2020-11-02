@@ -6,7 +6,7 @@ LFLAGS=-lglfw -lGLEW -framework OpenGL -L../Utils -lutils
 # for linux use this line LFLAGS=-lglfw -lGLEW -lGL -L../Utils -lutils
 LIBS=-lomp -L ../../openmp/lib
 INCLUDES=-I. -I../Utils -I ../../openmp/include
-SRC = GLApp.cpp ArcBall.cpp GLTexture3D.cpp GLDebug.cpp GLFramebuffer.cpp GLDepthBuffer.cpp Grid2D.cpp GLTexture1D.cpp Vec4.cpp FontRenderer.cpp bmp.cpp PrecomputedParticleSystem.cpp PlanarMirror.cpp FresnelVisualizer.cpp GLArray.cpp ParticleSystem.cpp AbstractParticleSystem.cpp GLTexture2D.cpp Tesselation.cpp GLBuffer.cpp GLEnv.cpp GLProgram.cpp Mat4.cpp Vec3.cpp Rand.cpp OBJFile.cpp
+SRC = Mat3.cpp GLApp.cpp ArcBall.cpp GLTexture3D.cpp GLDebug.cpp GLFramebuffer.cpp GLDepthBuffer.cpp Grid2D.cpp GLTexture1D.cpp Vec4.cpp FontRenderer.cpp bmp.cpp PrecomputedParticleSystem.cpp PlanarMirror.cpp FresnelVisualizer.cpp GLArray.cpp ParticleSystem.cpp AbstractParticleSystem.cpp GLTexture2D.cpp Tesselation.cpp GLBuffer.cpp GLEnv.cpp GLProgram.cpp Mat4.cpp Vec3.cpp Rand.cpp OBJFile.cpp
 OBJ = $(SRC:.cpp=.o)
 TARGET = libutils.a
 

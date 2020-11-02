@@ -92,9 +92,9 @@ OpenGLRenderer::OpenGLRenderer(uint32_t width, uint32_t height) :
 	vbBackgroundTan.setData(background.getTangents(),3);
 	vbBackgroundTc.setData(background.getTexCoords(),2);	
 	ibBackground.setData(background.getIndices());
-	BMP::Image backgroundAlbedoImage{BMP::load("BackgroundAlbedo.bmp")};
+	Image backgroundAlbedoImage{BMP::load("BackgroundAlbedo.bmp")};
 	backgroundAlbedo.setData(backgroundAlbedoImage.data, backgroundAlbedoImage.width, backgroundAlbedoImage.height, backgroundAlbedoImage.componentCount);
-	BMP::Image backgroundNormalImage{BMP::load("BackgroundNormal.bmp")};
+	Image backgroundNormalImage{BMP::load("BackgroundNormal.bmp")};
 	backgroundNormalMap.setData(backgroundNormalImage.data, backgroundNormalImage.width, backgroundNormalImage.height, backgroundNormalImage.componentCount);	
 	
 	backgroundArray.bind();
@@ -108,9 +108,9 @@ OpenGLRenderer::OpenGLRenderer(uint32_t width, uint32_t height) :
 	vbPillarTan.setData(pillar.getTangents(),3);
 	vbPillarTc.setData(pillar.getTexCoords(),2);	
 	ibPillar.setData(pillar.getIndices());
-	BMP::Image pillarAlbedoImage{BMP::load("BackgroundAlbedo.bmp")};
+	Image pillarAlbedoImage{BMP::load("BackgroundAlbedo.bmp")};
 	pillarAlbedo.setData(pillarAlbedoImage.data, pillarAlbedoImage.width, pillarAlbedoImage.height, pillarAlbedoImage.componentCount);
-	BMP::Image pillarNormalImage{BMP::load("BackgroundNormal.bmp")};
+	Image pillarNormalImage{BMP::load("BackgroundNormal.bmp")};
 	pillarNormalMap.setData(pillarNormalImage.data, pillarNormalImage.width, pillarNormalImage.height, pillarNormalImage.componentCount);	
 	
 	pillarArray.bind();

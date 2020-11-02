@@ -9,5 +9,5 @@
 
 
 namespace FontRenderer {
-    BMP::Image renderNumber(uint32_t number, const std::string& imageFilename, const std::string& positionFilename);
+    Image renderNumber(uint32_t number, const std::string& imageFilename, const std::string& positionFilename);
 }
