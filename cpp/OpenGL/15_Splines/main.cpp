@@ -35,7 +35,7 @@ public:
    
   void drawPolySegment(const Vec2& p0, const Vec2& p1,
                       const Vec2& p2, const Vec2& p3,
-                      const Mat4& g) {
+                      const Mat4& g, const Vec4& color) {
     const size_t maxVal = 100;
     std::vector<float> curve((maxVal+1)*7);
 
@@ -48,63 +48,94 @@ public:
      curve[i*7+1] = p.y();
      curve[i*7+2] = 0.0f;
      
-     curve[i*7+3] = 0.0f;
-     curve[i*7+4] = 0.0f;
-     curve[i*7+5] = 0.0f;
-     curve[i*7+6] = 1.0f;
+     curve[i*7+3] = color.x();
+     curve[i*7+4] = color.y();
+     curve[i*7+5] = color.z();
+     curve[i*7+6] = color.w();
     }
     drawLines(curve, LineDrawType::LD_STRIP);
   }
  
-  void drawHermiteSegment(Vec2 p0, Vec2 p1, Vec2 m0, Vec2 m1) {
+  void drawHermiteSegment(const Vec2& p0, const Vec2& p1, const Vec2& m0, const Vec2& m1, const Vec4& color) {
     Mat4 g{
       1, 0, 0, 0,
       0, 0, 1, 0,
      -3, 3,-2,-1,
       2,-2, 1, 1
     };
-    drawPolySegment(p0,p1,m0,m1,g);
+    drawPolySegment(p0,p1,m0,m1,g,color);
     drawPoints({p0.x(),p0.y(),0,1,0,0,0,
                p0.x()+m0.x(),p0.y()+m0.y(),0,0,0,1,0,
                p1.x()+m1.x(),p1.y()-m1.y(),0,0,0,1,0,
                p1.x(),p1.y(),0,1,0,0,0}, 10);
   }
 
-  void drawBezierSegment(const Vec2& p0, const Vec2& p1, const Vec2& p2, const Vec2& p3) {
+  void drawBezierSegment(const Vec2& p0, const Vec2& p1, const Vec2& p2, const Vec2& p3, const Vec4& color) {
     Mat4 g{
       1, 0, 0, 0,
      -3, 3, 0, 0,
       3,-6, 3, 0,
      -1, 3,-3, 1
     };
-    drawPolySegment(p0,p1,p2,p3,g);
+    drawPolySegment(p0,p1,p2,p3,g,color);
     drawPoints({p0.x(),p0.y(),0,1,0,0,0,
                p1.x(),p1.y(),0,0,0,1,0,
                p2.x(),p2.y(),0,0,0,1,0,
                p3.x(),p3.y(),0,1,0,0,0}, 10);
   }
   
+  
+  void drawBSplineSegment(const Vec2& p0, const Vec2& p1, const Vec2& p2, const Vec2& p3, const Vec4& color) {
+    Mat4 g{
+      1/6.0f, 4/6.0f, 1/6.0f, 0/6.0f,
+     -3/6.0f, 0/6.0f, 3/6.0f, 0/6.0f,
+      3/6.0f,-6/6.0f, 3/6.0f, 0/6.0f,
+     -1/6.0f, 3/6.0f,-3/6.0f, 1/6.0f
+    };
+    drawPolySegment(p0,p1,p2,p3,g,color);
+    drawPoints({p0.x(),p0.y(),0,1,0,0,0,
+               p1.x(),p1.y(),0,0,0,1,0,
+               p2.x(),p2.y(),0,0,0,1,0,
+               p3.x(),p3.y(),0,1,0,0,0}, 10);
+  }
+  
+  
   virtual void draw() {
     GL(glClear(GL_COLOR_BUFFER_BIT));
 
     {
-      setDrawTransform(Mat4::translation(0.0f,0.5f,0.0f));
+      setDrawTransform(Mat4::translation(0.0f,0.7f,0.0f));
       const Vec2 p0{-0.5,0.0f};
       const Vec2 m0{float(sa)*0.2f,float(ca)*0.2f};
       const Vec2 m1{0.0f,-0.2f};
       const Vec2 p1{0.5f,0.0f};
-      drawHermiteSegment(p0,p1,m0,m1);
+      drawHermiteSegment(p0,p1,m0,m1,{0.0f,0.0f,0.0f,1.0f});
     }
     
 
     {
-      setDrawTransform(Mat4::translation(0.0f,-0.5f,0.0f));
+      setDrawTransform(Mat4::translation(0.0f,0.0f,0.0f));
       const Vec2 p0{-0.5,0.0f};
       const Vec2 p1{float(sa)*0.2f-0.5f,float(ca)*0.2f};
       const Vec2 p2{0.5f,0.2f};
       const Vec2 p3{0.5f,0.0f};
-      drawBezierSegment(p0,p1,p2,p3);
+      drawBezierSegment(p0,p1,p2,p3,{0.0f,0.0f,0.0f,1.0f});
     }
+
+    {
+      setDrawTransform(Mat4::translation(0.0f,-0.7f,0.0f));
+      const Vec2 p0{-0.5,0.0f};
+      const Vec2 p1{float(sa)*0.2f-0.5f,float(ca)*0.2f};
+      const Vec2 p2{0.5f,0.2f};
+      const Vec2 p3{0.5f,0.0f};
+      drawBSplineSegment(p0,p0,p0,p1,{1.0f,0.0f,0.0f,1.0f});
+      drawBSplineSegment(p0,p0,p1,p2,{0.0f,1.0f,0.0f,1.0f});
+      drawBSplineSegment(p0,p1,p2,p3,{0.0f,0.0f,1.0f,1.0f});
+      drawBSplineSegment(p1,p2,p3,p3,{0.0f,1.0f,1.0f,1.0f});
+      drawBSplineSegment(p2,p3,p3,p3,{1.0f,0.0f,1.0f,1.0f});
+    }
+
+
   }
 
 } myApp;
