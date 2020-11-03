@@ -91,7 +91,7 @@ public:
       setDrawTransform(Mat4::translation(0.0f,0.5f,0.0f));
       const Vec2 p0{-0.5,0.0f};
       const Vec2 m0{float(sa)*0.2f,float(ca)*0.2f};
-      const Vec2 m1{0.0f,0.2f};
+      const Vec2 m1{0.0f,-0.2f};
       const Vec2 p1{0.5f,0.0f};
       drawHermiteSegment(p0,p1,m0,m1);
     }
