@@ -62,8 +62,8 @@ public:
   virtual void resize(int width, int height);
   virtual void keyboard(int key, int scancode, int action, int mods) {}
   virtual void mouseMove(double xPosition, double yPosition) {}
-  virtual void mouseButton(int button, int state, int mods) {}
-  virtual void mouseWheel(double x_offset, double y_offset) {}
+  virtual void mouseButton(int button, int state, int mods, double xPosition, double yPosition) {}
+  virtual void mouseWheel(double x_offset, double y_offset, double xPosition, double yPosition) {}
   
 protected:
   GLEnv glEnv;
@@ -95,10 +95,20 @@ private:
     if (staticAppPtr) staticAppPtr->mouseMove(xPosition, yPosition);
   }
   static void mouseButtonCallback(GLFWwindow* window, int button, int state, int mods) {
-    if (staticAppPtr) staticAppPtr->mouseButton(button, state, mods);
+    double xpos, ypos;
+    glfwGetCursorPos(window, &xpos, &ypos);
+    if (staticAppPtr) {
+      double xpos, ypos;
+      glfwGetCursorPos(window, &xpos, &ypos);
+      staticAppPtr->mouseButton(button, state, mods, xpos, ypos);
+    }
   }
   static void scrollCallback(GLFWwindow* window, double x_offset, double y_offset) {
-    if (staticAppPtr) staticAppPtr->mouseWheel(x_offset, y_offset);
+    if (staticAppPtr) {
+      double xpos, ypos;
+      glfwGetCursorPos(window, &xpos, &ypos);
+      staticAppPtr->mouseWheel(x_offset, y_offset, xpos, ypos);
+    }
   }
   
   void shaderUpdate();
