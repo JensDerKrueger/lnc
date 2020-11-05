@@ -27,7 +27,7 @@
     <ProjectGuid>{1F8FA85C-5C6D-4198-A0C2-7C5FB2700A51}</ProjectGuid>
     <RootNamespace>Mesh</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>Raster</ProjectName>
+    <ProjectName>Color</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

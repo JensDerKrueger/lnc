@@ -6,7 +6,7 @@ LIBS=
 INCLUDES=-I. -I../Utils
 SRC = main.cpp
 OBJ = $(SRC:.cpp=.o)
-TARGET = raster
+TARGET = sphere
 
 all: $(TARGET)
 
