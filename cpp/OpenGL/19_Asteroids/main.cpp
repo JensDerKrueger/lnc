@@ -55,25 +55,13 @@ public:
 class GameObject {
 public:
   void draw(GLApp& app) {
-    std::vector<float> glShape;
-    
-    for (size_t i = 0;i<shape.size();++i) {
-      glShape.push_back(shape[i].x());
-      glShape.push_back(shape[i].y());
-      glShape.push_back(0.0f);
-
-      glShape.push_back(colors[i].x());
-      glShape.push_back(colors[i].y());
-      glShape.push_back(colors[i].z());
-      glShape.push_back(colors[i].w());
-    }
-    
-    app.setDrawTransform(getTransform());
-    app.drawLines(glShape, LineDrawType::LD_LOOP);
+    drawInt(app, shape, colors);
   }
 
   void animate(float deltaT) {
     position = position + speed*deltaT;
+    
+    speed = speed * (1.0f-resistance);
     
     if (position.x() < -200 || position.x() > 200) position = Vec2(position.x()*-1.0f, position.y());
     if (position.y() < -200 || position.y() > 200) position = Vec2(position.x(), position.y()*-1.0f);
@@ -85,6 +73,14 @@ public:
     return Collision::pointInPolygon(Vec2(hPos.x(),hPos.y()), shape);
   }
 
+  void rotate(float angle) {
+    rotation += angle;
+  }
+
+  void accelerate(float thrust) {
+    Vec4 direction = Mat4::rotationZ(rotation) * Vec4{0.0f,1.0f,0.0,0.0};
+    speed = speed + direction.xy() * thrust;
+  }
   
   bool collision(const GameObject& pos) const {
     return Collision::polygonPolygonCollision(getTransformedShape(), pos.getTransformedShape());
@@ -94,10 +90,24 @@ public:
     return Mat4::rotationZ(rotation)*Mat4::translation(position.x(),position.y(),0.0f)*Mat4::scaling(0.005f);
   }
   
+  Vec2 getPosition() const {
+    return position;
+  }
+
+  Vec2 getSpeed() const {
+    return speed;
+  }
+  
+  float getRotation() const {
+    return rotation;
+  }
+
 protected:
-  Vec2 position{0,0};
-  Vec2 speed{0,0};
-  float rotation{0};
+  Vec2 position{0.0f,0.0f};
+  Vec2 speed{0.0f,0.0f};
+  float resistance{0.0f};
+  
+  float rotation{0.0f};
   std::vector<Vec2> shape;
   std::vector<Vec4> colors;
 
@@ -113,6 +123,24 @@ protected:
       tShape[i] = Vec2(tPos.x(), tPos.y());
     }
     return tShape;
+  }
+  
+  void drawInt(GLApp& app, std::vector<Vec2>& pData, std::vector<Vec4>& cData) {
+    std::vector<float> glShape;
+    
+    for (size_t i = 0;i<pData.size();++i) {
+      glShape.push_back(pData[i].x());
+      glShape.push_back(pData[i].y());
+      glShape.push_back(0.0f);
+
+      glShape.push_back(cData[i].x());
+      glShape.push_back(cData[i].y());
+      glShape.push_back(cData[i].z());
+      glShape.push_back(cData[i].w());
+    }
+    
+    app.setDrawTransform(getTransform());
+    app.drawLines(glShape, LineDrawType::LD_LOOP);
   }
   
 };
@@ -135,34 +163,72 @@ public:
   }
 };
 
-class Ship : public GameObject {
+class Projectile : public GameObject {
 public:
-  Ship(size_t design=0) {
-    switch (design) {
-      case 2 :
-        addCoord({-10, 0});
-        addCoord({0,20});
-        addCoord({5, 17.5});
-        addCoord({0, 5});
-        addCoord({30,0});
-        addCoord({0, -5});
-        addCoord({5, -17.5});
-        addCoord({0,-20});
-        break;
-      case 1 :
-        addCoord({0, -5});
-        addCoord({5, -10});
-        addCoord({0, 10});
-        addCoord({-5,-10});
-      default:
-        addCoord({2, -5});
-        addCoord({5, -10});
-        addCoord({0, 10});
-        addCoord({-5,-10});
-        addCoord({-2, -5});
-        break;
+  Projectile() {
+    addCoord({0, 10});
+    addCoord({0, 8});
+  }
+  
+  bool isValid() const {
+    return remainingLife > 0.0f;
+  }
+  
+  void fire(const Vec2& startPos, float rotation) {
+    this->remainingLife = 100;
+    this->position = startPos;
+    this->rotation = rotation;
+    this->speed = (Mat4::rotationZ(rotation) * Vec4{0.0f,projectileSpeed,0.0,0.0}).xy();
+  }
+  
+  void animate(float deltaT) {
+    if (isValid()) {
+      remainingLife -= deltaT;
+      GameObject::animate(deltaT);
+    } else {
+      remainingLife = 0.0f;
     }
   }
+
+  void draw(GLApp& app) {
+    if (isValid()) {
+      GameObject::draw(app);
+    }
+  }
+  
+  
+private:
+  float remainingLife{0.0f};
+  const float projectileSpeed{2.0f};
+
+  
+};
+
+class Ship : public GameObject {
+public:
+  Ship() {
+    addCoord({2, -5});
+    addCoord({5, -10});
+    addCoord({0, 8});
+    addCoord({-5,-10});
+    addCoord({-2, -5});
+    resistance = 0.0005f;
+  }
+  
+  void draw(GLApp& app, bool drawExhaust) {
+    // TODO: fix this
+    static uint8_t toggle = 0;
+    toggle = (toggle+1)%3;
+
+    if (drawExhaust && toggle==0) {
+      std::vector<Vec2> exhaustShape{Vec2{-2,-5}, Vec2{0,-9}, Vec2{2,-5}};
+      std::vector<Vec4> exhaustColors{Vec4{1,1,1,1}, Vec4{1,1,1,1}, Vec4{1,1,1,1}};
+      drawInt(app, exhaustShape, exhaustColors);
+    }
+    
+    GameObject::draw(app);
+  }
+
 };
 
 class MyGLApp : public GLApp {
@@ -170,6 +236,15 @@ public:
   
   Ship ship;
   std::vector<Asteroid> asteroids;
+  std::vector<Projectile> projectiles = std::vector<Projectile>(3);
+  bool fireEngine{false};
+  bool fireLaser{false};
+  bool fireCW{false};
+  bool fireCCW{false};
+  
+  const float rotationSpeed = 4.0f;
+  const float animationSpeed = 1.0f;
+  const float thrusterSpeed = 0.015f;
   
   MyGLApp() :
   GLApp(1024,786,4, "Asteroids Demo")
@@ -183,20 +258,52 @@ public:
     
     for (size_t i = 0;i<4;++i)
       asteroids.push_back(Asteroid());
+    
   }
   
   virtual void animate(double animationTime) {
-    for (auto& asteroid : asteroids) {
-      asteroid.animate(1);
+    
+
+    if (fireCW) {
+      ship.rotate(rotationSpeed);
     }
-    ship.animate(1);
+    
+    if (fireCCW) {
+      ship.rotate(-rotationSpeed);
+    }
+
+    if (fireEngine) {
+      ship.accelerate(thrusterSpeed);
+    }
+    
+    if (fireLaser) {
+      size_t i = 0;
+      for (auto& projectile : projectiles) {
+        if (!projectile.isValid()) {
+          projectile.fire(ship.getPosition(), ship.getRotation());
+          fireLaser = false;
+          break;
+        }
+        i++;
+      }
+    }
+
+    for (auto& asteroid : asteroids) {
+      asteroid.animate(animationSpeed);
+    }
+    
+    for (auto& projectile : projectiles) {
+      projectile.animate(animationSpeed);
+    }
+
+    
+    ship.animate(animationSpeed);
     
     for (auto& asteroid : asteroids) {
       if (asteroid.collision(ship)) {
         std::cout << "BOOM" << std::endl;
       }
     }
-
   }
    
   virtual void mouseMove(double xPosition, double yPosition) {
@@ -217,13 +324,47 @@ public:
 
   }
   
+  virtual void keyboard(int key, int scancode, int action, int mods) {
+
+    if (action == GLFW_PRESS && key == GLFW_KEY_ESCAPE) {
+      closeWindow();
+    }
+    
+    switch (key) {
+      case GLFW_KEY_ESCAPE:
+        closeWindow();
+        break;
+      case GLFW_KEY_DOWN:
+      case GLFW_KEY_W:
+        fireEngine = action != GLFW_RELEASE;
+        break;
+      case GLFW_KEY_SPACE:
+        fireLaser = action != GLFW_RELEASE;
+        break;
+      case GLFW_KEY_A:
+      case GLFW_KEY_LEFT:
+        fireCCW = action != GLFW_RELEASE;
+        break;
+      case GLFW_KEY_D:
+      case GLFW_KEY_RIGHT:
+        fireCW = action != GLFW_RELEASE;
+        break;
+    }
+  }
+  
+  
   virtual void draw() {
     GL(glClear(GL_COLOR_BUFFER_BIT));
 
     for (auto& asteroid : asteroids) {
       asteroid.draw(*this);
     }
-    ship.draw(*this);
+
+    for (auto& projectile : projectiles) {
+      projectile.draw(*this);
+    }
+
+    ship.draw(*this, fireEngine);
   }
 
 } myApp;
