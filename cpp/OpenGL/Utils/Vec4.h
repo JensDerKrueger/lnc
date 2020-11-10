@@ -4,6 +4,7 @@
 #include <string>
 #include <array>
 
+#include "Vec2.h"
 #include "Vec3.h"
 
 class Vec4 {
@@ -11,8 +12,13 @@ class Vec4 {
 		Vec4();
 		Vec4(float x, float y, float z, float w);
 		Vec4(const Vec4& other);
-        Vec4(const Vec3& other, float w);
-		
+    Vec4(const Vec3& other, float w);
+    Vec4(const Vec2& other, float z, float w);
+    
+    Vec3 xyz() const;
+    Vec2 xy() const;
+  
+  
 		friend std::ostream& operator<<(std::ostream &os, const Vec4& v) {os << v.toString() ; return os;}
 		const std::string toString() const;
 		

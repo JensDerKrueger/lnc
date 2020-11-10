@@ -21,6 +21,9 @@ Vec4::Vec4(const Vec3& other, float w) :
     e{other.x(),other.y(),other.z(),w}
 {}
 
+Vec4::Vec4(const Vec2& other, float z, float w) :
+  e{other.x(),other.y(),z,w}
+{}
 
 const std::string Vec4::toString() const {
 	std::stringstream s;
@@ -134,4 +137,12 @@ Vec4 Vec4::normalize(const Vec4& a) {
 
 Vec4 Vec4::random() {
 	return Vec4{Rand::rand01(),Rand::rand01(),Rand::rand01(),Rand::rand01()};
+}
+
+Vec3 Vec4::xyz() const {
+  return Vec3(e[0],e[1],e[2]);
+}
+
+Vec2 Vec4::xy() const {
+  return Vec2(e[0],e[1]);
 }
