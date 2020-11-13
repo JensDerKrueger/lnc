@@ -54,14 +54,18 @@ public:
 
 class GameObject {
 public:
+  GameObject(const Vec2& position) :
+    position(position)
+  {
+  }
+  
   void draw(GLApp& app) {
     drawInt(app, shape, colors);
   }
 
   void animate(float deltaT) {
-    position = position + speed*deltaT;
-    
-    speed = speed * (1.0f-resistance);
+    position = position + velocity*deltaT;
+    velocity = velocity * (1.0f-resistance);
     
     if (position.x() < -200 || position.x() > 200) position = Vec2(position.x()*-1.0f, position.y());
     if (position.y() < -200 || position.y() > 200) position = Vec2(position.x(), position.y()*-1.0f);
@@ -79,7 +83,7 @@ public:
 
   void accelerate(float thrust) {
     Vec4 direction = Mat4::rotationZ(rotation) * Vec4{0.0f,1.0f,0.0,0.0};
-    speed = speed + direction.xy() * thrust;
+    velocity = velocity + direction.xy() * thrust;
   }
   
   bool collision(const GameObject& pos) const {
@@ -94,8 +98,8 @@ public:
     return position;
   }
 
-  Vec2 getSpeed() const {
-    return speed;
+  Vec2 getVelocity() const {
+    return velocity;
   }
   
   float getRotation() const {
@@ -103,8 +107,8 @@ public:
   }
 
 protected:
-  Vec2 position{0.0f,0.0f};
-  Vec2 speed{0.0f,0.0f};
+  Vec2 position;
+  Vec2 velocity{0.0f,0.0f};
   float resistance{0.0f};
   
   float rotation{0.0f};
@@ -145,27 +149,13 @@ protected:
   
 };
 
-class Asteroid : public GameObject{
-public:
-  Asteroid(float size = 10.0f, size_t vertexCount=12) {
-    for (size_t i = 0;i<vertexCount;++i) {
-      float angle = 2*PI*i/float(vertexCount);
-      float dist = (Rand::rand01() < 0.4)? 0.5f+Rand::rand01()*0.5f : 0.9f+Rand::rand01()*0.1f;
-      const Vec2 coord = Vec2{size*cosf(angle), size*sinf(angle)} * dist;
-      addCoord( coord );
-      
-      float startAngle = Rand::rand01()*360.0f;
-      float startDist = 30.0f+Rand::rand01()*20.0f;
-      
-      position = Vec2(startDist*cosf(startAngle), startDist*sinf(startAngle));
-      speed = Vec2(Rand::rand11()*0.5f,Rand::rand11()*0.5f);
-    }
-  }
-};
+
 
 class Projectile : public GameObject {
 public:
-  Projectile() {
+  Projectile() :
+    GameObject({0.0f,0.0f})
+  {
     addCoord({0, 10});
     addCoord({0, 8});
   }
@@ -174,11 +164,15 @@ public:
     return remainingLife > 0.0f;
   }
   
+  void invalidate() {
+    remainingLife = 0.0f;
+  }
+  
   void fire(const Vec2& startPos, float rotation) {
-    this->remainingLife = 100;
+    this->remainingLife = 200;
     this->position = startPos;
     this->rotation = rotation;
-    this->speed = (Mat4::rotationZ(rotation) * Vec4{0.0f,projectileSpeed,0.0,0.0}).xy();
+    this->velocity = (Mat4::rotationZ(rotation) * Vec4{0.0f,projectileVelocity,0.0,0.0}).xy();
   }
   
   void animate(float deltaT) {
@@ -196,17 +190,54 @@ public:
     }
   }
   
+  Vec2 getTransformedStart() const {
+    return getTransformedShape()[0];
+  }
+  
+  Vec2 getTransformedEnd() const {
+    return getTransformedShape()[1];
+  }
   
 private:
   float remainingLife{0.0f};
-  const float projectileSpeed{2.0f};
+  const float projectileVelocity{2.0f};
+};
 
+class Asteroid : public GameObject {
+public:
+  Asteroid(const Vec2& position, const Vec2& startVelocity, uint32_t type=3, float size = 3.0f, size_t vertexCount=12) :
+    GameObject(position),
+    type(type)
+  {
+    for (size_t i = 0;i<vertexCount;++i) {
+      float angle = 2*PI*i/float(vertexCount);
+      float dist = (Rand::rand01() < 0.4)? 0.5f+Rand::rand01()*0.5f : 0.9f+Rand::rand01()*0.1f;
+      const Vec2 coord = Vec2{type*size*cosf(angle), type*size*sinf(angle)} * dist;
+      addCoord( coord );
+            
+      velocity = startVelocity;
+    }
+  }
+  
+  bool isHitByLaser(const Projectile& projectile) const {
+    return Collision::linePolygonIntersect(projectile.getTransformedStart(), projectile.getTransformedEnd(), getTransformedShape());
+  }
+  
+  uint32_t getType() {
+    return type;
+  }
+    
+private:
+  uint32_t type;
+  
   
 };
 
 class Ship : public GameObject {
 public:
-  Ship() {
+  Ship(const Vec2& position) :
+    GameObject(position)
+  {
     addCoord({2, -5});
     addCoord({5, -10});
     addCoord({0, 8});
@@ -233,79 +264,157 @@ public:
 
 class MyGLApp : public GLApp {
 public:
-  
-  Ship ship;
+  const uint32_t initialLives = 3;
+  const size_t initalAsteroidCount = 4;
+  const size_t maxProjectileCount = 30;
+  const float rotationVelocity = 3.0f;
+  const float animationVelocity = 1.0f;
+  const float thrusterVelocity = 0.015f;
+
+  Ship ship{{0.0f,0.0f}};
   std::vector<Asteroid> asteroids;
-  std::vector<Projectile> projectiles = std::vector<Projectile>(3);
+  std::vector<Projectile> projectiles;
   bool fireEngine{false};
   bool fireLaser{false};
   bool fireCW{false};
   bool fireCCW{false};
-  
-  const float rotationSpeed = 4.0f;
-  const float animationSpeed = 1.0f;
-  const float thrusterSpeed = 0.015f;
-  
-  MyGLApp() :
-  GLApp(1024,786,4, "Asteroids Demo")
-  {
+  uint32_t lives;
     
+  MyGLApp() :
+  GLApp(800,800,4, "Asteroids Demo")
+  {
   }
   
   virtual void init() {
     glEnv.setTitle("Asteroids Demo");
     GL(glClearColor(0,0,0,0));
     
-    for (size_t i = 0;i<4;++i)
-      asteroids.push_back(Asteroid());
-    
+    resetGame();
+    resetSpace();
+    resetShip(true);
   }
   
   virtual void animate(double animationTime) {
     
-
     if (fireCW) {
-      ship.rotate(rotationSpeed);
+      ship.rotate(rotationVelocity);
     }
     
     if (fireCCW) {
-      ship.rotate(-rotationSpeed);
+      ship.rotate(-rotationVelocity);
     }
 
     if (fireEngine) {
-      ship.accelerate(thrusterSpeed);
+      ship.accelerate(thrusterVelocity);
     }
     
     if (fireLaser) {
-      size_t i = 0;
       for (auto& projectile : projectiles) {
         if (!projectile.isValid()) {
           projectile.fire(ship.getPosition(), ship.getRotation());
           fireLaser = false;
           break;
         }
-        i++;
       }
     }
 
     for (auto& asteroid : asteroids) {
-      asteroid.animate(animationSpeed);
+      asteroid.animate(animationVelocity);
     }
     
     for (auto& projectile : projectiles) {
-      projectile.animate(animationSpeed);
+      projectile.animate(animationVelocity);
     }
 
+    ship.animate(animationVelocity);
     
-    ship.animate(animationSpeed);
-    
+    bool shipCollision = false;
     for (auto& asteroid : asteroids) {
       if (asteroid.collision(ship)) {
-        std::cout << "BOOM" << std::endl;
+        shipCollision = true;
+      }
+    }
+    
+    if (shipCollision) {
+      shipWrecked();
+    }
+
+    for (auto& projectile : projectiles) {
+      if (projectile.isValid()) {
+
+        for (size_t i = 0;i<asteroids.size();++i) {
+          if (asteroids[i].isHitByLaser(projectile)) {
+            
+            float direction = Rand::rand01()*360.0f;
+            float velocity = 0.2f+Rand::rand01()*0.2f;
+            const Vec2 randomVelocity{velocity*cosf(direction), velocity*sinf(direction)};
+            
+            if (asteroids[i].getType() > 1) {
+              asteroids.push_back(Asteroid{asteroids[i].getPosition(),
+                                           asteroids[i].getVelocity() + randomVelocity,
+                                           asteroids[i].getType()-1});
+              asteroids.push_back(Asteroid{asteroids[i].getPosition(),
+                                           asteroids[i].getVelocity() - randomVelocity,
+                                           asteroids[i].getType()-1});
+            }
+            projectile.invalidate();
+            asteroids.erase(asteroids.begin() + i);
+            break;
+          }
+        }
       }
     }
   }
    
+  void resetGame() {
+    lives = initialLives;
+  }
+  
+  void resetSpace() {
+    projectiles.clear();
+    asteroids.clear();
+    
+    for (size_t i = 0; i < maxProjectileCount; ++i) {
+      projectiles.push_back({});
+    }
+
+    for (size_t i = 0; i < initalAsteroidCount; ++i) {
+      float startAngle = Rand::rand01()*360.0f;
+      float startDist = 80.0f+Rand::rand01()*20.0f;
+      
+      const Vec2 startPos{startDist*cosf(startAngle), startDist*sinf(startAngle)};
+      const Vec2 startVelocity{Rand::rand11()*0.5f,Rand::rand11()*0.5f};
+      asteroids.push_back(Asteroid{startPos, startVelocity, 3});
+    }
+  }
+  
+  void resetShip(bool startCenter) {
+    if (startCenter) {
+      ship = Ship({0.0f,0.0f});
+    } else {
+      Vec2 startPos;
+      bool isTooClose = false;
+      do {
+        startPos = Vec2{Rand::rand11()*100.0f,Rand::rand11()*100.0f};
+        for (auto& asteroid : asteroids) {
+          if ((asteroid.getPosition() - startPos).length() < 10) {
+            isTooClose = true;
+          }
+        }
+      } while (isTooClose);
+      ship = Ship(startPos);
+    }
+  }
+  
+  void shipWrecked() {
+    lives--;
+    resetShip(lives == 0);
+    if (lives == 0) {
+      resetGame();
+      resetSpace();
+    }
+  }
+  
   virtual void mouseMove(double xPosition, double yPosition) {
     const Vec2 pos{
       float(2.0*xPosition/glEnv.getFramebufferSize().width-1.0),
@@ -334,6 +443,7 @@ public:
       case GLFW_KEY_ESCAPE:
         closeWindow();
         break;
+      case GLFW_KEY_UP:
       case GLFW_KEY_DOWN:
       case GLFW_KEY_W:
         fireEngine = action != GLFW_RELEASE;
