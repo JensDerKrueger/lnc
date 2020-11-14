@@ -59,18 +59,20 @@ public:
   {
   }
   
-  void draw(GLApp& app) {
-    drawInt(app, shape, colors);
+  virtual ~GameObject() {}
+  
+  virtual void draw(GLApp& app) {
+    if (isAlive()) {
+      drawShape(app, shape, colors);
+    }
   }
 
-  void animate(float deltaT) {
-    position = position + velocity*deltaT;
-    velocity = velocity * (1.0f-resistance);
+  virtual void animate(double deltaT, double animationTime) {
+    if (isAlive()) {
+      animateInt(deltaT, animationTime);
+    }
+  }
     
-    if (position.x() < -200 || position.x() > 200) position = Vec2(position.x()*-1.0f, position.y());
-    if (position.y() < -200 || position.y() > 200) position = Vec2(position.x(), position.y()*-1.0f);
-  }
-
   bool collision(const Vec2& pos) const {
     Vec4 hPos{pos.x(), pos.y(), 0.0f, 1.0f};
     hPos = Mat4::inverse(getTransform()) * hPos;
@@ -105,6 +107,10 @@ public:
   float getRotation() const {
     return rotation;
   }
+  
+  virtual bool isAlive() const {
+    return true;
+  }
 
 protected:
   Vec2 position;
@@ -129,7 +135,7 @@ protected:
     return tShape;
   }
   
-  void drawInt(GLApp& app, std::vector<Vec2>& pData, std::vector<Vec4>& cData) {
+  virtual void drawShape(GLApp& app, std::vector<Vec2>& pData, std::vector<Vec4>& cData) {
     std::vector<float> glShape;
     
     for (size_t i = 0;i<pData.size();++i) {
@@ -147,9 +153,14 @@ protected:
     app.drawLines(glShape, LineDrawType::LD_LOOP);
   }
   
+  virtual void animateInt(double deltaT, double animationTime) {
+    position = position + velocity*deltaT;
+    velocity = velocity * (1.0f-resistance);
+    if (position.x() < -200 || position.x() > 200) position = Vec2(position.x()*-1.0f, position.y());
+    if (position.y() < -200 || position.y() > 200) position = Vec2(position.x(), position.y()*-1.0f);
+  }
+  
 };
-
-
 
 class Projectile : public GameObject {
 public:
@@ -160,12 +171,12 @@ public:
     addCoord({0, 8});
   }
   
-  bool isValid() const {
-    return remainingLife > 0.0f;
+  virtual bool isAlive() const override {
+    return remainingLife > 0.0;
   }
   
-  void invalidate() {
-    remainingLife = 0.0f;
+  void kill() {
+    remainingLife = 0.0;
   }
   
   void fire(const Vec2& startPos, float rotation) {
@@ -174,22 +185,7 @@ public:
     this->rotation = rotation;
     this->velocity = (Mat4::rotationZ(rotation) * Vec4{0.0f,projectileVelocity,0.0,0.0}).xy();
   }
-  
-  void animate(float deltaT) {
-    if (isValid()) {
-      remainingLife -= deltaT;
-      GameObject::animate(deltaT);
-    } else {
-      remainingLife = 0.0f;
-    }
-  }
-
-  void draw(GLApp& app) {
-    if (isValid()) {
-      GameObject::draw(app);
-    }
-  }
-  
+    
   Vec2 getTransformedStart() const {
     return getTransformedShape()[0];
   }
@@ -199,8 +195,15 @@ public:
   }
   
 private:
-  float remainingLife{0.0f};
+  double remainingLife{0.0};
   const float projectileVelocity{2.0f};
+  
+protected:
+  virtual void animateInt(double deltaT, double animationTime) override {
+    GameObject::animateInt(deltaT, animationTime);
+    remainingLife -= deltaT;
+  }
+  
 };
 
 class Asteroid : public GameObject {
@@ -214,7 +217,6 @@ public:
       float dist = (Rand::rand01() < 0.4)? 0.5f+Rand::rand01()*0.5f : 0.9f+Rand::rand01()*0.1f;
       const Vec2 coord = Vec2{type*size*cosf(angle), type*size*sinf(angle)} * dist;
       addCoord( coord );
-            
       velocity = startVelocity;
     }
   }
@@ -230,13 +232,13 @@ public:
 private:
   uint32_t type;
   
-  
 };
 
 class Ship : public GameObject {
 public:
   Ship(const Vec2& position) :
-    GameObject(position)
+    GameObject(position),
+    alive(true)
   {
     addCoord({2, -5});
     addCoord({5, -10});
@@ -246,29 +248,48 @@ public:
     resistance = 0.0005f;
   }
   
-  void draw(GLApp& app, bool drawExhaust) {
-    // TODO: fix this
-    static uint8_t toggle = 0;
-    toggle = (toggle+1)%3;
-
-    if (drawExhaust && toggle==0) {
-      std::vector<Vec2> exhaustShape{Vec2{-2,-5}, Vec2{0,-9}, Vec2{2,-5}};
-      std::vector<Vec4> exhaustColors{Vec4{1,1,1,1}, Vec4{1,1,1,1}, Vec4{1,1,1,1}};
-      drawInt(app, exhaustShape, exhaustColors);
-    }
-    
+  virtual void draw(GLApp& app) override {
     GameObject::draw(app);
+    if (isAlive()) {
+      if (drawExhaust && sparkle) {
+        std::vector<Vec2> exhaustShape{Vec2{-2,-5}, Vec2{0,-9}, Vec2{2,-5}};
+        std::vector<Vec4> exhaustColors{Vec4{1,1,1,1}, Vec4{1,1,1,1}, Vec4{1,1,1,1}};
+        drawShape(app, exhaustShape, exhaustColors);
+      }
+    }
   }
-
+  
+  virtual bool isAlive() const override {
+    return alive;
+  }
+  
+  void setDrawExhaust(bool drawExhaust) {
+    this->drawExhaust = drawExhaust;
+  }
+  
+protected:
+  virtual void animateInt(double deltaT, double animationTime) override {
+    GameObject::animateInt(deltaT, animationTime);    
+    if (animationTime-lastSparkleTime > 3) lastSparkleTime = animationTime;
+    sparkle = (animationTime-lastSparkleTime > 1);
+  }
+  
+  
+private:
+  bool alive;
+  double lastSparkleTime{0};
+  bool sparkle{false};
+  bool drawExhaust{false};
+  
 };
 
 class MyGLApp : public GLApp {
 public:
   const uint32_t initialLives = 3;
   const size_t initalAsteroidCount = 4;
-  const size_t maxProjectileCount = 30;
+  const size_t maxProjectileCount = 60;
   const float rotationVelocity = 3.0f;
-  const float animationVelocity = 1.0f;
+  const double animationSpeed = 60.0;
   const float thrusterVelocity = 0.015f;
 
   Ship ship{{0.0f,0.0f}};
@@ -278,14 +299,15 @@ public:
   bool fireLaser{false};
   bool fireCW{false};
   bool fireCCW{false};
-  uint32_t lives;
+  uint32_t lives{initialLives};
+  double lastAnimationTime{-1};
     
   MyGLApp() :
-  GLApp(800,800,4, "Asteroids Demo")
+  GLApp(800,800,4, "Asteroids Demo", true, false)
   {
   }
   
-  virtual void init() {
+  virtual void init() override {
     glEnv.setTitle("Asteroids Demo");
     GL(glClearColor(0,0,0,0));
     
@@ -294,57 +316,52 @@ public:
     resetShip(true);
   }
   
-  virtual void animate(double animationTime) {
+  virtual void animate(double animationTime) override {
+    animationTime *= animationSpeed;
     
-    if (fireCW) {
-      ship.rotate(rotationVelocity);
-    }
+    if (lastAnimationTime == -1)  lastAnimationTime = animationTime;    
+    const double deltaT = animationTime - lastAnimationTime;
+    lastAnimationTime = animationTime;
     
-    if (fireCCW) {
-      ship.rotate(-rotationVelocity);
-    }
-
-    if (fireEngine) {
-      ship.accelerate(thrusterVelocity);
-    }
     
-    if (fireLaser) {
-      for (auto& projectile : projectiles) {
-        if (!projectile.isValid()) {
-          projectile.fire(ship.getPosition(), ship.getRotation());
-          fireLaser = false;
-          break;
+    
+    if (ship.isAlive()) {
+      if (fireCW) ship.rotate(rotationVelocity*deltaT);
+      if (fireCCW) ship.rotate(-rotationVelocity*deltaT);
+      if (fireEngine) ship.accelerate(thrusterVelocity*deltaT);
+      if (fireLaser) {
+        for (auto& projectile : projectiles) {
+          if (!projectile.isAlive()) {
+            projectile.fire(ship.getPosition(), ship.getRotation());
+            fireLaser = false;
+            break;
+          }
         }
       }
-    }
-
-    for (auto& asteroid : asteroids) {
-      asteroid.animate(animationVelocity);
-    }
-    
-    for (auto& projectile : projectiles) {
-      projectile.animate(animationVelocity);
-    }
-
-    ship.animate(animationVelocity);
-    
-    bool shipCollision = false;
-    for (auto& asteroid : asteroids) {
-      if (asteroid.collision(ship)) {
-        shipCollision = true;
+      bool shipCollision = false;
+      for (auto& asteroid : asteroids) {
+        if (asteroid.collision(ship)) {
+          shipCollision = true;
+        }
+      }
+      
+      if (shipCollision) {
+        shipWrecked();
       }
     }
-    
-    if (shipCollision) {
-      shipWrecked();
+
+    for (auto& asteroid : asteroids) {
+      asteroid.animate(deltaT, animationTime);
     }
-
     for (auto& projectile : projectiles) {
-      if (projectile.isValid()) {
-
-        for (size_t i = 0;i<asteroids.size();++i) {
+      projectile.animate(deltaT, animationTime);
+    }
+    ship.animate(deltaT, animationTime);
+    
+    for (auto& projectile : projectiles) {
+      for (size_t i = 0;i<asteroids.size();++i) {
+        if (projectile.isAlive()) {
           if (asteroids[i].isHitByLaser(projectile)) {
-            
             float direction = Rand::rand01()*360.0f;
             float velocity = 0.2f+Rand::rand01()*0.2f;
             const Vec2 randomVelocity{velocity*cosf(direction), velocity*sinf(direction)};
@@ -357,7 +374,7 @@ public:
                                            asteroids[i].getVelocity() - randomVelocity,
                                            asteroids[i].getType()-1});
             }
-            projectile.invalidate();
+            projectile.kill();
             asteroids.erase(asteroids.begin() + i);
             break;
           }
@@ -380,7 +397,7 @@ public:
 
     for (size_t i = 0; i < initalAsteroidCount; ++i) {
       float startAngle = Rand::rand01()*360.0f;
-      float startDist = 80.0f+Rand::rand01()*20.0f;
+      float startDist = 180.0f+Rand::rand01()*20.0f;
       
       const Vec2 startPos{startDist*cosf(startAngle), startDist*sinf(startAngle)};
       const Vec2 startVelocity{Rand::rand11()*0.5f,Rand::rand11()*0.5f};
@@ -415,7 +432,7 @@ public:
     }
   }
   
-  virtual void mouseMove(double xPosition, double yPosition) {
+  virtual void mouseMove(double xPosition, double yPosition) override {
     const Vec2 pos{
       float(2.0*xPosition/glEnv.getFramebufferSize().width-1.0),
       -float(2.0*yPosition/glEnv.getFramebufferSize().height-1.0)
@@ -430,10 +447,9 @@ public:
         std::cout << "hit asteroid" << std::endl;
       }
     }
-
   }
   
-  virtual void keyboard(int key, int scancode, int action, int mods) {
+  virtual void keyboard(int key, int scancode, int action, int mods) override {
 
     if (action == GLFW_PRESS && key == GLFW_KEY_ESCAPE) {
       closeWindow();
@@ -463,7 +479,7 @@ public:
   }
   
   
-  virtual void draw() {
+  virtual void draw() override{
     GL(glClear(GL_COLOR_BUFFER_BIT));
 
     for (auto& asteroid : asteroids) {
@@ -474,7 +490,8 @@ public:
       projectile.draw(*this);
     }
 
-    ship.draw(*this, fireEngine);
+    ship.setDrawExhaust(fireEngine);
+    ship.draw(*this);
   }
 
 } myApp;
@@ -483,3 +500,4 @@ int main(int argc, char ** argv) {
   myApp.run();
   return EXIT_SUCCESS;
 }  
+  
