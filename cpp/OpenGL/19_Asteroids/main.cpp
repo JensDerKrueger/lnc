@@ -180,7 +180,7 @@ public:
   }
   
   void fire(const Vec2& startPos, float rotation) {
-    this->remainingLife = 200;
+    this->remainingLife = 130;
     this->position = startPos;
     this->rotation = rotation;
     this->velocity = (Mat4::rotationZ(rotation) * Vec4{0.0f,projectileVelocity,0.0,0.0}).xy();
@@ -196,7 +196,7 @@ public:
   
 private:
   double remainingLife{0.0};
-  const float projectileVelocity{2.0f};
+  const float projectileVelocity{3.0f};
   
 protected:
   virtual void animateInt(double deltaT, double animationTime) override {
@@ -204,6 +204,11 @@ protected:
     remainingLife -= deltaT;
   }
   
+};
+
+enum class AsteroidState {
+  NORMAL,
+  EXPLODING
 };
 
 class Asteroid : public GameObject {
@@ -234,10 +239,16 @@ private:
   
 };
 
+enum class ShipState {
+  NORMAL,
+  RESPAWNING,
+  EXPLODING
+};
+
 class Ship : public GameObject {
 public:
-  Ship(const Vec2& position) :
-    GameObject(position),
+  Ship() :
+    GameObject({0.0f,0.0f}),
     alive(true)
   {
     addCoord({2, -5});
@@ -249,6 +260,8 @@ public:
   }
   
   virtual void draw(GLApp& app) override {
+    if (shipState != ShipState::NORMAL) return;
+    
     GameObject::draw(app);
     if (isAlive()) {
       if (drawExhaust && sparkle) {
@@ -267,6 +280,14 @@ public:
     this->drawExhaust = drawExhaust;
   }
   
+  void setState(ShipState shipState) {
+    this->shipState = shipState;
+  }
+  
+  ShipState getState() const {
+    return shipState;
+  }
+
 protected:
   virtual void animateInt(double deltaT, double animationTime) override {
     GameObject::animateInt(deltaT, animationTime);    
@@ -280,19 +301,20 @@ private:
   double lastSparkleTime{0};
   bool sparkle{false};
   bool drawExhaust{false};
+  ShipState shipState{ShipState::NORMAL};
   
 };
 
 class MyGLApp : public GLApp {
 public:
   const uint32_t initialLives = 3;
-  const size_t initalAsteroidCount = 4;
-  const size_t maxProjectileCount = 60;
+  const size_t initalAsteroidCount = 40;
+  const size_t maxProjectileCount = 3;
   const float rotationVelocity = 3.0f;
   const double animationSpeed = 60.0;
   const float thrusterVelocity = 0.015f;
 
-  Ship ship{{0.0f,0.0f}};
+  Ship ship;
   std::vector<Asteroid> asteroids;
   std::vector<Projectile> projectiles;
   bool fireEngine{false};
@@ -303,7 +325,7 @@ public:
   double lastAnimationTime{-1};
     
   MyGLApp() :
-  GLApp(800,800,4, "Asteroids Demo", true, false)
+  GLApp(800,800,4, "Asteroids Demo", true, true)
   {
   }
   
@@ -323,9 +345,7 @@ public:
     const double deltaT = animationTime - lastAnimationTime;
     lastAnimationTime = animationTime;
     
-    
-    
-    if (ship.isAlive()) {
+    if (ship.isAlive() && ship.getState() == ShipState::NORMAL) {
       if (fireCW) ship.rotate(rotationVelocity*deltaT);
       if (fireCCW) ship.rotate(-rotationVelocity*deltaT);
       if (fireEngine) ship.accelerate(thrusterVelocity*deltaT);
@@ -338,6 +358,7 @@ public:
           }
         }
       }
+      
       bool shipCollision = false;
       for (auto& asteroid : asteroids) {
         if (asteroid.collision(ship)) {
@@ -356,14 +377,27 @@ public:
     for (auto& projectile : projectiles) {
       projectile.animate(deltaT, animationTime);
     }
+    
     ship.animate(deltaT, animationTime);
+    
+    if (ship.getState() == ShipState::RESPAWNING) {
+      bool isTooClose = false;
+      for (auto& asteroid : asteroids) {
+        if ((asteroid.getPosition()).length() < 50) {
+          isTooClose = true;
+        }
+      }
+      if (!isTooClose) {
+        ship = Ship();
+      }
+    }
     
     for (auto& projectile : projectiles) {
       for (size_t i = 0;i<asteroids.size();++i) {
         if (projectile.isAlive()) {
           if (asteroids[i].isHitByLaser(projectile)) {
             float direction = Rand::rand01()*360.0f;
-            float velocity = 0.2f+Rand::rand01()*0.2f;
+            float velocity = 0.4f+Rand::rand01()*0.4f;
             const Vec2 randomVelocity{velocity*cosf(direction), velocity*sinf(direction)};
             
             if (asteroids[i].getType() > 1) {
@@ -407,19 +441,9 @@ public:
   
   void resetShip(bool startCenter) {
     if (startCenter) {
-      ship = Ship({0.0f,0.0f});
+      ship = Ship();
     } else {
-      Vec2 startPos;
-      bool isTooClose = false;
-      do {
-        startPos = Vec2{Rand::rand11()*100.0f,Rand::rand11()*100.0f};
-        for (auto& asteroid : asteroids) {
-          if ((asteroid.getPosition() - startPos).length() < 10) {
-            isTooClose = true;
-          }
-        }
-      } while (isTooClose);
-      ship = Ship(startPos);
+      ship.setState(ShipState::EXPLODING);
     }
   }
   
