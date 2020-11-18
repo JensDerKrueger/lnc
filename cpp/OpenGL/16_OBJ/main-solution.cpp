@@ -40,7 +40,7 @@ public:
     GL(glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT));
     setDrawProjection(Mat4::perspective(45, glEnv.getFramebufferSize().aspect(), 0.0001, 100));
     setDrawTransform(Mat4::rotationY(float(angle)) * Mat4::lookAt({0,0,2},{0,0,0},{0,1,0}));
-    drawTriangles(data, TrisDrawType::TD_LIST, false, true);
+    drawTriangles(data, TrisDrawType::LIST, false, true);
   }
 
 } myApp;

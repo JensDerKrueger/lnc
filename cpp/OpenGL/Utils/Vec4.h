@@ -18,7 +18,6 @@ class Vec4 {
     Vec3 xyz() const;
     Vec2 xy() const;
   
-  
 		friend std::ostream& operator<<(std::ostream &os, const Vec4& v) {os << v.toString() ; return os;}
 		const std::string toString() const;
 		

@@ -138,3 +138,18 @@ void GLEnv::setClose() {
 void GLEnv::setTitle(const std::string& title) {
   this->title = title;
 }
+
+void GLEnv::setCursorMode(CursorMode mode) {
+  switch (mode) {
+    case CursorMode::NORMAL :
+      glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+      break;
+    case CursorMode::HIDDEN :
+      glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+      break;
+    case CursorMode::FIXED :
+      glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+      break;
+  }
+}
+

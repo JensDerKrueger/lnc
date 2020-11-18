@@ -150,7 +150,7 @@ protected:
     }
     
     app.setDrawTransform(getTransform());
-    app.drawLines(glShape, LineDrawType::LD_LOOP);
+    app.drawLines(glShape, LineDrawType::LOOP);
   }
   
   virtual void animateInt(double deltaT, double animationTime) {
@@ -343,7 +343,7 @@ public:
       }
       
       app.setDrawTransform(getTransform());
-      app.drawLines(glShape, LineDrawType::LD_LIST);
+      app.drawLines(glShape, LineDrawType::LIST);
       
       
     } else {
@@ -427,6 +427,8 @@ public:
   
   virtual void init() override {
     glEnv.setTitle("Asteroids Demo");
+    glEnv.setCursorMode(CursorMode::HIDDEN);
+    
     GL(glClearColor(0,0,0,0));
     
     resetGame();

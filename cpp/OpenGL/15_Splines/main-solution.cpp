@@ -75,7 +75,7 @@ public:
      curve[i*7+5] = color.z();
      curve[i*7+6] = color.w();
     }
-    drawLines(curve, LineDrawType::LD_STRIP);
+    drawLines(curve, LineDrawType::STRIP);
   }
  
   void drawHermiteSegment(const Vec2& p0, const Vec2& p1, const Vec2& m0, const Vec2& m1, const Vec4& color) {

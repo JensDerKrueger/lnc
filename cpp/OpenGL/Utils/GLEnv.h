@@ -9,7 +9,8 @@
 
 #include "GLDebug.h"
 
-enum GL_DATA_TYPE {DT_BYTE, DT_HALF, DT_FLOAT};
+enum class GLDataType {BYTE, HALF, FLOAT};
+enum class CursorMode {NORMAL, HIDDEN, FIXED};
 
 class GLException : public std::exception {
 	public:
@@ -41,6 +42,8 @@ public:
   bool shouldClose() const;
   void setClose();
   void endOfFrame();
+  
+  void setCursorMode(CursorMode mode);
   
   void setFPSCounter(bool fpsCounter);
   void setSync(bool sync);

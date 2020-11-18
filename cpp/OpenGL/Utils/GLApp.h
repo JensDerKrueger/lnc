@@ -12,16 +12,16 @@
 #include "GLTexture2D.h"
 #include "Image.h"
 
-enum LineDrawType {
-  LD_LIST,
-  LD_STRIP,
-  LD_LOOP
+enum class LineDrawType {
+  LIST,
+  STRIP,
+  LOOP
 };
 
-enum TrisDrawType {
-  TD_LIST,
-  TD_STRIP,
-  TD_FAN
+enum class TrisDrawType {
+  LIST,
+  STRIP,
+  FAN
 };
 
 class GLApp {
