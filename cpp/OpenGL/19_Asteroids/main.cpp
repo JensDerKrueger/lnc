@@ -154,8 +154,8 @@ protected:
   }
   
   virtual void animateInt(double deltaT, double animationTime) {
-    position = position + velocity*deltaT;
-    velocity = velocity * std::pow(1.0f - resistance, deltaT);
+    position = position + velocity*float(deltaT);
+    velocity = velocity * float(std::pow(1.0f - resistance, deltaT));
     if (position.x() < -200 || position.x() > 200) position = Vec2(position.x()*-1.0f, position.y());
     if (position.y() < -200 || position.y() > 200) position = Vec2(position.x(), position.y()*-1.0f);
   }
@@ -260,7 +260,7 @@ public:
     std::vector<float> glShape;
     if (getState() == ObjectState::EXPLODING) {
       std::vector<float> glShape;
-      const double alpha = 1.0+explosionTime/maxExplosionTime;
+      const float alpha{ float(1.0 + explosionTime / maxExplosionTime) };
       for (size_t i = 0;i<shape.size();++i) {
         const Vec2 point = shape[i] * alpha;
         
@@ -319,7 +319,7 @@ public:
         
     if (getState() == ObjectState::EXPLODING) {
       std::vector<float> glShape;
-      const double alpha = 1.0+explosionTime/maxExplosionTime;
+      const float alpha{ float(1.0 + explosionTime / maxExplosionTime) };
 
       for (size_t i = 0;i<shape.size();++i) {
         const size_t endIndex = (i+1)%shape.size();
@@ -441,9 +441,9 @@ public:
     lastAnimationTime = animationTime;
     
     if (ship.isAlive() && ship.getState() == ObjectState::NORMAL) {
-      if (fireCW) ship.rotate(rotationVelocity*deltaT);
-      if (fireCCW) ship.rotate(-rotationVelocity*deltaT);
-      if (fireEngine) ship.accelerate(thrusterVelocity*deltaT);
+      if (fireCW) ship.rotate(float(rotationVelocity*deltaT));
+      if (fireCCW) ship.rotate(float(-rotationVelocity*deltaT));
+      if (fireEngine) ship.accelerate(float(thrusterVelocity*deltaT));
       if (fireLaser) {
         for (auto& projectile : projectiles) {
           if (!projectile.isAlive()) {
