@@ -21,3 +21,7 @@ cpp/OpenGL/GameOfLife3D/VS/GameOfLife3D/tmp/*
 cpp/OpenGL/GameOfLife3D/VS/GameOfLife3D/*.glsl
 cpp/OpenGL/Splines/VS/bin/*
 cpp/OpenGL/Splines/VS/tmp/*
+cpp/OpenGL/19_Asteroids/VS/bin/*
+cpp/OpenGL/19_Asteroids/VS/tmp/*
+cpp/OpenGL/19_Asteroids/VS/x64/*
+cpp/OpenGL/Utils/VS/x64/*

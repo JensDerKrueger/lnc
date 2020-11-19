@@ -155,7 +155,7 @@ protected:
   
   virtual void animateInt(double deltaT, double animationTime) {
     position = position + velocity*deltaT;
-    velocity = velocity * (1.0f-resistance);
+    velocity = velocity * std::pow(1.0f - resistance, deltaT);
     if (position.x() < -200 || position.x() > 200) position = Vec2(position.x()*-1.0f, position.y());
     if (position.y() < -200 || position.y() > 200) position = Vec2(position.x(), position.y()*-1.0f);
   }
