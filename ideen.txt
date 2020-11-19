@@ -19,20 +19,24 @@
   - Dart
   - Go
   - Swift
-  - Julia
+  - Julia (vs. Python)
 ------------------------------------
+
+- Snake
+
+- Labyrinth :-)
 
 - Asteroids (the arcade game) in 3D 
   features might be:
   - 3D donut world (repeating space in 3d torus)
   - shoot at asteroids in first person
-  - wapon upgrades
+  - weapon upgrades
   
 
 - visualization of real astronomical data
   for example:
   - star maps
-  - solar system / other systems + trajectorys
+  - solar system / other systems + trajectories
   
     
 - evolutionary algorithms

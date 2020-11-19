@@ -15,7 +15,7 @@ public:
     
 	const GLint getId() const;
   void clear();
-  void setEmpty(uint32_t width, uint32_t height, uint32_t componentCount, GL_DATA_TYPE dataType=DT_BYTE);
+  void setEmpty(uint32_t width, uint32_t height, uint32_t componentCount, GLDataType dataType=GLDataType::BYTE);
 	void setData(const std::vector<GLubyte>& data, uint32_t width, uint32_t height, uint32_t componentCount=4);
   void setData(const std::vector<GLubyte>& data);
   void setData(const std::vector<GLfloat>& data, uint32_t width, uint32_t height, uint32_t componentCount=4);
@@ -27,7 +27,7 @@ public:
   uint32_t getWidth() const {return width;}
   uint32_t getComponentCount() const {return componentCount;}
   uint32_t getSize() const {return height*width*componentCount;}
-  GL_DATA_TYPE getType() const {return dataType;}
+  GLDataType getType() const {return dataType;}
   
   const std::vector<GLubyte>& getDataByte();
   const std::vector<GLhalf>& getDataHalf();
@@ -49,7 +49,7 @@ private:
   uint32_t width;
   uint32_t height;
   uint32_t componentCount;
-  GL_DATA_TYPE dataType;
+  GLDataType dataType;
   
-  void setData(GLvoid* data, uint32_t width, uint32_t height, uint32_t componentCount, GL_DATA_TYPE dataType);
+  void setData(GLvoid* data, uint32_t width, uint32_t height, uint32_t componentCount, GLDataType dataType);
 };

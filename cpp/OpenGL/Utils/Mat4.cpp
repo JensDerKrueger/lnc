@@ -118,6 +118,10 @@ Mat4 Mat4::translation(const Vec3& trans) {
 	return translation(trans.x(), trans.y(), trans.z());
 }
 
+Mat4 Mat4::scaling(float scale) {
+  return scaling(scale,scale,scale);
+}
+
 Mat4 Mat4::scaling(const Vec3& scale) {
 	return scaling(scale.x(), scale.y(), scale.z());
 }

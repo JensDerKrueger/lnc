@@ -21,44 +21,59 @@ public:
     sa = sin(animationTime);
     ca = cos(animationTime);
   }
+
+  // SOLUTION:
+  Vec2 computePoly(const Vec2& p0, const Vec2& p1,
+                   const Vec2& p2, const Vec2& p3,
+                   const Mat4& g, float t) {
+
+    Vec4 tVec{1,t,t*t,t*t*t};
+    Vec4 pX{p0.x(), p1.x(), p2.x(), p3.x()};
+    Vec4 pY{p0.y(), p1.y(), p2.y(), p3.y()};
+
+    return {Vec4::dot(tVec, g*pX), Vec4::dot(tVec, g*pY) };
+  }
    
   void drawPolySegment(const Vec2& p0, const Vec2& p1,
                        const Vec2& p2, const Vec2& p3,
                        const Mat4& g, const Vec4& color) {
     const size_t maxVal = 100;
     std::vector<float> curve((maxVal+1)*7);
+
+    // TODO:
+    // complete the function drawPolySegment
+    // this function takes as argument the
+    // geometry matrix of the polygon method
+    // i.e. hermite, bezier, or b-spline
+    // and draws the polygonal curve as a
+    // line strip, the curve is given as
+    // five paramters, i.e. the four control
+    // points (or, in case of the hermite
+    // curve two points and two derivative
+    // vectors), the geometry matrix, and the
+    // color of the curve. The result should
+    // be written into the the vector curve
+    // the format is x,y,z,r,g,b,a for each
+    // point along the line
+    // The result will be three curves, a
+    // Hermite curve on the top, a Bezier
+    // curve in the middle and a B-Spline
+    // at the bottom
     
     for (size_t i = 0;i<=maxVal;++i) {
      float t = float(i)/float(maxVal);
 
-      // TODO:
-      // complete the function drawPolySegment
-      // this function takes as argument the
-      // geometry matrix of the polygon method
-      // i.e. hermite, bezier, or b-spline
-      // and draws the polygonal curve as a
-      // line strip, the curve is given as
-      // five paramters, i.e. the four control
-      // points (or, in case of the hermite
-      // curve two points and two derivative
-      // vectors), the geometry matrix, and the
-      // color of the curve. The result should
-      // be written into the the vector curve
-      // the format is x,y,z,r,g,b,a for each
-      // point along the line
-      // The result will be three curves, a
-      // Hermite curve on the top, a Bezier
-      // curve in the middle and a B-Spline
-      // at the bottom
-      
-      curve[i*7+0] = 0.0f;  // x
-      curve[i*7+1] = 0.0f;  // y
-      curve[i*7+2] = 0.0f;  // z  (no need to change)
-      
-      curve[i*7+3] = 0.0f;  // red
-      curve[i*7+4] = 0.0f;  // green
-      curve[i*7+5] = 0.0f;  // blue
-      curve[i*7+6] = 0.0f;  // alpha  (no need to change)
+     // SOLUTION:
+     Vec2 p = computePoly(p0, p1, p2, p3, g, t);
+     
+     curve[i*7+0] = p.x();
+     curve[i*7+1] = p.y();
+     curve[i*7+2] = 0.0f;
+     
+     curve[i*7+3] = color.x();
+     curve[i*7+4] = color.y();
+     curve[i*7+5] = color.z();
+     curve[i*7+6] = color.w();
     }
     drawLines(curve, LineDrawType::STRIP);
   }

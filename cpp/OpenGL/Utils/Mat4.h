@@ -42,6 +42,7 @@ public:
   Vec3 operator * ( const Vec3& other ) const;
   Vec4 operator * ( const Vec4& other ) const;
   
+  static Mat4 scaling(float scale);
   static Mat4 scaling(const Vec3& scale);
   static Mat4 translation(const Vec3& trans);
   static Mat4 translation(float x, float y, float z);

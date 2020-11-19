@@ -117,13 +117,13 @@ void GLApp::drawLines(const std::vector<float>& data, LineDrawType t) {
   simpleArray.connectVertexAttrib(simpleVb, simpleProg, "vColor", 4, 3);
 
   switch (t) {
-    case LineDrawType::LD_LIST :
+    case LineDrawType::LIST :
       GL(glDrawArrays(GL_LINES, 0, GLsizei(data.size()/7)));
       break;
-    case LineDrawType::LD_STRIP :
+    case LineDrawType::STRIP :
       GL(glDrawArrays(GL_LINE_STRIP, 0, GLsizei(data.size()/7)));
       break;
-    case LineDrawType::LD_LOOP :
+    case LineDrawType::LOOP :
       GL(glDrawArrays(GL_LINE_LOOP, 0, GLsizei(data.size()/7)));
       break;
   }
@@ -168,13 +168,13 @@ void GLApp::drawTriangles(const std::vector<float>& data, TrisDrawType t, bool w
   }
 
   switch (t) {
-    case TrisDrawType::TD_LIST :
+    case TrisDrawType::LIST :
       GL(glDrawArrays(GL_TRIANGLES, 0, GLsizei(data.size()/compCount)));
       break;
-    case TrisDrawType::TD_STRIP :
+    case TrisDrawType::STRIP :
       GL(glDrawArrays(GL_TRIANGLE_STRIP, 0, GLsizei(data.size()/compCount)));
       break;
-    case TrisDrawType::TD_FAN :
+    case TrisDrawType::FAN :
       GL(glDrawArrays(GL_TRIANGLE_FAN, 0, GLsizei(data.size()/compCount)));
       break;
   }
