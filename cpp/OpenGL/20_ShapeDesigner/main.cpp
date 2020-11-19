@@ -53,7 +53,7 @@ public:
           dumpShape();
           break;
         case GLFW_KEY_R:
-          restartPrimitive = true;
+          restartPrimitive = !restartPrimitive;
           break;
         case GLFW_KEY_RIGHT_BRACKET:   // US key for german +
           gridCells += 10.0;
