@@ -154,8 +154,8 @@ protected:
   }
   
   virtual void animateInt(double deltaT, double animationTime) {
-    position = position + velocity*deltaT;
-    velocity = velocity * std::pow(1.0f - resistance, deltaT);
+    position = position + velocity*float(deltaT);
+    velocity = velocity * float(std::pow(1.0f - resistance, deltaT));
     if (position.x() < -200 || position.x() > 200) position = Vec2(position.x()*-1.0f, position.y());
     if (position.y() < -200 || position.y() > 200) position = Vec2(position.x(), position.y()*-1.0f);
   }
@@ -206,16 +206,36 @@ protected:
   
 };
 
-enum class AsteroidState {
+
+enum class ObjectState {
   NORMAL,
   EXPLODING,
   DEAD
 };
 
-class Asteroid : public GameObject {
+class ExplodableObject : public GameObject {
+public:
+  ExplodableObject(const Vec2& position) :
+    GameObject(position)
+  {
+  }
+
+  void setState(ObjectState objectState) {
+    this->objectState = objectState;
+  }
+  
+  ObjectState getState() const {
+    return objectState;
+  }
+private:
+  ObjectState objectState{ObjectState::NORMAL};
+  
+};
+
+class Asteroid : public ExplodableObject {
 public:
   Asteroid(const Vec2& position, const Vec2& startVelocity, uint32_t type=3, float size = 3.0f, size_t vertexCount=12) :
-    GameObject(position),
+    ExplodableObject(position),
     type(type)
   {
     for (size_t i = 0;i<vertexCount;++i) {
@@ -228,26 +248,19 @@ public:
   }
   
   bool isHitByLaser(const Projectile& projectile) const {
-    return asteroidState == AsteroidState::NORMAL && Collision::linePolygonIntersect(projectile.getTransformedStart(), projectile.getTransformedEnd(), getTransformedShape());
+    return getState() == ObjectState::NORMAL && Collision::linePolygonIntersect(projectile.getTransformedStart(), projectile.getTransformedEnd(), getTransformedShape());
   }
   
   uint32_t getType() {
     return type;
   }
     
-  void setState(AsteroidState asteroidState) {
-    this->asteroidState = asteroidState;
-  }
-  
-  AsteroidState getState() const {
-    return asteroidState;
-  }
   
   virtual void draw(GLApp& app) override {
     std::vector<float> glShape;
-    if (asteroidState == AsteroidState::EXPLODING) {
+    if (getState() == ObjectState::EXPLODING) {
       std::vector<float> glShape;
-      const double alpha = 1.0+explosionTime/maxExplosionTime;
+      const float alpha{ float(1.0 + explosionTime / maxExplosionTime) };
       for (size_t i = 0;i<shape.size();++i) {
         const Vec2 point = shape[i] * alpha;
         
@@ -273,32 +286,24 @@ private:
   uint32_t type;
   double maxExplosionTime{100.0};
   double explosionTime{0.0};
-  AsteroidState asteroidState{AsteroidState::NORMAL};
   
   virtual void animateInt(double deltaT, double animationTime) override {
-    if (asteroidState == AsteroidState::EXPLODING) {
+    if (getState() == ObjectState::EXPLODING) {
       explosionTime += deltaT;
       if (explosionTime > maxExplosionTime) {
         explosionTime = 0.0;
-        asteroidState = AsteroidState::DEAD;
+        setState(ObjectState::DEAD);
       }
     } else {
       GameObject::animateInt(deltaT, animationTime);
     }
   }
-  
 };
 
-enum class ShipState {
-  NORMAL,
-  RESPAWNING,
-  EXPLODING
-};
-
-class Ship : public GameObject {
+class Ship : public ExplodableObject {
 public:
   Ship() :
-    GameObject({0.0f,0.0f}),
+    ExplodableObject({0.0f,0.0f}),
     alive(true)
   {
     addCoord({ 2,  -2});
@@ -310,11 +315,11 @@ public:
   }
   
   virtual void draw(GLApp& app) override {
-    if (shipState == ShipState::RESPAWNING) return;
+    if (getState() == ObjectState::DEAD) return;
         
-    if (shipState == ShipState::EXPLODING) {
+    if (getState() == ObjectState::EXPLODING) {
       std::vector<float> glShape;
-      const double alpha = 1.0+explosionTime/maxExplosionTime;
+      const float alpha{ float(1.0 + explosionTime / maxExplosionTime) };
 
       for (size_t i = 0;i<shape.size();++i) {
         const size_t endIndex = (i+1)%shape.size();
@@ -366,21 +371,14 @@ public:
     this->drawExhaust = drawExhaust;
   }
   
-  void setState(ShipState shipState) {
-    this->shipState = shipState;
-  }
-  
-  ShipState getState() const {
-    return shipState;
-  }
 
 protected:
   virtual void animateInt(double deltaT, double animationTime) override {
-    if (shipState == ShipState::EXPLODING) {
+    if (getState() == ObjectState::EXPLODING) {
       explosionTime += deltaT;
       if (explosionTime > maxExplosionTime) {
         explosionTime = 0.0;
-        shipState = ShipState::RESPAWNING;
+        setState(ObjectState::DEAD);
       }
     } else {
       GameObject::animateInt(deltaT, animationTime);
@@ -397,7 +395,6 @@ private:
   double lastSparkleTime{0};
   bool sparkle{false};
   bool drawExhaust{false};
-  ShipState shipState{ShipState::NORMAL};
   
 };
 
@@ -443,10 +440,10 @@ public:
     const double deltaT = animationTime - lastAnimationTime;
     lastAnimationTime = animationTime;
     
-    if (ship.isAlive() && ship.getState() == ShipState::NORMAL) {
-      if (fireCW) ship.rotate(rotationVelocity*deltaT);
-      if (fireCCW) ship.rotate(-rotationVelocity*deltaT);
-      if (fireEngine) ship.accelerate(thrusterVelocity*deltaT);
+    if (ship.isAlive() && ship.getState() == ObjectState::NORMAL) {
+      if (fireCW) ship.rotate(float(rotationVelocity*deltaT));
+      if (fireCCW) ship.rotate(float(-rotationVelocity*deltaT));
+      if (fireEngine) ship.accelerate(float(thrusterVelocity*deltaT));
       if (fireLaser) {
         for (auto& projectile : projectiles) {
           if (!projectile.isAlive()) {
@@ -459,8 +456,9 @@ public:
       
       bool shipCollision = false;
       for (auto& asteroid : asteroids) {
-        if (asteroid.collision(ship)) {
+        if (asteroid.getState() == ObjectState::NORMAL && asteroid.collision(ship)) {
           shipCollision = true;
+          break;
         }
       }
       
@@ -470,7 +468,7 @@ public:
     }
 
     for (size_t i = 0;i<asteroids.size();++i) {
-      if (asteroids[i].getState()  == AsteroidState::DEAD) asteroids.erase(asteroids.begin() + i);
+      if (asteroids[i].getState()  == ObjectState::DEAD) asteroids.erase(asteroids.begin() + i);
     }
     
     
@@ -483,10 +481,10 @@ public:
     
     ship.animate(deltaT, animationTime);
     
-    if (ship.getState() == ShipState::RESPAWNING) {
+    if (ship.getState() == ObjectState::DEAD) {
       bool isTooClose = false;
       for (auto& asteroid : asteroids) {
-        if ((asteroid.getPosition()).length() < 50) {
+        if ((asteroid.getPosition()).length() < 50 && asteroid.getState() == ObjectState::NORMAL) {
           isTooClose = true;
         }
       }
@@ -512,7 +510,7 @@ public:
                                            asteroids[i].getType()-1});
             }
             projectile.kill();
-            asteroids[i].setState(AsteroidState::EXPLODING);
+            asteroids[i].setState(ObjectState::EXPLODING);
             break;
           }
         }
@@ -546,7 +544,7 @@ public:
     if (startCenter) {
       ship = Ship();
     } else {
-      ship.setState(ShipState::EXPLODING);
+      ship.setState(ObjectState::EXPLODING);
     }
   }
   

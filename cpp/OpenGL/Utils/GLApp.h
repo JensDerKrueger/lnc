@@ -51,9 +51,11 @@ public:
                  const Vec3& tr=Vec3{1.0f,1.0f,0.0f});
   void drawTriangles(const std::vector<float>& data, TrisDrawType t, bool wireframe, bool lighting);
   void drawLines(const std::vector<float>& data, LineDrawType t);
-  void drawPoints(const std::vector<float>& data, float pointSize=1.0f);
+  void drawPoints(const std::vector<float>& data, float pointSize=1.0f, bool useTex=false);
   void setDrawProjection(const Mat4& mat);
   void setDrawTransform(const Mat4& mat);
+  void resetPointTexture();
+  void setPointTexture(const std::vector<uint8_t>& shape, size_t x, size_t y, size_t components);
   
   virtual void init() {}
   virtual void draw() {}
@@ -70,11 +72,13 @@ protected:
   Mat4 p;
   Mat4 mv;
   GLProgram simpleProg;
+  GLProgram simpleSpriteProg;
   GLProgram simpleTexProg;
   GLProgram simpleLightProg;
   GLArray simpleArray;
   GLBuffer simpleVb;
   GLTexture2D raster;
+  GLTexture2D pointSprite;
   double resumeTime;
   
   void closeWindow() {
@@ -83,7 +87,8 @@ protected:
   
 private:
   bool animationActive;
-  
+  std::vector<uint8_t> starShape;
+
   static GLApp* staticAppPtr;
   static void sizeCallback(GLFWwindow* window, int width, int height) {
     if (staticAppPtr) staticAppPtr->resize(width, height);
