@@ -109,18 +109,18 @@ GLApp::GLApp(uint32_t w, uint32_t h, uint32_t s,
   glViewport(0, 0, dim.width, dim.height);
 }
 
-void GLApp::setPointTexture(const std::vector<uint8_t>& shape, size_t x, size_t y, size_t components) {
+void GLApp::setPointTexture(const std::vector<uint8_t>& shape, uint32_t x, uint32_t y, uint32_t components) {
   pointSprite.setData(shape, x, y, components);
 }
 
-void GLApp::resetPointTexture(size_t resolution) {
+void GLApp::resetPointTexture(uint32_t resolution) {
   std::vector<uint8_t> disk(resolution*resolution*4);
   const Vec2 center{0.0f,0.0f};
   for (size_t y = 0;y<resolution;++y) {
     for (size_t x = 0;x<resolution;++x) {
       const Vec2 normPos{2.0f*x/float(resolution)-1.0f, 2.0f*y/float(resolution)-1.0f};
       
-      uint8_t dist = uint8_t(std::max<int16_t>(0,(1.0f-(center - normPos).length()) * 255));
+      uint8_t dist = uint8_t(std::max<int16_t>(0, int16_t((1.0f-(center - normPos).length()) * 255)));
       
       disk[4*(x+y*resolution)+0] = 255;
       disk[4*(x+y*resolution)+1] = 255;
