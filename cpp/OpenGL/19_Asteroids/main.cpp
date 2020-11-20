@@ -311,7 +311,7 @@ public:
     addCoord({ 0,   7});
     addCoord({-5,  -6});
     addCoord({-2,  -2});
-    resistance = 0.0005f;
+    resistance = 0.02f;
   }
   
   virtual void draw(GLApp& app) override {
@@ -405,7 +405,7 @@ public:
   const size_t maxProjectileCount = 3;
   const float rotationVelocity = 3.0f;
   const double animationSpeed = 60.0;
-  const float thrusterVelocity = 0.015f;
+  const float thrusterVelocity = 0.1f;
 
   Ship ship;
   std::vector<Asteroid> asteroids;
@@ -414,9 +414,11 @@ public:
   bool fireLaser{false};
   bool fireCW{false};
   bool fireCCW{false};
-  uint32_t lives{initialLives};
   double lastAnimationTime{-1.0};
-    
+  uint32_t currentLives{initialLives};
+  uint32_t currentLevel = 0;
+  uint32_t currentScore = 0;
+
   MyGLApp() :
   GLApp(800,800,4, "Asteroids Demo", true, false)
   {
@@ -431,6 +433,15 @@ public:
     resetGame();
     resetSpace();
     resetShip(true);
+  }
+  
+  void spawnAsteroid() {
+    float startAngle = Rand::rand01()*360.0f;
+    float startDist = 180.0f+Rand::rand01()*20.0f;
+    
+    const Vec2 startPos{startDist*cosf(startAngle), startDist*sinf(startAngle)};
+    const Vec2 startVelocity{Rand::rand11()*0.5f,Rand::rand11()*0.5f};
+    asteroids.push_back(Asteroid{startPos, startVelocity, 3});
   }
   
   virtual void animate(double animationTime) override {
@@ -510,16 +521,41 @@ public:
                                            asteroids[i].getType()-1});
             }
             projectile.kill();
+            
+            const uint32_t lastScore = currentScore;
+            
+            switch (asteroids[i].getType()) {
+              case 3 : currentScore +=  20; break;
+              case 2 : currentScore +=  50; break;
+              case 1 : currentScore += 100; break;
+            }
+            
+            if (lastScore > 0 && lastScore / 10000 != currentScore / 10000) {
+              currentLives++;
+              std::cout << "You gained a live, Remaining Lives:" << currentLives << std::endl;
+            }
+            
+            
             asteroids[i].setState(ObjectState::EXPLODING);
             break;
           }
         }
       }
     }
+    
+    if (asteroids.empty()) {
+      currentLevel++;
+      for (size_t i = 0; i < initalAsteroidCount+currentLevel*2; ++i) {
+        spawnAsteroid();
+      }
+    }
+    
   }
    
   void resetGame() {
-    lives = initialLives;
+    currentLives = initialLives;
+    currentLevel = 0;
+    currentScore = 0;
   }
   
   void resetSpace() {
@@ -531,14 +567,10 @@ public:
     }
 
     for (size_t i = 0; i < initalAsteroidCount; ++i) {
-      float startAngle = Rand::rand01()*360.0f;
-      float startDist = 180.0f+Rand::rand01()*20.0f;
-      
-      const Vec2 startPos{startDist*cosf(startAngle), startDist*sinf(startAngle)};
-      const Vec2 startVelocity{Rand::rand11()*0.5f,Rand::rand11()*0.5f};
-      asteroids.push_back(Asteroid{startPos, startVelocity, 3});
+      spawnAsteroid();
     }
   }
+  
   
   void resetShip(bool startCenter) {
     if (startCenter) {
@@ -549,9 +581,11 @@ public:
   }
   
   void shipWrecked() {
-    lives--;
-    resetShip(lives == 0);
-    if (lives == 0) {
+    currentLives--;
+    std::cout << "Remaining Lives:" << currentLives << std::endl;
+    resetShip(currentLives == 0);
+    if (currentLives == 0) {
+      std::cout << "Score:" << currentScore << " @ Level:" <<  currentLevel-1 << std::endl;
       resetGame();
       resetSpace();
     }
