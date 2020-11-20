@@ -119,17 +119,13 @@ void GLApp::resetPointTexture(uint32_t resolution) {
   for (size_t y = 0;y<resolution;++y) {
     for (size_t x = 0;x<resolution;++x) {
       const Vec2 normPos{2.0f*x/float(resolution)-1.0f, 2.0f*y/float(resolution)-1.0f};
-      
-      uint8_t dist = uint8_t(std::max<int16_t>(0, int16_t((1.0f-(center - normPos).length()) * 255)));
-      
+      const uint8_t dist = uint8_t(std::max<int16_t>(0, int16_t((1.0f-(center - normPos).length()) * 255))); 
       disk[4*(x+y*resolution)+0] = 255;
       disk[4*(x+y*resolution)+1] = 255;
       disk[4*(x+y*resolution)+2] = 255;
       disk[4*(x+y*resolution)+3] = dist;
     }
-
   }
-  
   setPointTexture(disk, resolution, resolution, 4);
 }
 
