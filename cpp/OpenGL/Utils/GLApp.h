@@ -54,7 +54,7 @@ public:
   void drawPoints(const std::vector<float>& data, float pointSize=1.0f, bool useTex=false);
   void setDrawProjection(const Mat4& mat);
   void setDrawTransform(const Mat4& mat);
-  void resetPointTexture();
+  void resetPointTexture(size_t resolution=64);
   void setPointTexture(const std::vector<uint8_t>& shape, size_t x, size_t y, size_t components);
   
   virtual void init() {}
@@ -87,7 +87,6 @@ protected:
   
 private:
   bool animationActive;
-  std::vector<uint8_t> starShape;
 
   static GLApp* staticAppPtr;
   static void sizeCallback(GLFWwindow* window, int width, int height) {
