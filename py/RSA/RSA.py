@@ -1,15 +1,16 @@
 from random import randint
+import sys
+sys.setrecursionlimit(5500)
 
-#import sys
-#sys.setrecursionlimit(2500)
-
-def isPrime(n, k=8):
+def isPrime(n, k=10):
     if n < 2: return False
     for p in [2,3,5,7,11,13,17,19,23,29,31,37]:
         if n % p == 0: return n == p
-    s, d = 0, n-1
+    s = 0
+    d = n-1
     while d % 2 == 0:
-        s, d = s+1, d//2
+        s += 1
+        d //= 2
     for i in range(k):
         x = pow(randint(2, n-1), d, n)
         if x == 1 or x == n-1: continue
@@ -20,7 +21,7 @@ def isPrime(n, k=8):
         else: return False
     return True
 
-def genPrime(a=10**600,b=10**700):
+def genPrime(a,b):
     p = randint(a,b)
     while not isPrime(p):
         p = randint(a,b)
@@ -35,14 +36,13 @@ def extendedEuclid(a,b):
     (dp, sp, tp) = extendedEuclid(b, a % b)
     return (dp, tp, sp - (a // b) * tp)
 
-def genRSAKey(a=10**100,b=10**200):
+def genRSAKey(a=10**200,b=10**201):
     p = genPrime(a,b)
     q = genPrime(a,b)
     n = p*q
     phi = (p-1)*(q-1)
     
     e = randint(2,phi-1)
-    #e = 65537
     (gcd, d, t) = extendedEuclid(e,phi)
     while gcd != 1: 
         e = randint(2,phi-1)
@@ -70,7 +70,7 @@ print("Public Key:", publicKey)
 print("Private Key:", privateKey)
 print()
 
-plainText = "Hello World"
+plainText = "Hallo LNC"
 encoded = pow(strToInt(plainText), publicKey[0], publicKey[1])
 decoded = intToStr(pow(encoded, privateKey[0], privateKey[1]))
 
