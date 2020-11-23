@@ -1,5 +1,8 @@
 from random import randint
 
+#import sys
+#sys.setrecursionlimit(2500)
+
 def isPrime(n, k=8):
     if n < 2: return False
     for p in [2,3,5,7,11,13,17,19,23,29,31,37]:
@@ -17,25 +20,29 @@ def isPrime(n, k=8):
         else: return False
     return True
 
-def genPrime(a=10**400,b=10**600):
+def genPrime(a=10**600,b=10**700):
     p = randint(a,b)
     while not isPrime(p):
         p = randint(a,b)
     return p
 
+def gcd(a, b):
+    if b == 0: return a
+    return gcd(b, a % b)
+
 def extendedEuclid(a,b):
     if b == 0: return (a,1,0)
     (dp, sp, tp) = extendedEuclid(b, a % b)
-    (d,s,t) = (dp, tp, sp - (a // b) * tp)
-    return (d,s,t)
+    return (dp, tp, sp - (a // b) * tp)
 
-def genRSAKey(a=10**100,b=10**150):
+def genRSAKey(a=10**100,b=10**200):
     p = genPrime(a,b)
     q = genPrime(a,b)
     n = p*q
     phi = (p-1)*(q-1)
     
     e = randint(2,phi-1)
+    #e = 65537
     (gcd, d, t) = extendedEuclid(e,phi)
     while gcd != 1: 
         e = randint(2,phi-1)
