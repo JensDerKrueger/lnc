@@ -3,6 +3,7 @@
 #include <cmath>
 #include <random>
 #include <algorithm>
+#include <cassert>
 
 #include "LA.h"
 
