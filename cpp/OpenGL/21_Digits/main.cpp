@@ -32,14 +32,10 @@ public:
   
   void dropPaint() {
     Vec2 iMousePos{mousePos*28};
-    for (uint32_t y = 0;y<image.height;++y) {
-      for (uint32_t x = 0;x<image.width;++x) {
-        image.setNormalizedValue(iMousePos.x(),iMousePos.y(),0,1.0f);
-        image.setNormalizedValue(iMousePos.x(),iMousePos.y(),1,1.0f);
-        image.setNormalizedValue(iMousePos.x(),iMousePos.y(),2,1.0f);
-        image.setValue(iMousePos.x(),iMousePos.y(),3,255);
-      }
-    }
+    image.setNormalizedValue(iMousePos.x(),iMousePos.y(),0,1.0f);
+    image.setNormalizedValue(iMousePos.x(),iMousePos.y(),1,1.0f);
+    image.setNormalizedValue(iMousePos.x(),iMousePos.y(),2,1.0f);
+    image.setValue(iMousePos.x(),iMousePos.y(),3,255);
   }
   
   void clear() {
