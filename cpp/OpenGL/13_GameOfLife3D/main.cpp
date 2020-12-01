@@ -430,10 +430,10 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
 }
 
 static void sizeCallback(GLFWwindow* window, int width, int height) {
-  frontFaceTexture.setEmpty( width, height, 3, DT_HALF);
-  backFaceTexture.setEmpty( width, height, 3, DT_HALF);
-  leftEyeTexture->setEmpty( width, height, 4, DT_BYTE);
-  rightEyeTexture->setEmpty( width, height, 4, DT_BYTE);
+  frontFaceTexture.setEmpty( width, height, 3, GLDataType::HALF);
+  backFaceTexture.setEmpty( width, height, 3, GLDataType::HALF);
+  leftEyeTexture->setEmpty( width, height, 4, GLDataType::BYTE);
+  rightEyeTexture->setEmpty( width, height, 4, GLDataType::BYTE);
 }
 
 static void cursorPositionCallback(GLFWwindow* window, double xPosition, double yPosition) {
