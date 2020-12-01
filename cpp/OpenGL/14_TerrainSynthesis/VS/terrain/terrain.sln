@@ -4,6 +4,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 16.0.30225.117
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "terrain", "terrain.vcxproj", "{962922EA-5F0D-40FB-ABFD-BAC493707D3C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{164A60B9-00CE-4CDA-94DD-CC3366859398} = {164A60B9-00CE-4CDA-94DD-CC3366859398}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Utils", "..\..\..\Utils\VS\Utils.vcxproj", "{164A60B9-00CE-4CDA-94DD-CC3366859398}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +26,14 @@ Global
 		{962922EA-5F0D-40FB-ABFD-BAC493707D3C}.Release|x64.Build.0 = Release|x64
 		{962922EA-5F0D-40FB-ABFD-BAC493707D3C}.Release|x86.ActiveCfg = Release|Win32
 		{962922EA-5F0D-40FB-ABFD-BAC493707D3C}.Release|x86.Build.0 = Release|Win32
+		{164A60B9-00CE-4CDA-94DD-CC3366859398}.Debug|x64.ActiveCfg = Debug|x64
+		{164A60B9-00CE-4CDA-94DD-CC3366859398}.Debug|x64.Build.0 = Debug|x64
+		{164A60B9-00CE-4CDA-94DD-CC3366859398}.Debug|x86.ActiveCfg = Debug|Win32
+		{164A60B9-00CE-4CDA-94DD-CC3366859398}.Debug|x86.Build.0 = Debug|Win32
+		{164A60B9-00CE-4CDA-94DD-CC3366859398}.Release|x64.ActiveCfg = Release|x64
+		{164A60B9-00CE-4CDA-94DD-CC3366859398}.Release|x64.Build.0 = Release|x64
+		{164A60B9-00CE-4CDA-94DD-CC3366859398}.Release|x86.ActiveCfg = Release|Win32
+		{164A60B9-00CE-4CDA-94DD-CC3366859398}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
