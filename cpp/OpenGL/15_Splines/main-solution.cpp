@@ -15,6 +15,9 @@ public:
     GL(glDisable(GL_CULL_FACE));
     GL(glDisable(GL_DEPTH_TEST));
     GL(glClearColor(1,1,1,1));
+    GL(glEnable(GL_BLEND));
+    GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+    GL(glBlendEquation(GL_FUNC_ADD));
   }
   
   virtual void animate(double animationTime) {
@@ -86,10 +89,10 @@ public:
       2,-2, 1, 1
     };
     drawPolySegment(p0,p1,m0,m1,g,color);
-    drawPoints({p0.x(),p0.y(),0,1,0,0,0,
-               p0.x()+m0.x(),p0.y()+m0.y(),0,0,0,1,0,
-               p1.x()+m1.x(),p1.y()-m1.y(),0,0,0,1,0,
-               p1.x(),p1.y(),0,1,0,0,0}, 10);
+    drawPoints({p0.x(),p0.y(),0,1,0,0,1,
+               p0.x()+m0.x(),p0.y()+m0.y(),0,0,0,1,1,
+               p1.x()+m1.x(),p1.y()-m1.y(),0,0,0,1,1,
+               p1.x(),p1.y(),0,1,0,0,1}, 20, true);
   }
 
   void drawBezierSegment(const Vec2& p0, const Vec2& p1, const Vec2& p2, const Vec2& p3, const Vec4& color) {
@@ -100,10 +103,10 @@ public:
      -1, 3,-3, 1
     };
     drawPolySegment(p0,p1,p2,p3,g,color);
-    drawPoints({p0.x(),p0.y(),0,1,0,0,0,
-               p1.x(),p1.y(),0,0,0,1,0,
-               p2.x(),p2.y(),0,0,0,1,0,
-               p3.x(),p3.y(),0,1,0,0,0}, 10);
+    drawPoints({p0.x(),p0.y(),0,1,0,0,1,
+                p1.x(),p1.y(),0,0,0,1,1,
+                p2.x(),p2.y(),0,0,0,1,1,
+                p3.x(),p3.y(),0,1,0,0,1}, 20, true);
   }
   
   
@@ -115,10 +118,10 @@ public:
      -1/6.0f, 3/6.0f,-3/6.0f, 1/6.0f
     };
     drawPolySegment(p0,p1,p2,p3,g,color);
-    drawPoints({p0.x(),p0.y(),0,1,0,0,0,
-               p1.x(),p1.y(),0,0,0,1,0,
-               p2.x(),p2.y(),0,0,0,1,0,
-               p3.x(),p3.y(),0,1,0,0,0}, 10);
+    drawPoints({p0.x(),p0.y(),0,1,0,0,1,
+                p1.x(),p1.y(),0,0,0,1,1,
+                p2.x(),p2.y(),0,0,0,1,1,
+                p3.x(),p3.y(),0,1,0,0,1}, 20, true);
   }
   
   

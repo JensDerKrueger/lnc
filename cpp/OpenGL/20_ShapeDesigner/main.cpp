@@ -13,6 +13,9 @@ public:
   virtual void init() override {
     glEnv.setCursorMode(CursorMode::HIDDEN);
     GL(glClearColor(0,0,0,0));
+    GL(glEnable(GL_BLEND));
+    GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+    GL(glBlendEquation(GL_FUNC_ADD));
   }
   
   virtual void mouseMove(double xPosition, double yPosition) override {
@@ -42,12 +45,14 @@ public:
         case GLFW_KEY_C:
           shape.clear();
           break;
+        case GLFW_KEY_G:
+          showGuides = ! showGuides;
+          break;
         case GLFW_KEY_U:
           if (shape.size() > 0) {
             shape.pop_back();
             if (shape.size() > 0 && shape.size()%2 == 1) shape.pop_back();
           }
-          undo = true;
           break;
         case GLFW_KEY_D:
           dumpShape();
@@ -83,26 +88,40 @@ public:
                       float(int(mousePos.y()*gridCells+0.5f)/gridCells)};
 
     std::vector<float> glShape;
+    if (showGuides) {
+      glShape.push_back(-1.0f); glShape.push_back(gridMousePos.y()*2.0f-1.0f); glShape.push_back(0.0f);
+      glShape.push_back(1.0f); glShape.push_back(1.0f); glShape.push_back(0.0f);  glShape.push_back(1.0f);
+      
+      glShape.push_back(1.0f); glShape.push_back(gridMousePos.y()*2.0f-1.0f); glShape.push_back(0.0f);
+      glShape.push_back(1.0f); glShape.push_back(1.0f); glShape.push_back(0.0f);  glShape.push_back(1.0f);
+
+      glShape.push_back(gridMousePos.x()*2.0f-1.0f); glShape.push_back(-1.0); glShape.push_back(0.0f);
+      glShape.push_back(1.0f); glShape.push_back(1.0f); glShape.push_back(0.0f);  glShape.push_back(1.0f);
+      
+      glShape.push_back(gridMousePos.x()*2.0f-1.0f); glShape.push_back(1.0f); glShape.push_back(0.0f);
+      glShape.push_back(1.0f); glShape.push_back(1.0f); glShape.push_back(0.0f);  glShape.push_back(1.0f);
+    }
+    drawLines(glShape, LineDrawType::LIST);
+    glShape.clear();
+    
     float y = 0.0f;
     while (y <= 1.0) {
       float x = 0.0f;
       while (x <= 1.0) {
-        
         glShape.push_back(x*2.0f-1.0f); glShape.push_back(y*2.0f-1.0f); glShape.push_back(0.0f);
         glShape.push_back(0.2f); glShape.push_back(0.2f); glShape.push_back(0.2f); glShape.push_back(1.0f);
-
         x += 1.0f/gridCells;
       }
       y += 1.0f/gridCells;
     }
-    drawPoints(glShape,5);
+    drawPoints(glShape, 10, true);
     glShape.clear();
     
     glShape.push_back(mousePos.x()*2.0f-1.0f); glShape.push_back(mousePos.y()*2.0f-1.0f); glShape.push_back(0.0f);
     glShape.push_back(0.2f); glShape.push_back(0.2f); glShape.push_back(0.2f); glShape.push_back(1.0f);
     glShape.push_back(gridMousePos.x() *2.0f-1.0f); glShape.push_back(gridMousePos.y() *2.0f-1.0f); glShape.push_back(0.0f);
     glShape.push_back(1.0f); glShape.push_back(1.0f); glShape.push_back(1.0f);  glShape.push_back(1.0f);
-    drawPoints(glShape,10);
+    drawPoints(glShape, 20, true);
     
     glShape.clear();
     for (size_t i = 0;i<(shape.size()/2)*2;++i) {
@@ -121,10 +140,11 @@ public:
       glShape.push_back(0.2f); glShape.push_back(0.2f); glShape.push_back(0.2f); glShape.push_back(1.0f);
     }
     drawLines(glShape, LineDrawType::LIST);
+    
   }
 
 private:
-  bool undo{true};
+  bool showGuides{true};
   bool restartPrimitive{false};
   double gridCells{100.0};
   Vec2 mousePos;
