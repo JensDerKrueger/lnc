@@ -31,11 +31,21 @@ public:
   }
   
   void dropPaint() {
-    Vec2 iMousePos{mousePos*28};
-    image.setNormalizedValue(iMousePos.x(),iMousePos.y(),0,1.0f);
-    image.setNormalizedValue(iMousePos.x(),iMousePos.y(),1,1.0f);
-    image.setNormalizedValue(iMousePos.x(),iMousePos.y(),2,1.0f);
-    image.setValue(iMousePos.x(),iMousePos.y(),3,255);
+    for (uint32_t y = 0;y<28;++y) {
+      for (uint32_t x = 0;x<28;++x) {
+        
+        const float dx = x/28.0f-mousePos.x();
+        const float dy = y/28.0f-mousePos.y();
+        
+        float value = std::max(0.0f,0.22f-powf(dx*dx+dy*dy,0.3));
+        value = std::min(1.0f, value + image.getValue(x,y,3)/255.0f);
+        
+        image.setNormalizedValue(x,y,0,value);
+        image.setNormalizedValue(x,y,1,value);
+        image.setNormalizedValue(x,y,2,value);
+        image.setNormalizedValue(x,y,3,value);
+      }
+    }
   }
   
   void clear() {
