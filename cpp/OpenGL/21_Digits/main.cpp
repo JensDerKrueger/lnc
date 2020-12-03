@@ -78,15 +78,19 @@ public:
     }
   };
   
+  std::vector<GuessElem> feedforward() {
+    std::vector<GuessElem> g;
+    Vec guessVec = digitNetwork.feedforward(getPixleData());
+    for (size_t i = 0;i<guessVec.size();++i) {
+      g.push_back(GuessElem{i,guessVec[i]});
+    }
+    std::sort(g.begin(), g.end(), std::greater<>());
+    return g;
+  }
+  
   void makeGuess() {
     std::cout << "Guessing..." << std::endl;
-    Vec guessVec = digitNetwork.feedforward(getPixleData());
-    
-    guess.clear();
-    for (size_t i = 0;i<guessVec.size();++i) {
-      guess.push_back(GuessElem{i,guessVec[i]});
-    }
-    std::sort(guess.begin(), guess.end(),std::greater<>());
+    guess = feedforward();
     for (size_t i = 0;i<guess.size();++i) {
       std::cout << guess[i].value << " (" << guess[i].activation << ")\t";
     }
@@ -103,7 +107,7 @@ public:
   
   void pickMIST() {
     try {
-      MNIST mnist("train-images-idx3-ubyte", "train-labels-idx1-ubyte");
+      MNIST mnist("t10k-images-idx3-ubyte", "t10k-labels-idx1-ubyte");
       std::random_device rd{};
       std::mt19937 gen{rd()};
       std::uniform_real_distribution<float> dist{0, 1};
@@ -122,24 +126,21 @@ public:
           image.data[tIndex*4+3] = p;
         }
       }
-
-
     } catch (const MNISTFileException& e) {
       std::cout << "Error loading MNIST data: " << e.what() << std::endl;
     }
-
   }
   
-  void trainMNIST(size_t setSize, size_t epochs) {
+  void trainMNIST(size_t setSize, size_t epochs, size_t tests) {
+    std::random_device rd{};
+    std::mt19937 gen{rd()};
+    std::uniform_real_distribution<float> dist{0, 1};
+
     try {
       MNIST mnist("train-images-idx3-ubyte", "train-labels-idx1-ubyte");
-        
       std::cout << "Data loaded, training in progress " << std::flush;
 
       for (size_t i = 0;i<epochs;++i) {
-        std::random_device rd{};
-        std::mt19937 gen{rd()};
-        std::uniform_real_distribution<float> dist{0, 1};
 
         Update u;
         Vec inputVec{28*28};
@@ -164,7 +165,39 @@ public:
     } catch (const MNISTFileException& e) {
       std::cout << "Error loading MNIST data: " << e.what() << std::endl;
     }
-    std::cout << " Done" << std::endl;
+    std::cout << " Done, Testing ";
+    
+    size_t goodGuess{};
+    try {
+      MNIST mnist("t10k-images-idx3-ubyte", "t10k-labels-idx1-ubyte");
+      
+      for (size_t i = 0;i<tests;++i) {
+        const size_t r = size_t(dist(gen)*mnist.data.size());
+        const std::vector<uint8_t>& nistimage = mnist.data[r].image;
+        for (uint32_t y = 0;y<28;++y) {
+          for (uint32_t x = 0;x<28;++x) {
+            const size_t sIndex = x+y*28;
+            const size_t tIndex = x+(27-y)*28;
+            const uint8_t p = nistimage[sIndex];
+            
+            image.data[tIndex*4+0] = p;
+            image.data[tIndex*4+1] = p;
+            image.data[tIndex*4+2] = p;
+            image.data[tIndex*4+3] = p;
+          }
+        }
+        const std::vector<GuessElem> guess = feedforward();
+        if (guess[0].value == mnist.data[r].label)
+          goodGuess++;
+      }
+
+      
+    } catch (const MNISTFileException& e) {
+      std::cout << "Error loading MNIST data: " << e.what() << std::endl;
+    }
+    
+    std::cout << " Done! Accuracy: " << double(goodGuess)*100.0/double(tests) << "%" << std::endl;
+
   }
   
   virtual void keyboard(int key, int scancode, int action, int mods) override {
@@ -197,7 +230,7 @@ public:
           teach(key - GLFW_KEY_0);
           break;
         case GLFW_KEY_T:
-          trainMNIST(10,1000);
+          trainMNIST(10,1000,1000);
           break;
       }
     }
