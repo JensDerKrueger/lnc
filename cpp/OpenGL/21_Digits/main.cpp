@@ -70,7 +70,7 @@ public:
     }
   }
   
-  Vec getPixleData() {
+  Vec getPixelData() {
     Vec theGrid{image.height*image.width};    
     for (uint32_t y = 0;y<image.height;++y) {
       for (uint32_t x = 0;x<image.width;++x) {
@@ -90,7 +90,7 @@ public:
   
   std::vector<GuessElem> feedforward() {
     std::vector<GuessElem> g;
-    Vec guessVec = digitNetwork.feedforward(getPixleData());
+    Vec guessVec = digitNetwork.feedforward(getPixelData());
     for (size_t i = 0;i<guessVec.size();++i) {
       g.push_back(GuessElem{i,guessVec[i]});
     }
@@ -109,7 +109,7 @@ public:
   
   void teach(size_t i) {
     Vec theTruth(10); theTruth[i] = 1;
-    Update u = digitNetwork.backpropagation(getPixleData(), theTruth);
+    Update u = digitNetwork.backpropagation(getPixelData(), theTruth);
     digitNetwork.applyUpdate(u, 0.1f);
     
     std::cout << i << " understood ..." << std::endl;
