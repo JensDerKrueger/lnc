@@ -1,10 +1,20 @@
 CC=g++
 AR=ar
 ARFLAGS= rcs
-CFLAGS=-c -Wall -std=c++17 -Wunreachable-code -Xclang -fopenmp
-LFLAGS=
-LIBS=-lomp -L ../../openmp/lib
-INCLUDES=-I. -I ../../openmp/include
+OSTYPE := $(shell uname)
+
+ifeq ($(OSTYPE),Linux)
+	CFLAGS=-c -Wall -std=c++17 -Wunreachable-code -fopenmp
+	LFLAGS=-fopenmp
+	LIBS=
+	INCLUDES=-I. 
+else
+	CFLAGS=-c -Wall -std=c++17 -Wunreachable-code -Xclang -fopenmp
+	LFLAGS=
+	LIBS=-lomp -L ../../openmp/lib
+	INCLUDES=-I. -I ../../openmp/include 
+endif
+
 SRC = LA.cpp BPNetwork.cpp
 OBJ = $(SRC:.cpp=.o)
 TARGET = libml.a
