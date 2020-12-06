@@ -1,9 +1,18 @@
 CC=g++
-CFLAGS=-c -Wall -std=c++17 -Wunreachable-code -Wno-deprecated-declarations
-LFLAGS=-lglfw -lGLEW -framework OpenGL -L../Utils -lutils 
-# for linux use this line LFLAGS=-lglfw -lGLEW -lGL -L../Utils -lutils
-LIBS=
-INCLUDES=-I. -I../Utils
+OSTYPE := $(shell uname)
+
+ifeq ($(OSTYPE),Linux)
+	CFLAGS=-c -Wall -std=c++17 -Wunreachable-code -Wno-deprecated-declarations
+	LFLAGS=-lglfw -lGLEW -lGL -L../Utils -lutils
+	LIBS=
+	INCLUDES=-I. -I../Utils 
+else
+	CFLAGS=-c -Wall -std=c++17 -Wunreachable-code -Xclang -Wno-deprecated-declarations
+	LFLAGS=-lglfw -lGLEW -framework OpenGL -L../Utils -lutils
+	LIBS=
+	INCLUDES=-I. -I../Utils 
+endif
+
 SRC = main.cpp
 OBJ = $(SRC:.cpp=.o)
 TARGET = gol
