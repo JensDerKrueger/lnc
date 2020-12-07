@@ -64,5 +64,5 @@ private:
   
   void randomInit();
   
-  static Vec costPrime(const Vec& activation, const Vec& groundTruth);
+  static Vec cost(const Vec& activation, const Vec& groundTruth);
 };

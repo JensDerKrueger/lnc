@@ -84,8 +84,8 @@ Update BPNetwork::backpropagation(const Vec& input, const Vec& groundTruth) {
   Update update;
   
   for (size_t i = 1;i<layers;++i) {
-    update.biases.push_back(Vec{structure[i]});
-    update.weights.push_back(Mat{structure[i-1],structure[i]});
+    update.biases.emplace_back(structure[i]);
+    update.weights.emplace_back(structure[i-1], structure[i]);
   }
 
   // feedforward
@@ -99,7 +99,7 @@ Update BPNetwork::backpropagation(const Vec& input, const Vec& groundTruth) {
   }
   
   // backprop last layer
-  Vec delta = costPrime(activations[activations.size()-1], groundTruth) * zs[zs.size()-1].apply(sigmoidPrime);
+  Vec delta = cost(activations[activations.size()-1], groundTruth) * zs[zs.size()-1].apply(sigmoidPrime);
   update.biases[update.biases.size()-1]  = delta;
   update.weights[update.weights.size()-1] = Mat::tensorProduct(activations[activations.size()-2],delta);
 
@@ -114,14 +114,12 @@ Update BPNetwork::backpropagation(const Vec& input, const Vec& groundTruth) {
 }
 
 void BPNetwork::applyUpdate(const Update& update, float eta) {
-  for (size_t i = 0;i<biases.size();++i) {
-    biases[i] -= update.biases[i] * eta;
-  }
-  for (size_t i = 0;i<weights.size();++i) {
-    weights[i] -= update.weights[i] * eta;
+  for (size_t i = 0;i<layers-1;++i) {
+    biases[i]  -= update.biases[i]*eta;
+    weights[i] -= update.weights[i]*eta;
   }
 }
 
-Vec BPNetwork::costPrime(const Vec& activation, const Vec& groundTruth) {
+Vec BPNetwork::cost(const Vec& activation, const Vec& groundTruth) {
   return activation-groundTruth;
 }
