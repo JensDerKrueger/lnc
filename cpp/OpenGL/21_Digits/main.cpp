@@ -111,7 +111,6 @@ public:
     Vec theTruth(10); theTruth[i] = 1;
     Update u = digitNetwork.backpropagation(getPixelData(), theTruth);
     digitNetwork.applyUpdate(u, 0.1f);
-    
     std::cout << i << " understood ..." << std::endl;
   }
   
