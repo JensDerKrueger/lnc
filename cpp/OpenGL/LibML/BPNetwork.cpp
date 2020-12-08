@@ -2,8 +2,7 @@
 
 
 BPNetwork::BPNetwork(const std::vector<size_t>& structure) :
-  structure(structure),
-  layers(structure.size())
+  structure(structure)
 {
   randomInit();
 }
@@ -24,20 +23,15 @@ void BPNetwork::load(const std::string& filename) {
   }
   
   file >> s;
-  biases.clear();
+  layers.clear();
   for (size_t i = 0;i<s;++i) {
     Vec v(0);
+    Mat m(0,0);
     file >> v;
-    biases.push_back(v);
+    file >> m;
+    layers.emplace_back(v,m);
   }
 
-  file >> s;
-  weights.clear();
-  for (size_t i = 0;i<s;++i) {
-    Mat m(0,0);
-    file >> m;
-    weights.push_back(m);
-  }
   file.close();
 }
 
@@ -50,73 +44,67 @@ void BPNetwork::save(const std::string& filename) const {
     file << structure[i] << std::endl;
   }
 
-  file << biases.size() << std::endl;
-  for (size_t i = 0;i<biases.size();++i) {
-    file << biases[i] << std::endl;
+  file << layers.size() << std::endl;
+  for (size_t i = 0;i<layers.size();++i) {
+    file << layers[i].biases << std::endl;
+    file << layers[i].weights << std::endl;
   }
   
-  file << weights.size() << std::endl;
-  for (size_t i = 0;i<weights.size();++i) {
-    file << weights[i] << std::endl;
-  }
-
   file.close();
 }
 
 void BPNetwork::randomInit() {
-  biases.clear();
-  weights.clear();
-  for (size_t i = 1;i<layers;++i) {
-    biases.push_back(Vec::random(structure[i],-1.0f,1.0f));
-    weights.push_back(Mat::random(structure[i-1],structure[i],-1.0f,1.0f));
+  layers.clear();
+  for (size_t i = 1;i<structure.size();++i) {
+    layers.emplace_back(Vec::random(structure[i],-1.0f,1.0f),
+                        Mat::random(structure[i-1],structure[i],-1.0f,1.0f));
   }
 }
 
 Vec BPNetwork::feedforward(const Vec& input) {
   Vec activation{input};
-  for (size_t i = 1;i<layers;++i) {
-    activation = (weights[i-1] * activation + biases[i-1]).apply(sigmoid);
+  for (size_t i = 1;i<structure.size();++i) {
+    activation = (layers[i-1].weights * activation + layers[i-1].biases).apply(sigmoid);
   }
   return activation;
 }
 
 Update BPNetwork::backpropagation(const Vec& input, const Vec& groundTruth) {
   Update update;
-  
-  for (size_t i = 1;i<layers;++i) {
-    update.biases.emplace_back(structure[i]);
-    update.weights.emplace_back(structure[i-1], structure[i]);
+  for (size_t i = 1;i<structure.size();++i) {
+    update.layers.emplace_back(Vec{structure[i]}, Mat{structure[i-1], structure[i]});
   }
 
   // feedforward
   Vec activation{input};
   std::vector<Vec> activations{activation};
   std::vector<Vec> zs;
-  for (size_t i = 1;i<layers;++i) {
-    zs.push_back(weights[i-1] * activation + biases[i-1]);
+  for (size_t i = 1;i<structure.size();++i) {
+    zs.push_back(layers[i-1].weights * activation + layers[i-1].biases);
     activation = zs.back().apply(sigmoid);
     activations.push_back(activation);
   }
   
   // backprop last layer
+  const size_t ls = layers.size();
   Vec delta = costPrime(activations[activations.size()-1], groundTruth) * zs[zs.size()-1].apply(sigmoidPrime);
-  update.biases[update.biases.size()-1]  = delta;
-  update.weights[update.weights.size()-1] = Mat::tensorProduct(activations[activations.size()-2],delta);
+  update.layers[ls-1].biases  = delta;
+  update.layers[ls-1].weights = Mat::tensorProduct(activations[activations.size()-2],delta);
 
   // backprop remaining layers
-  for (size_t l = 2;l<layers;++l) {
-    delta = (weights[weights.size()-l+1].transpose() * delta) * zs[zs.size()-l].apply(sigmoidPrime);
-    update.biases[update.biases.size()-l] = delta;
-    update.weights[update.weights.size()-l] = Mat::tensorProduct(activations[activations.size()-l-1], delta);
+  for (size_t l = 2;l<structure.size();++l) {
+    delta = (layers[ls-l+1].weights.transpose() * delta) * zs[zs.size()-l].apply(sigmoidPrime);
+    update.layers[ls-l].biases = delta;
+    update.layers[ls-l].weights = Mat::tensorProduct(activations[activations.size()-l-1], delta);
   }
 
   return update;
 }
 
 void BPNetwork::applyUpdate(const Update& update, float eta) {
-  for (size_t i = 0;i<layers-1;++i) {
-    biases[i]  -= update.biases[i]*eta;
-    weights[i] -= update.weights[i]*eta;
+  for (size_t i = 0;i<update.layers.size();++i) {
+    layers[i].biases  -= update.layers[i].biases*eta;
+    layers[i].weights -= update.layers[i].weights*eta;
   }
 }
 

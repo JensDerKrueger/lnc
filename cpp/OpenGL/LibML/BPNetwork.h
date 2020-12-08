@@ -15,16 +15,19 @@ private:
   std::string desc;
 };
 
+struct LayerInfo {
+  LayerInfo(const Vec& biases, const Mat& weights) : biases(biases),weights(weights){}
+  Vec biases;
+  Mat weights;
+};
+
 struct Update {
-  std::vector<Vec> biases;
-  std::vector<Mat> weights;
+  std::vector<LayerInfo> layers;
   
   Update& operator+=(const Update& rhs) {
-    for (size_t i = 0;i<biases.size();++i) {
-      biases[i] += rhs.biases[i];
-    }
-    for (size_t i = 0;i<weights.size();++i) {
-      weights[i] += rhs.weights[i];
+    for (size_t i = 0;i<layers.size();++i) {
+      layers[i].biases += rhs.layers[i].biases;
+      layers[i].weights += rhs.layers[i].weights;
     }
     return *this;
   }
@@ -32,12 +35,13 @@ struct Update {
   friend std::ostream& operator<<(std::ostream &os, const Update& v) {os << v.toString() ; return os;}
   const std::string toString() const {
     std::string result{"Biases:\n"};
-    for (size_t i = 0;i<biases.size();++i) {
-      result += biases[i].toString() + "\n";
+
+    for (size_t i = 0;i<layers.size();++i) {
+      result += layers[i].biases.toString() + "\n";
     }
     result += "weights:\n";
-    for (size_t i = 0;i<weights.size();++i) {
-      result += weights[i].toString() + "\n";
+    for (size_t i = 0;i<layers.size();++i) {
+      result += layers[i].weights.toString() + "\n";
     }
     return result;
   }
@@ -58,9 +62,7 @@ public:
     
 private:
   std::vector<size_t> structure;
-  size_t layers;
-  std::vector<Vec> biases;
-  std::vector<Mat> weights;
+  std::vector<LayerInfo> layers;
   
   void randomInit();
   
