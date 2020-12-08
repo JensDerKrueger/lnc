@@ -99,7 +99,7 @@ Update BPNetwork::backpropagation(const Vec& input, const Vec& groundTruth) {
   }
   
   // backprop last layer
-  Vec delta = cost(activations[activations.size()-1], groundTruth) * zs[zs.size()-1].apply(sigmoidPrime);
+  Vec delta = costPrime(activations[activations.size()-1], groundTruth) * zs[zs.size()-1].apply(sigmoidPrime);
   update.biases[update.biases.size()-1]  = delta;
   update.weights[update.weights.size()-1] = Mat::tensorProduct(activations[activations.size()-2],delta);
 
@@ -120,6 +120,6 @@ void BPNetwork::applyUpdate(const Update& update, float eta) {
   }
 }
 
-Vec BPNetwork::cost(const Vec& activation, const Vec& groundTruth) {
+Vec BPNetwork::costPrime(const Vec& activation, const Vec& groundTruth) {
   return activation-groundTruth;
 }
