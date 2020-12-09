@@ -110,7 +110,7 @@ public:
   void teach(size_t i) {
     Vec theTruth(10); theTruth[i] = 1;
     Update u = digitNetwork.backpropagation(getPixelData(), theTruth);
-    digitNetwork.applyUpdate(u, 0.1f);
+    digitNetwork.applyUpdate(u, 0.5f);
     std::cout << i << " understood ..." << std::endl;
   }
   
@@ -168,7 +168,7 @@ public:
             u += digitNetwork.backpropagation(inputVec, theTruth);
         }
                       
-        digitNetwork.applyUpdate(u, 0.1f/setSize);
+        digitNetwork.applyUpdate(u, 0.5f/setSize);
         std::cout << "." << std::flush;
       }
     } catch (const MNISTFileException& e) {
@@ -261,7 +261,7 @@ public:
 private:
   Vec2 mousePos;
   std::vector<GuessElem> guess{10};
-  BPNetwork digitNetwork{std::vector<size_t>{28*28,100,100,10}};
+  BPNetwork digitNetwork{std::vector<size_t>{28*28,30,10}};
   bool drawing{false};
   Image image{28,28};
     
