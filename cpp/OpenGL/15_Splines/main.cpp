@@ -9,7 +9,8 @@ public:
   
   double sa = 0;
   double ca = 0;
-  
+  const size_t maxLineSegments = 100;
+
   virtual void init() {
     glEnv.setTitle("Spline Demo");
     GL(glDisable(GL_CULL_FACE));
@@ -28,11 +29,10 @@ public:
   void drawPolySegment(const Vec2& p0, const Vec2& p1,
                        const Vec2& p2, const Vec2& p3,
                        const Mat4& g, const Vec4& color) {
-    const size_t maxVal = 100;
-    std::vector<float> curve((maxVal+1)*7);
+    std::vector<float> curve((maxLineSegments+1)*7);
     
-    for (size_t i = 0;i<=maxVal;++i) {
-     float t = float(i)/float(maxVal);
+    for (size_t i = 0;i<=maxLineSegments;++i) {
+     const float t = float(i)/float(maxLineSegments);
 
       // TODO:
       // complete the function drawPolySegment
@@ -79,6 +79,10 @@ public:
                p1.x()+m1.x(),p1.y()-m1.y(),0,0,0,1,1,
                p1.x(),p1.y(),0,1,0,0,1}, 20, true);
   }
+  
+  void drawBezierSegmentDeCasteljau(const Vec2& p0, const Vec2& p1, const Vec2& p2, const Vec2& p3, const Vec4& color) {
+    // TODO SOLUTION 2:
+  }
 
   void drawBezierSegment(const Vec2& p0, const Vec2& p1, const Vec2& p2, const Vec2& p3, const Vec4& color) {
     Mat4 g{
@@ -93,7 +97,6 @@ public:
                p2.x(),p2.y(),0,0,0,1,1,
                p3.x(),p3.y(),0,1,0,0,1}, 20, true);
   }
-  
   
   void drawBSplineSegment(const Vec2& p0, const Vec2& p1, const Vec2& p2, const Vec2& p3, const Vec4& color) {
     Mat4 g{
@@ -130,6 +133,15 @@ public:
       const Vec2 p2{0.5f,0.2f};
       const Vec2 p3{0.5f,0.0f};
       drawBezierSegment(p0,p1,p2,p3,{0.0f,0.0f,0.0f,1.0f});
+    }
+   
+    {
+      setDrawTransform(Mat4::translation(0.0f,-0.2f,0.0f));
+      const Vec2 p0{-0.5,0.0f};
+      const Vec2 p1{float(sa)*0.2f-0.5f,float(ca)*0.2f};
+      const Vec2 p2{0.5f,0.2f};
+      const Vec2 p3{0.5f,0.0f};
+      drawBezierSegmentDeCasteljau(p0,p1,p2,p3,{0.0f,0.0f,0.0f,1.0f});
     }
 
     {

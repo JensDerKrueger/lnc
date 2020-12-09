@@ -8,15 +8,25 @@ struct Image {
 
   Image(uint32_t width = 100,
         uint32_t height = 100,
-        uint32_t componentCount = 4,
-        std::vector<uint8_t> data=std::vector<uint8_t>{}) :
+        uint32_t componentCount = 4) :
     width{width},
     height{height},
     componentCount{componentCount},
     data(width*height*componentCount)
   {
   }
-  
+
+  Image(uint32_t width,
+        uint32_t height,
+        uint32_t componentCount,
+        std::vector<uint8_t> data) :
+    width{width},
+    height{height},
+    componentCount{componentCount},
+    data(data)
+  {
+  }
+
   size_t computeIndex(uint32_t x, uint32_t y, uint32_t component) const {
     return component+(x+y*width)*componentCount;
   }

@@ -1,4 +1,5 @@
 #include <fstream>
+#include <algorithm>
 
 #include "OBJFile.h"
 
