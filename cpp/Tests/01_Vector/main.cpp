@@ -36,7 +36,7 @@ int main(int argc, char ** argv) {
     t1 = Clock::now();
     for (size_t t = 0;t<testCount;++t) {
       sum = 0;
-      for (auto v : test) {
+      for (auto& v : test) {
         sum += v;
       }
       total += sum;

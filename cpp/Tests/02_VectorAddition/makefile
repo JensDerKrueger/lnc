@@ -5,12 +5,12 @@ ifeq ($(OSTYPE),Linux)
 	CFLAGS=-c -Wall -std=c++17 -Wunreachable-code -fopenmp
 	LFLAGS=
 	LIBS=
-	INCLUDES=-I
+	INCLUDES=
 else
 	CFLAGS=-c -Wall -std=c++17 -Wunreachable-code -Xclang -fopenmp
 	LFLAGS=
 	LIBS=-lomp -L ../../openmp/lib
-	INCLUDES=-I. -I ../../openmp/include 
+	INCLUDES=-I ../../openmp/include 
 endif
 
 SRC = main.cpp

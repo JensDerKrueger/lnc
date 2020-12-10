@@ -48,9 +48,12 @@ struct Update {
 
 };
 
+enum class Initializer {UNIFORM, NORMALIZED};
+enum class CostModel {QUADRATIC, CROSS_ENTROPY};
+
 class BPNetwork {
 public:
-  BPNetwork(const std::vector<size_t>& structure);
+  BPNetwork(const std::vector<size_t>& structure, CostModel model=CostModel::CROSS_ENTROPY, Initializer initializer=Initializer::NORMALIZED);
   BPNetwork(const std::string& filename);
 
   void load(const std::string& filename);
@@ -58,13 +61,17 @@ public:
   
   Vec feedforward(const Vec& input);
   Update backpropagation(const Vec& input, const Vec& target);
-  void applyUpdate(const Update& update, float eta);
     
+  void applyUpdate(const Update& update, float eta, size_t bachSize);
+  void applyUpdate(const Update& update, float eta, size_t bachSize, float lambda, size_t totalSize);
+
 private:
   std::vector<size_t> structure;
   std::vector<LayerInfo> layers;
+  CostModel model;
   
-  void randomInit();
+  void randomInit(Initializer initializer);
   
-  static Vec costPrime(const Vec& activation, const Vec& groundTruth);
+  float cost(const Vec& activation, const Vec& groundTruth);
+  Vec costDelta(const Vec& input, const Vec& activation, const Vec& groundTruth);
 };

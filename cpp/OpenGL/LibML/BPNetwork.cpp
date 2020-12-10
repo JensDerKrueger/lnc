@@ -1,10 +1,11 @@
 #include "BPNetwork.h"
 
 
-BPNetwork::BPNetwork(const std::vector<size_t>& structure) :
-  structure(structure)
+BPNetwork::BPNetwork(const std::vector<size_t>& structure, CostModel model, Initializer initializer) :
+  structure(structure),
+  model(model)
 {
-  randomInit();
+  randomInit(initializer);
 }
 
 BPNetwork::BPNetwork(const std::string& filename) {
@@ -21,6 +22,9 @@ void BPNetwork::load(const std::string& filename) {
   for (size_t i = 0;i<structure.size();++i) {
     file >> structure[i];
   }
+  
+  file >> s;
+  model = CostModel(s);
   
   file >> s;
   layers.clear();
@@ -43,6 +47,8 @@ void BPNetwork::save(const std::string& filename) const {
   for (size_t i = 0;i<structure.size();++i) {
     file << structure[i] << std::endl;
   }
+  
+  file << uint64_t(model) << std::endl;
 
   file << layers.size() << std::endl;
   for (size_t i = 0;i<layers.size();++i) {
@@ -53,11 +59,23 @@ void BPNetwork::save(const std::string& filename) const {
   file.close();
 }
 
-void BPNetwork::randomInit() {
+void BPNetwork::randomInit(Initializer Initializer) {
   layers.clear();
-  for (size_t i = 1;i<structure.size();++i) {
-    layers.emplace_back(Vec::random(structure[i],-1.0f,1.0f),
-                        Mat::random(structure[i-1],structure[i],-1.0f,1.0f));
+  
+  switch (Initializer) {
+    case  Initializer:: UNIFORM :
+      for (size_t i = 1;i<structure.size();++i) {
+        layers.emplace_back(Vec::gaussian(structure[i],0.0f,1.0f),
+                            Mat::gaussian(structure[i-1],structure[i],0.0f,1.0f));
+      }
+      break;
+    case  Initializer:: NORMALIZED :
+    default:
+      for (size_t i = 1;i<structure.size();++i) {
+        layers.emplace_back(Vec::gaussian(structure[i],0.0f,1.0f),
+                            Mat::gaussian(structure[i-1],structure[i],0.0f,1.0f) * (1.0f/sqrt(structure[i-1])));
+      }
+      break;
   }
 }
 
@@ -87,7 +105,8 @@ Update BPNetwork::backpropagation(const Vec& input, const Vec& groundTruth) {
   
   // backprop last layer
   const size_t ls = layers.size();
-  Vec delta = costPrime(activations[activations.size()-1], groundTruth) * zs[zs.size()-1].apply(sigmoidPrime);
+  Vec delta = costDelta(zs[zs.size()-1], activations[activations.size()-1], groundTruth);
+  
   update.layers[ls-1].biases  = delta;
   update.layers[ls-1].weights = Mat::tensorProduct(activations[activations.size()-2],delta);
 
@@ -101,13 +120,46 @@ Update BPNetwork::backpropagation(const Vec& input, const Vec& groundTruth) {
   return update;
 }
 
-void BPNetwork::applyUpdate(const Update& update, float eta) {
+void BPNetwork::applyUpdate(const Update& update, float eta, size_t bachSize) {
+  const float normEta = eta/bachSize;
   for (size_t i = 0;i<update.layers.size();++i) {
-    layers[i].biases  -= update.layers[i].biases*eta;
-    layers[i].weights -= update.layers[i].weights*eta;
+    layers[i].biases  -= update.layers[i].biases*normEta;
+    layers[i].weights -= update.layers[i].weights*normEta;
   }
 }
 
-Vec BPNetwork::costPrime(const Vec& activation, const Vec& groundTruth) {
-  return activation-groundTruth;
+void BPNetwork::applyUpdate(const Update& update, float eta, size_t bachSize, float lambda, size_t totalSize) {
+  const float normEta = eta/bachSize;
+  const float scale = 1.0f - eta * lambda/totalSize;
+  for (size_t i = 0;i<update.layers.size();++i) {
+    layers[i].biases  -= update.layers[i].biases*normEta;
+    layers[i].weights  = layers[i].weights * scale - update.layers[i].weights*normEta;
+  }
+}
+
+float BPNetwork::cost(const Vec& activation, const Vec& groundTruth) {
+  switch (model) {
+    case CostModel::QUADRATIC :
+      return 0.5f * Vec::dot((activation-groundTruth), (activation-groundTruth));
+    case CostModel::CROSS_ENTROPY : {
+      float sum = 0.0f;
+      for (size_t i = 0;i<activation.size();++i) {
+        sum -= groundTruth[i] * log(activation[i]) + (1-groundTruth[i]) * log(1-activation[i]);
+      }
+      return sum;
+    }
+    default :
+      return 0;
+  }
+}
+
+Vec BPNetwork::costDelta(const Vec& input, const Vec& activation, const Vec& groundTruth) {
+  switch (model) {
+    case CostModel::QUADRATIC :
+      return (activation - groundTruth) * input.apply(sigmoidPrime);
+    case CostModel::CROSS_ENTROPY :
+      return (activation - groundTruth);
+    default :
+      return Vec(activation.size());
+  }
 }

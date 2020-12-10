@@ -99,18 +99,19 @@ public:
   }
   
   void makeGuess() {
-    std::cout << "Guessing..." << std::endl;
+    std::cout << "Guessing: ";
     guess = feedforward();
-    for (size_t i = 0;i<guess.size();++i) {
-      std::cout << guess[i].value << " (" << guess[i].activation << ")\t";
+    std::cout << guess[0].value << " (Confidence " << std::fixed << std::setprecision(2) << guess[0].activation << ")\t[";
+    for (size_t i = 1;i<guess.size();++i) {
+      std::cout <<  guess[i].value << " (" << guess[i].activation << ") ";
     }
-    std::cout  << std::endl;
+    std::cout << "]" << std::endl;
   }
   
   void teach(size_t i) {
     Vec theTruth(10); theTruth[i] = 1;
     Update u = digitNetwork.backpropagation(getPixelData(), theTruth);
-    digitNetwork.applyUpdate(u, 0.5f);
+    digitNetwork.applyUpdate(u, 0.5f, 1);
     std::cout << i << " understood ..." << std::endl;
   }
   
@@ -168,7 +169,7 @@ public:
             u += digitNetwork.backpropagation(inputVec, theTruth);
         }
                       
-        digitNetwork.applyUpdate(u, 0.5f/setSize);
+        digitNetwork.applyUpdate(u, 0.5f, setSize, 0.1f, mnist.data.size());
         std::cout << "." << std::flush;
       }
     } catch (const MNISTFileException& e) {
@@ -205,8 +206,7 @@ public:
       std::cout << "Error loading MNIST data: " << e.what() << std::endl;
     }
     
-    std::cout << " Done! Accuracy: " << double(goodGuess)*100.0/double(tests) << "%" << std::endl;
-
+    std::cout << " Done!\nAccuracy: " << double(goodGuess)*100.0/double(tests) << "%" << std::endl;
   }
   
   virtual void keyboard(int key, int scancode, int action, int mods) override {
@@ -255,13 +255,12 @@ public:
     glShape.push_back(mousePos.x()*2.0f-1.0f); glShape.push_back(mousePos.y()*2.0f-1.0f); glShape.push_back(0.0f);
     glShape.push_back(1.0f); glShape.push_back(1.0f); glShape.push_back(1.0f); glShape.push_back(1.0f);
     drawPoints(glShape, 40, true);
-        
   }
 
 private:
   Vec2 mousePos;
   std::vector<GuessElem> guess{10};
-  BPNetwork digitNetwork{std::vector<size_t>{28*28,30,10}};
+  BPNetwork digitNetwork{std::vector<size_t>{28*28,100,10}, CostModel::CROSS_ENTROPY, Initializer::NORMALIZED};
   bool drawing{false};
   Image image{28,28};
     
