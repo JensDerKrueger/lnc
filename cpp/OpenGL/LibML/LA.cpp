@@ -15,11 +15,22 @@ float sigmoidPrime(float x) {
   return sigmoid(x)*(1.0f-sigmoid(x));
 }
 
-Vec Vec::random(size_t size, float from, float to) {
+Vec Vec::uniform(size_t size, float from, float to) {
   Vec v{size};
   std::random_device rd{};
   std::mt19937 gen{rd()};
   std::uniform_real_distribution<float> dist{from, to};
+  for (size_t i = 0;i<v.e.size();++i) {
+    v.e[i] = dist(gen);
+  }
+  return v;
+}
+
+Vec Vec::gaussian(size_t size, float mean, float stddev) {
+  Vec v{size};
+  std::random_device rd{};
+  std::mt19937 gen{rd()};
+  std::normal_distribution<float> dist{mean, stddev};
   for (size_t i = 0;i<v.e.size();++i) {
     v.e[i] = dist(gen);
   }
@@ -176,11 +187,22 @@ Mat::Mat(const Mat& other) :
 {
 }
 
-Mat Mat::random(size_t sizeX, size_t sizeY, float from, float to) {
+Mat Mat::uniform(size_t sizeX, size_t sizeY, float from, float to) {
   Mat m{sizeX, sizeY};
   std::random_device rd{};
   std::mt19937 gen{rd()};
   std::uniform_real_distribution<float> dist{from, to};
+  for (size_t i = 0;i<m.e.size();++i) {
+    m.e[i] = dist(gen);
+  }
+  return m;
+}
+
+Mat Mat::gaussian(size_t sizeX, size_t sizeY, float mean, float stddev) {
+  Mat m{sizeX, sizeY};
+  std::random_device rd{};
+  std::mt19937 gen{rd()};
+  std::normal_distribution<float> dist{mean, stddev};
   for (size_t i = 0;i<m.e.size();++i) {
     m.e[i] = dist(gen);
   }
@@ -215,6 +237,27 @@ Mat& Mat::operator-=(const Mat& rhs) {
   return *this;
 }
 
+Mat Mat::operator+(const Mat& other) const {
+  assert(other.e.size() == e.size() && other.sizeX == sizeX);
+  
+  Mat result(sizeX, e);
+  for (size_t i = 0;i<e.size();++i) {
+    result.e[i] += other.e[i];
+  }
+  return result;
+
+}
+
+Mat Mat::operator-(const Mat& other) const {
+  assert(other.e.size() == e.size() && other.sizeX == sizeX);
+
+  Mat result(sizeX, e);
+  for (size_t i = 0;i<e.size();++i) {
+    result.e[i] -= other.e[i];
+  }
+  return result;
+
+}
 
 Vec Mat::operator*(const Vec& v) const {
   assert(sizeX == v.size());

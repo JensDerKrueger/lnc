@@ -13,7 +13,8 @@ class Vec {
 public:
   Vec(size_t size);
   Vec(const std::vector<float>& e);
-  static Vec random(size_t size, float from, float to);
+  static Vec uniform(size_t size, float from, float to);
+  static Vec gaussian(size_t size, float mean, float stddev);
   static Vec sort(const Vec& v);
 
   Vec& operator+=(const Vec& rhs);
@@ -50,12 +51,17 @@ public:
   Mat(size_t sizeX, size_t sizeY);
   Mat(size_t sizeX, const std::vector<float>& e);
   Mat(const Mat& other);
-  static Mat random(size_t sizeX, size_t sizeY, float from, float to);
+  static Mat uniform(size_t sizeX, size_t sizeY, float from, float to);
+  static Mat gaussian(size_t sizeX, size_t sizeY, float mean, float stddev);
+
   static Mat tensorProduct(const Vec& a, const Vec& b);
 
   Mat& operator+=(const Mat& rhs);
   Mat& operator-=(const Mat& rhs);
 
+  Mat operator+(const Mat& other) const;
+  Mat operator-(const Mat& other) const;
+  
   Mat operator*(float a) const;
   
   Vec operator*(const Vec& v) const;
