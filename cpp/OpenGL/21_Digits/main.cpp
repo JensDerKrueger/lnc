@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <GLApp.h>
 #include <Vec2.h>
 #include <Vec4.h>
@@ -37,7 +38,7 @@ public:
         const float dx = x/28.0f-mousePos.x();
         const float dy = y/28.0f-mousePos.y();
         
-        float value = std::max(0.0f,0.22f-powf(dx*dx+dy*dy,0.3));
+        float value = std::max(0.0f,0.22f-powf(dx*dx+dy*dy,0.3f));
         value = std::min(1.0f, value + image.getValue(x,y,3)/255.0f);
         
         image.setNormalizedValue(x,y,0,value);
@@ -74,7 +75,7 @@ public:
     Vec theGrid{image.height*image.width};    
     for (uint32_t y = 0;y<image.height;++y) {
       for (uint32_t x = 0;x<image.width;++x) {
-        theGrid[x+((image.width-1)-y)*image.width] = image.getValue(x,y,3)/255.0;
+        theGrid[x+((image.width-1)-y)*image.width] = image.getValue(x,y,3)/255.0f;
       }
     }
     return theGrid;
