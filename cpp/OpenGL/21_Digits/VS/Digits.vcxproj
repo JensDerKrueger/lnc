@@ -108,6 +108,12 @@
       <AdditionalLibraryDirectories>$(SolutionDir)..\..\..\VS\lib\Win32;$(PlatformTarget)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>libml.lib;utils.lib;opengl32.lib;glew32s.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy "$(MSBuildProjectDirectory)\..\t10k-images-idx3-ubyte" "$(MSBuildProjectDirectory)" /y
+xcopy "$(MSBuildProjectDirectory)\..\t10k-labels-idx1-ubyte" "$(MSBuildProjectDirectory)" /y
+xcopy "$(MSBuildProjectDirectory)\..\train-images-idx3-ubyte" "$(MSBuildProjectDirectory)" /y
+xcopy "$(MSBuildProjectDirectory)\..\train-labels-idx1-ubyte" "$(MSBuildProjectDirectory)" /y</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -127,6 +133,12 @@
       <AdditionalLibraryDirectories>$(SolutionDir)..\..\..\VS\lib\Win32;$(PlatformTarget)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>libml.lib;utils.lib;opengl32.lib;glew32s.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy "$(MSBuildProjectDirectory)\..\t10k-images-idx3-ubyte" "$(MSBuildProjectDirectory)" /y
+xcopy "$(MSBuildProjectDirectory)\..\t10k-labels-idx1-ubyte" "$(MSBuildProjectDirectory)" /y
+xcopy "$(MSBuildProjectDirectory)\..\train-images-idx3-ubyte" "$(MSBuildProjectDirectory)" /y
+xcopy "$(MSBuildProjectDirectory)\..\train-labels-idx1-ubyte" "$(MSBuildProjectDirectory)" /y</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -142,6 +154,12 @@
       <AdditionalDependencies>libml.lib;utils.lib;opengl32.lib;glew32s.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)..\..\VS\lib\x64;$(PlatformTarget)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy "$(MSBuildProjectDirectory)\..\t10k-images-idx3-ubyte" "$(MSBuildProjectDirectory)" /y
+xcopy "$(MSBuildProjectDirectory)\..\t10k-labels-idx1-ubyte" "$(MSBuildProjectDirectory)" /y
+xcopy "$(MSBuildProjectDirectory)\..\train-images-idx3-ubyte" "$(MSBuildProjectDirectory)" /y
+xcopy "$(MSBuildProjectDirectory)\..\train-labels-idx1-ubyte" "$(MSBuildProjectDirectory)" /y</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -161,6 +179,12 @@
       <AdditionalDependencies>libml.lib;utils.lib;opengl32.lib;glew32s.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)..\..\VS\lib\x64;$(PlatformTarget)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy "$(MSBuildProjectDirectory)\..\t10k-images-idx3-ubyte" "$(MSBuildProjectDirectory)" /y
+xcopy "$(MSBuildProjectDirectory)\..\t10k-labels-idx1-ubyte" "$(MSBuildProjectDirectory)" /y
+xcopy "$(MSBuildProjectDirectory)\..\train-images-idx3-ubyte" "$(MSBuildProjectDirectory)" /y
+xcopy "$(MSBuildProjectDirectory)\..\train-labels-idx1-ubyte" "$(MSBuildProjectDirectory)" /y</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\main.cpp" />
