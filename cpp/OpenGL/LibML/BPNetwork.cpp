@@ -73,7 +73,7 @@ void BPNetwork::randomInit(Initializer Initializer) {
     default:
       for (size_t i = 1;i<structure.size();++i) {
         layers.emplace_back(Vec::gaussian(structure[i],0.0f,1.0f),
-                            Mat::gaussian(structure[i-1],structure[i],0.0f,1.0f) * (1.0f/sqrt(structure[i-1])));
+                            Mat::gaussian(structure[i-1],structure[i],0.0f,1.0f) * (1.0f/sqrtf(structure[i-1])));
       }
       break;
   }

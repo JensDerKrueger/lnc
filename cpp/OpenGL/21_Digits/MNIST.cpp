@@ -21,7 +21,7 @@ template <typename T> T swap_endian(T u) {
 MNIST::MNIST(const std::string& imageFilename, const std::string& labelFilename) {
   int32_t i;
 
-  std::ifstream imageFile{imageFilename};
+  std::ifstream imageFile{imageFilename, std::ifstream::binary };
   if (!imageFile) throw MNISTFileException{std::string("Unable to read file ")+imageFilename};
 
   imageFile.read((char*)&i, sizeof(i));
@@ -43,7 +43,7 @@ MNIST::MNIST(const std::string& imageFilename, const std::string& labelFilename)
 
   imageFile.close();
 
-  std::ifstream labelFile{labelFilename};
+  std::ifstream labelFile{labelFilename, std::ifstream::binary };
   if (!labelFile) throw MNISTFileException{std::string("Unable to read file ")+labelFilename};
   
   labelFile.read((char*)&i, sizeof(i));
