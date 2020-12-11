@@ -8,5 +8,3 @@ cpp/**/VS/**/bin/*
 cpp/**/VS/**/tmp/*
 cpp/**/VS/**/x64/*
 cpp/**/VS/**/*.glsl
-/cpp/OpenGL/21_Digits/VS
-/cpp/OpenGL/16_OBJ/VS/bunny.obj
