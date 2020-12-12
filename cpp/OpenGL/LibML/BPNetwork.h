@@ -7,14 +7,6 @@
 
 #include "LA.h"
 
-class FileException : std::exception {
-public:
-  FileException(const std::string& desc) : desc(desc) {}
-  const char* what() const noexcept {return desc.c_str();}
-private:
-  std::string desc;
-};
-
 struct LayerInfo {
   LayerInfo(const Vec& biases, const Mat& weights) : biases(biases),weights(weights){}
   Vec biases;
@@ -45,14 +37,14 @@ struct Update {
     }
     return result;
   }
-
 };
 
-enum class Initializer {UNIFORM, NORMALIZED};
-enum class CostModel {QUADRATIC, CROSS_ENTROPY};
 
 class BPNetwork {
 public:
+  enum class Initializer {UNIFORM, NORMALIZED};
+  enum class CostModel {QUADRATIC, CROSS_ENTROPY};
+
   BPNetwork(const std::vector<size_t>& structure, CostModel model=CostModel::CROSS_ENTROPY, Initializer initializer=Initializer::NORMALIZED);
   BPNetwork(const std::string& filename);
 

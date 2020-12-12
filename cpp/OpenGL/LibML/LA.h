@@ -4,6 +4,14 @@
 #include <string>
 #include <vector>
 
+class FileException : std::exception {
+public:
+  FileException(const std::string& desc) : desc(desc) {}
+  const char* what() const noexcept {return desc.c_str();}
+private:
+  std::string desc;
+};
+
 class Mat;
 
 float sigmoid(float x);
@@ -27,6 +35,9 @@ public:
 
   Vec apply(float func(float x)) const;
   Vec operator*(float a) const;
+
+  bool operator == ( const Vec& other ) const;
+  bool operator != ( const Vec& other ) const;
   
   static float dot(const Vec& a, const Vec& b);
   friend std::ostream& operator<<(std::ostream &os, const Vec& v) {os << v.toString() ; return os;}
@@ -63,9 +74,12 @@ public:
   Mat operator-(const Mat& other) const;
   
   Mat operator*(float a) const;
-  
   Vec operator*(const Vec& v) const;
 
+  bool operator == ( const Mat& other ) const;
+  bool operator != ( const Mat& other ) const;
+
+  
   friend std::ostream& operator<<(std::ostream &os, const Mat& m) {os << m.toString() ; return os;}
   friend std::istream& operator>> (std::istream &is, Mat &mat);
   const std::string toString() const;

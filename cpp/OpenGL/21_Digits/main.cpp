@@ -7,6 +7,7 @@
 #include <random>
 
 #include <BPNetwork.h>
+#include <NeuralNetwork.h>
 
 #include "MNIST.h"
 
@@ -19,6 +20,7 @@ public:
   virtual void init() override {
     try {
       digitNetwork.load("network.txt");
+      digitNetwork2.load("network_bp.txt");
       std::cout << "Resuming session from network.txt" << std::endl;
     } catch (const FileException& ) {
       std::cout << "Starting new session" << std::endl;
@@ -92,6 +94,14 @@ public:
   std::vector<GuessElem> feedforward() {
     std::vector<GuessElem> g;
     Vec guessVec = digitNetwork.feedforward(getPixelData());
+
+    // VALIDATION
+    Vec guessVec2 = digitNetwork2.feedforward(getPixelData());
+    if (guessVec != guessVec2) {
+      std::cout << "feedforward NOT ok" << std::endl;
+    }
+    // VALIDATION END
+    
     for (size_t i = 0;i<guessVec.size();++i) {
       g.push_back(GuessElem{i,guessVec[i]});
     }
@@ -111,7 +121,7 @@ public:
   
   void teach(size_t i) {
     Vec theTruth(10); theTruth[i] = 1;
-    Update u = digitNetwork.backpropagation(getPixelData(), theTruth);
+    NetworkUpdate u = digitNetwork.backpropagation(getPixelData(), theTruth);
     digitNetwork.applyUpdate(u, 0.5f, 1);
     std::cout << i << " understood ..." << std::endl;
   }
@@ -153,7 +163,10 @@ public:
 
       for (size_t i = 0;i<epochs;++i) {
 
-        Update u;
+        NetworkUpdate u;
+        // VALIDATION
+        Update u2;
+        // VALIDATION END
         Vec inputVec{28*28};
         for (size_t i = 0;i<setSize;++i) {
           
@@ -164,13 +177,42 @@ public:
             inputVec[j] = float(image[j])/255.0f;
           }
 
-          if (i == 0)
+          if (i == 0) {
             u = digitNetwork.backpropagation(inputVec, theTruth);
-          else
+
+            // VALIDATION
+            u2 = digitNetwork2.backpropagation(inputVec, theTruth);
+            for (size_t i = 0;i<u.layers.size();++i) {
+              if (u.layers[i].biases != u2.layers[u2.layers.size()-i-1].biases)
+                std::cout << "Biases Layer " << i << " NOT ok" << std::endl;
+              if (u.layers[i].weights != u2.layers[u2.layers.size()-i-1].weights)
+                std::cout << "Weights Layer " << i << " NOT ok" << std::endl;
+            }
+            // VALIDATION END
+
+          } else {
             u += digitNetwork.backpropagation(inputVec, theTruth);
+            
+            
+            // VALIDATION
+            u2 += digitNetwork2.backpropagation(inputVec, theTruth);
+            for (size_t i = 0;i<u.layers.size();++i) {
+              if (u.layers[i].biases != u2.layers[u2.layers.size()-i-1].biases)
+                std::cout << "Biases Layer " << i << " NOT ok" << std::endl;
+              if (u.layers[i].weights != u2.layers[u2.layers.size()-i-1].weights)
+                std::cout << "Weights Layer " << i << " NOT ok" << std::endl;
+
+            }
+            // VALIDATION END
+            
+          }
         }
-                      
         digitNetwork.applyUpdate(u, 0.5f, setSize, 0.1f, mnist.data.size());
+
+        // VALIDATION
+        digitNetwork2.applyUpdate(u2, 0.5f, setSize, 0.1f, mnist.data.size());
+        // VALIDATION END
+
         std::cout << "." << std::flush;
       }
     } catch (const MNISTFileException& e) {
@@ -261,7 +303,11 @@ public:
 private:
   Vec2 mousePos;
   std::vector<GuessElem> guess{10};
-  BPNetwork digitNetwork{std::vector<size_t>{28*28,100,10}, CostModel::CROSS_ENTROPY, Initializer::NORMALIZED};
+  NeuralNetwork digitNetwork{std::vector<size_t>{28*28,100,10}, NeuralNetwork::CostModel::CROSS_ENTROPY};
+  // VALIDATION
+  BPNetwork digitNetwork2{std::vector<size_t>{28*28,100,10}, BPNetwork::CostModel::CROSS_ENTROPY, BPNetwork::Initializer::NORMALIZED};
+  // VALIDATION END
+  
   bool drawing{false};
   Image image{28,28};
     

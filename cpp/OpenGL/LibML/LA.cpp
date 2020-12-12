@@ -64,7 +64,6 @@ Vec& Vec::operator-=(const Vec& rhs) {
   return *this;
 }
 
-
 Vec Vec::operator+(const Vec& other) const {
   assert(size() == other.size());
   
@@ -113,6 +112,17 @@ float Vec::dot(const Vec& a, const Vec& b) {
     result += a.e[i] * b.e[i];
   }
   return result;
+}
+
+bool Vec::operator == ( const Vec& other ) const {
+  for (size_t i = 0;i<e.size();++i) {
+    if (e[i] != other.e[i]) return false;
+  }
+  return true;
+}
+
+bool Vec::operator != ( const Vec& other ) const {
+  return ! (*this == other);
 }
 
 const std::string Vec::toString() const {
@@ -343,4 +353,15 @@ Mat Mat::transpose() const {
   }
 
   return m;
+}
+
+bool Mat::operator == ( const Mat& other ) const {
+  for (size_t i = 0;i<e.size();++i) {
+    if (e[i] != other.e[i]) return false;
+  }
+  return true;
+}
+
+bool Mat::operator != ( const Mat& other ) const {
+  return ! (*this == other);
 }
