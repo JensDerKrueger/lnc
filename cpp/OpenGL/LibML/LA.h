@@ -3,6 +3,7 @@
 #include <ostream>
 #include <string>
 #include <vector>
+#include <cmath>
 
 class FileException : std::exception {
 public:
@@ -17,9 +18,17 @@ class Mat;
 float sigmoid(float x);
 float sigmoidPrime(float x);
 
+float reLU(float x);
+float reLUPrime(float x);
+
+// float tanh(float x);  // already exists in cmath
+float tanhPrime(float x);
+
+
 class Vec {
 public:
   Vec(size_t size);
+  Vec(const std::vector<uint8_t>& e);
   Vec(const std::vector<float>& e);
   static Vec uniform(size_t size, float from, float to);
   static Vec gaussian(size_t size, float mean, float stddev);
@@ -35,6 +44,8 @@ public:
 
   Vec apply(float func(float x)) const;
   Vec operator*(float a) const;
+  
+  float sum() const;
 
   bool operator == ( const Vec& other ) const;
   bool operator != ( const Vec& other ) const;
@@ -89,6 +100,9 @@ public:
   
   Mat transpose() const;
   
+  float operator[](size_t index) const {return e[index];}
+  float& operator[](size_t index) {return e[index];}
+
 private:
   std::vector<float> e;
   size_t sizeX;

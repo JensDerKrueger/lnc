@@ -4,6 +4,8 @@
 #include <vector>
 #include <string>
 
+#include <iostream>
+
 #include "LA.h"
 
 struct LayerData {
@@ -12,6 +14,7 @@ struct LayerData {
 };
 
 struct LayerUpdate {
+  LayerUpdate() : biases(0),weights(0,0){}
   LayerUpdate(const Vec& biases, const Mat& weights) : biases(biases),weights(weights){}
   Vec biases;
   Mat weights;

@@ -11,13 +11,19 @@ public:
   virtual LayerUpdate backprop(Vec& delta) override;
   
   virtual void save(std::ofstream& file) const override;
-  virtual void applyUpdate(const LayerUpdate& update, float eta, size_t bachSize) override;
-  virtual void applyUpdate(const LayerUpdate& update, float eta, size_t bachSize, float lambda, size_t totalSize) override;
+  virtual void applyUpdate(const LayerUpdate& update, float eta, size_t bachSize) override {}
+  virtual void applyUpdate(const LayerUpdate& update, float eta, size_t bachSize, float lambda, size_t totalSize) override {}
 
   static std::string id() {return "MaxPoolLayer";}
   
 private:
+  size_t poolWidth;
+  size_t poolHeight;
+  size_t prevFilterCount;
+  size_t prevWidth;
+  size_t prevHeight;
+  std::vector<size_t> maxIs;
+  
   void load(std::ifstream& file);
-  void randomInit(size_t poolWidth, size_t poolHeight, size_t prevFilterCount, size_t prevWidth, size_t prevHeight);
 
 };

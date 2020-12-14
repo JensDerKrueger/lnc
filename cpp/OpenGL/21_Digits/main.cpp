@@ -20,17 +20,16 @@ public:
   virtual void init() override {
     try {
       digitNetwork.load("network.txt");
-      digitNetwork2.load("network_bp.txt");
       std::cout << "Resuming session from network.txt" << std::endl;
     } catch (const FileException& ) {
       std::cout << "Starting new session" << std::endl;
     }
-    
     glEnv.setCursorMode(CursorMode::HIDDEN);
     GL(glClearColor(0,0,0,0));
     GL(glEnable(GL_BLEND));
     GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
     GL(glBlendEquation(GL_FUNC_ADD));
+    setImageFilter(GL_NEAREST,GL_NEAREST);
   }
   
   void dropPaint() {
@@ -57,27 +56,29 @@ public:
 
   virtual void mouseMove(double xPosition, double yPosition) override {
     Dimensions s = glEnv.getWindowSize();
-    if (xPosition < 0 || xPosition > s.width || yPosition < 0 || yPosition > s.height) return;
+    if (xPosition < 0 || xPosition > s.width || yPosition < 0 || yPosition > s.height) {
+      mousePos = Vec2{-1,-1};
+      return;
+    }
     mousePos = Vec2{float(xPosition/s.width),float(1.0-yPosition/s.height)};
-    
     if (drawing) dropPaint();
   }
   
   virtual void mouseButton(int button, int state, int mods, double xPosition, double yPosition) override {
-    if (button == GLFW_MOUSE_BUTTON_LEFT && state == GLFW_PRESS) {
-      drawing = true;
-    }
-    if (button == GLFW_MOUSE_BUTTON_LEFT && state == GLFW_RELEASE) {
-      drawing = false;
-      makeGuess();
+    if (button == GLFW_MOUSE_BUTTON_LEFT) {
+      drawing = state == GLFW_PRESS;
+      if (state == GLFW_RELEASE) {
+        makeGuess();
+      }
     }
   }
   
   Vec getPixelData() {
-    Vec theGrid{image.height*image.width};    
+    Vec theGrid{image.height*image.width};
+    size_t i = 0;
     for (uint32_t y = 0;y<image.height;++y) {
       for (uint32_t x = 0;x<image.width;++x) {
-        theGrid[x+((image.width-1)-y)*image.width] = image.getValue(x,y,3)/255.0f;
+        theGrid[i++] = image.getValue(x,(image.width-1)-y,3)/255.0f;
       }
     }
     return theGrid;
@@ -91,16 +92,9 @@ public:
     }
   };
   
-  std::vector<GuessElem> feedforward() {
+  std::vector<GuessElem> feedforward(const Vec& data) {
     std::vector<GuessElem> g;
-    Vec guessVec = digitNetwork.feedforward(getPixelData());
-
-    // VALIDATION
-    Vec guessVec2 = digitNetwork2.feedforward(getPixelData());
-    if (guessVec != guessVec2) {
-      std::cout << "feedforward NOT ok" << std::endl;
-    }
-    // VALIDATION END
+    Vec guessVec = digitNetwork.feedforward(data);
     
     for (size_t i = 0;i<guessVec.size();++i) {
       g.push_back(GuessElem{i,guessVec[i]});
@@ -111,7 +105,7 @@ public:
   
   void makeGuess() {
     std::cout << "Guessing: ";
-    guess = feedforward();
+    guess = feedforward(getPixelData());
     std::cout << guess[0].value << " (Confidence " << std::fixed << std::setprecision(2) << guess[0].activation << ")\t[";
     for (size_t i = 1;i<guess.size();++i) {
       std::cout <<  guess[i].value << " (" << guess[i].activation << ") ";
@@ -122,7 +116,7 @@ public:
   void teach(size_t i) {
     Vec theTruth(10); theTruth[i] = 1;
     NetworkUpdate u = digitNetwork.backpropagation(getPixelData(), theTruth);
-    digitNetwork.applyUpdate(u, 0.5f, 1);
+    digitNetwork.applyUpdate(u, 0.1f, 1);
     std::cout << i << " understood ..." << std::endl;
   }
   
@@ -150,106 +144,89 @@ public:
     } catch (const MNISTFileException& e) {
       std::cout << "Error loading MNIST data: " << e.what() << std::endl;
     }
+    
+/*
+    
+    ConvolutionLayer c{2,7,7,2,2,28,28};
+    c.weights = Mat{7*7,2};
+    c.biases  = Vec{2};
+    c.biases[0] = 0.0f;
+    c.biases[1] = 0.02f;
+    
+    size_t i = 0;
+    for (size_t f = 0;f<2;++f) {
+      for (size_t v = 0;v<7;++v) {
+        for (size_t u = 0;u<7;++u) {
+          c.weights[i++] = 1.0/(7.0*7.0);
+        }
+      }
+    }
+    
+    MaxPoolLayer p{2,2,2,14,14};
+    
+    MNIST mnist("t10k-images-idx3-ubyte", "t10k-labels-idx1-ubyte");
+    LayerData l = c.feedforward(LayerData{mnist.data[0].image, Vec{0}});
+    l = p.feedforward(l);
+
+    for (uint32_t y = 0;y<7;++y) {
+      for (uint32_t x = 0;x<7;++x) {
+        const size_t tIndex = x+(27-y)*28;
+        const size_t sIndex = (x+y*7)+7*7;
+        const uint8_t o = uint8_t(l.a[sIndex]*255);
+        
+        image.data[tIndex*4+0] = o;
+        image.data[tIndex*4+1] = o;
+        image.data[tIndex*4+2] = o;
+        image.data[tIndex*4+3] = o;
+      }
+    }
+ */
   }
   
-  void trainMNIST(size_t setSize, size_t epochs, size_t tests) {
+  void trainMNIST(size_t setSize, size_t epochs, size_t tests, float minAcc=0.0f) {
     std::random_device rd{};
     std::mt19937 gen{rd()};
     std::uniform_real_distribution<float> dist{0, 1};
-
-    try {
-      MNIST mnist("train-images-idx3-ubyte", "train-labels-idx1-ubyte");
-      std::cout << "Data loaded, training in progress " << std::flush;
-
-      for (size_t i = 0;i<epochs;++i) {
-
-        NetworkUpdate u;
-        // VALIDATION
-        Update u2;
-        // VALIDATION END
-        Vec inputVec{28*28};
-        for (size_t i = 0;i<setSize;++i) {
-          
+    float accuracy = 0;
+    do {
+      try {
+        MNIST mnist("train-images-idx3-ubyte", "train-labels-idx1-ubyte");
+        std::cout << "Data loaded, training in progress " << std::flush;
+        for (size_t i = 0;i<epochs;++i) {
+          NetworkUpdate u;
+          Vec inputVec{28*28};
+          for (size_t i = 0;i<setSize;++i) {
+            const size_t r = size_t(dist(gen)*mnist.data.size());
+            Vec theTruth(10); theTruth[mnist.data[r].label] = 1;
+            if (i == 0) {
+              u = digitNetwork.backpropagation(mnist.data[r].image, theTruth);
+            } else {
+              u += digitNetwork.backpropagation(mnist.data[r].image, theTruth);
+            }
+          }
+          digitNetwork.applyUpdate(u, 0.5f, setSize, 0.1f, mnist.data.size());
+          std::cout << "." << std::flush;
+        }
+      } catch (const MNISTFileException& e) {
+        std::cout << "Error loading MNIST data: " << e.what() << std::endl;
+      }
+      std::cout << " Done, Testing " << std::flush;
+      
+      size_t goodGuess{};
+      try {
+        MNIST mnist("t10k-images-idx3-ubyte", "t10k-labels-idx1-ubyte");
+        for (size_t i = 0;i<tests;++i) {
           const size_t r = size_t(dist(gen)*mnist.data.size());
-          Vec theTruth(10); theTruth[mnist.data[r].label] = 1;
-          const std::vector<uint8_t>& image = mnist.data[r].image;
-          for (uint32_t j = 0;j<28*28;++j) {
-            inputVec[j] = float(image[j])/255.0f;
-          }
-
-          if (i == 0) {
-            u = digitNetwork.backpropagation(inputVec, theTruth);
-
-            // VALIDATION
-            u2 = digitNetwork2.backpropagation(inputVec, theTruth);
-            for (size_t i = 0;i<u.layers.size();++i) {
-              if (u.layers[i].biases != u2.layers[u2.layers.size()-i-1].biases)
-                std::cout << "Biases Layer " << i << " NOT ok" << std::endl;
-              if (u.layers[i].weights != u2.layers[u2.layers.size()-i-1].weights)
-                std::cout << "Weights Layer " << i << " NOT ok" << std::endl;
-            }
-            // VALIDATION END
-
-          } else {
-            u += digitNetwork.backpropagation(inputVec, theTruth);
-            
-            
-            // VALIDATION
-            u2 += digitNetwork2.backpropagation(inputVec, theTruth);
-            for (size_t i = 0;i<u.layers.size();++i) {
-              if (u.layers[i].biases != u2.layers[u2.layers.size()-i-1].biases)
-                std::cout << "Biases Layer " << i << " NOT ok" << std::endl;
-              if (u.layers[i].weights != u2.layers[u2.layers.size()-i-1].weights)
-                std::cout << "Weights Layer " << i << " NOT ok" << std::endl;
-
-            }
-            // VALIDATION END
-            
-          }
+          const std::vector<GuessElem> guess = feedforward(mnist.data[r].image);
+          if (guess[0].value == mnist.data[r].label)
+            goodGuess++;
         }
-        digitNetwork.applyUpdate(u, 0.5f, setSize, 0.1f, mnist.data.size());
-
-        // VALIDATION
-        digitNetwork2.applyUpdate(u2, 0.5f, setSize, 0.1f, mnist.data.size());
-        // VALIDATION END
-
-        std::cout << "." << std::flush;
+      } catch (const MNISTFileException& e) {
+        std::cout << "Error loading MNIST data: " << e.what() << std::endl;
       }
-    } catch (const MNISTFileException& e) {
-      std::cout << "Error loading MNIST data: " << e.what() << std::endl;
-    }
-    std::cout << " Done, Testing ";
-    
-    size_t goodGuess{};
-    try {
-      MNIST mnist("t10k-images-idx3-ubyte", "t10k-labels-idx1-ubyte");
-      
-      for (size_t i = 0;i<tests;++i) {
-        const size_t r = size_t(dist(gen)*mnist.data.size());
-        const std::vector<uint8_t>& nistimage = mnist.data[r].image;
-        for (uint32_t y = 0;y<28;++y) {
-          for (uint32_t x = 0;x<28;++x) {
-            const size_t sIndex = x+y*28;
-            const size_t tIndex = x+(27-y)*28;
-            const uint8_t p = nistimage[sIndex];
-            
-            image.data[tIndex*4+0] = p;
-            image.data[tIndex*4+1] = p;
-            image.data[tIndex*4+2] = p;
-            image.data[tIndex*4+3] = p;
-          }
-        }
-        const std::vector<GuessElem> guess = feedforward();
-        if (guess[0].value == mnist.data[r].label)
-          goodGuess++;
-      }
-
-      
-    } catch (const MNISTFileException& e) {
-      std::cout << "Error loading MNIST data: " << e.what() << std::endl;
-    }
-    
-    std::cout << " Done!\nAccuracy: " << double(goodGuess)*100.0/double(tests) << "%" << std::endl;
+      accuracy = double(goodGuess)*100.0/double(tests);
+      std::cout << " Done!\nAccuracy: " << double(goodGuess)*100.0/double(tests) << "%" << std::endl;
+    } while (accuracy < minAcc);
   }
   
   virtual void keyboard(int key, int scancode, int action, int mods) override {
@@ -282,7 +259,7 @@ public:
           teach(key - GLFW_KEY_0);
           break;
         case GLFW_KEY_T:
-          trainMNIST(10,1000,1000);
+          trainMNIST(10,100,1000);
           break;
       }
     }
@@ -291,9 +268,7 @@ public:
   
   virtual void draw() override{
     GL(glClear(GL_COLOR_BUFFER_BIT));
-
     drawImage(image);
-    
     std::vector<float> glShape;
     glShape.push_back(mousePos.x()*2.0f-1.0f); glShape.push_back(mousePos.y()*2.0f-1.0f); glShape.push_back(0.0f);
     glShape.push_back(1.0f); glShape.push_back(1.0f); glShape.push_back(1.0f); glShape.push_back(1.0f);
@@ -303,10 +278,14 @@ public:
 private:
   Vec2 mousePos;
   std::vector<GuessElem> guess{10};
-  NeuralNetwork digitNetwork{std::vector<size_t>{28*28,100,10}, NeuralNetwork::CostModel::CROSS_ENTROPY};
-  // VALIDATION
-  BPNetwork digitNetwork2{std::vector<size_t>{28*28,100,10}, BPNetwork::CostModel::CROSS_ENTROPY, BPNetwork::Initializer::NORMALIZED};
-  // VALIDATION END
+  NeuralNetwork digitNetwork{std::make_shared<InputLayer>(28, 28),
+    std::vector<std::shared_ptr<Layer>>{
+      std::make_shared<ConvolutionLayer>(20,5,5,28,28),
+      std::make_shared<MaxPoolLayer>(2,2,20,24,24),
+      std::make_shared<DenseLayer>(100,20*12*12),
+      std::make_shared<DenseLayer>(10,100)
+    }
+  };
   
   bool drawing{false};
   Image image{28,28};
@@ -317,4 +296,3 @@ int main(int argc, char ** argv) {
   myApp.run();
   return EXIT_SUCCESS;
 }
-

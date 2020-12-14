@@ -1,6 +1,5 @@
 #include <iostream>
 #include <sstream>
-#include <cmath>
 #include <random>
 #include <algorithm>
 #include <cassert>
@@ -13,6 +12,19 @@ float sigmoid(float x) {
 
 float sigmoidPrime(float x) {
   return sigmoid(x)*(1.0f-sigmoid(x));
+}
+
+float reLU(float x) {
+  return std::max(0.0f,x);
+}
+
+float reLUPrime(float x) {
+  return (x>0.0f) ? 1.0f : 0.0f;
+}
+
+float tanhPrime(float x) {
+  const float ch = cosh(x);
+  return 1.0f/(ch*ch);
 }
 
 Vec Vec::uniform(size_t size, float from, float to) {
@@ -45,6 +57,14 @@ Vec::Vec(size_t size) :
 Vec::Vec(const std::vector<float>& e) :
   e(e)
 {}
+
+Vec::Vec(const std::vector<uint8_t>& e) :
+  e(e.size())
+{
+  for (size_t i = 0;i<e.size();++i) {
+    this->e[i] = e[i]/255.0f;
+  }
+}
 
 Vec& Vec::operator+=(const Vec& rhs) {
   assert(rhs.size() == e.size());
@@ -123,6 +143,14 @@ bool Vec::operator == ( const Vec& other ) const {
 
 bool Vec::operator != ( const Vec& other ) const {
   return ! (*this == other);
+}
+
+float Vec::sum() const {
+  float s = 0.0f;
+  for (size_t i = 0;i<e.size();++i) {
+    s += e[i];
+  }
+  return s;
 }
 
 const std::string Vec::toString() const {

@@ -15,7 +15,7 @@ else
 	INCLUDES=-I. -I ../../openmp/include 
 endif
 
-SRC = LA.cpp BPNetwork.cpp NeuralNetwork.cpp ConvolutionLayer.cpp MaxPoolLayer.cpp DenseLayer.cpp
+SRC = LA.cpp BPNetwork.cpp InputLayer.cpp NeuralNetwork.cpp ConvolutionLayer.cpp MaxPoolLayer.cpp DenseLayer.cpp
 OBJ = $(SRC:.cpp=.o)
 TARGET = libml.a
 
