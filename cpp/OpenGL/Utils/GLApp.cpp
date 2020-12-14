@@ -254,6 +254,10 @@ void GLApp::shaderUpdate() {
   simpleLightProg.setUniform("MVit", Mat4::inverse(mv), true);
 }
 
+void GLApp::setImageFilter(GLint magFilter, GLint minFilter) {
+  raster.setFilter(magFilter, minFilter);
+}
+
 void GLApp::drawImage(const Image& image, const Vec3& bl,
                       const Vec3& br, const Vec3& tl,
                       const Vec3& tr) {

@@ -22,7 +22,8 @@ public:
   void setData(const std::vector<GLfloat>& data);
   void setData(const std::vector<GLhalf>& data, uint32_t width, uint32_t height, uint32_t componentCount=4);
   void setData(const std::vector<GLhalf>& data);
-
+  void setFilter(GLint magFilter, GLint minFilter);
+  
   uint32_t getHeight() const {return height;}
   uint32_t getWidth() const {return width;}
   uint32_t getComponentCount() const {return componentCount;}
