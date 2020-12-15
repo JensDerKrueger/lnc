@@ -204,7 +204,7 @@ public:
               u += digitNetwork.backpropagation(mnist.data[r].image, theTruth);
             }
           }
-          digitNetwork.applyUpdate(u, 0.5f, setSize, 0.1f, mnist.data.size());
+          digitNetwork.applyUpdate(u, 0.1f, setSize, 0.1f, mnist.data.size());
           std::cout << "." << std::flush;
         }
       } catch (const MNISTFileException& e) {
@@ -215,10 +215,12 @@ public:
       size_t goodGuess{};
       try {
         MNIST mnist("t10k-images-idx3-ubyte", "t10k-labels-idx1-ubyte");
+        
+        tests = std::min(tests,mnist.data.size());
+        
         for (size_t i = 0;i<tests;++i) {
-          const size_t r = size_t(dist(gen)*mnist.data.size());
-          const std::vector<GuessElem> guess = feedforward(mnist.data[r].image);
-          if (guess[0].value == mnist.data[r].label)
+          const std::vector<GuessElem> guess = feedforward(mnist.data[i].image);
+          if (guess[0].value == mnist.data[i].label)
             goodGuess++;
         }
       } catch (const MNISTFileException& e) {
@@ -259,7 +261,7 @@ public:
           teach(key - GLFW_KEY_0);
           break;
         case GLFW_KEY_T:
-          trainMNIST(10,100,1000);
+          trainMNIST(10,1000,10000,98.5);
           break;
       }
     }
@@ -283,7 +285,9 @@ private:
       std::make_shared<ConvolutionLayer>(20,5,5,28,28),
       std::make_shared<MaxPoolLayer>(2,2,20,24,24),
       std::make_shared<DenseLayer>(100,20*12*12),
-      std::make_shared<DenseLayer>(10,100)
+      std::make_shared<DenseLayer>(10,100) 
+   //   std::make_shared<DenseLayer>(100,28*28),
+    //  std::make_shared<DenseLayer>(10,100)
     }
   };
   
