@@ -19,12 +19,15 @@ prevHeight(prevHeight)
 LayerData ConvolutionLayer::feedforward(const LayerData& input) {
   this->input = input;
   
-  Vec z{(prevWidth-width)*(prevHeight-height)*filterCount};
+  const size_t filterCountX = 1+prevWidth-width;
+  const size_t filterCountY = 1+prevHeight-height;
+
+  Vec z{filterCountX*filterCountY*filterCount};
   size_t i = 0;
   for (size_t f = 0;f<filterCount;++f) {
     const size_t weightOffset = width*height*f;
-    for (size_t y = 0;y<prevHeight-height;++y) {
-      for (size_t x = 0;x<prevWidth-width;++x) {
+    for (size_t y = 0;y<filterCountY;++y) {
+      for (size_t x = 0;x<filterCountX;++x) {
         for (size_t v = 0;v<height;++v) {
           for (size_t u = 0;u<width;++u) {
             const size_t index = (x+u)+(y+v)*prevWidth;
@@ -36,31 +39,36 @@ LayerData ConvolutionLayer::feedforward(const LayerData& input) {
       }
     }
   }
+  
   return LayerData{z.apply(reLU), z};
 }
 
 LayerUpdate ConvolutionLayer::backprop(Vec& delta) {
   Vec deltaBias{filterCount};
-   
+  
+  const size_t filterCountX = 1+prevWidth-width;
+  const size_t filterCountY = 1+prevHeight-height;
+  
   size_t i = 0;
   for (size_t f = 0;f<filterCount;++f) {
-    for (size_t j = 0;j<(prevHeight-height)*(prevWidth-width);++j) {
+    for (size_t j = 0;j<filterCountX*filterCountY;++j) {
       deltaBias[f] += delta[i++];
     }
   }
- 
-  Mat deltaWeights{width*height,filterCount};
   
+  
+  Mat deltaWeights{width*height,filterCount};
   i = 0;
   for (size_t f = 0;f<filterCount;++f) {
-    const size_t weightOffset = (prevWidth-width)*(prevHeight-height)*f;
-    for (size_t y = 0;y<height;++y) {
-      for (size_t x = 0;x<width;++x) {
+    const size_t weightOffset = filterCountX*filterCountY*f;
+    for (size_t y = 0;y<height /* prevheight - (prevheight-height) */ ;++y) {
+      for (size_t x = 0;x<width /* prevWidth - (prevWidth-width) */ ;++x) {
         
-        for (size_t v = 0;v<prevHeight-height;++v) {
-          for (size_t u = 0;u<prevWidth-width;++u) {
+        //std::cout << "x:"<< x << " y:" << y << std::endl;
+        for (size_t v = 0;v<filterCountY;++v) {
+          for (size_t u = 0;u<filterCountX;++u) {
             const size_t index = (x+u)+(y+v)*prevWidth;
-            deltaWeights[i] += delta[weightOffset+u+v*(prevWidth-width)] * input.a[index];
+            deltaWeights[i] += delta[weightOffset+u+v*filterCountX] * input.a[index];
           }
         }
         i++;
