@@ -54,7 +54,7 @@ struct NetworkUpdate {
 class Layer {
 public:
   virtual LayerData feedforward(const LayerData& input) = 0;
-  virtual LayerUpdate backprop(Vec& delta) = 0;
+  virtual LayerUpdate backprop(Vec& delta, bool updateDelta) = 0;
   
   virtual void save(std::ofstream& file) const = 0;
   virtual void applyUpdate(const LayerUpdate& update, float eta, size_t bachSize) = 0;

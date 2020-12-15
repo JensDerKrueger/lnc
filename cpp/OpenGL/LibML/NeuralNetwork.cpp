@@ -68,11 +68,11 @@ NetworkUpdate NeuralNetwork::backpropagation(const Vec& input, const Vec& ground
   // backprop last layer
   const size_t ls = layers.size();
   Vec delta = costDelta(l.z, l.a, groundTruth);
-  update.layers.push_back(layers[ls-1]->backprop(delta));
+  update.layers.push_back(layers[ls-1]->backprop(delta, true));
   
   // backprop remaining layers
   for (size_t l = 0;l<layers.size()-1;++l) {
-    update.layers.push_back(layers[ls-l-2]->backprop(delta));
+    update.layers.push_back(layers[ls-l-2]->backprop(delta, l > 0));
   }
   return update;
 }

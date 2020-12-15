@@ -8,7 +8,7 @@ public:
   DenseLayer(size_t size, size_t prevSize);
   virtual ~DenseLayer() {}
   virtual LayerData feedforward(const LayerData& input) override;
-  virtual LayerUpdate backprop(Vec& delta) override;
+  virtual LayerUpdate backprop(Vec& delta, bool updateDelta) override;
   
   virtual void save(std::ofstream& file) const override;
   virtual void applyUpdate(const LayerUpdate& update, float eta, size_t bachSize) override;

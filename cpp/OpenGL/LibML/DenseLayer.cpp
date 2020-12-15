@@ -15,9 +15,10 @@ LayerData DenseLayer::feedforward(const LayerData& input) {
   return LayerData{z.apply(sigmoid), z};
 }
 
-LayerUpdate DenseLayer::backprop(Vec& delta) {
+LayerUpdate DenseLayer::backprop(Vec& delta, bool updateDelta) {
   LayerUpdate l{delta, Mat::tensorProduct(input.a, delta)};
-  delta = (weights.transpose() * delta) * input.z.apply(sigmoidPrime);
+  if (updateDelta)
+    delta = (weights.transpose() * delta) * input.z.apply(sigmoidPrime);
   return l;
 }
 

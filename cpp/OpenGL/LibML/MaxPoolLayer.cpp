@@ -44,11 +44,13 @@ LayerData MaxPoolLayer::feedforward(const LayerData& input) {
   return LayerData{z, z};
 }
 
-LayerUpdate MaxPoolLayer::backprop(Vec& delta) {
-  Vec oldDelta = delta;
-  delta = Vec(delta.size()*poolHeight*poolWidth);
-  for (size_t i = 0;i<maxIs.size();++i){
-    delta[maxIs[i]] = oldDelta[i];
+LayerUpdate MaxPoolLayer::backprop(Vec& delta, bool updateDelta) {
+  if (updateDelta) {
+    Vec oldDelta = delta;
+    delta = Vec(delta.size()*poolHeight*poolWidth);
+    for (size_t i = 0;i<maxIs.size();++i){
+      delta[maxIs[i]] = oldDelta[i];
+    }
   }
   return {Vec{0},Mat{0,0}};
 }

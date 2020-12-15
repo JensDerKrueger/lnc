@@ -9,7 +9,7 @@ public:
   virtual ~InputLayer() {}
   virtual LayerData feedforward(const Vec& input);
   virtual LayerData feedforward(const LayerData& input) override;
-  virtual LayerUpdate backprop(Vec& delta) override {return {};}
+  virtual LayerUpdate backprop(Vec& delta, bool updateDelta) override {return {};}
   
   virtual void save(std::ofstream& file) const override;
   virtual void applyUpdate(const LayerUpdate& update, float eta, size_t bachSize) override {}
