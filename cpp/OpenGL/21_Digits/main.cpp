@@ -261,7 +261,7 @@ public:
           teach(key - GLFW_KEY_0);
           break;
         case GLFW_KEY_T:
-          trainMNIST(10,1000,10000,98.5);
+          trainMNIST(10,1000,10000,90);
           break;
       }
     }
@@ -280,16 +280,40 @@ public:
 private:
   Vec2 mousePos;
   std::vector<GuessElem> guess{10};
+  
+  // single convolution layer CNN
   NeuralNetwork digitNetwork{std::make_shared<InputLayer>(28, 28),
     std::vector<std::shared_ptr<Layer>>{
-      std::make_shared<ConvolutionLayer>(20,5,5,28,28),
+      std::make_shared<ConvolutionLayer>(20,5,5,1,28,28),
       std::make_shared<MaxPoolLayer>(2,2,20,24,24),
       std::make_shared<DenseLayer>(100,20*12*12),
       std::make_shared<DenseLayer>(10,100) 
-   //   std::make_shared<DenseLayer>(100,28*28),
-    //  std::make_shared<DenseLayer>(10,100)
     }
   };
+   
+/*
+ // double convolution layer CNN
+ NeuralNetwork digitNetwork{std::make_shared<InputLayer>(28, 28),
+   std::vector<std::shared_ptr<Layer>>{
+     std::make_shared<ConvolutionLayer>(20,5,5,1,28,28),
+     std::make_shared<MaxPoolLayer>(2,2,20,24,24),
+     std::make_shared<ConvolutionLayer>(40,5,5,20,12,12),
+     std::make_shared<MaxPoolLayer>(2,2,40,8,8),
+     std::make_shared<DenseLayer>(100,40*4*4),
+     std::make_shared<DenseLayer>(10,100)
+   }
+ };
+*/
+  
+  /*
+  // single hidden layer fully connected net
+  NeuralNetwork digitNetwork{std::make_shared<InputLayer>(28, 28),
+    std::vector<std::shared_ptr<Layer>>{
+      std::make_shared<DenseLayer>(100,28*28),
+      std::make_shared<DenseLayer>(10,100)
+    }
+  };
+*/
   
   bool drawing{false};
   Image image{28,28};
