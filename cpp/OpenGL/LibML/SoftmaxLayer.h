@@ -2,11 +2,11 @@
 
 #include "Layer.h"
 
-class DenseLayer : public Layer {
+class SoftmaxLayer : public Layer {
 public:
-  DenseLayer(std::ifstream& file);
-  DenseLayer(size_t size, size_t prevSize, Nonlinearity nonlinearity=Nonlinearity::Sigmoid);
-  virtual ~DenseLayer() {}
+  SoftmaxLayer(std::ifstream& file);
+  SoftmaxLayer(size_t size, size_t prevSize);
+  virtual ~SoftmaxLayer() {}
   virtual LayerData feedforward(const LayerData& input) override;
   virtual LayerUpdate backprop(Vec& delta, bool updateDelta) override;
   
@@ -14,15 +14,13 @@ public:
   virtual void applyUpdate(const LayerUpdate& update, float eta, size_t bachSize) override;
   virtual void applyUpdate(const LayerUpdate& update, float eta, size_t bachSize, float lambda, size_t totalSize) override;
 
-  static std::string id() {return "DenseLayer";}
+  static std::string id() {return "SoftmaxLayer";}
   
   virtual size_t outputWidth() const override {return biases.size();}
   virtual size_t outputHeight() const override {return 1;}
   virtual size_t outputChannels() const override {return 1;}
 
 private:
-  Nonlinearity nonlinearity;
-  
   void load(std::ifstream& file);
   void randomInit(size_t size, size_t prevSize);
 

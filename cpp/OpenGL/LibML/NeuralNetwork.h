@@ -4,6 +4,7 @@
 #include "DenseLayer.h"
 #include "MaxPoolLayer.h"
 #include "ConvolutionLayer.h"
+#include "SoftmaxLayer.h"
 
 class NeuralNetwork {
 public:
@@ -27,6 +28,5 @@ private:
   
   LayerData feedforwardInt(const Vec& input);
   
-  float cost(const Vec& activation, const Vec& groundTruth);
   Vec costDelta(const Vec& input, const Vec& activation, const Vec& groundTruth);
 };

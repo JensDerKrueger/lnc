@@ -21,6 +21,9 @@ float sigmoidPrime(float x);
 float reLU(float x);
 float reLUPrime(float x);
 
+float lreLU(float x);
+float lreLUPrime(float x);
+
 // float tanh(float x);  // already exists in cmath
 float tanhPrime(float x);
 
@@ -61,7 +64,11 @@ public:
   float operator[](size_t index) const {return e[index];}
   float& operator[](size_t index) {return e[index];}
   size_t size() const {return e.size();}
+  
+  bool hasNaN() const;
 
+  Vec softmax() const;
+  Mat softmaxPrime() const;
 private:
   std::vector<float> e;
 };
@@ -102,6 +109,8 @@ public:
   
   float operator[](size_t index) const {return e[index];}
   float& operator[](size_t index) {return e[index];}
+
+  bool hasNaN() const;
 
 private:
   std::vector<float> e;

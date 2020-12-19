@@ -8,6 +8,8 @@
 
 #include "LA.h"
 
+enum class Nonlinearity {Sigmoid, ReLU, Tanh};
+
 struct LayerData {
   Vec a{0};
   Vec z{0};
@@ -59,6 +61,10 @@ public:
   virtual void save(std::ofstream& file) const = 0;
   virtual void applyUpdate(const LayerUpdate& update, float eta, size_t bachSize) = 0;
   virtual void applyUpdate(const LayerUpdate& update, float eta, size_t bachSize, float lambda, size_t totalSize) = 0;
+
+  virtual size_t outputWidth() const = 0;
+  virtual size_t outputHeight() const = 0;
+  virtual size_t outputChannels() const = 0;
 
   LayerData input;
   Vec biases{0};

@@ -32,6 +32,8 @@ void NeuralNetwork::load(const std::string& filename) {
       layers.push_back(std::make_shared<MaxPoolLayer>(file));
     if (layerId == DenseLayer::id())
       layers.push_back(std::make_shared<DenseLayer>(file));
+    if (layerId == SoftmaxLayer::id())
+      layers.push_back(std::make_shared<SoftmaxLayer>(file));
   }
 
   file.close();
@@ -68,11 +70,13 @@ NetworkUpdate NeuralNetwork::backpropagation(const Vec& input, const Vec& ground
   // backprop last layer
   const size_t ls = layers.size();
   Vec delta = costDelta(l.z, l.a, groundTruth);
+  //std::cout << "delta"<<ls-1<<": " << delta << std::endl;
   update.layers.push_back(layers[ls-1]->backprop(delta, true));
-  
+
   // backprop remaining layers
   for (size_t l = 0;l<layers.size()-1;++l) {
-    update.layers.push_back(layers[ls-l-2]->backprop(delta, l > 0));
+    //std::cout << "delta"<<ls-l-2<<": " << delta << std::endl;
+    update.layers.push_back(layers[ls-l-2]->backprop(delta, l < layers.size()-2));
   }
   return update;
 }
@@ -91,15 +95,10 @@ void NeuralNetwork::applyUpdate(const NetworkUpdate& update, float eta, size_t b
   }
 }
 
-float NeuralNetwork::cost(const Vec& activation, const Vec& groundTruth) {
-  // cross entropy cost model
-  float sum = 0.0f;
-  for (size_t i = 0;i<activation.size();++i) {
-    sum -= groundTruth[i] * log(activation[i]) + (1-groundTruth[i]) * log(1-activation[i]);
-  }
-  return sum;
-}
-
 Vec NeuralNetwork::costDelta(const Vec& input, const Vec& activation, const Vec& groundTruth) {
+  // log-likelihood model && cross entropy cost model
   return (activation - groundTruth);
+
+  // MSE cost model
+//  return (activation - groundTruth) * input.apply(sigmoidPrime) * 2.0f;
 }

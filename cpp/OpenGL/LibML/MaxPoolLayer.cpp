@@ -6,10 +6,10 @@ MaxPoolLayer::MaxPoolLayer(std::ifstream& file) {
   load(file);
 }
 
-MaxPoolLayer::MaxPoolLayer(size_t poolWidth, size_t poolHeight, size_t prevFilterCount, size_t prevWidth, size_t prevHeight) :
+MaxPoolLayer::MaxPoolLayer(size_t poolWidth, size_t poolHeight, size_t channelCount, size_t prevWidth, size_t prevHeight) :
   poolWidth(poolWidth),
   poolHeight(poolHeight),
-  prevFilterCount(prevFilterCount),
+  channelCount(channelCount),
   prevWidth(prevWidth),
   prevHeight(prevHeight)
 {
@@ -19,25 +19,23 @@ LayerData MaxPoolLayer::feedforward(const LayerData& input) {
   this->input = input;
   maxIs.clear();
   
-  Vec z{prevWidth/poolWidth * prevHeight/poolHeight * prevFilterCount};
-  size_t i = 0;
-  for (size_t f = 0;f<prevFilterCount;++f) {
-    const size_t filterOffset = prevWidth*prevHeight*f;
-    for (size_t y = 0;y<prevHeight/poolHeight;++y) {
-      for (size_t x = 0;x<prevWidth/poolWidth;++x) {
-        z[i] = std::numeric_limits<float>::lowest();
+  Vec z{outputWidth() * outputHeight() * channelCount};
+  for (size_t c = 0;c<channelCount;++c) {
+    for (size_t y = 0;y<outputHeight();++y) {
+      for (size_t x = 0;x<outputWidth();++x) {
+        const size_t zIndex = x + y*outputHeight() + outputWidth()*outputHeight()*c;
+        z[zIndex] = std::numeric_limits<float>::lowest();
         size_t maxIndex;
         for (size_t v = 0;v<poolHeight;++v) {
           for (size_t u = 0;u<poolWidth;++u) {
-            const size_t index = filterOffset+(x*poolWidth+u)+(y*poolHeight+v)*prevWidth;
-            if (input.a[index] > z[i]) {
-              z[i] = input.a[index];
+            const size_t index = (x*poolWidth+u)+(y*poolHeight+v)*prevWidth + prevWidth*prevHeight*c;
+            if (input.a[index] > z[zIndex]) {
+              z[zIndex] = input.a[index];
               maxIndex = index;
             }
           }
         }
         maxIs.push_back(maxIndex);
-        i++;
       }
     }
   }
@@ -59,7 +57,7 @@ void MaxPoolLayer::save(std::ofstream& file) const {
   file << id() << std::endl;
   file << poolWidth << std::endl;
   file << poolHeight << std::endl;
-  file << prevFilterCount << std::endl;
+  file << channelCount << std::endl;
   file << prevWidth << std::endl;
   file << prevHeight << std::endl;
 }
@@ -67,7 +65,7 @@ void MaxPoolLayer::save(std::ofstream& file) const {
 void MaxPoolLayer::load(std::ifstream& file) {
   file >> poolWidth;
   file >> poolHeight;
-  file >> prevFilterCount;
+  file >> channelCount;
   file >> prevWidth;
   file >> prevHeight;
 }

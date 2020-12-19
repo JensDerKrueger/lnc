@@ -4,79 +4,82 @@ ConvolutionLayer::ConvolutionLayer(std::ifstream& file) {
   load(file);
 }
 
-ConvolutionLayer::ConvolutionLayer(size_t filterCount,
-                                   size_t width, size_t height, size_t prevFilterCount,
-                                   size_t prevWidth, size_t prevHeight) :
+ConvolutionLayer::ConvolutionLayer(size_t filterCount, size_t width, size_t height,
+                                   size_t channelCount, size_t prevWidth, size_t prevHeight,
+                                   Nonlinearity nonlinearity) :
 filterCount(filterCount),
 width(width),
 height(height),
-prevFilterCount(prevFilterCount),
+channelCount(channelCount),
 prevWidth(prevWidth),
-prevHeight(prevHeight)
+prevHeight(prevHeight),
+outWidth{1+prevWidth-width},
+outHeight{1+prevHeight-height},
+nonlinearity{nonlinearity}
 {
   randomInit();
 }
 
 LayerData ConvolutionLayer::feedforward(const LayerData& input) {
   this->input = input;
-  
-  const size_t filterCountX = 1+prevWidth-width;
-  const size_t filterCountY = 1+prevHeight-height;
-
-  Vec z{filterCountX*filterCountY*filterCount};
-  size_t i = 0;
+    
+  Vec z{outWidth*outHeight*filterCount};
   for (size_t f = 0;f<filterCount;++f) {
-    const size_t weightOffset = width*height*f;
-    for (size_t y = 0;y<filterCountY;++y) {
-      for (size_t x = 0;x<filterCountX;++x) {
-        for (size_t v = 0;v<height;++v) {
-          for (size_t u = 0;u<width;++u) {
-            const size_t pointOffset = (x+u)+(y+v)*prevWidth;
-            for (size_t c = 0;c<prevFilterCount;++c) {
-              const size_t index = pointOffset + c*prevWidth*prevHeight;
-              z[i] += weights[weightOffset+u+v*width] * input.a[index];
+    for (size_t y = 0;y<outHeight;++y) {
+      for (size_t x = 0;x<outWidth;++x) {
+        for (size_t c = 0;c<channelCount;++c) {
+          for (size_t v = 0;v<height;++v) {
+            for (size_t u = 0;u<width;++u) {
+              z[x+outHeight*y+outWidth*outHeight*f] += weights[u+v*width+width*height*c+width*height*channelCount*f] * input.a[(x+u)+(y+v)*prevWidth+c*prevWidth*prevHeight];
             }
           }
         }
-        z[i] += biases[f];
-        i++;
+        z[x+outHeight*y+outWidth*outHeight*f] += biases[f];
       }
     }
   }
   
-  return LayerData{z.apply(reLU), z};
+  switch (nonlinearity) {
+    case Nonlinearity::Sigmoid :
+      return LayerData{z.apply(sigmoid), z};
+    case Nonlinearity::Tanh :
+      return LayerData{z.apply(tanh), z};
+    default :
+      return LayerData{z.apply(reLU), z};
+  }
 }
 
-LayerUpdate ConvolutionLayer::backprop(Vec& delta, bool updateDelta) {
-  const size_t filterCountX = 1+prevWidth-width;
-  const size_t filterCountY = 1+prevHeight-height;
+float ConvolutionLayer::padded(const Vec& delta, size_t u, size_t v, size_t f) {
+  const size_t padX{width-1};
+  const size_t padY{height-1};
   
+  if (u<padX || u-padX >= outWidth) return 0.0f;
+  if (v<padY || v-padY >= outHeight) return 0.0f;
+  
+  return delta[(u-padX) + (v-padY) * outWidth + f*outWidth*outHeight];
+}
+
+LayerUpdate ConvolutionLayer::backprop(Vec& delta, bool updateDelta) {  
   // compute bias update
   Vec deltaBias{filterCount};
-  size_t i = 0;
   for (size_t f = 0;f<filterCount;++f) {
-    for (size_t j = 0;j<filterCountX*filterCountY;++j) {
-      deltaBias[f] += delta[i++];
+    for (size_t j = 0;j<outWidth*outHeight;++j) {
+      deltaBias[f] += delta[j+outWidth*outHeight*f];
     }
   }
-  
+    
   // compute weight update
-  Mat deltaWeights{width*height,filterCount};
-  i = 0;
+  Mat deltaWeights{width*height,channelCount*filterCount};
   for (size_t f = 0;f<filterCount;++f) {
-    const size_t weightOffset = filterCountX*filterCountY*f;
-    for (size_t y = 0;y<height /* prevheight - (prevheight-height) */ ;++y) {
-      for (size_t x = 0;x<width /* prevWidth - (prevWidth-width) */ ;++x) {
-        for (size_t v = 0;v<filterCountY;++v) {
-          for (size_t u = 0;u<filterCountX;++u) {
-            const size_t pointOffset = (x+u)+(y+v)*prevWidth;
-            for (size_t c = 0;c<prevFilterCount;++c) {
-              const size_t index = pointOffset + c*prevWidth*prevHeight;
-              deltaWeights[i] += delta[weightOffset+u+v*filterCountX] * input.a[index];
+    for (size_t y = 0;y<height /* <- prevheight - (prevheight-height+1) + 1 */ ;++y) {
+      for (size_t x = 0;x<width /* <- prevWidth - (prevWidth-width+1) + 1 */ ;++x) {
+        for (size_t c = 0;c<channelCount;++c) {
+          for (size_t v = 0;v<outHeight;++v) {
+            for (size_t u = 0;u<outWidth;++u) {
+              deltaWeights[x + y*width + c*width*height + f*width*height*channelCount] += delta[u+v*outWidth+outWidth*outHeight*f] * input.a[(x+u)+(y+v)*prevWidth + c*prevWidth*prevHeight];
             }
           }
         }
-        i++;
       }
     }
   }
@@ -84,27 +87,50 @@ LayerUpdate ConvolutionLayer::backprop(Vec& delta, bool updateDelta) {
   // compute new delta
   if (updateDelta) {
     Vec oldDelta = delta;
-    delta = Vec(prevWidth*prevHeight*prevFilterCount);
+    
+    
+    delta = Vec(prevWidth*prevHeight*channelCount);
 
-    /*
-    Mat deltaWeights{width*height,filterCount};
-    i = 0;
-    for (size_t f = 0;f<filterCount;++f) {
-      const size_t weightOffset = filterCountX*filterCountY*f;
-      for (size_t y = 0;y<height ;++y) {
-        for (size_t x = 0;x<width;++x) {
-          for (size_t v = 0;v<filterCountY;++v) {
-            for (size_t u = 0;u<filterCountX;++u) {
-              const size_t index = (x+u)+(y+v)*prevWidth;
-              deltaWeights[i] += delta[weightOffset+u+v*filterCountX] * input.a[index];
-            }
+    // rotate Filter
+    Mat rotWeights = weights;
+    for (size_t f = 0;f<filterCount ;++f) {
+      for (size_t c = 0;c<channelCount ;++c) {
+        for (size_t y = 0;y<height ;++y) {
+          for (size_t x = 0;x<width;++x) {
+            rotWeights[x+y*width+width*height*c+width*height*channelCount*f] = weights[((width-1)-x) + width * ((height-1)-y) + width*height*c + width*height*channelCount*f];
           }
-          i++;
         }
       }
     }
 
-    */
+    for (size_t c = 0;c<channelCount;++c) {
+      for (size_t y = 0;y<prevHeight;++y) {
+        for (size_t x = 0;x<prevWidth;++x) {
+          for (size_t f = 0;f<filterCount;++f) {
+            for (size_t v = 0;v<height;++v) {
+              for (size_t u = 0;u<width;++u) {
+
+                delta[x+y*prevWidth+c*prevWidth*prevWidth] += padded(oldDelta, x+u, y+v, f) * rotWeights[u+width*v + width*height*c + width*height*channelCount*f];
+
+              }
+            }
+          }
+        }
+      }
+    }
+        
+    switch (nonlinearity) {
+      case Nonlinearity::Sigmoid :
+        delta = delta * input.z.apply(sigmoidPrime);
+        break;
+      case Nonlinearity::Tanh :
+        delta = delta * input.z.apply(tanhPrime);
+        break;
+      default :
+        delta = delta * input.z.apply(reLUPrime);
+        break;
+    }
+    
   }
   
   return {deltaBias, deltaWeights};
@@ -117,8 +143,10 @@ void ConvolutionLayer::save(std::ofstream& file) const {
   file << height << std::endl;
   file << prevWidth << std::endl;
   file << prevHeight << std::endl;
+  file << channelCount << std::endl;
   file << biases << std::endl;
   file << weights << std::endl;
+  file << uint32_t(nonlinearity) << std::endl;
 }
 
 void ConvolutionLayer::load(std::ifstream& file) {
@@ -127,8 +155,16 @@ void ConvolutionLayer::load(std::ifstream& file) {
   file >> height;
   file >> prevWidth;
   file >> prevHeight;
+  file >> channelCount;
   file >> biases;
   file >> weights;
+  
+  uint32_t i;
+  file >> i;
+  nonlinearity = Nonlinearity(i);
+  
+  outWidth = 1+prevWidth-width;
+  outHeight = 1+prevHeight-height;
 }
 
 void ConvolutionLayer::applyUpdate(const LayerUpdate& update, float eta, size_t bachSize) {
@@ -145,6 +181,10 @@ void ConvolutionLayer::applyUpdate(const LayerUpdate& update, float eta, size_t 
 }
 
 void ConvolutionLayer::randomInit() {
+  // zero init
+  //biases = Vec{filterCount};
+  
+  // gaussian init
   biases = Vec::gaussian(filterCount,0.0f,1.0f);
-  weights = Mat::gaussian(width*height,filterCount,0.0f,1.0f) * (1.0f/sqrtf(width*height));
+  weights = Mat::gaussian(width*height,channelCount*filterCount,0.0f,1.0f) * (2.0f/sqrtf(width*height*channelCount));
 }

@@ -22,6 +22,14 @@ float reLUPrime(float x) {
   return (x>0.0f) ? 1.0f : 0.0f;
 }
 
+float lreLU(float x) {
+  return std::max(0.1f*x,x);
+}
+
+float lreLUPrime(float x) {
+  return (x>0.0f) ? 1.0f : 0.1f;
+}
+
 float tanhPrime(float x) {
   const float ch = cosh(x);
   return 1.0f/(ch*ch);
@@ -174,6 +182,13 @@ Vec Vec::apply(float func(float x)) const {
   return result;
 }
 
+bool Vec::hasNaN() const {
+  for (size_t i = 0;i<e.size();++i) {
+    if (e[i] != e[i]) return true;
+  }
+  return false;
+}
+
 Vec Vec::operator*(float a) const {
   Vec result(e);
   for (size_t i = 0;i<e.size();++i) {
@@ -205,6 +220,40 @@ Vec Vec::sort(const Vec& v) {
   Vec result(v);
   std::sort(result.e.begin(), result.e.end());
   return result;
+}
+
+Vec Vec::softmax() const {
+  Vec output{e};
+
+  float m = std::numeric_limits<float>::lowest();
+  for (size_t i = 0; i < e.size(); ++i) {
+    if (m < e[i]) {
+      m = e[i];
+    }
+  }
+
+  float sum = 0.0f;
+  for (size_t i = 0; i < e.size(); ++i) {
+    sum += expf(e[i] - m);
+  }
+
+  const float constant = m + logf(sum);
+  for (size_t i = 0; i < e.size(); ++i) {
+    output[i] = expf(e[i] - constant);
+  }
+ 
+  return output;
+}
+
+Mat Vec::softmaxPrime() const {
+  const Vec p = softmax();
+  Mat t{p.size(),p.size()};
+  for (size_t y = 0;y<p.size();++y) {
+    for (size_t x = 0;x<p.size();++x) {
+      t[x+y*p.size()] = (x==y) ? (p[x] * (1.0f-p[x])) : (-p[y]*p[x]);
+    }
+  }
+  return t;
 }
 
 Mat::Mat(size_t sizeX, size_t sizeY) :
@@ -392,4 +441,11 @@ bool Mat::operator == ( const Mat& other ) const {
 
 bool Mat::operator != ( const Mat& other ) const {
   return ! (*this == other);
+}
+
+bool Mat::hasNaN() const {
+  for (size_t i = 0;i<e.size();++i) {
+    if (e[i] != e[i]) return true;
+  }
+  return false;
 }

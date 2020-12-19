@@ -144,58 +144,25 @@ public:
     } catch (const MNISTFileException& e) {
       std::cout << "Error loading MNIST data: " << e.what() << std::endl;
     }
-    
-/*
-    
-    ConvolutionLayer c{2,7,7,2,2,28,28};
-    c.weights = Mat{7*7,2};
-    c.biases  = Vec{2};
-    c.biases[0] = 0.0f;
-    c.biases[1] = 0.02f;
-    
-    size_t i = 0;
-    for (size_t f = 0;f<2;++f) {
-      for (size_t v = 0;v<7;++v) {
-        for (size_t u = 0;u<7;++u) {
-          c.weights[i++] = 1.0/(7.0*7.0);
-        }
-      }
-    }
-    
-    MaxPoolLayer p{2,2,2,14,14};
-    
-    MNIST mnist("t10k-images-idx3-ubyte", "t10k-labels-idx1-ubyte");
-    LayerData l = c.feedforward(LayerData{mnist.data[0].image, Vec{0}});
-    l = p.feedforward(l);
 
-    for (uint32_t y = 0;y<7;++y) {
-      for (uint32_t x = 0;x<7;++x) {
-        const size_t tIndex = x+(27-y)*28;
-        const size_t sIndex = (x+y*7)+7*7;
-        const uint8_t o = uint8_t(l.a[sIndex]*255);
-        
-        image.data[tIndex*4+0] = o;
-        image.data[tIndex*4+1] = o;
-        image.data[tIndex*4+2] = o;
-        image.data[tIndex*4+3] = o;
-      }
-    }
- */
   }
   
-  void trainMNIST(size_t setSize, size_t epochs, size_t tests, float minAcc=0.0f) {
-    std::random_device rd{};
-    std::mt19937 gen{rd()};
-    std::uniform_real_distribution<float> dist{0, 1};
-    float accuracy = 0;
-    do {
-      try {
-        MNIST mnist("train-images-idx3-ubyte", "train-labels-idx1-ubyte");
-        std::cout << "Data loaded, training in progress " << std::flush;
-        for (size_t i = 0;i<epochs;++i) {
+  void trainMNIST(size_t miniBatchSize, size_t setSize, size_t tests, float eta, float lambda, float minAcc=0.0f) {
+    try {
+      MNIST mnist("train-images-idx3-ubyte", "train-labels-idx1-ubyte");
+      MNIST train_mnist("t10k-images-idx3-ubyte", "t10k-labels-idx1-ubyte");
+      std::cout << "Data loaded, training in progress " << std::endl;
+
+      std::random_device rd{};
+      std::mt19937 gen{rd()};
+      std::uniform_real_distribution<float> dist{0, 1};
+      float accuracy = 0;
+      float maxAccuracy = 0;
+      do {
+        for (size_t i = 0;i<setSize/miniBatchSize;++i) {
           NetworkUpdate u;
           Vec inputVec{28*28};
-          for (size_t i = 0;i<setSize;++i) {
+          for (size_t i = 0;i<miniBatchSize;++i) {
             const size_t r = size_t(dist(gen)*mnist.data.size());
             Vec theTruth(10); theTruth[mnist.data[r].label] = 1;
             if (i == 0) {
@@ -204,31 +171,33 @@ public:
               u += digitNetwork.backpropagation(mnist.data[r].image, theTruth);
             }
           }
-          digitNetwork.applyUpdate(u, 0.1f, setSize, 0.1f, mnist.data.size());
-          std::cout << "." << std::flush;
+          digitNetwork.applyUpdate(u, eta, miniBatchSize, lambda, mnist.data.size());
+          
+          std::cout << "Epoch " << std::fixed << std::setprecision(2) << (100.0f * float(i) / float(setSize/miniBatchSize)) << " % complete  \r" << std::flush;
         }
-      } catch (const MNISTFileException& e) {
-        std::cout << "Error loading MNIST data: " << e.what() << std::endl;
-      }
-      std::cout << " Done, Testing " << std::flush;
-      
-      size_t goodGuess{};
-      try {
-        MNIST mnist("t10k-images-idx3-ubyte", "t10k-labels-idx1-ubyte");
+        std::cout << "Done, Testing .....    " << std::flush;
         
-        tests = std::min(tests,mnist.data.size());
+        size_t goodGuess{};
+        tests = std::min(tests,train_mnist.data.size());
         
         for (size_t i = 0;i<tests;++i) {
-          const std::vector<GuessElem> guess = feedforward(mnist.data[i].image);
-          if (guess[0].value == mnist.data[i].label)
+          const std::vector<GuessElem> guess = feedforward(train_mnist.data[i].image);
+          if (guess[0].value == train_mnist.data[i].label)
             goodGuess++;
         }
-      } catch (const MNISTFileException& e) {
-        std::cout << "Error loading MNIST data: " << e.what() << std::endl;
-      }
-      accuracy = double(goodGuess)*100.0/double(tests);
-      std::cout << " Done!\nAccuracy: " << double(goodGuess)*100.0/double(tests) << "%" << std::endl;
-    } while (accuracy < minAcc);
+        
+        accuracy = double(goodGuess)*100.0/double(tests);
+        std::cout << " Done!\nAccuracy: " << double(goodGuess)*100.0/double(tests) << "%" << std::endl;
+
+        if (accuracy > maxAccuracy) {
+          maxAccuracy = accuracy;
+          digitNetwork.save(std::string("network_") + std::to_string(maxAccuracy) + std::string(".txt"));
+        }
+        
+      } while (accuracy < minAcc);
+    } catch (const MNISTFileException& e) {
+      std::cout << "Error loading MNIST data: " << e.what() << std::endl;
+    }
   }
   
   virtual void keyboard(int key, int scancode, int action, int mods) override {
@@ -261,12 +230,11 @@ public:
           teach(key - GLFW_KEY_0);
           break;
         case GLFW_KEY_T:
-          trainMNIST(10,1000,10000,90);
+          trainMNIST(10, 60000, 10000, 0.01, 0.001, 99);
           break;
       }
     }
   }
-  
   
   virtual void draw() override{
     GL(glClear(GL_COLOR_BUFFER_BIT));
@@ -280,45 +248,42 @@ public:
 private:
   Vec2 mousePos;
   std::vector<GuessElem> guess{10};
-  
+/*
   // single convolution layer CNN
-  NeuralNetwork digitNetwork{std::make_shared<InputLayer>(28, 28),
+  NeuralNetwork digitNetwork{std::make_shared<InputLayer>(28, 28, 1),
     std::vector<std::shared_ptr<Layer>>{
       std::make_shared<ConvolutionLayer>(20,5,5,1,28,28),
       std::make_shared<MaxPoolLayer>(2,2,20,24,24),
-      std::make_shared<DenseLayer>(100,20*12*12),
-      std::make_shared<DenseLayer>(10,100) 
+      std::make_shared<DenseLayer>(100,20*12*12, Nonlinearity::ReLU),
+      std::make_shared<DenseLayer>(10,100)
     }
   };
-   
-/*
+*/
  // double convolution layer CNN
- NeuralNetwork digitNetwork{std::make_shared<InputLayer>(28, 28),
+ NeuralNetwork digitNetwork{std::make_shared<InputLayer>(28, 28, 1),
    std::vector<std::shared_ptr<Layer>>{
-     std::make_shared<ConvolutionLayer>(20,5,5,1,28,28),
+     std::make_shared<ConvolutionLayer>(20,3,3,1,28,28),
      std::make_shared<MaxPoolLayer>(2,2,20,24,24),
-     std::make_shared<ConvolutionLayer>(40,5,5,20,12,12),
-     std::make_shared<MaxPoolLayer>(2,2,40,8,8),
-     std::make_shared<DenseLayer>(100,40*4*4),
-     std::make_shared<DenseLayer>(10,100)
+     std::make_shared<ConvolutionLayer>(64,3,3,20,12,12),
+     std::make_shared<MaxPoolLayer>(2,2,64,10,10),
+     std::make_shared<DenseLayer>(100,64*5*5, Nonlinearity::ReLU),
+     std::make_shared<SoftmaxLayer>(10,100)
    }
  };
-*/
-  
-  /*
+/*
   // single hidden layer fully connected net
-  NeuralNetwork digitNetwork{std::make_shared<InputLayer>(28, 28),
+  NeuralNetwork digitNetwork{std::make_shared<InputLayer>(28, 28, 1),
     std::vector<std::shared_ptr<Layer>>{
       std::make_shared<DenseLayer>(100,28*28),
       std::make_shared<DenseLayer>(10,100)
     }
   };
-*/
-  
+ */
   bool drawing{false};
   Image image{28,28};
     
 } myApp;
+
 
 int main(int argc, char ** argv) {
   myApp.run();
