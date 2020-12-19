@@ -30,7 +30,7 @@ LayerData ConvolutionLayer::feedforward(const LayerData& input) {
         for (size_t c = 0;c<channelCount;++c) {
           for (size_t v = 0;v<height;++v) {
             for (size_t u = 0;u<width;++u) {
-              z[x+outHeight*y+outWidth*outHeight*f] += weights[u+v*width+width*height*c+width*height*channelCount*f] * input.a[(x+u)+(y+v)*prevWidth+c*prevWidth*prevHeight];
+              z[x+outWidth*y+outWidth*outHeight*f] += weights[u+v*width+width*height*c+width*height*channelCount*f] * input.a[(x+u)+(y+v)*prevWidth+c*prevWidth*prevHeight];
             }
           }
         }
@@ -88,7 +88,6 @@ LayerUpdate ConvolutionLayer::backprop(Vec& delta, bool updateDelta) {
   if (updateDelta) {
     Vec oldDelta = delta;
     
-    
     delta = Vec(prevWidth*prevHeight*channelCount);
 
     // rotate Filter
@@ -109,9 +108,7 @@ LayerUpdate ConvolutionLayer::backprop(Vec& delta, bool updateDelta) {
           for (size_t f = 0;f<filterCount;++f) {
             for (size_t v = 0;v<height;++v) {
               for (size_t u = 0;u<width;++u) {
-
                 delta[x+y*prevWidth+c*prevWidth*prevWidth] += padded(oldDelta, x+u, y+v, f) * rotWeights[u+width*v + width*height*c + width*height*channelCount*f];
-
               }
             }
           }
@@ -130,9 +127,7 @@ LayerUpdate ConvolutionLayer::backprop(Vec& delta, bool updateDelta) {
         delta = delta * input.z.apply(reLUPrime);
         break;
     }
-    
   }
-  
   return {deltaBias, deltaWeights};
 }
   
