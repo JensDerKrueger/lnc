@@ -262,7 +262,7 @@ private:
  // double convolution layer CNN
  NeuralNetwork digitNetwork{std::make_shared<InputLayer>(28, 28, 1),
    std::vector<std::shared_ptr<Layer>>{
-     std::make_shared<ConvolutionLayer>(20,3,3,1,28,28),
+     std::make_shared<ConvolutionLayer>(20,5,5,1,28,28),
      std::make_shared<MaxPoolLayer>(2,2,20,24,24),
      std::make_shared<ConvolutionLayer>(64,3,3,20,12,12),
      std::make_shared<MaxPoolLayer>(2,2,64,10,10),
