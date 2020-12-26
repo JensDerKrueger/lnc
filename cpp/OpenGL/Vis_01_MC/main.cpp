@@ -6,10 +6,11 @@
 
 class MyGLApp : public GLApp {
 public:
-  double angle = 0;
+  double angle{0};
   std::vector<float> data;
   QVis q{"c60.dat"};
-  uint8_t isovalue = 128;
+  uint8_t isovalue{128};
+  bool wireframe{false};
   
   virtual void init() override {
     glEnv.setTitle("Marching Cubes demo");
@@ -47,7 +48,7 @@ public:
     GL(glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT));
     setDrawProjection(Mat4::perspective(45, glEnv.getFramebufferSize().aspect(), 0.0001f, 100));
     setDrawTransform(Mat4::rotationY(float(angle)) * Mat4::rotationX(float(angle/2.0)) * Mat4::lookAt({0,0,2},{0,0,0},{0,1,0}));
-    drawTriangles(data, TrisDrawType::LIST, false, true);
+    drawTriangles(data, TrisDrawType::LIST, wireframe, true);
   }
   
   virtual void keyboard(int key, int scancode, int action, int mods) override {
@@ -56,6 +57,9 @@ public:
       switch (key) {
         case GLFW_KEY_ESCAPE:
           closeWindow();
+          break;
+        case GLFW_KEY_W:
+          wireframe = !wireframe;
           break;
       }
     }
