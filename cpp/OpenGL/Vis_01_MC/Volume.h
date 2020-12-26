@@ -23,9 +23,8 @@ struct Volume {
   std::vector<Vec3> normals;
   
   void normalizeScale() {
-    float m = std::max(scale.x(),std::max(scale.y(),scale.z()));
+    const float m = std::max(scale.x(),std::max(scale.y(),scale.z()));
     scale = scale / m;
-    
     maxSize = std::max(width,std::max(height,depth));
   }
   
@@ -51,9 +50,8 @@ struct Volume {
     for (size_t w = 1;w<depth-1;++w) {
       for (size_t v = 1;v<height-1;++v) {
         for (size_t u = 1;u<width-1;++u) {
-          size_t index = u + v * width + w * width * height;
-          
-          Vec3 normal{
+          const size_t index = u + v * width + w * width * height;
+          const Vec3 normal{
             float(data[index-1]) - float(data[index+1]),
             float(data[index-width]) - float(data[index+width]),
             float(data[index-width*height]) - float(data[index+width*height])
