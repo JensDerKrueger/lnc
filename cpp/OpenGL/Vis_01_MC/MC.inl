@@ -89,16 +89,16 @@ static std::array<std::array<uint8_t,2>,12> edgeToVertexTable = {{
   {3,7}
 }};
 
-static std::array<std::array<uint8_t,3>,8> vertexPosTable = {{
-  {0,1,0},
-  {1,1,0},
-  {1,0,0},
-  {0,0,0},
-  {0,1,1},
-  {1,1,1},
-  {1,0,1},
-  {0,0,1}
-}};
+static std::array<Vec3,8> vertexPosTable = {
+  Vec3{0,1,0},
+  Vec3{1,1,0},
+  Vec3{1,0,0},
+  Vec3{0,0,0},
+  Vec3{0,1,1},
+  Vec3{1,1,1},
+  Vec3{1,0,1},
+  Vec3{0,0,1}
+};
 
 constexpr uint8_t N_E = 255;
 
