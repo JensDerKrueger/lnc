@@ -33,9 +33,9 @@ void Isosurface::mcLayer(size_t l, const Volume& volume, uint8_t isovalue) {
       
       // offset to current cube
       const Vec3 cubeOffset{
-        2.0f*float(u)/volume.width-1.0f,
-        2.0f*float(v)/volume.height-1.0f,
-        2.0f*float(l)/volume.depth-1.0f
+        2.0f*float(u)/volume.maxSize-float(volume.width)/float(volume.maxSize),
+        2.0f*float(v)/volume.maxSize-float(volume.height)/float(volume.maxSize),
+        2.0f*float(l)/volume.maxSize-float(volume.depth)/float(volume.maxSize)
       };
       
       // interpolate vertices
