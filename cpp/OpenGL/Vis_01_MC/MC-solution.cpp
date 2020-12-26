@@ -7,10 +7,12 @@ Isosurface::Isosurface(const Volume& volume, uint8_t isovalue) {
       for(size_t u = 0; u < volume.width-1; u++) {
       
         // fetch data from the volume
-        std::array<uint8_t, 8> data;
-        std::array<Vec3, 8> normals;
+        std::array<uint8_t, 8> data{};
+        std::array<Vec3, 8> normals{};
         for (uint8_t i = 0;i<8;++i) {
-          const size_t index = (u+vertexPosTable[i][0]) + (v+vertexPosTable[i][1]) * volume.width + (l+vertexPosTable[i][2]) * volume.width*volume.height;
+          const size_t index = (u+size_t(vertexPosTable[i][0])) +
+                               (v+size_t(vertexPosTable[i][1])) * volume.width +
+                               (l+size_t(vertexPosTable[i][2])) * volume.width*volume.height;
           data[i]    = volume.data[index];
           normals[i] = volume.normals[index];
         }
