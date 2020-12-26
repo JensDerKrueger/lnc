@@ -12,12 +12,6 @@ struct Vertex {
 
 class Isosurface {
 public:
-  Isosurface(const Volume& v, uint8_t isovalue) {
-    mc(v,isovalue);
-  }
-    
+  Isosurface(const Volume& volume, uint8_t isovalue);
   std::vector<Vertex> vertices;
-  
-private:
-  void mc(const Volume& v, uint8_t isovalue);
 };
