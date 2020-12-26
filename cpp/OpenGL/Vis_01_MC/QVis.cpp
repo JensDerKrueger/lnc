@@ -1,7 +1,8 @@
-#include "QVis.h"
-
 #include <fstream>
 #include <iterator>
+#include <algorithm>
+
+#include "QVis.h"
 
 QVis::QVis(const std::string& filename) {
   load(filename);

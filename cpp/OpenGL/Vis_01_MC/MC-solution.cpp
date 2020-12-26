@@ -50,7 +50,7 @@ void Isosurface::mcLayer(size_t l, const Volume& volume, uint8_t isovalue) {
           const Vec3 positionInCube{fromVertex + (toVertex-fromVertex) * alpha};
           const Vec3 normal{normals[index[0]] + (normals[index[1]]-normals[index[0]]) * alpha};
           
-          trisVertices[i] = Vertex{Vec3{volume.scale * (cubeOffset + positionInCube*2.0f/volume.maxSize)}, Vec3::normalize(normal)};
+          trisVertices[i] = Vertex{Vec3{volume.scale * (cubeOffset + positionInCube*2.0f/float(volume.maxSize))}, Vec3::normalize(normal)};
         }
       }
      
