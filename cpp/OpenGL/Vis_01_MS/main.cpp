@@ -25,9 +25,9 @@ public:
       data.push_back(v[1]);
       data.push_back(0);
        
+      data.push_back(0.0f);
+      data.push_back(0.0f);
       data.push_back(1.0f);
-      data.push_back(0.0f);
-      data.push_back(0.0f);
       data.push_back(1.0f);
     }
   }
