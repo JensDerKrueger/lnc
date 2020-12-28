@@ -1,27 +1,6 @@
 - Basistransformationen
 - Suchen & Sortieren
 
-- neue Sprache 
-  - Pascal
-  - C#
-  - Fortran
-  - JS
-  - Java
-  - Cobol
-  - Ada
-  - Haskel
-  - Pearl
-  - C++ TMP
-  - PHP
-  - X86 ASM
-  - R
-  - Kotlin
-  - Dart
-  - Go
-  - Swift
-  - Julia (vs. Python)
-------------------------------------
-
 - Snake
 
 - Labyrinth :-)
@@ -32,7 +11,6 @@
   - shoot at asteroids in first person
   - weapon upgrades
   
-
 - visualization of real astronomical data
   for example:
   - star maps
