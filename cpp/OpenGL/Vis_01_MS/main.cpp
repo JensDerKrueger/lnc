@@ -7,6 +7,7 @@ public:
   std::vector<float> data;
   Image image = BMP::load("image.bmp");
   uint8_t isovalue{128};
+  bool useAsymptoticDecider{true};
   
   virtual void init() override {
     glEnv.setTitle("Marching Squares demo");
@@ -17,7 +18,7 @@ public:
   }
   
   void extractIsoline() {
-    Isoline s{image,isovalue};
+    Isoline s{image, isovalue, useAsymptoticDecider};
     data.clear();
     for (const Vec2& v : s.vertices) {
       data.push_back(v[0]);
@@ -42,6 +43,11 @@ public:
       switch (key) {
         case GLFW_KEY_ESCAPE:
           closeWindow();
+          break;
+        case GLFW_KEY_D:
+          useAsymptoticDecider = ! useAsymptoticDecider;
+          std::cout << "Asymptotic Decider is " << (useAsymptoticDecider ? "enabled" : "disabled") << std::endl;
+          extractIsoline();
           break;
       }
     }
