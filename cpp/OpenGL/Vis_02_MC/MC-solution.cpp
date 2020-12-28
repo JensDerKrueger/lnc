@@ -36,7 +36,7 @@ Isosurface::Isosurface(const Volume& volume, uint8_t isovalue) {
         for (uint8_t i = 0;i<12;++i) {
           if(edgeTable[mcCase] & 1<<i) {
             const std::array<uint8_t,2>& index = edgeToVertexTable[i];
-            const float alpha = std::max(0.0f, std::min(1.0f, (float(data[index[0]])-float(isovalue)) / (float(data[index[0]])-float(data[index[1]]))));
+            const float alpha = std::clamp((float(data[index[0]])-float(isovalue)) / (float(data[index[0]])-float(data[index[1]])),0.0f,1.0f);
             const Vec3 positionInCube{vertexPosTable[index[0]] + ( vertexPosTable[index[1]]-vertexPosTable[index[0]]) * alpha};
             const Vec3 normal{normals[index[0]] + (normals[index[1]]-normals[index[0]]) * alpha};
             trisVertices[i] = Vertex{Vec3{volume.scale * (cubeOffset + positionInCube/float(volume.maxSize))}, Vec3::normalize(normal)};

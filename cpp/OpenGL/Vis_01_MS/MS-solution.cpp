@@ -29,7 +29,7 @@ Isoline::Isoline(const Image& image, uint8_t isovalue, bool useAsymptoticDecider
       for (uint8_t i = 0;i<4;++i) {
         if(edgeTable[msCase] & 1<<i) {
           const std::array<uint8_t,2>& index = edgeToVertexTable[i];
-          const float alpha = std::max(0.0f, std::min(1.0f, (float(data[index[0]])-float(isovalue)) / (float(data[index[0]])-float(data[index[1]]))));
+          const float alpha = std::clamp((float(data[index[0]])-float(isovalue)) / (float(data[index[0]])-float(data[index[1]])),0.0f,1.0f);
           const Vec2 positionInSquare{vertexPosTable[index[0]] + ( vertexPosTable[index[1]]-vertexPosTable[index[0]]) * alpha};
           vertices.push_back((squareOffset + positionInSquare/Vec2{float(image.width), float(image.height)})*2.0f-Vec2(1.0f,1.0f));
         }
