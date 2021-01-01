@@ -112,7 +112,9 @@ Vec3 Vec3::cross(const Vec3& a, const Vec3& b) {
 
 
 Vec3 Vec3::normalize(const Vec3& a) {
-	return a/a.length();
+  const float l = a.length();
+  
+  return (l != 0.0f) ? a/l : Vec3{0,0,0};
 }
 
 
