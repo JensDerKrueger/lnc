@@ -51,7 +51,7 @@ public:
                  const Vec3& tl=Vec3{-1.0f,1.0f,0.0f},
                  const Vec3& tr=Vec3{1.0f,1.0f,0.0f});
   void drawTriangles(const std::vector<float>& data, TrisDrawType t, bool wireframe, bool lighting);
-  void drawLines(const std::vector<float>& data, LineDrawType t);
+  void drawLines(const std::vector<float>& data, LineDrawType t, float lineThickness=1.0f);
   void drawPoints(const std::vector<float>& data, float pointSize=1.0f, bool useTex=false);
   void setDrawProjection(const Mat4& mat);
   void setDrawTransform(const Mat4& mat);
@@ -117,4 +117,12 @@ private:
   }
   
   void shaderUpdate();
+  
+  void triangulate(const Vec3& p0,
+                   const Vec3& p1, const Vec4& c1,
+                   const Vec3& p2, const Vec4& c2,
+                   const Vec3& p3,
+                   float lineThickness,
+                   std::vector<float>& trisData);
+
 };
