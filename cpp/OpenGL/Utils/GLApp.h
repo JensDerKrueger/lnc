@@ -72,6 +72,7 @@ protected:
   GLEnv glEnv;
   Mat4 p;
   Mat4 mv;
+  Mat4 mvi;
   GLProgram simpleProg;
   GLProgram simpleSpriteProg;
   GLProgram simpleTexProg;

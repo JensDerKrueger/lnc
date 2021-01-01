@@ -162,9 +162,11 @@ void GLApp::triangulate(const Vec3& p0,
   const Vec3 cDir = Vec3::normalize(p2-p1);
   const Vec3 nDir = Vec3::normalize(p3-p2);
   
-  const Vec3 pPerp = Vec3::cross(pDir, Vec3{0,0,1});
-  const Vec3 cPerp = Vec3::cross(cDir, Vec3{0,0,1});
-  const Vec3 nPerp = Vec3::cross(nDir, Vec3{0,0,1});
+  const Vec3 viewDir = Vec3::normalize((mvi * Vec4{0,0,1,0}).xyz());
+  
+  const Vec3 pPerp = Vec3::cross(pDir, viewDir);
+  const Vec3 cPerp = Vec3::cross(cDir, viewDir);
+  const Vec3 nPerp = Vec3::cross(nDir, viewDir);
   
   Vec3 pSep = pPerp + cPerp;
   Vec3 nSep = nPerp + cPerp;
@@ -346,6 +348,7 @@ void GLApp::setDrawProjection(const Mat4& mat) {
 
 void GLApp::setDrawTransform(const Mat4& mat) {
   mv = mat;
+  mvi = Mat4::inverse(mv);
 }
 
 void GLApp::shaderUpdate() {
@@ -361,7 +364,7 @@ void GLApp::shaderUpdate() {
   simpleLightProg.enable();
   simpleLightProg.setUniform("MVP", mv*p);
   simpleLightProg.setUniform("MV", mv);
-  simpleLightProg.setUniform("MVit", Mat4::inverse(mv), true);
+  simpleLightProg.setUniform("MVit", mvi, true);
 }
 
 void GLApp::setImageFilter(GLint magFilter, GLint minFilter) {
