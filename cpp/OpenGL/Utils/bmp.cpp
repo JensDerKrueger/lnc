@@ -74,10 +74,10 @@ namespace BMP {
 				pData[i++] = b;
 				pData[i++] = g;
 				pData[i++] = r;
-                if (iComponentCount==4) {
-                    uint8_t a = data[iComponentCount*(x+y*w)+3];
-                    pData[i++] = a;
-                }
+        if (iComponentCount==4) {
+            uint8_t a = data[iComponentCount*(x+y*w)+3];
+            pData[i++] = a;
+        }
 			}
 		}
 		
