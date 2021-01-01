@@ -35,7 +35,7 @@ public:
   virtual void draw() override {
     GL(glClear(GL_COLOR_BUFFER_BIT));
     drawImage(image);
-    drawLines(data, LineDrawType::LIST);
+    drawLines(data, LineDrawType::LIST, 3);
   }
   
   virtual void keyboard(int key, int scancode, int action, int mods) override {

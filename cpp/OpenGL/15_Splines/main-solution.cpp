@@ -42,29 +42,6 @@ public:
                        const Vec2& p2, const Vec2& p3,
                        const Mat4& g, const Vec4& color) {
     std::vector<float> curve((maxLineSegments+1)*7);
-
-    // TODO 1:
-    // complete the function drawPolySegment
-    // this function takes as argument the
-    // geometry matrix of the polygon method
-    // i.e. hermite, bezier, or b-spline
-    // and draws the polygonal curve as a
-    // line strip, the curve is given as
-    // five paramters, i.e. the four control
-    // points (or, in case of the hermite
-    // curve two points and two derivative
-    // vectors), the geometry matrix, and the
-    // color of the curve. The result should
-    // be written into the the vector curve
-    // the format is x,y,z,r,g,b,a for each
-    // point along the line
-    // The result will be three curves, a
-    // Hermite curve on the top, a Bezier
-    // curve in the middle and a B-Spline
-    // at the bottom
-    
-    // TODO 2
-    // Draw the bezier segment using deCasteljau's algorithm.
     
     for (size_t i = 0;i<=maxLineSegments;++i) {
       const float t = float(i)/float(maxLineSegments);
@@ -81,7 +58,7 @@ public:
       curve[i*7+5] = color.z();
       curve[i*7+6] = color.w();
     }
-    drawLines(curve, LineDrawType::STRIP);
+    drawLines(curve, LineDrawType::STRIP, 3);
   }
  
   void drawHermiteSegment(const Vec2& p0, const Vec2& p1, const Vec2& m0, const Vec2& m1, const Vec4& color) {
@@ -133,7 +110,7 @@ public:
       curve[i * 7 + 5] = color.z();
       curve[i * 7 + 6] = color.w();
     }
-    drawLines(curve, LineDrawType::STRIP);
+    drawLines(curve, LineDrawType::STRIP, 3);
   }
 
   void drawBezierSegment(const Vec2& p0, const Vec2& p1, const Vec2& p2, const Vec2& p3, const Vec4& color) {
