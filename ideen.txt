@@ -1,3 +1,14 @@
+Beginner:
+- Hardwareauswahl
+- History
+
+Pros:
+- Marching Cubes
+- Flowvis
+- Flowsim
+
+
+
 - Basistransformationen
 - Suchen & Sortieren
 
