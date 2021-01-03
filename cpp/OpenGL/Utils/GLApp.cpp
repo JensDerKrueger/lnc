@@ -207,24 +207,37 @@ void GLApp::drawLines(const std::vector<float>& data, LineDrawType t, float line
       case LineDrawType::LIST :
         for (size_t i = 0;i<data.size()/7;i+=2) {
                     
-          size_t i1 = i;
-          size_t i2 = i+1;
-          
+          const size_t i1 = i;
+          const size_t i2 = i+1;
+
           const Vec3 p1{data[i1*7+0],data[i1*7+1],data[i1*7+2]};
           const Vec4 c1{data[i1*7+3],data[i1*7+4],data[i1*7+5],data[i1*7+6]};
           const Vec3 p2{data[i2*7+0],data[i2*7+1],data[i2*7+2]};
           const Vec4 c2{data[i2*7+3],data[i2*7+4],data[i2*7+5],data[i2*7+6]};
 
-          triangulate(p1, p1, c1, p2, c2, p2, lineThickness, trisData);
+          Vec3 p0{p1};
+          Vec3 p3{p2};
+          
+          if (i1 >= 2 && p1[0] == data[(i1-1)*7+0] && p1[1] == data[(i1-1)*7+1] && p1[2] == data[(i1-1)*7+2]) {
+            const size_t i0 = i-2;
+            p0 = Vec3{data[i0*7+0],data[i0*7+1],data[i0*7+2]};
+          }
+
+          if (i2+2 < data.size()/7 && p2[0] == data[(i2+1)*7+0] && p2[1] == data[(i2+1)*7+1] && p2[2] == data[(i2+1)*7+2]) {
+            const size_t i3 = i+2;
+            p3 = Vec3{data[i3*7+0],data[i3*7+1],data[i3*7+2]};
+          }
+
+          triangulate(p0, p1, c1, p2, c2, p3, lineThickness, trisData);
         }
         break;
       case LineDrawType::STRIP :
         for (size_t i = 0;i<(data.size()/7)-1;++i) {
           
-          size_t i0 = (i==0) ? 0 : i-1;
-          size_t i1 = i;
-          size_t i2 = i+1;
-          size_t i3 = (i==(data.size()/7)-2) ? i2 : i2+1;
+          const size_t i0 = (i==0) ? 0 : i-1;
+          const size_t i1 = i;
+          const size_t i2 = i+1;
+          const size_t i3 = (i==(data.size()/7)-2) ? i2 : i2+1;
           
           const Vec3 p0{data[i0*7+0],data[i0*7+1],data[i0*7+2]};
           const Vec3 p1{data[i1*7+0],data[i1*7+1],data[i1*7+2]};
@@ -239,10 +252,10 @@ void GLApp::drawLines(const std::vector<float>& data, LineDrawType t, float line
       case LineDrawType::LOOP :
         for (size_t i = 0;i<data.size()/7;++i) {
 
-          size_t i0 = (i==0) ? 0 : i-1;
-          size_t i1 = i;
-          size_t i2 = (i+1)%data.size();
-          size_t i3 = (i==(data.size()/7)-1) ? i2 : (i2+1)%data.size();
+          const size_t i0 = (i==0) ? 0 : i-1;
+          const size_t i1 = i;
+          const size_t i2 = (i+1)%data.size();
+          const size_t i3 = (i==(data.size()/7)-1) ? i2 : (i2+1)%data.size();
           
           const Vec3 p0{data[i0*7+0],data[i0*7+1],data[i0*7+2]};
           const Vec3 p1{data[i1*7+0],data[i1*7+1],data[i1*7+2]};
