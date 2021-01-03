@@ -20,19 +20,7 @@ public:
     // see a glossy red sphere, illuminated from
     // the top front
     
-    // SOLUTION:
-    const float epsilon = 0.00000001f;
-    const Vec3 rayDirection = Vec3::normalize(pixelPos-rayOrigin);
-    const float a = Vec3::dot(rayDirection , (rayOrigin - sphereCenter) * 2.0f);
-    const float b = Vec3::dot(sphereCenter,sphereCenter) + Vec3::dot(rayOrigin,rayOrigin) - 2.0f*Vec3::dot(rayOrigin,sphereCenter) - radius*radius;
-    const float sqD = a*a + (-4.0f)*b;
-    if (sqD < 0) return {}; // ray misses sphere
-    const float D=sqrtf(sqD);
-    const float t = (-0.5f)*(a+D);
-    if (t > epsilon)
-      return rayOrigin + rayDirection*t;
-    else
-      return {}; // intersection "behind" viewer
+    return {};
   }
   
   Vec3 computeLighting(const Vec3& rayOrigin, const Vec3& lightPos, const Vec3& intersectionPoint, const Vec3& normal,
