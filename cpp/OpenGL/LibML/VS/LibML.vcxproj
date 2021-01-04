@@ -20,11 +20,24 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\BPNetwork.cpp" />
+    <ClCompile Include="..\ConvolutionLayer.cpp" />
+    <ClCompile Include="..\DenseLayer.cpp" />
+    <ClCompile Include="..\InputLayer.cpp" />
     <ClCompile Include="..\LA.cpp" />
+    <ClCompile Include="..\MaxPoolLayer.cpp" />
+    <ClCompile Include="..\NeuralNetwork.cpp" />
+    <ClCompile Include="..\SoftmaxLayer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\BPNetwork.h" />
+    <ClInclude Include="..\ConvolutionLayer.h" />
+    <ClInclude Include="..\DenseLayer.h" />
+    <ClInclude Include="..\InputLayer.h" />
     <ClInclude Include="..\LA.h" />
+    <ClInclude Include="..\Layer.h" />
+    <ClInclude Include="..\MaxPoolLayer.h" />
+    <ClInclude Include="..\NeuralNetwork.h" />
+    <ClInclude Include="..\SoftmaxLayer.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
