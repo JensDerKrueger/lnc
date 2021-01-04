@@ -13,7 +13,7 @@ public:
     GL(glEnable(GL_DEPTH_TEST));
     GL(glClearColor(0,0,0,0));
     
-    const OBJFile m{"bunny_medium.obj", true};
+    const OBJFile m{"bunny.obj", true};
     for (const OBJFile::IndexType& triangle : m.indices) {
       for (const size_t& index : triangle) {
         data.push_back(m.vertices[index][0]);
