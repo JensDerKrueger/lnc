@@ -1,5 +1,6 @@
 #include "MC.h"
 #include "MC.inl"
+#include <algorithm> // std::clamp
 
 Isosurface::Isosurface(const Volume& volume, uint8_t isovalue) {
   for (size_t l = 0; l < volume.depth-1; ++l) {
