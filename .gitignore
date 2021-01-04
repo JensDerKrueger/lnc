@@ -8,3 +8,4 @@ cpp/**/VS/**/bin/*
 cpp/**/VS/**/tmp/*
 cpp/**/VS/**/x64/*
 cpp/**/VS/**/*.glsl
+cpp/**/VS/**/*.obj
