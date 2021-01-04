@@ -11,26 +11,24 @@
 
 namespace BMP {
 
-    bool save(const std::string& filename, const Image& source) {
-        return save(filename, source.width, source.height,
-                    source.data, source.componentCount);
-    }
+  bool save(const std::string& filename, const Image& source) {
+      return save(filename, source.width, source.height,
+                  source.data, source.componentCount);
+  }
 
+  uint8_t floatToByte(float x) {  return uint8_t(x*255); }
 
-    uint8_t floatToByte(float x) {  return uint8_t(x*255); }
+  bool save(const std::string& filename, uint32_t w, uint32_t h,
+            const std::vector<float>& data, uint8_t iComponentCount) {
+    
+    std::vector<uint8_t> byteData(data.size());
+    std::transform(data.begin(), data.end(), byteData.begin(), floatToByte);
+    
+    return save(filename, w, h, byteData, iComponentCount);
+  }
 
-    bool save(const std::string& filename, uint32_t w, uint32_t h,
-              const std::vector<float>& data, uint8_t iComponentCount) {
-      
-      std::vector<uint8_t> byteData(data.size());
-      std::transform(data.begin(), data.end(), byteData.begin(), floatToByte);
-      
-      return save(filename, w, h, byteData, iComponentCount);
-    }
-
-
-    bool save(const std::string& filename, uint32_t w, uint32_t h,
-              const std::vector<uint8_t>& data, uint8_t iComponentCount) {
+  bool save(const std::string& filename, uint32_t w, uint32_t h,
+            const std::vector<uint8_t>& data, uint8_t iComponentCount) {
 		
 		std::ofstream outStream(filename.c_str(), std::ofstream::binary);
 		if (!outStream.is_open()) return false;
@@ -74,10 +72,10 @@ namespace BMP {
 				pData[i++] = b;
 				pData[i++] = g;
 				pData[i++] = r;
-                if (iComponentCount==4) {
-                    uint8_t a = data[iComponentCount*(x+y*w)+3];
-                    pData[i++] = a;
-                }
+        if (iComponentCount==4) {
+            uint8_t a = data[iComponentCount*(x+y*w)+3];
+            pData[i++] = a;
+        }
 			}
 		}
 		
@@ -121,7 +119,6 @@ namespace BMP {
 		int32_t bfOffBits;
 		if (!file.read((char*)&bfOffBits, sizeof(int32_t)))
 			throw BMPException("Bitmap offset could not be read"); 
-			
 
 		file.seekg(4, std::ios_base::cur);                       // skip size of bitmap info header    
 		file.read((char*)&texture.width, sizeof(int32_t));   // get the width of the bitmap    
@@ -147,7 +144,6 @@ namespace BMP {
 			s << "File is " << biBitCount << " bpp, but this reader only supports 8, 16, 24, or 32 Bpp";
 			throw BMPException(s.str());
 		}
-			
 		texture.data.resize(biSizeImage);
 			
 		// seek to the actual data
@@ -164,60 +160,57 @@ namespace BMP {
 				texture.data[i + 2] = temp;
 			}
 		}
-		
 		return texture;	
 	}
 
+  void blit(const Image& source, const Vec2ui& rawSourceStart, const Vec2ui& rawSourceEnd,
+            Image& target, const Vec2ui& targetStart, bool skipChecks) {
+    
+    Vec2ui sourceStart{rawSourceStart.x() > rawSourceEnd.x() ? rawSourceEnd.x() : rawSourceStart.x(),
+                      rawSourceStart.y() > rawSourceEnd.y() ? rawSourceEnd.y() : rawSourceStart.y()};
+    Vec2ui sourceEnd{rawSourceStart.x() > rawSourceEnd.x() ? rawSourceStart.x() : rawSourceEnd.x(),
+                    rawSourceStart.y() > rawSourceEnd.y() ? rawSourceStart.y() : rawSourceEnd.y()};
+    
+    if (!skipChecks) {
+      if (target.componentCount != source.componentCount) {
+        std::stringstream s;
+        s << "blit requires images with equal component count " << source.componentCount << " != " << target.componentCount;
+        throw BMPException(s.str());
+      }
+                  
+      if (sourceEnd.x() > source.width || sourceEnd.y() > source.height) {
+        std::stringstream s;
+        s << "blit source region out of bounds (w=" << source.width << " h=" << source.height << " x=" << sourceEnd.x() << " y=" << sourceEnd.y() << ")";
+        throw BMPException(s.str());
+      }
 
-    void blit(const Image& source, const Vec2ui& rawSourceStart, const Vec2ui& rawSourceEnd,
-              Image& target, const Vec2ui& targetStart, bool skipChecks) {
+      Vec2ui blitSize = sourceEnd-sourceStart;
+      if (targetStart.x() + blitSize.x() > target.width ||
+          targetStart.y() + blitSize.y() > target.height) {
+
+        Vec2ui newSize{(target.width >= targetStart.x() + blitSize.x()) ? target.width : (targetStart.x() + blitSize.x()),
+                      (target.height >= targetStart.y() + blitSize.y()) ? target.height : (targetStart.y() + blitSize.y())};
         
-        Vec2ui sourceStart{rawSourceStart.x() > rawSourceEnd.x() ? rawSourceEnd.x() : rawSourceStart.x(),
-                          rawSourceStart.y() > rawSourceEnd.y() ? rawSourceEnd.y() : rawSourceStart.y()};
-        Vec2ui sourceEnd{rawSourceStart.x() > rawSourceEnd.x() ? rawSourceStart.x() : rawSourceEnd.x(),
-                        rawSourceStart.y() > rawSourceEnd.y() ? rawSourceStart.y() : rawSourceEnd.y()};
+        Image tmp;
+        tmp.width = newSize.x();
+        tmp.height = newSize.y();
+        tmp.componentCount = source.componentCount;
+        tmp.data.resize(tmp.width*tmp.height*tmp.componentCount);
         
-        if (!skipChecks) {
-            if (target.componentCount != source.componentCount) {
-                std::stringstream s;
-                s << "blit requires images with equal component count " << source.componentCount << " != " << target.componentCount;
-                throw BMPException(s.str());
-            }
-                        
-            if (sourceEnd.x() > source.width || sourceEnd.y() > source.height) {
-                std::stringstream s;
-                s << "blit source region out of bounds (w=" << source.width << " h=" << source.height << " x=" << sourceEnd.x() << " y=" << sourceEnd.y() << ")";
-                throw BMPException(s.str());
-            }
-
-            Vec2ui blitSize = sourceEnd-sourceStart;
-            if (targetStart.x() + blitSize.x() > target.width ||
-                targetStart.y() + blitSize.y() > target.height) {
-
-                Vec2ui newSize{(target.width >= targetStart.x() + blitSize.x()) ? target.width : (targetStart.x() + blitSize.x()),
-                              (target.height >= targetStart.y() + blitSize.y()) ? target.height : (targetStart.y() + blitSize.y())};
-                
-                Image tmp;
-                tmp.width = newSize.x();
-                tmp.height = newSize.y();
-                tmp.componentCount = source.componentCount;
-                tmp.data.resize(tmp.width*tmp.height*tmp.componentCount);
-                
-                blit(target,{0,0},{target.width,target.height},tmp,{0,0},true);
-                
-                target.width = tmp.width;
-                target.height = tmp.height;
-                target.data = tmp.data;
-            }
-
-        }
-            
-        for (uint32_t y = sourceStart.y();y < sourceEnd.y();++y) {
-            for (uint32_t x = sourceStart.x();x < sourceEnd.x();++x) {
-                for (uint32_t c = 0;c<target.componentCount;++c) {
-                    target.setValue(targetStart.x()+x-sourceStart.x(),targetStart.y()+y-sourceStart.y(),c,source.getValue(x,y,c));
-                }
-            }
-        }
+        blit(target,{0,0},{target.width,target.height},tmp,{0,0},true);
+        
+        target.width = tmp.width;
+        target.height = tmp.height;
+        target.data = tmp.data;
+      }
     }
+        
+    for (uint32_t y = sourceStart.y();y < sourceEnd.y();++y) {
+      for (uint32_t x = sourceStart.x();x < sourceEnd.x();++x) {
+        for (uint32_t c = 0;c<target.componentCount;++c) {
+            target.setValue(targetStart.x()+x-sourceStart.x(),targetStart.y()+y-sourceStart.y(),c,source.getValue(x,y,c));
+        }
+      }
+    }
+  }
 }

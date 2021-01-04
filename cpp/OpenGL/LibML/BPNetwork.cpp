@@ -1,5 +1,6 @@
 #include "BPNetwork.h"
 
+#include <iostream>
 
 BPNetwork::BPNetwork(const std::vector<size_t>& structure, CostModel model, Initializer initializer) :
   structure(structure),

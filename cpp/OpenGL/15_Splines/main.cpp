@@ -10,7 +10,7 @@ public:
   double sa = 0;
   double ca = 0;
   const size_t maxLineSegments = 100;
-
+  
   virtual void init() {
     glEnv.setTitle("Spline Demo");
     GL(glDisable(GL_CULL_FACE));
@@ -25,6 +25,18 @@ public:
     sa = sin(animationTime);
     ca = cos(animationTime);
   }
+
+  // SOLUTION:
+  Vec2 computePoly(const Vec2& p0, const Vec2& p1,
+                   const Vec2& p2, const Vec2& p3,
+                   const Mat4& g, float t) {
+
+    Vec4 tVec{1,t,t*t,t*t*t};
+    Vec4 pX{p0.x(), p1.x(), p2.x(), p3.x()};
+    Vec4 pY{p0.y(), p1.y(), p2.y(), p3.y()};
+
+    return {Vec4::dot(tVec, g*pX), Vec4::dot(tVec, g*pY) };
+  }
    
   void drawPolySegment(const Vec2& p0, const Vec2& p1,
                        const Vec2& p2, const Vec2& p3,
@@ -32,38 +44,21 @@ public:
     std::vector<float> curve((maxLineSegments+1)*7);
     
     for (size_t i = 0;i<=maxLineSegments;++i) {
-     const float t = float(i)/float(maxLineSegments);
+      const float t = float(i)/float(maxLineSegments);
 
-      // TODO:
-      // complete the function drawPolySegment
-      // this function takes as argument the
-      // geometry matrix of the polygon method
-      // i.e. hermite, bezier, or b-spline
-      // and draws the polygonal curve as a
-      // line strip, the curve is given as
-      // five paramters, i.e. the four control
-      // points (or, in case of the hermite
-      // curve two points and two derivative
-      // vectors), the geometry matrix, and the
-      // color of the curve. The result should
-      // be written into the the vector curve
-      // the format is x,y,z,r,g,b,a for each
-      // point along the line
-      // The result will be three curves, a
-      // Hermite curve on the top, a Bezier
-      // curve in the middle and a B-Spline
-      // at the bottom
-      
-      curve[i*7+0] = 0.0f;  // x
-      curve[i*7+1] = 0.0f;  // y
-      curve[i*7+2] = 0.0f;  // z  (no need to change)
-      
-      curve[i*7+3] = 0.0f;  // red
-      curve[i*7+4] = 0.0f;  // green
-      curve[i*7+5] = 0.0f;  // blue
-      curve[i*7+6] = 0.0f;  // alpha  (no need to change)
+      // SOLUTION 1:
+      Vec2 p = computePoly(p0, p1, p2, p3, g, t);
+
+      curve[i*7+0] = p.x();
+      curve[i*7+1] = p.y();
+      curve[i*7+2] = 0.0f;
+
+      curve[i*7+3] = color.x();
+      curve[i*7+4] = color.y();
+      curve[i*7+5] = color.z();
+      curve[i*7+6] = color.w();
     }
-    drawLines(curve, LineDrawType::STRIP);
+    drawLines(curve, LineDrawType::STRIP, 3);
   }
  
   void drawHermiteSegment(const Vec2& p0, const Vec2& p1, const Vec2& m0, const Vec2& m1, const Vec4& color) {
@@ -79,9 +74,43 @@ public:
                p1.x()+m1.x(),p1.y()-m1.y(),0,0,0,1,1,
                p1.x(),p1.y(),0,1,0,0,1}, 20, true);
   }
+
+  Vec2 lerp(const Vec2& a, const Vec2& b, float t) {
+      return a * (1 - t) + b * t;
+  }
   
+  Vec2 computeDeCasteljau(const std::vector<Vec2>& inputPoints, float t) {
+    std::vector<Vec2> points{inputPoints};
+    while (points.size() > 1) {
+      for (size_t i = 1; i < points.size(); ++i) {
+        const Vec2 a = points.at(i - 1);
+        const Vec2 b = points.at(i);
+        points.at(i - 1) = lerp(a, b, t);
+      }
+      points = std::vector<Vec2>(points.begin(), points.end() - 1);
+    }
+    return points.at(0);
+  }
+  
+  // SOLUTION 2:
   void drawBezierSegmentDeCasteljau(const Vec2& p0, const Vec2& p1, const Vec2& p2, const Vec2& p3, const Vec4& color) {
-    // TODO SOLUTION 2:
+    const std::vector<Vec2> points{ p0, p1, p2, p3 };
+    std::vector<float> curve((maxLineSegments + 1) * 7);
+
+    for (size_t i = 0; i <= maxLineSegments; ++i) {
+      const float t = float(i) / float(maxLineSegments);
+      const Vec2 p = computeDeCasteljau(points, t);
+      
+      curve[i * 7 + 0] = p.x();
+      curve[i * 7 + 1] = p.y();
+      curve[i * 7 + 2] = 0.0f;
+
+      curve[i * 7 + 3] = color.x();
+      curve[i * 7 + 4] = color.y();
+      curve[i * 7 + 5] = color.z();
+      curve[i * 7 + 6] = color.w();
+    }
+    drawLines(curve, LineDrawType::STRIP, 3);
   }
 
   void drawBezierSegment(const Vec2& p0, const Vec2& p1, const Vec2& p2, const Vec2& p3, const Vec4& color) {
@@ -98,6 +127,7 @@ public:
                p3.x(),p3.y(),0,1,0,0,1}, 20, true);
   }
   
+  
   void drawBSplineSegment(const Vec2& p0, const Vec2& p1, const Vec2& p2, const Vec2& p3, const Vec4& color) {
     Mat4 g{
       1/6.0f, 4/6.0f, 1/6.0f, 0/6.0f,
@@ -107,9 +137,9 @@ public:
     };
     drawPolySegment(p0,p1,p2,p3,g,color);
     drawPoints({p0.x(),p0.y(),0,1,0,0,1,
-               p1.x(),p1.y(),0,0,0,1,1,
-               p2.x(),p2.y(),0,0,0,1,1,
-               p3.x(),p3.y(),0,1,0,0,1}, 20, true);
+                p1.x(),p1.y(),0,0,0,1,1,
+                p2.x(),p2.y(),0,0,0,1,1,
+                p3.x(),p3.y(),0,1,0,0,1}, 20, true);
   }
   
   
@@ -134,7 +164,7 @@ public:
       const Vec2 p3{0.5f,0.0f};
       drawBezierSegment(p0,p1,p2,p3,{0.0f,0.0f,0.0f,1.0f});
     }
-   
+
     {
       setDrawTransform(Mat4::translation(0.0f,-0.2f,0.0f));
       const Vec2 p0{-0.5,0.0f};

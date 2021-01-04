@@ -1,0 +1,9 @@
+ObjectFileName: Teddybear.raw
+TaggedFileName: ---
+Resolution:     128 128 62
+SliceThickness: 2.8 2.8 5
+Format:         UCHAR
+NbrTags:        0
+ObjectType:     TEXTURE_VOLUME_OBJECT
+ObjectModel:    RGBA
+GridType:       EQUIDISTANT

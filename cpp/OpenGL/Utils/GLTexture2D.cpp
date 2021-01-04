@@ -22,6 +22,15 @@ GLTexture2D::GLTexture2D(GLint magFilter, GLint minFilter, GLint wrapX, GLint wr
   GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter));
 }
 
+void GLTexture2D::setFilter(GLint magFilter, GLint minFilter) {
+  this->magFilter = magFilter;
+  this->minFilter = minFilter;
+  
+  GL(glBindTexture(GL_TEXTURE_2D, id));
+  GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter));
+  GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter));
+}
+
 GLTexture2D::~GLTexture2D() {
   GL(glDeleteTextures(1, &id));
 }

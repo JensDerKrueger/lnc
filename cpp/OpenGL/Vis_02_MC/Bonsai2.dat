@@ -1,0 +1,9 @@
+ObjectFileName: Bonsai2.raw
+TaggedFileName: ---
+Resolution:     256 256 128
+SliceThickness: 0.585938 0.585938 1
+Format:         UCHAR
+NbrTags:        0
+ObjectType:     TEXTURE_VOLUME_OBJECT
+ObjectModel:    RGBA
+GridType:       EQUIDISTANT

@@ -599,9 +599,6 @@ public:
     }
     
     switch (key) {
-      case GLFW_KEY_ESCAPE:
-        closeWindow();
-        break;
       case GLFW_KEY_UP:
       case GLFW_KEY_DOWN:
       case GLFW_KEY_W:
