@@ -11,6 +11,7 @@ public:
   QVis q{"c60.dat"};
   uint8_t isovalue{128};
   bool wireframe{false};
+  bool surfaceChanged{true};
   
   virtual void init() override {
     glEnv.setTitle("Marching Cubes demo");
@@ -22,6 +23,7 @@ public:
   }
   
   void extractIsosurface() {
+    surfaceChanged = true;
     Isosurface s{q.volume,isovalue};
     data.clear();
     for (const Vertex& v : s.vertices) {
@@ -48,7 +50,13 @@ public:
     GL(glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT));
     setDrawProjection(Mat4::perspective(45, glEnv.getFramebufferSize().aspect(), 0.0001f, 100));
     setDrawTransform(Mat4::rotationY(float(angle)) * Mat4::rotationX(float(angle/2.0)) * Mat4::lookAt({0,0,2},{0,0,0},{0,1,0}));
-    drawTriangles(data, TrisDrawType::LIST, wireframe, true);
+    
+    if (surfaceChanged) {
+      drawTriangles(data, TrisDrawType::LIST, wireframe, true);
+      surfaceChanged = false;
+    } else {
+      redrawTriangles(wireframe);
+    }
   }
   
   virtual void keyboard(int key, int scancode, int action, int mods) override {

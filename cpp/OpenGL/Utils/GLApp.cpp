@@ -317,19 +317,10 @@ void GLApp::drawPoints(const std::vector<float>& data, float pointSize, bool use
   GL(glDrawArrays(GL_POINTS, 0, GLsizei(data.size()/7)));
 }
 
-
-void GLApp::drawTriangles(const std::vector<float>& data, TrisDrawType t, bool wireframe, bool lighting) {
+void GLApp::redrawTriangles(bool wireframe) {
   shaderUpdate();
-  
-  if (wireframe)
-    GL(glPolygonMode( GL_FRONT_AND_BACK, GL_LINE ));
-  else
-    GL(glPolygonMode( GL_FRONT_AND_BACK, GL_FILL ));
-  
-  size_t compCount = lighting ? 10 : 7;
-  simpleVb.setData(data,compCount,GL_DYNAMIC_DRAW);
 
-  if (lighting) {
+  if (lastLighting) {
     simpleLightProg.enable();
     simpleArray.bind();
     simpleArray.connectVertexAttrib(simpleVb, simpleLightProg, "vPos", 3);
@@ -341,18 +332,37 @@ void GLApp::drawTriangles(const std::vector<float>& data, TrisDrawType t, bool w
     simpleArray.connectVertexAttrib(simpleVb, simpleProg, "vPos", 3);
     simpleArray.connectVertexAttrib(simpleVb, simpleProg, "vColor", 4, 3);
   }
+  
+  if (wireframe)
+    GL(glPolygonMode( GL_FRONT_AND_BACK, GL_LINE ));
+  else
+    GL(glPolygonMode( GL_FRONT_AND_BACK, GL_FILL ));
 
-  switch (t) {
+  switch (lastTrisType) {
     case TrisDrawType::LIST :
-      GL(glDrawArrays(GL_TRIANGLES, 0, GLsizei(data.size()/compCount)));
+      GL(glDrawArrays(GL_TRIANGLES, 0, lastTrisCount));
       break;
     case TrisDrawType::STRIP :
-      GL(glDrawArrays(GL_TRIANGLE_STRIP, 0, GLsizei(data.size()/compCount)));
+      GL(glDrawArrays(GL_TRIANGLE_STRIP, 0, lastTrisCount));
       break;
     case TrisDrawType::FAN :
-      GL(glDrawArrays(GL_TRIANGLE_FAN, 0, GLsizei(data.size()/compCount)));
+      GL(glDrawArrays(GL_TRIANGLE_FAN, 0, lastTrisCount));
       break;
   }
+}
+
+
+void GLApp::drawTriangles(const std::vector<float>& data, TrisDrawType t, bool wireframe, bool lighting) {
+  shaderUpdate();
+  
+  size_t compCount = lighting ? 10 : 7;
+  simpleVb.setData(data,compCount,GL_DYNAMIC_DRAW);
+
+  lastLighting = lighting;
+  lastTrisType = t;
+  lastTrisCount = GLsizei(data.size()/compCount);
+
+  redrawTriangles(wireframe);
 }
 
 void GLApp::setDrawProjection(const Mat4& mat) {
