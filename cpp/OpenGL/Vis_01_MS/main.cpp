@@ -6,7 +6,7 @@ class MyGLApp : public GLApp {
 public:
   std::vector<float> data;
   Image image = BMP::load("image.bmp");
-  std::vector<uint8_t> isovalue{128};
+  std::vector<uint8_t> isovalues{128};
   bool useAsymptoticDecider{true};
   
   virtual void init() override {
@@ -19,8 +19,8 @@ public:
   
   void extractIsoline() {
     data.clear();
-    for (const uint8_t iso : isovalue) {
-      Isoline s{image, iso, useAsymptoticDecider};
+    for (const uint8_t isovalue : isovalues) {
+      Isoline s{image, isovalue, useAsymptoticDecider};
       for (const Vec2& v : s.vertices) {
         data.push_back(v[0]);
         data.push_back(v[1]);
@@ -52,12 +52,12 @@ public:
           extractIsoline();
           break;
         case GLFW_KEY_ENTER:
-          isovalue.push_back(isovalue.back());
+          isovalues.push_back(isovalues.back());
           extractIsoline();
           break;
         case GLFW_KEY_C:
-          isovalue.clear();
-          isovalue.push_back(128);          
+          isovalues.clear();
+          isovalues.push_back(128);
           extractIsoline();
           break;
 
@@ -65,11 +65,11 @@ public:
     }
     switch (key) {
       case GLFW_KEY_UP:
-        isovalue[isovalue.size()-1]++;
+        isovalues[isovalues.size()-1]++;
         extractIsoline();
         break;
       case GLFW_KEY_DOWN:
-        isovalue[isovalue.size()-1]--;
+        isovalues[isovalues.size()-1]--;
         extractIsoline();
         break;
     }
