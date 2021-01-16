@@ -38,7 +38,7 @@ public:
         const size_t i = l*linelength + s;
         linePoints[i] = advect(linePoints[i-1], deltaT);
         
-        if (linePoints[i] == linePoints[j-1]) break;
+        if (linePoints[i] == linePoints[i-1]) break;
       }
     }
   }
