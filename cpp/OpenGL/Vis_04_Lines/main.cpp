@@ -5,7 +5,7 @@
 
 class MyGLApp : public GLApp {
 public:
-  size_t lineCount{20};
+  size_t lineCount{200};
   size_t linelength{300};
   double angle{0};
   std::vector<float> data;
@@ -26,7 +26,7 @@ public:
       linePoints[l*linelength] = Vec3::random();
     }
     
-    data.resize(linePoints.size()*2*7);
+    data.resize(lineCount*(linelength-1)*2*7);
     
     advect(linePoints, 0.1f);
     linePointsToRenderData(linePoints);
