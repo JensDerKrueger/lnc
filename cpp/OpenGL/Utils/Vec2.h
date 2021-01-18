@@ -88,6 +88,11 @@ public:
       return Vec2t<T>{T{Rand::rand01()},T{Rand::rand01()}};
   }
   
+  static Vec2t<T> normalize(const Vec2t<T>& a) {
+    const float l = a.length();
+    return (l != T(0)) ? a/l : Vec2t<T>{T(0),T(0)};
+  }
+  
 private:
   std::array<T, 2> e;
 		
