@@ -36,7 +36,6 @@ void QVis::load(const std::string& filename) {
       try {
         volume.scale = Vec3{stof(t[0]), stof(t[1]), stof(t[2])};
         volume.normalizeScale();
-
       } catch (const std::invalid_argument&) {
         throw QVisFileException{"invalid slicethickness tag"};
       }

@@ -51,6 +51,8 @@ public:
                  const Vec3& tl=Vec3{-1.0f,1.0f,0.0f},
                  const Vec3& tr=Vec3{1.0f,1.0f,0.0f});
   void drawTriangles(const std::vector<float>& data, TrisDrawType t, bool wireframe, bool lighting);
+  void redrawTriangles(bool wireframe);
+
   void drawLines(const std::vector<float>& data, LineDrawType t, float lineThickness=1.0f);
   void drawPoints(const std::vector<float>& data, float pointSize=1.0f, bool useTex=false);
   void setDrawProjection(const Mat4& mat);
@@ -89,6 +91,9 @@ protected:
   
 private:
   bool animationActive;
+  TrisDrawType lastTrisType;
+  GLsizei lastTrisCount;
+  bool lastLighting;
 
   static GLApp* staticAppPtr;
   static void sizeCallback(GLFWwindow* window, int width, int height) {

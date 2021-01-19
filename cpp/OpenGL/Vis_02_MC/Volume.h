@@ -6,7 +6,6 @@
 
 #include <Vec3.h>
 
-
 struct Volume {
   Volume() :
     width{0}, height{0}, depth{0},
@@ -23,9 +22,10 @@ struct Volume {
   std::vector<Vec3> normals;
   
   void normalizeScale() {
-    const float m = std::max(scale.x(),std::max(scale.y(),scale.z()));
-    scale = scale / m;
     maxSize = std::max(width,std::max(height,depth));
+    const Vec3 extend = scale*Vec3{float(width),float(height),float(depth)}/maxSize;
+    const float m = std::max(extend.x(),std::max(extend.y(),extend.z()));
+    scale = scale / m;
   }
   
   std::string toString() const {
