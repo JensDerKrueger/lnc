@@ -11,7 +11,7 @@ public:
   const uint32_t fieldSize{256};
   Flowfield flow = Flowfield::genDemo(fieldSize, DemoType::SATTLE);
   Image inputImage = BMP::load("noise.bmp");
-  Image licImage{fieldSize,fieldSize,4};
+  Image licImage{fieldSize,fieldSize,3};
   
   virtual void init() override {
     glEnv.setTitle("LIC demo");
@@ -65,19 +65,17 @@ public:
         image.setValue(x,y,0,output);
         image.setValue(x,y,1,output);
         image.setValue(x,y,2,output);
-        image.setValue(x,y,3,255);
       }
     }
   }
 
   void equalizeStep(Image& image) {
-    const size_t pixelCount = image.data.size();
+    const size_t pixelCount = image.data.size()/image.componentCount;
     std::array<size_t, 256> histogram;
-    for (size_t i = 0; i < 256;++i) {
-      histogram[i]  = 0;
-    }
+    histogram.fill(0);
+    
     for (size_t i = 0; i < pixelCount;++i) {
-      histogram[image.data[i]]++;
+      histogram[image.data[i*image.componentCount]]++;
     }
     std::array<float, 256> cdf;
     cdf[0] = histogram[0];
@@ -93,12 +91,15 @@ public:
       remap[i] = uint8_t(round((cdf[i] - cdf_min)/(pixelCount-cdf_min) * 255) );
     }
     for (size_t i = 0;i<pixelCount;++i) {
-      image.data[i] = remap[image.data[i]];
+      uint8_t remapped = remap[image.data[i*image.componentCount]];
+      image.data[i*image.componentCount+0] = remapped;
+      image.data[i*image.componentCount+1] = remapped;
+      image.data[i*image.componentCount+2] = remapped;
     }
   }
   
   void computeLIC() {
-    for (size_t i = 0;i<4;++i) {
+    for (size_t i = 0;i<3;++i) {
       licStep(licImage,100);
       equalizeStep(licImage);
       inputImage = licImage;
@@ -129,4 +130,4 @@ public:
 int main(int argc, char ** argv) {
   myApp.run();
   return EXIT_SUCCESS;
-}  
+}
