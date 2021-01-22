@@ -55,7 +55,6 @@ void ParticleSystem::restart(size_t count) {
 void ParticleSystem::update(float t) {
 	const float deltaT = t-lastT;
 	lastT = t;
-#pragma omp parallel for
 	for (int i = 0; i < int(particles.size());++i) {		
 		particles[i].update(deltaT);
 		if (particles[i].isDead() && getAutoRestart()) {

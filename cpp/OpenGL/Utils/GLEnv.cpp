@@ -18,8 +18,10 @@ void GLEnv::checkGLError(const std::string& id) {
 }
 
 void GLEnv::errorCallback(int error, const char* description) {
+  // ignore known issue on Apple M1
+  if (error == 65544) return;
   std::stringstream s;
-  s << description << " " << error;
+  s << description << " (Error number: " << error << ")";
   throw GLException{s.str()};
 }
 
