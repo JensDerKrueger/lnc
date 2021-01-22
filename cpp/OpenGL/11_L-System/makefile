@@ -9,7 +9,7 @@ ifeq ($(OSTYPE),Linux)
 else
 	CFLAGS=-c -Wall -std=c++17 -Wunreachable-code -Xclang
 	LFLAGS=-lglfw -lGLEW -framework OpenGL -L../Utils -lutils
-	LIBS=
+	LIBS=-L /opt/homebrew/lib
 	INCLUDES=-I. -I../Utils -I /opt/homebrew/include
 endif
 

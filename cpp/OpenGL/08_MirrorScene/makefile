@@ -9,7 +9,7 @@ ifeq ($(OSTYPE),Linux)
 else
 	CFLAGS=-c -Wall -std=c++17 -Wunreachable-code -Xclang -fopenmp
 	LFLAGS=-lglfw -lGLEW -framework OpenGL -L../Utils -lutils
-	LIBS=-lomp -L ../../openmp/lib
+	LIBS=-lomp -L ../../openmp/lib -L /opt/homebrew/lib
 	INCLUDES=-I. -I../Utils -I /opt/homebrew/include
 endif
 

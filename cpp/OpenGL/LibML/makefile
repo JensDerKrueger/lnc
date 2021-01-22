@@ -11,7 +11,7 @@ ifeq ($(OSTYPE),Linux)
 else
 	CFLAGS=-c -Wall -std=c++17 -Wunreachable-code -Xclang -fopenmp
 	LFLAGS=
-	LIBS=-lomp -L ../../openmp/lib
+	LIBS=-lomp -L ../../openmp/lib -L /opt/homebrew/lib
 	INCLUDES=-I. -I ../../openmp/include -I /opt/homebrew/include
 endif
 
