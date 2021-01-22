@@ -1,12 +1,13 @@
 Beginner:
 + Hardwareauswahl
 + History
-- Licht machen
++ Licht machen
 - Netzwerke
 
 Pros:
 + Marching Cubes
-- Flowvis
++ Flowvis
++ GPU Flowvis
 - Flowsim
 
 
