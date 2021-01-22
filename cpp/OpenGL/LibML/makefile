@@ -12,7 +12,7 @@ else
 	CFLAGS=-c -Wall -std=c++17 -Wunreachable-code -Xclang -fopenmp
 	LFLAGS=
 	LIBS=-lomp -L ../../openmp/lib
-	INCLUDES=-I. -I ../../openmp/include 
+	INCLUDES=-I. -I ../../openmp/include -I /opt/homebrew/include
 endif
 
 SRC = LA.cpp BPNetwork.cpp InputLayer.cpp NeuralNetwork.cpp ConvolutionLayer.cpp MaxPoolLayer.cpp DenseLayer.cpp SoftmaxLayer.cpp

@@ -10,7 +10,7 @@ else
 	CFLAGS=-c -Wall -std=c++17 -Wunreachable-code -Xclang -fopenmp
 	LFLAGS=-lglfw -lGLEW -framework OpenGL -L../LibML -lml -L../Utils -lutils
 	LIBS=-lomp -L ../../openmp/lib
-	INCLUDES=-I. -I../LibML -I../Utils -I ../../openmp/include 
+	INCLUDES=-I. -I../LibML -I../Utils -I ../../openmp/include -I /opt/homebrew/include 
 endif
 
 SRC = main.cpp MNIST.cpp

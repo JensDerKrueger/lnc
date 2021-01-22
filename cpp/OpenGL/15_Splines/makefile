@@ -10,7 +10,7 @@ else
 	CFLAGS=-c -Wall -std=c++17 -Wunreachable-code -Xclang
 	LFLAGS=-lglfw -lGLEW -framework OpenGL -L../Utils -lutils
 	LIBS=
-	INCLUDES=-I. -I../Utils
+	INCLUDES=-I. -I../Utils -I /opt/homebrew/include
 endif
 
 SRC = main.cpp

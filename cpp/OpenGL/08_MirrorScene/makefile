@@ -10,7 +10,7 @@ else
 	CFLAGS=-c -Wall -std=c++17 -Wunreachable-code -Xclang -fopenmp
 	LFLAGS=-lglfw -lGLEW -framework OpenGL -L../Utils -lutils
 	LIBS=-lomp -L ../../openmp/lib
-	INCLUDES=-I. -I../Utils
+	INCLUDES=-I. -I../Utils -I /opt/homebrew/include
 endif
 
 SRC = Scene.cpp main.cpp
