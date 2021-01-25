@@ -15,7 +15,7 @@ public:
 
 class MyClient : public Client {
 public:
-  MyClient(const std::string& address, short port) : Client(address, port) {}
+  MyClient(const std::string& address, short port) : Client(address, port, 5000) {}
   
   virtual void handleServerMessage(const std::string& message) override {
     std::cout << "Server: " << message << std::endl;
@@ -26,9 +26,13 @@ public:
 int main(int argc, char ** argv) {
   
   if (argc == 2) {
-    MyClient c{argv[1],12345};
-    std::cout << "connecting ..." << std::endl;
-    while (c.isConnecting()) {}
+    MyClient c{argv[1],11000};
+    std::cout << "connecting ...";
+    while (c.isConnecting()) {
+      std::cout << "." << std::flush;
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+    std::cout << std::endl;
     if (c.isOK()) {
       c.sendMessage("Hallo Leute!");
       std::string message;
@@ -47,9 +51,13 @@ int main(int argc, char ** argv) {
       return EXIT_FAILURE;
     }
   } else {
-    MyServer s{12345};
-    std::cout << "starting ..." << std::endl;
-    while (s.isStarting()) {}
+    MyServer s{11000};
+    std::cout << "starting ...";
+    while (s.isStarting()) {
+      std::cout << "." << std::flush;
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+    std::cout << std::endl;
     
     if (s.isOK()) {
       std::cout << "running ..." << std::endl;

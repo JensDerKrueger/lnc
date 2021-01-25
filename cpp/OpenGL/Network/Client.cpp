@@ -1,5 +1,6 @@
 #include <sstream>
 #include <iostream>
+#include <chrono>
 
 #include "Client.h"
 
@@ -77,9 +78,9 @@ void Client::clientFunc() {
 
     try {
       while (continueRunning && !connection->Connect(nwaddress, timeout)) {
-        // delay(10);
+        std::this_thread::sleep_for(std::chrono::milliseconds(10) );
       }
-    } catch (SocketException const& ) {
+    } catch (SocketException const& e) {
       continue;
     }
     
@@ -118,8 +119,10 @@ void Client::clientFunc() {
           for (const int8_t c : message) {
             data[j++] = c;
           }
-                    
+          
           connection->SendData((int8_t*)data.data(), uint32_t(data.size()), 1);
+        } else {
+          std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
         sendMessageMutex.unlock();
       }

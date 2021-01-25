@@ -120,7 +120,6 @@ void Server::clientFunc() {
     for (size_t i = 0;i<clientConnections.size();++i) {
       
       // remove clients that have disconnected
-      
       if (!clientConnections[i]->isConnected()) {
         clientConnections.erase(clientConnections.begin() + i);
         continue;
@@ -142,6 +141,7 @@ void Server::clientFunc() {
       if (!continueRunning) break;
     }
     clientVecMutex.unlock();
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
   }
 }
 
@@ -175,7 +175,7 @@ void Server::serverFunc() {
       try {
         TCPSocket* connectionSocket{nullptr};
         while (connectionSocket == nullptr && continueRunning) {
-
+          std::this_thread::sleep_for(std::chrono::milliseconds(1));
           while (!serverSocket->AcceptNewConnection((ConnectionSocket**)&connectionSocket, timeout)) {
             if (!continueRunning) {
               if (connectionSocket) {
