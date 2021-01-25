@@ -3,6 +3,8 @@
 
 #include "Server.h"
 
+size_t ClientConnection::idCounter = 1;
+
 ClientConnection::ClientConnection(TCPSocket* connectionSocket) :
   connectionSocket(connectionSocket),
   id(idCounter++)
@@ -216,4 +218,16 @@ void Server::serverFunc() {
     }
   }
   shutdownServer();
+}
+
+std::vector<uint32_t> Server::getValidIDs() {
+  
+  clientVecMutex.lock();
+  std::vector<uint32_t> ids(clientConnections.size());
+  for (size_t i = 0;i<clientConnections.size();++i) {
+    ids[i] = clientConnections[i]->getID();
+  }
+  clientVecMutex.unlock();
+
+  return ids;
 }

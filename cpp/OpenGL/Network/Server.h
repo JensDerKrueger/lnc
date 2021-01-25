@@ -23,7 +23,7 @@ private:
   std::string message{""};
   uint32_t messageLength{0};
   std::vector<int8_t> recievedBytes;
-  static inline size_t idCounter = 1;
+  static size_t idCounter;
   
   std::string handleIncommingData(int8_t* data, uint32_t bytes);
 };
@@ -39,6 +39,8 @@ public:
   virtual void handleClientMessage(size_t id, const std::string& message) = 0;
   
   void sendMessage(const std::string& message, size_t id=0, bool invertID=false);
+  
+  std::vector<uint32_t> getValidIDs();
   
 private:
   short port;
