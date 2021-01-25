@@ -41,10 +41,8 @@ int main(int argc, char ** argv) {
         if (message == "q") {
           c.sendMessage("Bye Bye!");
           break;
-        } else {
-          
-          for (size_t i = 0;i<100;++i)
-            c.sendMessage(message);
+        } else {          
+          c.sendMessage(message);
         }
       }
       return EXIT_SUCCESS;
