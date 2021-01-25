@@ -1,6 +1,34 @@
 #include <iostream>
+#include <string>
+#include <memory>
+#include <vector>
 #include "Server.h"
 #include "Client.h"
+
+
+struct Coder {
+  static std::string encode(const std::string& name, const std::string& value) {
+    return removeZeroes(name) + char(0) + removeZeroes(value);
+  }
+
+  static std::pair<std::string, std::string> decode(const std::string& input) {
+    const size_t delimPos = input.find(char(0),0);
+    
+    return std::make_pair<std::string, std::string>(input.substr(0,delimPos),input.substr(delimPos+1));
+  }
+
+  static std::string removeZeroes(std::string input) {
+    size_t pos=0;
+    while(pos<input.size()) {
+      pos=input.find(char(0),pos);
+      if(pos==std::string::npos) break;
+      input.replace(pos,1,"");
+    }
+    return input;
+  }
+  
+};
+
 
 class MyServer : public Server {
 public:
@@ -24,7 +52,6 @@ public:
 
 
 int main(int argc, char ** argv) {
-  
   if (argc == 2) {
     MyClient c{argv[1],11000};
     std::cout << "connecting ...";
