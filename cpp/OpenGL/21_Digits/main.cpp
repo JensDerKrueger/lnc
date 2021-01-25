@@ -5,6 +5,7 @@
 #include <Vec4.h>
 #include <Mat4.h>
 #include <random>
+#include <memory>
 
 #include <BPNetwork.h>
 #include <NeuralNetwork.h>
