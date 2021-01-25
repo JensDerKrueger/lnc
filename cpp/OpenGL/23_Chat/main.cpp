@@ -8,7 +8,7 @@ public:
   
   virtual void handleClientMessage(size_t id, const std::string& message) override {
     std::cout << "Client " << id << " send message " << message << std::endl;
-    sendMessage(message);
+    sendMessage(message, id, true);
   }
 };
 
@@ -42,7 +42,9 @@ int main(int argc, char ** argv) {
           c.sendMessage("Bye Bye!");
           break;
         } else {
-          c.sendMessage(message);
+          
+          for (size_t i = 0;i<100;++i)
+            c.sendMessage(message);
         }
       }
       return EXIT_SUCCESS;

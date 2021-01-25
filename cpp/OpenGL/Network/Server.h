@@ -38,7 +38,7 @@ public:
     
   virtual void handleClientMessage(size_t id, const std::string& message) = 0;
   
-  void sendMessage(const std::string& message);
+  void sendMessage(const std::string& message, size_t id=0, bool invertID=false);
   
 private:
   short port;

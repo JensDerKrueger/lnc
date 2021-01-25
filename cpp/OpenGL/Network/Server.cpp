@@ -101,19 +101,23 @@ void Server::shutdownServer() {
   }
   ok = false;
 }
-  
-void Server::sendMessage(const std::string& message) {
+
+void Server::sendMessage(const std::string& message, size_t id, bool invertID) {
   clientVecMutex.lock();
   for (size_t i = 0;i<clientConnections.size();++i) {
     if (!clientConnections[i]->isConnected()) {
       clientConnections.erase(clientConnections.begin() + i);
       continue;
     }
-    clientConnections[i]->sendMessage(message, timeout);
+    if (id == 0 ||
+        (!invertID && clientConnections[i]->getID() != id) ||
+        (invertID && clientConnections[i]->getID() != id))
+      clientConnections[i]->sendMessage(message, timeout);
   }
   clientVecMutex.unlock();
 }
-  
+
+
 void Server::clientFunc() {
   while (continueRunning) {
     clientVecMutex.lock();
