@@ -15,7 +15,7 @@ else
 	INCLUDES=-I. -I../Utils -I ../../openmp/include -I /opt/homebrew/include
 endif
 
-SRC = Sockets.cpp Client.cpp Server.cpp
+SRC = Sockets.cpp Client.cpp Server.cpp Base64.cpp AES.cpp
 OBJ = $(SRC:.cpp=.o)
 
 TARGET = libnetwork.a

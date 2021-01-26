@@ -4,7 +4,7 @@
 #include <vector>
 #include "Server.h"
 #include "Client.h"
-
+#include "AES.h"
 
 struct Coder {
   static std::string encode(const std::string& name, const std::string& value) {
@@ -52,6 +52,28 @@ public:
 
 
 int main(int argc, char ** argv) {
+  
+  uint8_t key[16] = {1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6};
+  uint8_t iv[16];
+  AESCrypt::genIV(iv);
+  
+  AESCrypt alice(key, iv);
+  AESCrypt bob(key, iv);
+  
+  std::string plain = "Hallo Welt";
+  std::string ec = alice.encryptString(plain);
+  
+  std::cout << ec << std::endl;
+  std::cout << bob.decryptString(ec) << std::endl;
+
+  
+  ec = alice.encryptString(plain);
+  std::cout << ec << std::endl;
+  std::cout << bob.decryptString(ec) << std::endl;
+
+  return 0;
+  
+  
   if (argc == 2) {
     MyClient c{argv[1],11000};
     std::cout << "connecting ...";

@@ -225,7 +225,7 @@ std::vector<uint32_t> Server::getValidIDs() {
   clientVecMutex.lock();
   std::vector<uint32_t> ids(clientConnections.size());
   for (size_t i = 0;i<clientConnections.size();++i) {
-    ids[i] = clientConnections[i]->getID();
+    ids[i] = uint32_t(clientConnections[i]->getID());
   }
   clientVecMutex.unlock();
 

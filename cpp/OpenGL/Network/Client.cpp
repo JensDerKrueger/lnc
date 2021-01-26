@@ -80,7 +80,7 @@ void Client::clientFunc() {
       while (continueRunning && !connection->Connect(nwaddress, timeout)) {
         std::this_thread::sleep_for(std::chrono::milliseconds(10) );
       }
-    } catch (SocketException const& e) {
+    } catch (SocketException const&) {
       continue;
     }
     
