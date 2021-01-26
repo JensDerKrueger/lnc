@@ -5,11 +5,21 @@
 TOPTARGETS := all clean release
 
 SUBDIRS := $(wildcard */.)
-SUBDIRS := $(filter-out Utils/. VS/. LibML/.,$(SUBDIRS))
-SUBDIRS := Utils/. LibML/. $(SUBDIRS)
+SUBDIRS := $(filter-out VS/. Utils/. LibML/. Network/.,$(SUBDIRS))
+FIRSTDIR := LibML/. Network/.
+UTILSDIR := Utils/.
 
 $(TOPTARGETS): $(SUBDIRS)
-$(SUBDIRS):
+
+$(SUBDIRS): $(FIRSTDIR)
+	$(MAKE) -C $@ $(MAKECMDGOALS)
+
+$(FIRSTDIR): $(UTILSDIR)
+	$(MAKE) -C $@ $(MAKECMDGOALS)
+
+$(UTILSDIR):
 	$(MAKE) -C $@ $(MAKECMDGOALS)
 
 .PHONY: $(TOPTARGETS) $(SUBDIRS)
+.PHONY: $(TOPTARGETS) $(FIRSTDIR)
+.PHONY: $(TOPTARGETS) $(UTILSDIR)
