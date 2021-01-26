@@ -1,3 +1,5 @@
+#include <cmath>
+
 #include "Flowfield.h"
 
 Flowfield Flowfield::genDemo(size_t size, DemoType d) {
