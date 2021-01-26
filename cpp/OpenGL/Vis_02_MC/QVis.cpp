@@ -57,7 +57,7 @@ void QVis::load(const std::string& filename) {
   datfile.close();
   
   if (rawFilename.empty())
-    throw QVisFileException{"object filename now found"};
+    throw QVisFileException{"object filename not found"};
   
   std::ifstream rawFile( rawFilename, std::ios::binary );  
   volume.data = std::vector<uint8_t>(std::istreambuf_iterator<char>(rawFile), {});
