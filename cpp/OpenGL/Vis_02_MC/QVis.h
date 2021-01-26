@@ -1,10 +1,13 @@
 #pragma once
 
+#include <iostream>
 #include "Volume.h"
 
 class QVisFileException : std::exception {
 public:
-  QVisFileException(const std::string& desc) : desc(desc) {}
+  QVisFileException(const std::string& desc) : desc(desc) {
+    std::cout << desc.c_str() << std::endl;
+  }
   const char* what() const noexcept {return desc.c_str();}
 private:
   std::string desc;
