@@ -90,10 +90,10 @@ Vec3 ParticleSystem::computeDirection() const {
 			return Vec3::randomPointInSphere() * radius + Vec3{ 0.0f, 0.15f, 0.0f };
 		case MagicChaoticVulcano:
 			radius = (initialSpeedMax - initialSpeedMin).length() * (0.6f + 0.4f * Rand::rand01()) * 0.1f;
-			return Vec3::randomPointInSphere() * radius + Vec3{ 0.04f * cos(floorf(t * 3.5f) * 10.0f),
-																0.05f + 0.2f * (1.2f + cos(floorf(t * 13.0f))) *
+			return Vec3::randomPointInSphere() * radius + Vec3{ 0.04f * cosf(floorf(t * 3.5f) * 10.0f),
+																0.05f + 0.2f * (1.2f + cosf(floorf(t * 13.0f))) *
                                                                 0.2f * Rand::rand01(),
-																0.04f * sin(floorf(t * 4.0f) * 20.0f) }
+																0.04f * sinf(floorf(t * 4.0f) * 20.0f) }
                                                                 *1.0f;
 	}
 	return { 0,0,0 };
