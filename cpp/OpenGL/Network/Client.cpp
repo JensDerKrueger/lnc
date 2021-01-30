@@ -1,13 +1,18 @@
 #include <sstream>
 #include <iostream>
 #include <chrono>
+#include <random>
+
 
 #include "Client.h"
 
-Client::Client(const std::string& address, short port, uint32_t timeout) :
+Client::Client(const std::string& address, short port, const std::string& key, uint32_t timeout) :
   address{address},
   port{port},
-  timeout{timeout}
+  timeout{timeout},
+  crypt(nullptr),
+  receiveCrypt(nullptr),
+  key(key)
 {
   clientThread = std::thread(&Client::clientFunc, this);
 }
@@ -53,11 +58,40 @@ std::string Client::handleIncommingData(int8_t* data, uint32_t bytes) {
     }
     recievedBytes.erase(recievedBytes.begin(), recievedBytes.begin() + messageLength+4);
     messageLength = 0;
-    return os.str();
+    
+    if (key.empty()) {
+      return os.str();
+    } else {
+      if (receiveCrypt) {
+        return receiveCrypt->decryptString(os.str());
+      } else {
+        return "";
+      }
+    }
+
   }
   
   return "";
 }
+
+
+std::string Client::genHandshake(uint8_t iv[16]) {
+  std::string message{key};
+  
+  for (size_t i = 0;i<16;++i) {
+    message = message + char(iv[i]);
+  }
+
+  auto seed = std::chrono::system_clock::now().time_since_epoch().count();
+  std::mt19937 generator((unsigned int)seed);  // mt19937 is a standard mersenne_twister_engine
+  
+  for (size_t i = 0;i<generator()%200;++i) {
+    message = message + char(generator());
+  }
+
+  return message;
+}
+
 
 void Client::clientFunc() {
   while (continueRunning) {
@@ -105,9 +139,24 @@ void Client::clientFunc() {
 
         sendMessageMutex.lock();
         if (!sendMessages.empty()) {
+          
           std::string message = sendMessages[0];
-          sendMessages.erase(sendMessages.begin(), sendMessages.begin()+1);
-
+          if (key.empty()) {
+            sendMessages.erase(sendMessages.begin(), sendMessages.begin()+1);
+          } else {
+            if (crypt) {
+              message = crypt->encryptString(message);
+              sendMessages.erase(sendMessages.begin(), sendMessages.begin()+1);
+            } else {
+              AESCrypt tempCrypt("1234567890123456",key);
+              uint8_t iv[16];
+              AESCrypt::genIV(iv);
+              message = tempCrypt.encryptString(genHandshake(iv));
+              crypt = std::make_unique<AESCrypt>(iv,key);
+              receiveCrypt = std::make_unique<AESCrypt>(iv,key);
+            }
+          }
+          
           uint32_t l = uint32_t(message.length());
           if (l < message.length()) message.resize(l);
           std::vector<uint8_t> data(4+l);

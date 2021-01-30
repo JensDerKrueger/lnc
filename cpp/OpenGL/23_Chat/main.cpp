@@ -4,7 +4,6 @@
 #include <vector>
 #include "Server.h"
 #include "Client.h"
-#include "AES.h"
 
 struct Coder {
   static std::string encode(const std::string& name, const std::string& value) {
@@ -32,8 +31,8 @@ struct Coder {
 
 class MyServer : public Server {
 public:
-  MyServer(short port) : Server(port) {}
-  
+  MyServer(short port) : Server(port, "asdn932lwnmflj23") {}
+
   virtual void handleClientMessage(size_t id, const std::string& message) override {
     std::cout << "Client " << id << " send message " << message << std::endl;
     sendMessage(message, id, true);
@@ -43,7 +42,7 @@ public:
 
 class MyClient : public Client {
 public:
-  MyClient(const std::string& address, short port) : Client(address, port, 5000) {}
+  MyClient(const std::string& address, short port) : Client(address, port, "asdn932lwnmflj23", 5000) {}
   
   virtual void handleServerMessage(const std::string& message) override {
     std::cout << "Server: " << message << std::endl;
@@ -52,28 +51,6 @@ public:
 
 
 int main(int argc, char ** argv) {
-  
-  uint8_t key[16] = {1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6};
-  uint8_t iv[16];
-  AESCrypt::genIV(iv);
-  
-  AESCrypt alice(key, iv);
-  AESCrypt bob(key, iv);
-  
-  std::string plain = "Hallo Welt";
-  std::string ec = alice.encryptString(plain);
-  
-  std::cout << ec << std::endl;
-  std::cout << bob.decryptString(ec) << std::endl;
-
-  
-  ec = alice.encryptString(plain);
-  std::cout << ec << std::endl;
-  std::cout << bob.decryptString(ec) << std::endl;
-
-  return 0;
-  
-  
   if (argc == 2) {
     MyClient c{argv[1],11000};
     std::cout << "connecting ...";
@@ -81,7 +58,7 @@ int main(int argc, char ** argv) {
       std::cout << "." << std::flush;
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
-    std::cout << std::endl;
+    std::cout << " Done" << std::endl;
     if (c.isOK()) {
       c.sendMessage("Hallo Leute!");
       std::string message;

@@ -1,6 +1,19 @@
 #pragma once
 
+#include <exception>
+
 #include "Base64.h"
+
+class AESException : public std::exception {
+  public:
+    AESException(const std::string& whatStr) : whatStr(whatStr) {}
+    virtual const char* what() const throw() {
+      return whatStr.c_str();
+    }
+  private:
+    std::string whatStr;
+};
+
 
 class AESCrypt {
 public:
@@ -10,7 +23,7 @@ public:
            const std::string& key);
   AESCrypt(const std::string& iv,
            const std::string& key);
-  
+
   std::string encryptString(const std::string& plainText);
   std::string decryptString(const std::string& cipher);
   

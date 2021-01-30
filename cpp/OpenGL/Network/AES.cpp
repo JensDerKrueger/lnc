@@ -1,4 +1,3 @@
-#include <stdexcept>
 #include <chrono>
 #include <random>
 #include <algorithm>
@@ -432,7 +431,7 @@ AESCrypt::AESCrypt(const std::string& iv, const std::string& key)
 {
   uint8_t aKey[16];
   if (key.size() == 0){
-    throw std::runtime_error("Invalid key length");
+    throw AESException("Invalid key length");
   }
   
   for (uint8_t i = 0;i<16;++i) {
@@ -441,7 +440,7 @@ AESCrypt::AESCrypt(const std::string& iv, const std::string& key)
   KeyExpansion(aKey);
   
   if (iv.size() == 0) {
-    throw std::runtime_error("Invalid iv length");
+    throw AESException("Invalid iv length");
   }
   
   for (uint8_t i = 0;i<16;++i) {
@@ -453,7 +452,7 @@ AESCrypt::AESCrypt(const uint8_t* iv, const std::string& key)
 {
   uint8_t aKey[16];
   if (key.size() == 0) {
-    throw std::runtime_error("Invalid key length");
+    throw AESException("Invalid key length");
   }
 
   for (uint8_t i = 0; i<16; ++i) {

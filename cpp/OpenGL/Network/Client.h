@@ -4,12 +4,14 @@
 #include <string>
 #include <thread>
 #include <mutex>
+#include <memory>
 
+#include "AES.h"
 #include "Sockets.h"
 
 class Client {
 public:
-  Client(const std::string& address, short port, uint32_t timeout = 100);
+  Client(const std::string& address, short port, const std::string& key="", uint32_t timeout = 100);
   virtual ~Client();
   
   bool isConnecting() const {return connecting;}
@@ -32,6 +34,9 @@ private:
 
   uint32_t messageLength{0};
   std::vector<int8_t> recievedBytes;
+  std::unique_ptr<AESCrypt> crypt;
+  std::unique_ptr<AESCrypt> receiveCrypt;
+  std::string key;
 
   
   std::vector<std::string> sendMessages;
@@ -43,5 +48,6 @@ private:
   void clientFunc();
   
   std::string handleIncommingData(int8_t* data, uint32_t bytes);
+  std::string genHandshake(uint8_t iv[16]);
     
 };
