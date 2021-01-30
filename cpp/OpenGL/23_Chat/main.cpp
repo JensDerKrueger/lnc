@@ -2,13 +2,14 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include <optional>
 #include "Server.h"
 #include "Client.h"
 
 
 struct Coder {
   
-  static char DELIM;
+  static inline char DELIM = char(1);
   
   static std::string encode(const std::string& name, const std::string& value) {
     return removeZeroes(name) + DELIM + removeZeroes(value);
@@ -29,8 +30,6 @@ struct Coder {
     return input;
   }
 };
-
-char Coder::DELIM = char(1);
 
 struct ClientInfo {
   size_t id;
@@ -55,6 +54,15 @@ public:
     }
   }
   
+  std::optional<ClientInfo> getClientInfo(size_t id) {
+    for (auto& c : clientInfo) {
+      if (c.id == id) {
+        return c;
+      }
+    }
+    return {};
+  }
+  
   virtual void handleClientMessage(size_t id, const std::string& message) override {
     
     const std::pair<std::string, std::string> data = Coder::decode(message);
@@ -67,18 +75,17 @@ public:
         }
       }
     } else if (data.first == "message") {
-      
-      std::string name{"invalid"};
-      for (const auto& c : clientInfo) {
-        if (c.id == id) {
-          name = c.name;
-          break;
-        }
+      auto ci = getClientInfo(id);
+      if (ci.has_value() ) {
+        sendMessage(ci.value().name + " writes " + data.second, id, true);
       }
-
-      sendMessage( name + " writes " + data.second, id, true);
+    } else if (data.first == "disconnect") {
+      auto ci = getClientInfo(id);
+      if (ci.has_value() ) {
+        sendMessage(ci.value().name + " has left the building!", id, true);
+      }
     } else {
-      std::cerr << "unknown comand " << data.first << " with payload " << data.second << std::endl;
+      std::cerr << "client send unknown command" << std::endl;
     }
     
   }
@@ -114,7 +121,7 @@ int main(int argc, char ** argv) {
       while (true) {
         std::getline (std::cin,message);
         if (message == "q") {
-          c.sendMessage(Coder::encode("message","bye bye!"));
+          c.sendMessage(Coder::encode("disconnect","bye bye!"));
           break;
         } else {          
           c.sendMessage(Coder::encode("message",message));
