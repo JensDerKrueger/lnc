@@ -185,7 +185,6 @@ void Server::clientFunc() {
         removeClient(i);
         continue;
       }
-
       
       if (!continueRunning) break;
     }
