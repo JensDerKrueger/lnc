@@ -98,9 +98,24 @@ private:
 class MyClient : public Client {
 public:
   MyClient(const std::string& address, short port) : Client(address, port, "asdn932lwnmflj23", 5000) {}
+
+
+  std::string clean(const std::string& message) {
+    static const std::string unsafeChars = "\\";   // we may want to add other harmfull chars here
+
+    std::string safeString{""};
+    for (size_t i = 0;i<message.size();++i) {
+      if ( unsafeChars.find(message[i]) !=std::string::npos ) {
+        safeString += "_";
+      } else {
+        safeString += message[i];
+      }
+    }
+    return safeString;
+  }
   
   virtual void handleServerMessage(const std::string& message) override {
-    std::cout << message << std::endl;
+    std::cout << clean(message) << std::endl;
   }
 };
 
