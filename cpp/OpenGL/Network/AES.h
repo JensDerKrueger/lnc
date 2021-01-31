@@ -33,6 +33,7 @@ public:
   static uint32_t getKeyLength();
   
   static void genIV(uint8_t iv[16]);
+  static std::string genIVString();
   
 private:
   // state-array holding the intermediate results during decryption.

@@ -75,18 +75,15 @@ std::string Client::handleIncommingData(int8_t* data, uint32_t bytes) {
 }
 
 
-std::string Client::genHandshake(uint8_t iv[16]) {
-  std::string message{key};
+std::string Client::genHandshake(const std::string& iv) {
+  std::string message{key+iv};
   
-  for (size_t i = 0;i<16;++i) {
-    message = message + char(iv[i]);
-  }
-
   auto seed = std::chrono::system_clock::now().time_since_epoch().count();
   std::mt19937 generator((unsigned int)seed);  // mt19937 is a standard mersenne_twister_engine
   
-  for (size_t i = 0;i<generator()%200;++i) {
-    message = message + char(generator());
+  const size_t randomLength = generator()%200;
+  for (size_t i = 0;i<randomLength;++i) {
+    message = message + "X";
   }
 
   return message;
@@ -149,8 +146,7 @@ void Client::clientFunc() {
               sendMessages.erase(sendMessages.begin(), sendMessages.begin()+1);
             } else {
               AESCrypt tempCrypt("1234567890123456",key);
-              uint8_t iv[16];
-              AESCrypt::genIV(iv);
+              std::string iv = AESCrypt::genIVString();
               message = tempCrypt.encryptString(genHandshake(iv));
               crypt = std::make_unique<AESCrypt>(iv,key);
               receiveCrypt = std::make_unique<AESCrypt>(iv,key);

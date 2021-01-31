@@ -543,6 +543,22 @@ void AESCrypt::genIV(uint8_t iv[16]) {
   }
 }
 
+std::string AESCrypt::genIVString() {
+  
+  static const std::string safeChars =
+  "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+  "abcdefghijklmnopqrstuvwxyz"
+  "0123456789+-*";
+  
+  std::string iv;
+  auto seed = std::chrono::system_clock::now().time_since_epoch().count();
+  std::mt19937 generator((unsigned int)seed);  // mt19937 is a standard mersenne_twister_engine
+  for (uint32_t i = 0;i<16;++i) {
+    iv += safeChars[generator()%safeChars.size()];
+  }
+  return iv;
+}
+
 
 /*
  The MIT License

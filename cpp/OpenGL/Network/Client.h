@@ -48,6 +48,6 @@ private:
   void clientFunc();
   
   std::string handleIncommingData(int8_t* data, uint32_t bytes);
-  std::string genHandshake(uint8_t iv[16]);
+  std::string genHandshake(const std::string& iv);
     
 };
