@@ -8,6 +8,8 @@
 #include <Client.h>
 #include <GLApp.h>
 
+#include "../PainterCommon.h"
+
 constexpr uint32_t width = 800;
 constexpr uint32_t height= 600;
 
@@ -22,12 +24,9 @@ public:
   MyClient(const std::string& address, short port) : Client(address, port, "asdn932lwnmflj23", 5000) {}
 
   virtual void handleServerMessage(const std::string& message) override {
-    const std::pair<std::string, std::string> data = Coder::decode(message);
-            
   }
   
   void setMousePos(const Vec2& normPos) {
-    //sendMessage(Coder::encode("mousepos","xx"));
   }
   
   const std::vector<MouseInfo> getOtherMouseInfos() {
