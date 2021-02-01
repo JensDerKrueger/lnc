@@ -1,12 +1,6 @@
 #pragma once
 
-#include <thread>
-#include <mutex>
-#include <vector>
-#include <memory>
-
-#include "AES.h"
-#include "Sockets.h"
+#include "NetCommon.h"
 
 class ClientConnection {
 public:

@@ -1,13 +1,6 @@
 #pragma once
 
-#include <vector>
-#include <string>
-#include <thread>
-#include <mutex>
-#include <memory>
-
-#include "AES.h"
-#include "Sockets.h"
+#include "NetCommon.h"
 
 class Client {
 public:
