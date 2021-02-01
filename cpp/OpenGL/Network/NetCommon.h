@@ -14,16 +14,32 @@ struct Coder {
   
   static inline char DELIM = char(1);
   
-  static std::string encode(const std::string& name, const std::string& value) {
-    return removeZeroes(name) + DELIM + removeZeroes(value);
+  static std::string encode(const std::vector<std::string>& data) {
+    std::string result;
+    for (size_t i = 0;i<data.size();++i) {
+      result += removeDelim(data[i]);
+      if (i<data.size()-1) result += DELIM;
+    }
+    return result;
   }
 
-  static std::pair<std::string, std::string> decode(const std::string& input) {
-    const size_t delimPos = input.find(DELIM,0);
-    return std::make_pair<std::string, std::string>(input.substr(0,delimPos),input.substr(delimPos+1));
+  static std::vector<std::string> decode(const std::string& input) {
+    std::vector<std::string> result;
+    size_t start = 0;
+    size_t delimPos = input.find(DELIM,start);
+    
+    while (delimPos != std::string::npos) {
+      result.push_back( input.substr(start,delimPos) );
+      start = delimPos+1;
+      delimPos = input.find(DELIM,start);
+    }
+    
+    result.push_back( input.substr(start) );
+    
+    return result;
   }
 
-  static std::string removeZeroes(std::string input) {
+  static std::string removeDelim(std::string input) {
     size_t pos=0;
     while(pos<input.size()) {
       pos=input.find(DELIM,pos);

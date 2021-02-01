@@ -41,21 +41,21 @@ public:
   
   virtual void handleClientMessage(size_t id, const std::string& message) override {
     
-    const std::pair<std::string, std::string> data = Coder::decode(message);
+    const std::vector<std::string> data = Coder::decode(message);
     
-    if (data.first == "name") {
+    if (data[0] == "name") {
       for (auto& c : clientInfo) {
         if (c.id == id) {
-          c.name = data.second;
+          c.name = data[1];
           break;
         }
       }
-    } else if (data.first == "message") {
+    } else if (data[0] == "message") {
       auto ci = getClientInfo(id);
       if (ci.has_value() ) {
-        sendMessage(ci.value().name + " writes " + data.second, id, true);
+        sendMessage(ci.value().name + " writes " + data[1], id, true);
       }
-    } else if (data.first == "disconnect") {
+    } else if (data[0] == "disconnect") {
       auto ci = getClientInfo(id);
       if (ci.has_value() ) {
         sendMessage(ci.value().name + " has left the building!", id, true);
@@ -107,15 +107,15 @@ int main(int argc, char ** argv) {
     std::cout << " Done" << std::endl;
     if (c.isOK()) {
       std::cout << "Hello " << argv[2] << std::endl;
-      c.sendMessage(Coder::encode("name",argv[2]));
+      c.sendMessage(Coder::encode({"name",argv[2]}));
       std::string message;
       while (true) {
         std::getline (std::cin,message);
         if (message == "q") {
-          c.sendMessage(Coder::encode("disconnect","bye bye!"));
+          c.sendMessage(Coder::encode({"disconnect","bye bye!"}));
           break;
         } else {          
-          c.sendMessage(Coder::encode("message",message));
+          c.sendMessage(Coder::encode({"message",message}));
         }
       }
       return EXIT_SUCCESS;
