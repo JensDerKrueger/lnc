@@ -12,7 +12,8 @@ public:
     
   void sendMessage(const std::string& message);
   virtual void handleServerMessage(const std::string& message) {};
-  
+  virtual void handleNewConnection() {};
+
   size_t cueSize();
   
 private:

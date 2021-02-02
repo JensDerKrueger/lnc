@@ -120,8 +120,10 @@ void Client::clientFunc() {
     
     if (!continueRunning) break;
 
+    handleNewConnection();
     ok = true;
     connecting = false;
+
     // send/receive data loop
     try {
       while (continueRunning && connection->IsConnected()) {
