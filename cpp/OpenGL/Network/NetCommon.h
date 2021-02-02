@@ -5,6 +5,8 @@
 #include <vector>
 #include <memory>
 #include <string>
+#include <chrono>
+#include <random>
 
 #include "AES.h"
 #include "Sockets.h"
@@ -52,3 +54,6 @@ struct Coder {
     return input;
   }
 };
+
+std::string genHandshake(const std::string& iv, const std::string& key);
+std::string getIVFromHandshake(const std::string& message, const std::string& key);

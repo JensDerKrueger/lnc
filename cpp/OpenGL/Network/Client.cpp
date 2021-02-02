@@ -1,8 +1,5 @@
 #include <sstream>
 #include <iostream>
-#include <chrono>
-#include <random>
-
 
 #include "Client.h"
 
@@ -65,6 +62,10 @@ std::string Client::handleIncommingData(int8_t* data, uint32_t bytes) {
       if (receiveCrypt) {
         return receiveCrypt->decryptString(os.str());
       } else {
+        AESCrypt tempCrypt("1234567890123456",key);
+        const std::string firstMessage = tempCrypt.decryptString(os.str());
+        const std::string iv = getIVFromHandshake(firstMessage, key);
+        receiveCrypt = std::make_unique<AESCrypt>(iv,key);
         return "";
       }
     }
@@ -73,22 +74,6 @@ std::string Client::handleIncommingData(int8_t* data, uint32_t bytes) {
   
   return "";
 }
-
-
-std::string Client::genHandshake(const std::string& iv) {
-  std::string message{key+iv};
-  
-  auto seed = std::chrono::system_clock::now().time_since_epoch().count();
-  std::mt19937 generator((unsigned int)seed);  // mt19937 is a standard mersenne_twister_engine
-  
-  const size_t randomLength = generator()%200;
-  for (size_t i = 0;i<randomLength;++i) {
-    message = message + "X";
-  }
-
-  return message;
-}
-
 
 void Client::clientFunc() {
   while (continueRunning) {
@@ -152,9 +137,8 @@ void Client::clientFunc() {
             } else {
               AESCrypt tempCrypt("1234567890123456",key);
               std::string iv = AESCrypt::genIVString();
-              message = tempCrypt.encryptString(genHandshake(iv));
+              message = tempCrypt.encryptString(genHandshake(iv, key));
               crypt = std::make_unique<AESCrypt>(iv,key);
-              receiveCrypt = std::make_unique<AESCrypt>(iv,key);
             }
           }
           

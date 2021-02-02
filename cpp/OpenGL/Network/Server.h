@@ -26,7 +26,8 @@ private:
   
   std::string handleIncommingData(int8_t* data, uint32_t bytes);
   
-  std::string getIVFromHandshake(const std::string& message);
+  void sendRawMessage(std::string message, uint32_t timeout);
+
 };
 
 class Server {
@@ -66,4 +67,5 @@ private:
   void serverFunc();
     
   void removeClient(size_t i);
+  
 };

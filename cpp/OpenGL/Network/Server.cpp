@@ -33,16 +33,7 @@ std::string ClientConnection::checkData() {
   return "";
 }
 
-void ClientConnection::sendMessage(std::string message, uint32_t timeout) {
-  
-  if (!key.empty()) {
-    if (sendCrypt) {
-      message = sendCrypt->encryptString(message);
-    } else {
-      return;
-    }
-  }
-  
+void ClientConnection::sendRawMessage(std::string message, uint32_t timeout) {
   uint32_t l = uint32_t(message.length());
   if (l < message.length()) message.resize(l); // could create multiple messages
                                                // instead of simply truncating string
@@ -62,18 +53,24 @@ void ClientConnection::sendMessage(std::string message, uint32_t timeout) {
   connectionSocket->SendData((int8_t*)data.data(), uint32_t(data.size()), timeout);
 }
 
-std::string ClientConnection::getIVFromHandshake(const std::string& message) {
-  if (message.size() < 32) {
-    return "";
+
+void ClientConnection::sendMessage(std::string message, uint32_t timeout) {
+  
+  if (!key.empty()) {
+    if (sendCrypt) {
+      message = sendCrypt->encryptString(message);
+    } else {
+      AESCrypt tempCrypt("1234567890123456",key);
+      std::string iv = AESCrypt::genIVString();
+      std::string initMessage = tempCrypt.encryptString(genHandshake(iv, key));
+      sendCrypt = std::make_unique<AESCrypt>(iv,key);
+      sendRawMessage(initMessage, timeout);
+      message = sendCrypt->encryptString(message);
+    }
   }
   
-  if (message.substr(0,16) != key) {
-    return "";
-  }
-
-  return message.substr(16,16);
+  sendRawMessage(message, timeout);
 }
-
 
 std::string ClientConnection::handleIncommingData(int8_t* data, uint32_t bytes) {
   recievedBytes.insert(recievedBytes.end(), data, data+bytes);
@@ -102,9 +99,8 @@ std::string ClientConnection::handleIncommingData(int8_t* data, uint32_t bytes) 
       } else {
         AESCrypt tempCrypt("1234567890123456",key);
         const std::string firstMessage = tempCrypt.decryptString(os.str());
-        const std::string iv = getIVFromHandshake(firstMessage);
+        const std::string iv = getIVFromHandshake(firstMessage, key);
         crypt = std::make_unique<AESCrypt>(iv,key);
-        sendCrypt = std::make_unique<AESCrypt>(iv,key);        
         return "";
       }
     }
@@ -144,9 +140,10 @@ void Server::sendMessage(const std::string& message, size_t id, bool invertID) {
   clientVecMutex.lock();
   for (size_t i = 0;i<clientConnections.size();++i) {
     if (id == 0 ||
-        (!invertID && clientConnections[i]->getID() != id) ||
-        (invertID && clientConnections[i]->getID() != id))
+        (!invertID && clientConnections[i]->getID() == id) ||
+        (invertID && clientConnections[i]->getID() != id)) {
       clientConnections[i]->sendMessage(message, timeout);
+    }
   }
   clientVecMutex.unlock();
 }
@@ -252,8 +249,9 @@ void Server::serverFunc() {
         }
 
         clientVecMutex.lock();
-        handleClientConnection(++id);
+        ++id;
         clientConnections.push_back(std::make_shared<ClientConnection>(connectionSocket, id, key));
+        handleClientConnection(id);
         clientVecMutex.unlock();
       } catch (SocketException const& ) {
       }
