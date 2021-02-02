@@ -14,10 +14,13 @@ struct Coder {
   
   static inline char DELIM = char(1);
   
-  static std::string encode(const std::vector<std::string>& data) {
+  static std::string encode(const std::vector<std::string>& data, bool checkForDelim=true) {
     std::string result;
     for (size_t i = 0;i<data.size();++i) {
-      result += removeDelim(data[i]);
+      if (checkForDelim)
+        result += removeDelim(data[i]);
+      else
+        result += data[i];
       if (i<data.size()-1) result += DELIM;
     }
     return result;
@@ -29,7 +32,7 @@ struct Coder {
     size_t delimPos = input.find(DELIM,start);
     
     while (delimPos != std::string::npos) {
-      result.push_back( input.substr(start,delimPos) );
+      result.push_back( input.substr(start,delimPos-start) );
       start = delimPos+1;
       delimPos = input.find(DELIM,start);
     }
