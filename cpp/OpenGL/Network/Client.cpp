@@ -92,7 +92,10 @@ std::string Client::genHandshake(const std::string& iv) {
 
 void Client::clientFunc() {
   while (continueRunning) {
+    
     connecting = true;
+    crypt = nullptr;
+    
     if (connection && connection->IsConnected()) {
       try {
         connection->Close();
