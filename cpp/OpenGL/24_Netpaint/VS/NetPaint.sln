@@ -2,7 +2,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30611.23
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Netpaint", "Netpaint.vcxproj", "{B738223F-09EC-46B4-BB8C-CBBF8BEDC262}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NetPaint", "Netpaint.vcxproj", "{B738223F-09EC-46B4-BB8C-CBBF8BEDC262}"
 	ProjectSection(ProjectDependencies) = postProject
 		{13ABC8A2-39FF-49CE-A88C-CE9BCD95458C} = {13ABC8A2-39FF-49CE-A88C-CE9BCD95458C}
 		{164A60B9-00CE-4CDA-94DD-CC3366859398} = {164A60B9-00CE-4CDA-94DD-CC3366859398}
@@ -15,6 +15,7 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NetPaintServer", "NetPaintServer.vcxproj", "{F22514D1-432C-41B9-9B63-A1BF874BFF3C}"
 	ProjectSection(ProjectDependencies) = postProject
 		{13ABC8A2-39FF-49CE-A88C-CE9BCD95458C} = {13ABC8A2-39FF-49CE-A88C-CE9BCD95458C}
+		{164A60B9-00CE-4CDA-94DD-CC3366859398} = {164A60B9-00CE-4CDA-94DD-CC3366859398}
 	EndProjectSection
 EndProject
 Global
