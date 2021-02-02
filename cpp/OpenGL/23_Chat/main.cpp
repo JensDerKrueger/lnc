@@ -24,6 +24,7 @@ public:
   virtual void handleClientDisconnection(size_t id) override {
     for (size_t i = 0;i<clientInfo.size();++i) {
       if (clientInfo[i].id == id) {
+        sendMessage(clientInfo[i].name + " has left the building!", id, true);
         clientInfo.erase(clientInfo.begin()+i);
         break;
       }
@@ -50,15 +51,11 @@ public:
           break;
         }
       }
+      sendMessage(data[1] + " joined the chat!", id, true);
     } else if (data[0] == "message") {
       auto ci = getClientInfo(id);
       if (ci.has_value() ) {
         sendMessage(ci.value().name + " writes " + data[1], id, true);
-      }
-    } else if (data[0] == "disconnect") {
-      auto ci = getClientInfo(id);
-      if (ci.has_value() ) {
-        sendMessage(ci.value().name + " has left the building!", id, true);
       }
     } else {
       std::cerr << "client send unknown command" << std::endl;
@@ -73,11 +70,14 @@ private:
 
 class MyClient : public Client {
 public:
-  MyClient(const std::string& address, short port) : Client(address, port, "asdn932lwnmflj23", 5000) {}
+  MyClient(const std::string& address, short port, const std::string& name) :
+    Client(address, port, "asdn932lwnmflj23", 5000),
+    name(name)
+  {}
 
 
   std::string clean(const std::string& message) {
-    static const std::string unsafeChars = "\\";   // we may want to add other harmfull chars here
+    static const std::string unsafeChars = "\\~";   // we may want to add other harmfull chars here
 
     std::string safeString{""};
     for (size_t i = 0;i<message.size();++i) {
@@ -90,15 +90,23 @@ public:
     return safeString;
   }
   
+  virtual void handleNewConnection() override {
+    sendMessage(Coder::encode({"name",name}));
+  }
+
   virtual void handleServerMessage(const std::string& message) override {
     std::cout << clean(message) << std::endl;
   }
+
+private:
+  std::string name;
+                                
 };
 
 
 int main(int argc, char ** argv) {
   if (argc == 3) {
-    MyClient c{argv[1],11000};
+    MyClient c{argv[1],11000,argv[2]};
     std::cout << "connecting ...";
     while (c.isConnecting()) {
       std::cout << "." << std::flush;
@@ -107,12 +115,10 @@ int main(int argc, char ** argv) {
     std::cout << " Done" << std::endl;
     if (c.isOK()) {
       std::cout << "Hello " << argv[2] << std::endl;
-      c.sendMessage(Coder::encode({"name",argv[2]}));
       std::string message;
       while (true) {
         std::getline (std::cin,message);
         if (message == "q") {
-          c.sendMessage(Coder::encode({"disconnect","bye bye!"}));
           break;
         } else {          
           c.sendMessage(Coder::encode({"message",message}));
