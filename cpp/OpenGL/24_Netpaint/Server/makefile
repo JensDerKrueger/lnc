@@ -10,7 +10,7 @@ else
 	CFLAGS=-c -Wall -std=c++17 -Wunreachable-code -Xclang -fopenmp
 	LFLAGS=-L../../Network -lnetwork
 	LIBS=-lomp -L ../../../openmp/lib -L /opt/homebrew/lib
-	INCLUDES=-I. -I ../../../openmp/include -I /opt/homebrew/include -I../../Network
+	INCLUDES=-I. -I ../../../openmp/include -I /opt/homebrew/include -I../../Network -I../../Utils
 endif
 
 SRC = main.cpp
@@ -24,9 +24,12 @@ release: LFLAGS += -flto
 release: $(TARGET)
 
 ../../Network/libnetwork.a:
-	cd ../Network && make
+	cd ../../Network && make
 
-$(TARGET): $(OBJ) ../../Network/libnetwork.a
+../../Utils/libutils.a:
+	cd ../../Utils && make
+
+$(TARGET): $(OBJ) ../../Network/libnetwork.a ../../Utils/libutils.a
 	$(CC) $(INCLUDES) $^ $(LFLAGS) $(LIBS) -o $@
 
 %.o: %.cpp
@@ -37,3 +40,5 @@ clean:
 
 mrproper: clean
 	cd ../../Network && make clean
+	cd ../../Utils && make clean
+	
