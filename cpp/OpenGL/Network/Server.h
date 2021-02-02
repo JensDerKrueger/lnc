@@ -56,7 +56,7 @@ private:
   bool continueRunning{true};
   std::thread connectionThread;
   std::thread clientThread;
-  std::mutex clientVecMutex;
+  std::recursive_mutex clientVecMutex;
    
   std::shared_ptr<TCPServer> serverSocket;
   std::vector<std::shared_ptr<ClientConnection>> clientConnections;
