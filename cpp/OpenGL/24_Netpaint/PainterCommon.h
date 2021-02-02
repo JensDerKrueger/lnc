@@ -222,8 +222,10 @@ struct InitPayload : public BasicPayload {
     for (size_t i = 0;i<mouseInfos.size();++i) {
       mouseInfos[i].id = std::stoi(token[pos++]);
       mouseInfos[i].name = token[pos++];
-      mouseInfos[i].color = Vec4{std::stof(token[pos++]),std::stof(token[pos++]),std::stof(token[pos++]),std::stof(token[pos++])};
-      mouseInfos[i].pos = Vec2{std::stof(token[pos++]),std::stof(token[pos++])};
+      mouseInfos[i].color = Vec4{std::stof(token[pos]),std::stof(token[pos+1]),std::stof(token[pos+2]),std::stof(token[pos+3])};
+      pos += 4;
+      mouseInfos[i].pos = Vec2{std::stof(token[pos]),std::stof(token[pos+1])};
+      pos += 2;
     }
 
     
