@@ -6,6 +6,9 @@
 #include <Vec2.h>
 #include <Vec4.h>
 
+constexpr uint32_t imageWidth = 10;
+constexpr uint32_t imageHeight= 10;
+
 struct MouseInfo {
   size_t id;
   std::string name;
@@ -194,15 +197,49 @@ struct InitPayload : public BasicPayload {
   std::vector<uint8_t> image;
   std::vector<MouseInfo> mouseInfos;
 
-  InitPayload(const std::vector<uint8_t>& image, const std::vector<MouseInfo>& mouseInfos) :
-    image(image)
+  InitPayload(const std::string& message) :
+    BasicPayload(message)
   {
-    pt = PayloadType::CanvasUpdatePayload;
+    std::vector<std::string> token = Coder::decode(message);
+    if (token.size() < 5) {
+      throw DSException("CanvasUpdatePayload message to short (first check)");
+    }
+    
+    size_t pos = 3;
+    image.resize(std::stoi(token[pos++]));
+    if (token.size() < pos+image.size()) {
+      throw DSException("CanvasUpdatePayload message to short (second check)");
+    }
+    for (size_t i = 0;i<image.size();++i) {
+      image[i] = std::stoi(token[pos++]);
+    }
+
+
+    mouseInfos.resize(std::stoi(token[pos++]));
+    if (token.size() < pos+mouseInfos.size()*8) {
+      throw DSException("CanvasUpdatePayload message to short (third check)");
+    }
+    for (size_t i = 0;i<mouseInfos.size();++i) {
+      mouseInfos[i].id = std::stoi(token[pos++]);
+      mouseInfos[i].name = token[pos++];
+      mouseInfos[i].color = Vec4{std::stof(token[pos++]),std::stof(token[pos++]),std::stof(token[pos++]),std::stof(token[pos++])};
+      mouseInfos[i].pos = Vec2{std::stof(token[pos++]),std::stof(token[pos++])};
+    }
+
+    
+  }
+  
+  InitPayload(const std::vector<uint8_t>& image, const std::vector<MouseInfo>& mouseInfos) :
+    image(image),
+    mouseInfos(mouseInfos)
+  {
+    pt = PayloadType::InitPayload;
   }
   
   virtual std::string toString() override {
     std::vector<std::string> v{BasicPayload::toString()};
     
+    v.push_back(std::to_string(image.size()));
     for (size_t i = 0;i<image.size();++i) {
       v.push_back(std::to_string(image[i]));
     }
@@ -219,7 +256,7 @@ struct InitPayload : public BasicPayload {
       v.push_back(std::to_string(mouseInfos[i].pos.y()));
     }
     
-    return Coder::encode(v);
+    return Coder::encode(v,false);
   }
 };
 

@@ -4,18 +4,27 @@
 #include <vector>
 #include <optional>
 #include "Server.h"
+#include "Image.h"
 
 #include "../PainterCommon.h"
-
 
 class MyServer : public Server {
 public:
   
-  MyServer(short port) : Server(port, "asdn932lwnmflj23") {}
+  MyServer(short port) : Server(port, "asdn932lwnmflj23") {
+    for (size_t i = 0;i<image.data.size();i+=4) {
+      image.data[i+0] = 0;
+      image.data[i+1] = 0;
+      image.data[i+2] = 128;
+      image.data[i+3] = 255;
+    }
+  }
 
   virtual void handleClientConnection(size_t id) override {
-    mouseInfo.push_back(MouseInfo{id,"Unknown"});
+    InitPayload l(image.data, mouseInfo);
+    sendMessage(l.toString(), id);
   }
+  
   
   virtual void handleClientDisconnection(size_t id) override {
     ciMutex.lock();
@@ -40,7 +49,7 @@ public:
     }
     return {};
   }
-   
+
   virtual void handleClientMessage(size_t id, const std::string& message) override {
     PayloadType pt = identifyString(message);
     ciMutex.lock();
@@ -61,7 +70,12 @@ public:
       case PayloadType::CanvasUpdatePayload  : {
         CanvasUpdatePayload l(message);
         l.userID = id;
-        // TODO: paint into canvas copy
+
+        image.setNormalizedValue(l.pos.x(),l.pos.y(),0,l.color.x());
+        image.setNormalizedValue(l.pos.x(),l.pos.y(),1,l.color.y());
+        image.setNormalizedValue(l.pos.x(),l.pos.y(),2,l.color.z());
+        image.setNormalizedValue(l.pos.x(),l.pos.y(),3,l.color.w());
+
         sendMessage(l.toString(), id, true);
         break;
       }
@@ -74,6 +88,7 @@ public:
 private:
   std::vector<MouseInfo> mouseInfo;
   std::mutex ciMutex;
+  Image image{imageWidth,imageHeight};
 };
 
 

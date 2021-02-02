@@ -10,15 +10,12 @@
 
 #include "../PainterCommon.h"
 
-constexpr uint32_t width = 800;
-constexpr uint32_t height= 600;
-
-
 class MyClient : public Client {
 public:
   MyClient(const std::string& address, short port, const std::string& name) :
-  Client(address, port, "asdn932lwnmflj23", 5000),
-  name(name)
+  Client{address, port, "asdn932lwnmflj23", 5000},
+  name{name},
+  color{Vec3::hsvToRgb({360*Rand::rand01(),0.5f,1.0f}), 1.0f}
   {
     for (uint32_t y = 0;y<image.height;++y) {
       for (uint32_t x = 0;x<image.width;++x) {
@@ -64,6 +61,12 @@ public:
     }
   }
   
+  void initDataFromServer(const std::vector<uint8_t>& imageData,
+                          const std::vector<MouseInfo>& mi) {
+    image.data = imageData;
+    mouseInfos = mi;
+  }
+  
   void paint(const Vec4& color, const Vec2i& pos) {
     image.setNormalizedValue(pos.x(),pos.y(),0,color.x());
     image.setNormalizedValue(pos.x(),pos.y(),1,color.y());
@@ -72,7 +75,7 @@ public:
   }
   
   virtual void handleNewConnection() override {
-    NewUserPayload l(name, Vec4(1,0,0,1));
+    NewUserPayload l(name, color);
     sendMessage(l.toString());
   }
 
@@ -97,7 +100,8 @@ public:
         break;
       }
       case PayloadType::InitPayload : {
-        // TODO
+        InitPayload l(message);
+        initDataFromServer(l.image, l.mouseInfos);
         break;
       }
       case PayloadType::CanvasUpdatePayload : {
@@ -105,7 +109,9 @@ public:
         paint(l.color, l.pos);
         break;
       }
-      default: break;
+      default:
+        std::cout << "unknown message " << int(pt) << " received" << std::endl;
+        break;
     };
     miMutex.unlock();
   }
@@ -115,72 +121,108 @@ public:
     sendMessage(m.toString());
   }
   
-  void paintSelf(const Vec4& color, const Vec2i& pos) {
+  void paintSelf(const Vec2i& pos) {
     paint(color, pos);
     CanvasUpdatePayload m{color, pos};
     sendMessage(m.toString());
   }
   
-  const std::vector<MouseInfo> getOtherMouseInfos() {
-    std::vector<MouseInfo> mi;
-    miMutex.lock();
-    mi = mouseInfos;
-    miMutex.unlock();
-    return mi;
+  const std::vector<MouseInfo>& getOtherMouseInfos() const {
+    return mouseInfos;
+  }
+    
+  const Image& getImage() const {
+    return image;
   }
   
-  Image image{width,height};
+  void lockData() {
+    miMutex.lock();
+  }
+
+  void unlockData() {
+    miMutex.unlock();
+  }
+
+  Vec4 getColor() const {
+    return color;
+  }
 
 private:
   std::mutex miMutex;
   std::vector<MouseInfo> mouseInfos;
   std::string name;
-
+  Vec4 color;
+  
+  Image image{imageWidth,imageHeight};
 };
 
 class MyGLApp : public GLApp {
 public:
-  Vec2 normPos{};
 
-  MyGLApp(MyClient& client) : GLApp(width,height, 4, "Network Painter"), client(client) {}
+  MyGLApp(MyClient& client) : GLApp(imageWidth*50,imageHeight*50, 4, "Network Painter"), client(client) {}
   
-  virtual void init() {
-    color = Vec4{Vec3::hsvToRgb({360*Rand::rand01(),1.0f,1.0f}), 1.0f};
-    
+  virtual void init() override {
     glEnv.setCursorMode(CursorMode::HIDDEN);
     GL(glEnable(GL_BLEND));
     GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
     GL(glBlendEquation(GL_FUNC_ADD));
   }
   
-  virtual void mouseMove(double xPosition, double yPosition) {
+  virtual void mouseMove(double xPosition, double yPosition) override {
     Dimensions s = glEnv.getWindowSize();
     if (xPosition < 0 || xPosition > s.width || yPosition < 0 || yPosition > s.height) return;
 
     normPos = Vec2{float(xPosition/s.width),float(1.0-yPosition/s.height)};
-    client.setMousePos(normPos);
-    client.paintSelf(color, Vec2i{int(normPos.x()*width),int(normPos.y()*height)});
+    Vec2i iPos{int(normPos.x()*imageWidth),int(normPos.y()*imageHeight)};
+    
+    if (mouseDown) client.paintSelf(iPos);
+
+    if (iPos != lastMousePos) {
+      client.setMousePos(normPos);
+    }
+    lastMousePos = iPos;
   }
   
+  virtual void mouseButton(int button, int state, int mods, double xPosition, double yPosition) override {
+    if (button == GLFW_MOUSE_BUTTON_LEFT) {
+      mouseDown = (state == GLFW_PRESS);
+    }
+  }
+  
+  virtual void keyboard(int key, int scancode, int action, int mods) override {
+    if (action == GLFW_PRESS) {
+      switch (key) {
+        case GLFW_KEY_ESCAPE:
+          closeWindow();
+          break;
+      }
+    }
+  }
     
-  virtual void draw() {
-    drawImage(client.image);
-    
+  virtual void draw() override {
+    client.lockData();
+    drawImage(client.getImage());
     std::vector<float> glShape;
-    glShape.push_back(normPos.x() *2.0f-1.0f); glShape.push_back(normPos.y() *2.0f-1.0f); glShape.push_back(0.0f);
-    glShape.push_back(color.r()); glShape.push_back(color.y()); glShape.push_back(color.z());  glShape.push_back(color.w());
-    
     const std::vector<MouseInfo> otherMice = client.getOtherMouseInfos();
     for (const MouseInfo& m : otherMice) {
       glShape.push_back(m.pos.x() *2.0f-1.0f); glShape.push_back(m.pos.y() *2.0f-1.0f); glShape.push_back(0.0f);
       glShape.push_back(m.color.x()); glShape.push_back(m.color.y()); glShape.push_back(m.color.z());  glShape.push_back(m.color.w());
     }
+    Vec4 color{client.getColor()};
+    client.unlockData();
+    drawPoints(glShape, 10, true);
+    
+    glShape.clear();
+    glShape.push_back(normPos.x() *2.0f-1.0f); glShape.push_back(normPos.y() *2.0f-1.0f); glShape.push_back(0.0f);
+    glShape.push_back(color.r()); glShape.push_back(color.y()); glShape.push_back(color.z());  glShape.push_back(color.w());
     drawPoints(glShape, 40, true);
   }
 
 private:
   MyClient& client;
-  Vec4 color;
+  Vec2 normPos{};
+  bool mouseDown{false};
+  Vec2i lastMousePos{-1,-1};
 
 };
 
