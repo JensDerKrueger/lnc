@@ -61,9 +61,9 @@ public:
     }
   }
   
-  void initDataFromServer(const std::vector<uint8_t>& imageData,
+  void initDataFromServer(const Image& serverImage,
                           const std::vector<MouseInfo>& mi) {
-    image.data = imageData;
+    image      = serverImage;
     mouseInfos = mi;
   }
   
@@ -159,7 +159,7 @@ private:
 class MyGLApp : public GLApp {
 public:
 
-  MyGLApp(MyClient& client) : GLApp(imageWidth*50,imageHeight*50, 4, "Network Painter"), client(client) {}
+  MyGLApp(MyClient& client) : GLApp(1024, size_t(1024.0f * float(imageHeight)/float(imageWidth)), 4, "Network Painter"), client(client) {}
   
   virtual void init() override {
     glEnv.setCursorMode(CursorMode::HIDDEN);
@@ -173,7 +173,7 @@ public:
     if (xPosition < 0 || xPosition > s.width || yPosition < 0 || yPosition > s.height) return;
 
     normPos = Vec2{float(xPosition/s.width),float(1.0-yPosition/s.height)};
-    Vec2i iPos{int(normPos.x()*imageWidth),int(normPos.y()*imageHeight)};
+    Vec2i iPos{int(normPos.x()*client.getImage().width),int(normPos.y()*client.getImage().height)};
     
     if (mouseDown) client.paintSelf(iPos);
 

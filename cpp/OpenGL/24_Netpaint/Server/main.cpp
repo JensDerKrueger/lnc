@@ -21,7 +21,7 @@ public:
   }
 
   virtual void handleClientConnection(size_t id) override {
-    InitPayload l(image.data, mouseInfo);
+    InitPayload l(image, mouseInfo);
     sendMessage(l.toString(), id);
   }
   

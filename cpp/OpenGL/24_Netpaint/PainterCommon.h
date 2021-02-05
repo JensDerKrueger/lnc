@@ -3,11 +3,12 @@
 #include <string>
 #include <NetCommon.h>
 
+#include <Image.h>
 #include <Vec2.h>
 #include <Vec4.h>
 
-constexpr uint32_t imageWidth = 10;
-constexpr uint32_t imageHeight= 10;
+constexpr uint32_t imageWidth = 400;
+constexpr uint32_t imageHeight= 400;
 
 struct MouseInfo {
   size_t id;
@@ -194,24 +195,26 @@ struct CanvasUpdatePayload : public BasicPayload {
 };
 
 struct InitPayload : public BasicPayload {
-  std::vector<uint8_t> image;
+  Image image;
   std::vector<MouseInfo> mouseInfos;
 
   InitPayload(const std::string& message) :
     BasicPayload(message)
   {
     std::vector<std::string> token = Coder::decode(message);
-    if (token.size() < 5) {
+    if (token.size() < 6) {
       throw DSException("CanvasUpdatePayload message to short (first check)");
     }
     
     size_t pos = 3;
-    image.resize(std::stoi(token[pos++]));
-    if (token.size() < pos+image.size()) {
+    size_t w = std::stoi(token[pos++]);
+    size_t h = std::stoi(token[pos++]);
+    image = Image(w,h);
+    if (token.size() < pos+image.data.size()) {
       throw DSException("CanvasUpdatePayload message to short (second check)");
     }
-    for (size_t i = 0;i<image.size();++i) {
-      image[i] = std::stoi(token[pos++]);
+    for (size_t i = 0;i<image.data.size();++i) {
+      image.data[i] = std::stoi(token[pos++]);
     }
 
 
@@ -231,7 +234,7 @@ struct InitPayload : public BasicPayload {
     
   }
   
-  InitPayload(const std::vector<uint8_t>& image, const std::vector<MouseInfo>& mouseInfos) :
+  InitPayload(const Image& image, const std::vector<MouseInfo>& mouseInfos) :
     image(image),
     mouseInfos(mouseInfos)
   {
@@ -241,9 +244,10 @@ struct InitPayload : public BasicPayload {
   virtual std::string toString() override {
     std::vector<std::string> v{BasicPayload::toString()};
     
-    v.push_back(std::to_string(image.size()));
-    for (size_t i = 0;i<image.size();++i) {
-      v.push_back(std::to_string(image[i]));
+    v.push_back(std::to_string(image.width));
+    v.push_back(std::to_string(image.height));
+    for (size_t i = 0;i<image.data.size();++i) {
+      v.push_back(std::to_string(image.data[i]));
     }
 
     v.push_back(std::to_string(mouseInfos.size()));
