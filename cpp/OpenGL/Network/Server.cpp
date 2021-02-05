@@ -49,8 +49,20 @@ void ClientConnection::sendRawMessage(std::string message, uint32_t timeout) {
   for (const int8_t c : message) {
     data[j++] = c;
   }
-            
-  connectionSocket->SendData((int8_t*)data.data(), uint32_t(data.size()), timeout);
+  
+  uint32_t currentBytes = 0;
+  uint32_t totalBytes = 0;
+  
+  do {
+    currentBytes = connectionSocket->SendData(((int8_t*)data.data()) + totalBytes, uint32_t(data.size()-totalBytes), timeout);
+    totalBytes += currentBytes;
+  } while (currentBytes > 0 && totalBytes < data.size());
+  
+  if (currentBytes == 0 && totalBytes < data.size()) {
+    std::cerr << "lost data" << std::endl;
+  }
+    
+  
 }
 
 
@@ -178,7 +190,7 @@ void Server::clientFunc() {
         removeClient(i);
         continue;
       } catch (AESException const& e) {
-        std::cout << "encryption error: " << e.what() << std::endl;
+        std::cerr << "encryption error: " << e.what() << std::endl;
         removeClient(i);
         continue;
       }
@@ -206,7 +218,7 @@ void Server::serverFunc() {
 
       std::stringstream ss;
       ss << "SocketException: " << e.what() << " (" << e.where() << " returned with error code " << e.withErrorCode() << ")";
-      std::cout << ss.str() << std::endl;
+      std::cerr << ss.str() << std::endl;
 
       shutdownServer();
       return;
