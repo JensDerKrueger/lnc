@@ -157,12 +157,11 @@ void Client::clientFunc() {
           uint32_t currentBytes = 0;
           uint32_t totalBytes = 0;
           do {
-            currentBytes = connection->SendData((int8_t*)data.data(), uint32_t(data.size()), 1);
+            currentBytes = connection->SendData((int8_t*)data.data()+ totalBytes, uint32_t(data.size()-totalBytes), timeout);
             totalBytes += currentBytes;            
             if (!continueRunning) break;
           } while (currentBytes > 0 && totalBytes < data.size());
-          
-          
+        
            
         } else {
           std::this_thread::sleep_for(std::chrono::milliseconds(1));
