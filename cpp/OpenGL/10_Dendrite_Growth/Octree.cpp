@@ -1,6 +1,7 @@
 #include <iostream>
 #include <limits>
 #include <cmath>
+#include <memory>
 
 #include "Octree.h"
 

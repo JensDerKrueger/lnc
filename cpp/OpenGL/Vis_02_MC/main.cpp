@@ -8,13 +8,14 @@ class MyGLApp : public GLApp {
 public:
   double angle{0};
   std::vector<float> data;
-  QVis q{"c60.dat"};
+  QVis q{"bonsai2.dat"};
   uint8_t isovalue{128};
   bool wireframe{false};
   bool surfaceChanged{true};
   
   virtual void init() override {
     glEnv.setTitle("Marching Cubes demo");
+    glEnv.setSync(false);
     GL(glDisable(GL_CULL_FACE));
     GL(glEnable(GL_DEPTH_TEST));
     GL(glClearColor(0,0,0,0));

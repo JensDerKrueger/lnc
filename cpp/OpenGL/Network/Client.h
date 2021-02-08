@@ -1,15 +1,10 @@
 #pragma once
 
-#include <vector>
-#include <string>
-#include <thread>
-#include <mutex>
-
-#include "Sockets.h"
+#include "NetCommon.h"
 
 class Client {
 public:
-  Client(const std::string& address, short port, uint32_t timeout = 100);
+  Client(const std::string& address, short port, const std::string& key="", uint32_t timeout = 100);
   virtual ~Client();
   
   bool isConnecting() const {return connecting;}
@@ -17,7 +12,8 @@ public:
     
   void sendMessage(const std::string& message);
   virtual void handleServerMessage(const std::string& message) {};
-  
+  virtual void handleNewConnection() {};
+
   size_t cueSize();
   
 private:
@@ -32,6 +28,9 @@ private:
 
   uint32_t messageLength{0};
   std::vector<int8_t> recievedBytes;
+  std::unique_ptr<AESCrypt> crypt;
+  std::unique_ptr<AESCrypt> receiveCrypt;
+  std::string key;
 
   
   std::vector<std::string> sendMessages;

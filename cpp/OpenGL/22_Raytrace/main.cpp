@@ -120,7 +120,7 @@ const uint32_t maxDepth{20};
 class MyGLApp : public GLApp {
 public:
 
-  const HitableList world{randomSphereScene()};
+  HitableList world;
 
   Vec3 lookFrom{13,2,3};
   const Vec3 lookAt{0,0,0};
@@ -143,6 +143,7 @@ public:
     GL(glDisable(GL_CULL_FACE));
     GL(glDisable(GL_DEPTH_TEST));
     GL(glClearColor(0,0,0,0));
+    world = randomSphereScene();
     threadObj = std::thread(&MyGLApp::trace, this);
   }
   

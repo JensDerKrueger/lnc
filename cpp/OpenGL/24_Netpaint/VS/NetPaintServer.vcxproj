@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{b738223f-09ec-46b4-bb8c-cbbf8bedc262}</ProjectGuid>
-    <RootNamespace>Raytrace</RootNamespace>
+    <ProjectGuid>{F22514D1-432C-41B9-9B63-A1BF874BFF3C}</ProjectGuid>
+    <RootNamespace>NetPaintServer</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -72,27 +72,27 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)..\..\..\VS\include;$(SolutionDir)..\..\..\Utils;$(IncludePath)</IncludePath>
-    <OutDir>$(SolutionDir)bin\$(Platform)-$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)tmp\$(Platform)-$(Configuration)\</IntDir>
+    <IncludePath>$(SolutionDir)..\..\..\VS\include;$(SolutionDir)..\..\..\Utils;$(SolutionDir)..\..\Network;$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)bin\Server\$(Platform)-$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)tmp\Server\$(Platform)-$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)..\..\..\VS\include;$(SolutionDir)..\..\..\Utils;$(IncludePath)</IncludePath>
-    <OutDir>$(SolutionDir)bin\$(Platform)-$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)tmp\$(Platform)-$(Configuration)\</IntDir>
+    <IncludePath>$(SolutionDir)..\..\..\VS\include;$(SolutionDir)..\..\..\Utils;$(SolutionDir)..\..\Network;$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)bin\Server\$(Platform)-$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)tmp\Server\$(Platform)-$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)..\..\VS\include;$(SolutionDir)..\..\Utils;$(IncludePath)</IncludePath>
-    <OutDir>$(SolutionDir)bin\$(Platform)-$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)tmp\$(Platform)-$(Configuration)\</IntDir>
+    <IncludePath>$(SolutionDir)..\..\VS\include;$(SolutionDir)..\..\Utils;$(SolutionDir)..\..\Network;$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)bin\Server\$(Platform)-$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)tmp\Server\$(Platform)-$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)..\..\VS\include;$(SolutionDir)..\..\Utils;$(IncludePath)</IncludePath>
-    <OutDir>$(SolutionDir)bin\$(Platform)-$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)tmp\$(Platform)-$(Configuration)\</IntDir>
+    <IncludePath>$(SolutionDir)..\..\VS\include;$(SolutionDir)..\..\Utils;$(SolutionDir)..\..\Network;$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)bin\Server\$(Platform)-$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)tmp\Server\$(Platform)-$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -101,13 +101,12 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)..\..\..\VS\lib\Win32;$(PlatformTarget)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>utils.lib;opengl32.lib;glew32s.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>utils.lib;network.lib;opengl32.lib;glew32s.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -119,7 +118,6 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -127,7 +125,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)..\..\..\VS\lib\Win32;$(PlatformTarget)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>utils.lib;opengl32.lib;glew32s.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>utils.lib;network.lib;opengl32.lib;glew32s.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -137,12 +135,11 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>utils.lib;opengl32.lib;glew32s.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>utils.lib;network.lib;opengl32.lib;glew32s.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)..\..\VS\lib\x64;$(PlatformTarget)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -155,35 +152,18 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>utils.lib;opengl32.lib;glew32s.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>utils.lib;network.lib;opengl32.lib;glew32s.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)..\..\VS\lib\x64;$(PlatformTarget)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\Camera.cpp" />
-    <ClCompile Include="..\Dielectric.cpp" />
-    <ClCompile Include="..\HitableList.cpp" />
-    <ClCompile Include="..\HitRecord.cpp" />
-    <ClCompile Include="..\Lambertian.cpp" />
-    <ClCompile Include="..\main.cpp" />
-    <ClCompile Include="..\Metal.cpp" />
-    <ClCompile Include="..\Ray.cpp" />
-    <ClCompile Include="..\Sphere.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\Camera.h" />
-    <ClInclude Include="..\Hitable.h" />
-    <ClInclude Include="..\HitableList.h" />
-    <ClInclude Include="..\Material.h" />
-    <ClInclude Include="..\Ray.h" />
-    <ClInclude Include="..\Sphere.h" />
+    <ClCompile Include="..\Server\main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

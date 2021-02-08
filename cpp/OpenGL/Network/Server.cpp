@@ -3,9 +3,12 @@
 
 #include "Server.h"
 
-ClientConnection::ClientConnection(TCPSocket* connectionSocket) :
+ClientConnection::ClientConnection(TCPSocket* connectionSocket, size_t id, const std::string& key) :
   connectionSocket(connectionSocket),
-  id(idCounter++)
+  id(id),
+  crypt(nullptr),
+  sendCrypt(nullptr),
+  key(key)
 {
 }
 
@@ -30,8 +33,7 @@ std::string ClientConnection::checkData() {
   return "";
 }
 
-
-void ClientConnection::sendMessage(std::string message, uint32_t timeout) {
+void ClientConnection::sendRawMessage(std::string message, uint32_t timeout) {
   uint32_t l = uint32_t(message.length());
   if (l < message.length()) message.resize(l); // could create multiple messages
                                                // instead of simply truncating string
@@ -47,8 +49,36 @@ void ClientConnection::sendMessage(std::string message, uint32_t timeout) {
   for (const int8_t c : message) {
     data[j++] = c;
   }
-            
-  connectionSocket->SendData((int8_t*)data.data(), uint32_t(data.size()), timeout);
+  
+  uint32_t currentBytes = 0;
+  uint32_t totalBytes = 0;
+  do {
+    currentBytes = connectionSocket->SendData(((int8_t*)data.data()) + totalBytes, uint32_t(data.size()-totalBytes), timeout);
+    totalBytes += currentBytes;
+  } while (currentBytes > 0 && totalBytes < data.size());
+  
+  if (currentBytes == 0 && totalBytes < data.size()) {
+    std::cerr << "lost data" << std::endl;
+  }
+}
+
+
+void ClientConnection::sendMessage(std::string message, uint32_t timeout) {
+  
+  if (!key.empty()) {
+    if (sendCrypt) {
+      message = sendCrypt->encryptString(message);
+    } else {
+      AESCrypt tempCrypt("1234567890123456",key);
+      std::string iv = AESCrypt::genIVString();
+      std::string initMessage = tempCrypt.encryptString(genHandshake(iv, key));
+      sendCrypt = std::make_unique<AESCrypt>(iv,key);
+      sendRawMessage(initMessage, timeout);
+      message = sendCrypt->encryptString(message);
+    }
+  }
+  
+  sendRawMessage(message, timeout);
 }
 
 std::string ClientConnection::handleIncommingData(int8_t* data, uint32_t bytes) {
@@ -69,16 +99,29 @@ std::string ClientConnection::handleIncommingData(int8_t* data, uint32_t bytes) 
     }
     recievedBytes.erase(recievedBytes.begin(), recievedBytes.begin() + messageLength+4);
     messageLength = 0;
-    return os.str();
+    
+    if (key.empty()) {
+      return os.str();
+    } else {
+      if (crypt) {
+        return crypt->decryptString(os.str());
+      } else {
+        AESCrypt tempCrypt("1234567890123456",key);
+        const std::string firstMessage = tempCrypt.decryptString(os.str());
+        const std::string iv = getIVFromHandshake(firstMessage, key);
+        crypt = std::make_unique<AESCrypt>(iv,key);
+        return "";
+      }
+    }
   }
   
   return "";
 }
 
-
-Server::Server(short port, uint32_t timeout) :
+Server::Server(short port, const std::string& key, uint32_t timeout) :
   port{port},
-  timeout{timeout}
+  timeout{timeout},
+  key{key}
 {
   connectionThread = std::thread(&Server::serverFunc, this);
   clientThread = std::thread(&Server::clientFunc, this);
@@ -105,16 +148,19 @@ void Server::shutdownServer() {
 void Server::sendMessage(const std::string& message, size_t id, bool invertID) {
   clientVecMutex.lock();
   for (size_t i = 0;i<clientConnections.size();++i) {
-    if (!clientConnections[i]->isConnected()) {
-      clientConnections.erase(clientConnections.begin() + i);
-      continue;
-    }
     if (id == 0 ||
-        (!invertID && clientConnections[i]->getID() != id) ||
-        (invertID && clientConnections[i]->getID() != id))
+        (!invertID && clientConnections[i]->getID() == id) ||
+        (invertID && clientConnections[i]->getID() != id)) {
       clientConnections[i]->sendMessage(message, timeout);
+    }
   }
   clientVecMutex.unlock();
+}
+
+void Server::removeClient(size_t i) {
+  const size_t cid = clientConnections[i]->getID();
+  clientConnections.erase(clientConnections.begin() + i);
+  handleClientDisconnection(cid);
 }
 
 
@@ -125,7 +171,7 @@ void Server::clientFunc() {
       
       // remove clients that have disconnected
       if (!clientConnections[i]->isConnected()) {
-        clientConnections.erase(clientConnections.begin() + i);
+        removeClient(i);
         continue;
       }
       
@@ -138,7 +184,11 @@ void Server::clientFunc() {
         }
           
       } catch (SocketException const& ) {
-        clientConnections.erase(clientConnections.begin() + i);
+        removeClient(i);
+        continue;
+      } catch (AESException const& e) {
+        std::cerr << "encryption error: " << e.what() << std::endl;
+        removeClient(i);
         continue;
       }
       
@@ -165,7 +215,7 @@ void Server::serverFunc() {
 
       std::stringstream ss;
       ss << "SocketException: " << e.what() << " (" << e.where() << " returned with error code " << e.withErrorCode() << ")";
-      std::cout << ss.str() << std::endl;
+      std::cerr << ss.str() << std::endl;
 
       shutdownServer();
       return;
@@ -208,7 +258,9 @@ void Server::serverFunc() {
         }
 
         clientVecMutex.lock();
-        clientConnections.push_back(std::make_shared<ClientConnection>(connectionSocket));
+        ++id;
+        clientConnections.push_back(std::make_shared<ClientConnection>(connectionSocket, id, key));
+        handleClientConnection(id);
         clientVecMutex.unlock();
       } catch (SocketException const& ) {
       }
@@ -216,4 +268,16 @@ void Server::serverFunc() {
     }
   }
   shutdownServer();
+}
+
+std::vector<uint32_t> Server::getValidIDs() {
+  
+  clientVecMutex.lock();
+  std::vector<uint32_t> ids(clientConnections.size());
+  for (size_t i = 0;i<clientConnections.size();++i) {
+    ids[i] = uint32_t(clientConnections[i]->getID());
+  }
+  clientVecMutex.unlock();
+
+  return ids;
 }

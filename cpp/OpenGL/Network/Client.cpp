@@ -1,13 +1,15 @@
 #include <sstream>
 #include <iostream>
-#include <chrono>
 
 #include "Client.h"
 
-Client::Client(const std::string& address, short port, uint32_t timeout) :
+Client::Client(const std::string& address, short port, const std::string& key, uint32_t timeout) :
   address{address},
   port{port},
-  timeout{timeout}
+  timeout{timeout},
+  crypt(nullptr),
+  receiveCrypt(nullptr),
+  key(key)
 {
   clientThread = std::thread(&Client::clientFunc, this);
 }
@@ -53,7 +55,21 @@ std::string Client::handleIncommingData(int8_t* data, uint32_t bytes) {
     }
     recievedBytes.erase(recievedBytes.begin(), recievedBytes.begin() + messageLength+4);
     messageLength = 0;
-    return os.str();
+    
+    if (key.empty()) {
+      return os.str();
+    } else {
+      if (receiveCrypt) {
+        return receiveCrypt->decryptString(os.str());
+      } else {
+        AESCrypt tempCrypt("1234567890123456",key);
+        const std::string firstMessage = tempCrypt.decryptString(os.str());
+        const std::string iv = getIVFromHandshake(firstMessage, key);
+        receiveCrypt = std::make_unique<AESCrypt>(iv,key);
+        return "";
+      }
+    }
+
   }
   
   return "";
@@ -61,7 +77,10 @@ std::string Client::handleIncommingData(int8_t* data, uint32_t bytes) {
 
 void Client::clientFunc() {
   while (continueRunning) {
+    
     connecting = true;
+    crypt = nullptr;
+    
     if (connection && connection->IsConnected()) {
       try {
         connection->Close();
@@ -80,14 +99,16 @@ void Client::clientFunc() {
       while (continueRunning && !connection->Connect(nwaddress, timeout)) {
         std::this_thread::sleep_for(std::chrono::milliseconds(10) );
       }
-    } catch (SocketException const& e) {
+    } catch (SocketException const&) {
       continue;
     }
     
     if (!continueRunning) break;
 
+    handleNewConnection();
     ok = true;
     connecting = false;
+
     // send/receive data loop
     try {
       while (continueRunning && connection->IsConnected()) {
@@ -105,9 +126,22 @@ void Client::clientFunc() {
 
         sendMessageMutex.lock();
         if (!sendMessages.empty()) {
+          
           std::string message = sendMessages[0];
-          sendMessages.erase(sendMessages.begin(), sendMessages.begin()+1);
-
+          if (key.empty()) {
+            sendMessages.erase(sendMessages.begin(), sendMessages.begin()+1);
+          } else {
+            if (crypt) {
+              message = crypt->encryptString(message);
+              sendMessages.erase(sendMessages.begin(), sendMessages.begin()+1);
+            } else {
+              AESCrypt tempCrypt("1234567890123456",key);
+              std::string iv = AESCrypt::genIVString();
+              message = tempCrypt.encryptString(genHandshake(iv, key));
+              crypt = std::make_unique<AESCrypt>(iv,key);
+            }
+          }
+          
           uint32_t l = uint32_t(message.length());
           if (l < message.length()) message.resize(l);
           std::vector<uint8_t> data(4+l);
@@ -120,7 +154,16 @@ void Client::clientFunc() {
             data[j++] = c;
           }
           
-          connection->SendData((int8_t*)data.data(), uint32_t(data.size()), 1);
+          uint32_t currentBytes = 0;
+          uint32_t totalBytes = 0;
+          do {
+            currentBytes = connection->SendData((int8_t*)data.data(), uint32_t(data.size()), 1);
+            totalBytes += currentBytes;            
+            if (!continueRunning) break;
+          } while (currentBytes > 0 && totalBytes < data.size());
+          
+          
+           
         } else {
           std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }

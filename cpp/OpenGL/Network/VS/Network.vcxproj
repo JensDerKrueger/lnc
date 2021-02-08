@@ -19,14 +19,20 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\NetCommon.cpp" />
     <ClCompile Include="..\Sockets.cpp" />
     <ClCompile Include="..\Client.cpp" />
     <ClCompile Include="..\Server.cpp" />
+    <ClCompile Include="..\Base64.cpp" />
+    <ClCompile Include="..\AES.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\NetCommon.h" />
     <ClInclude Include="..\Sockets.h" />
     <ClInclude Include="..\Client.h" />
     <ClInclude Include="..\Server.h" />
+    <ClInclude Include="..\Base64.h" />
+    <ClInclude Include="..\AES.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

@@ -1,5 +1,9 @@
 #pragma once
 
+#include <memory>
+#include <vector>
+#include <string>
+
 #include "InputLayer.h"
 #include "DenseLayer.h"
 #include "MaxPoolLayer.h"

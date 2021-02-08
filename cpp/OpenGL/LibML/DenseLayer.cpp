@@ -19,7 +19,7 @@ LayerData DenseLayer::feedforward(const LayerData& input) {
     case Nonlinearity::Sigmoid :
       return LayerData{z.apply(sigmoid), z};
     case Nonlinearity::Tanh :
-      return LayerData{z.apply(tanh), z};
+      return LayerData{z.apply(tanhf), z};
     default :
       return LayerData{z.apply(reLU), z};
   }

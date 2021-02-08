@@ -2,7 +2,7 @@ CC=g++
 OSTYPE := $(shell uname)
 
 ifeq ($(OSTYPE),Linux)
-	CFLAGS=-c -Wall -std=c++17 -Wunreachable-code
+	CFLAGS=-c -Wall -std=c++17 -Wunreachable-code -Wno-psabi
 	LFLAGS=-lglfw -lGLEW -lGL -L../Utils -lutils
 	LIBS=
 	INCLUDES=-I. -I../Utils 
