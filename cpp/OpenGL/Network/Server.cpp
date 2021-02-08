@@ -52,7 +52,6 @@ void ClientConnection::sendRawMessage(std::string message, uint32_t timeout) {
   
   uint32_t currentBytes = 0;
   uint32_t totalBytes = 0;
-  
   do {
     currentBytes = connectionSocket->SendData(((int8_t*)data.data()) + totalBytes, uint32_t(data.size()-totalBytes), timeout);
     totalBytes += currentBytes;
@@ -61,8 +60,6 @@ void ClientConnection::sendRawMessage(std::string message, uint32_t timeout) {
   if (currentBytes == 0 && totalBytes < data.size()) {
     std::cerr << "lost data" << std::endl;
   }
-    
-  
 }
 
 
