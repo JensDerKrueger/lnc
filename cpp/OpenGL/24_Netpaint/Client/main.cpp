@@ -163,7 +163,7 @@ public:
   MyGLApp(MyClient& client) : GLApp(1024, size_t(1024.0f * float(imageHeight)/float(imageWidth)), 4, "Network Painter"), client(client) {}
   
   virtual void init() override {
-    glEnv.setCursorMode(CursorMode::FIXED);
+    glEnv.setCursorMode(CursorMode::HIDDEN);
     GL(glEnable(GL_BLEND));
     GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
     GL(glBlendEquation(GL_FUNC_ADD));
