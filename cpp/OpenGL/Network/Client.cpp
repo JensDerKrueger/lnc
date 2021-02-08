@@ -154,7 +154,16 @@ void Client::clientFunc() {
             data[j++] = c;
           }
           
-          connection->SendData((int8_t*)data.data(), uint32_t(data.size()), 1);
+          uint32_t currentBytes = 0;
+          uint32_t totalBytes = 0;
+          do {
+            currentBytes = connection->SendData((int8_t*)data.data(), uint32_t(data.size()), 1);
+            totalBytes += currentBytes;            
+            if (!continueRunning) break;
+          } while (currentBytes > 0 && totalBytes < data.size());
+          
+          
+           
         } else {
           std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
