@@ -34,7 +34,7 @@ public:
         LostUserPayload l;
         l.userID = id;
         sendMessage(l.toString(), id, true);
-        break;
+        return;
       }
     }
     ciMutex.unlock();
