@@ -3,8 +3,9 @@
 #include <memory>
 #include <vector>
 #include <optional>
-#include "Server.h"
-#include "Image.h"
+#include <Server.h>
+#include <Image.h>
+#include <bmp.h>
 
 #include "../PainterCommon.h"
 
@@ -12,12 +13,22 @@ class MyServer : public Server {
 public:
   
   MyServer(short port) : Server(port, "asdn932lwnmflj23") {
-    for (size_t i = 0;i<image.data.size();i+=4) {
-      image.data[i+0] = 0;
-      image.data[i+1] = 0;
-      image.data[i+2] = 128;
-      image.data[i+3] = 255;
+    try {
+      image = BMP::load("artwork.bmp");
+      std::cout << "Resuming session" << std::endl;
+    } catch(const BMP::BMPException&) {
+      for (size_t i = 0;i<image.data.size();i+=4) {
+        image.data[i+0] = 0;
+        image.data[i+1] = 0;
+        image.data[i+2] = 128;
+        image.data[i+3] = 255;
+      }
+      std::cout << "Starting new session" << std::endl;
     }
+  }
+  
+  ~MyServer() {
+    BMP::save("artwork.bmp", image);
   }
 
   virtual void handleClientConnection(size_t id) override {
@@ -99,7 +110,6 @@ int main(int argc, char ** argv) {
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
   }
   std::cout << std::endl;
-  
   if (s.isOK()) {
     std::cout << "running ..." << std::endl;
     std::string test;
