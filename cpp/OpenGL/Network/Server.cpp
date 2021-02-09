@@ -13,7 +13,6 @@ ClientConnection::ClientConnection(TCPSocket* connectionSocket, size_t id, const
 }
 
 ClientConnection::~ClientConnection() {
-  std::cout << "destructor" << std::endl;
   try {
     if (connectionSocket && connectionSocket->IsConnected()) {
       connectionSocket->Close();
@@ -60,21 +59,15 @@ void ClientConnection::sendRawMessage(std::string message, uint32_t timeout) {
   uint32_t totalBytes = 0;
   
   try {
-    std::cout << "Start:" << std::flush;
-    
     do {
       currentBytes = connectionSocket->SendData(((int8_t*)data.data()) + totalBytes, uint32_t(data.size()-totalBytes), timeout);
       totalBytes += currentBytes;
-      std::cout << "." << std::flush;
     } while (currentBytes > 0 && totalBytes < data.size());
-    
-    std::cout << "End" << std::endl;
     
     if (currentBytes == 0 && totalBytes < data.size()) {
       std::cerr << "lost data while trying to send " << data.size() << " (actually send:" << totalBytes << ", timeout:" <<  timeout << ")" << std::endl;
     }
   } catch (SocketException const&  ) {
-    std::cout << "y" << std::endl;
   }
 }
 
@@ -94,9 +87,7 @@ void ClientConnection::sendMessage(std::string message, uint32_t timeout) {
     }
   }
   
-  std::cout << "1" << std::endl;
   sendRawMessage(message, timeout);
-  std::cout << "2" << std::endl;
 }
 
 std::string ClientConnection::handleIncommingData(int8_t* data, uint32_t bytes) {
