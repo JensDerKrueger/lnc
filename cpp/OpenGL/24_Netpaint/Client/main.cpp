@@ -66,6 +66,7 @@ public:
                           const std::vector<MouseInfo>& mi) {
     image      = serverImage;
     mouseInfos = mi;
+    initComplete = true;
   }
   
   void paint(const Vec4& color, const Vec2i& pos) {
@@ -123,6 +124,8 @@ public:
   }
   
   void paintSelf(const Vec2i& pos) {
+    if (!initComplete) return;
+
     paint(color, pos);
     CanvasUpdatePayload m{color, pos};
     sendMessage(m.toString());
@@ -153,7 +156,7 @@ private:
   std::vector<MouseInfo> mouseInfos;
   std::string name;
   Vec4 color;
-  
+  bool initComplete{false};
   Image image{imageWidth,imageHeight};
 };
 
