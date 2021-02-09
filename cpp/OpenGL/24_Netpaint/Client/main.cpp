@@ -170,26 +170,31 @@ public:
     GL(glClearColor(0.0f,0.0f,0.0f,0.0f));
   }
 
-  Mat4 getTransform() {
-    return Mat4::translation(trans.x(), trans.y(), 0) *
-           Mat4::translation(-zoomTrans.x(), -zoomTrans.y(), 0) *
-           Mat4::scaling(zoom) *
-           Mat4::translation(zoomTrans.x(), zoomTrans.y(), 0);
+  void updateMousePos() {
+    Dimensions s = glEnv.getWindowSize();
+    normPos = Vec2{float(xPositionMouse/s.width)-0.5f,float(1.0-yPositionMouse/s.height)-0.5f} * 2.0f;
+    normPos = (Mat4::inverse(imageTransformation) * Vec4{normPos,0.0f,1.0f}).xy();
   }
   
+  void addTransformation(const Mat4& trafo) {
+    imageTransformation = trafo * imageTransformation;
+    updateMousePos();
+  }
   
   virtual void mouseMove(double xPosition, double yPosition) override {
     Dimensions s = glEnv.getWindowSize();
     if (xPosition < 0 || xPosition > s.width || yPosition < 0 || yPosition > s.height) return;
     
-    normPos = Vec2{float(xPosition/s.width)-0.5f,float(1.0-yPosition/s.height)-0.5f} * 2.0f;
-    normPos = (Mat4::inverse(getTransform()) * Vec4{normPos,0.0f,1.0f}).xy();
+    xPositionMouse = xPosition;
+    yPositionMouse = yPosition;
+    updateMousePos();
 
     Vec2i iPos{int((normPos.x()/2.0f+0.5f)*client.getImage().width),int((normPos.y()/2.0f+0.5f)*client.getImage().height)};
     if (rightMouseDown) client.paintSelf(iPos);
     
     if (leftMouseDown) {
-      trans = trans + (normPos - startDragPos);
+      const Vec2 trans = normPos - startDragPos;
+      addTransformation(Mat4::translation(trans.x(), trans.y(), 0));
       startDragPos = normPos;
     }
 
@@ -206,7 +211,6 @@ public:
 
     if (button == GLFW_MOUSE_BUTTON_RIGHT) {
       leftMouseDown = (state == GLFW_PRESS);
-      
       if (state == GLFW_PRESS) {
         startDragPos = normPos;
       }
@@ -215,8 +219,9 @@ public:
   }
   
   virtual void mouseWheel(double x_offset, double y_offset, double xPosition, double yPosition) override {
-    zoomTrans = (Mat4::translation(trans.x(), trans.y(), 0) * Vec4(normPos,0.0f,1.0f)).xy();
-    zoom = std::max(1.0f, float(zoom+y_offset));
+    addTransformation(Mat4::translation(-normPos.x(), -normPos.y(), 0) *
+                                        Mat4::scaling(1.0f+y_offset/100) *
+                                        Mat4::translation(normPos.x(), normPos.y(), 0));
   }
   
   virtual void keyboard(int key, int scancode, int action, int mods) override {
@@ -231,10 +236,8 @@ public:
     
   virtual void draw() override {
     GL(glClear(GL_COLOR_BUFFER_BIT));
-    const Mat4 t = getTransform();
-                       
     client.lockData();
-    setDrawTransform(t);
+    setDrawTransform(imageTransformation);
     setImageFilter(GL_NEAREST,GL_NEAREST);
     drawImage(client.getImage());
     std::vector<float> glShape;
@@ -259,10 +262,12 @@ private:
   bool rightMouseDown{false};
   bool leftMouseDown{false};
   Vec2i lastMousePos{-1,-1};
-  float zoom{1.0f};
-  Vec2 zoomTrans;
-  Vec2 trans;
+
+
   Vec2 startDragPos;
+  double xPositionMouse;
+  double yPositionMouse;
+  Mat4 imageTransformation;
 
 };
 
