@@ -75,6 +75,59 @@ std::string Client::handleIncommingData(int8_t* data, uint32_t bytes) {
   return "";
 }
 
+
+void Client::sendRawMessage(const int8_t* rawData, uint32_t size, uint32_t timeout) {
+  uint32_t currentBytes = 0;
+  uint32_t totalBytes = 0;
+
+  try {
+    do {
+      currentBytes = connection->SendData(rawData + totalBytes, size-totalBytes, timeout);
+      totalBytes += currentBytes;
+    } while (currentBytes > 0 && totalBytes < size);
+
+    if (currentBytes == 0 && totalBytes < size) {
+      std::cerr << "lost data while trying to send " << size << " (actually send:" << totalBytes << ", timeout:" <<  timeout << ")" << std::endl;
+    }
+  } catch (SocketException const&  ) {
+  }
+}
+
+std::vector<uint8_t> Client::intToVec(uint32_t i) const {
+  std::vector<uint8_t> data(4);
+  data[0] = i%256; i /= 256;
+  data[1] = i%256; i /= 256;
+  data[2] = i%256; i /= 256;
+  data[3] = i;
+  return data;
+}
+
+
+void Client::sendRawMessage(std::vector<int8_t> rawData, uint32_t timeout) {
+  uint32_t l = uint32_t(rawData.size());
+  if (l != rawData.size()) {
+    std::cerr << "lost data truncating long message" << std::endl;
+  }
+  
+  std::vector<uint8_t> data = intToVec(l);
+
+  sendRawMessage((int8_t*)data.data(), 4,timeout);
+  sendRawMessage(rawData.data(), l, timeout);
+}
+
+
+void Client::sendRawMessage(std::string message, uint32_t timeout) {
+  const uint32_t l = uint32_t(message.length());
+  if (l != message.length()) {
+    std::cerr << "lost data truncating long message" << std::endl;
+  }
+
+  std::vector<uint8_t> data = intToVec(l);
+  sendRawMessage((int8_t*)data.data(), 4, timeout);
+  const int8_t* cStr = (int8_t*)(message.c_str());
+  sendRawMessage(cStr, l, timeout);
+}
+
 void Client::clientFunc() {
   while (continueRunning) {
     
@@ -143,26 +196,7 @@ void Client::clientFunc() {
             }
           }
           
-          uint32_t l = uint32_t(message.length());
-          if (l < message.length()) message.resize(l);
-          std::vector<uint8_t> data(4+l);
-          data[0] = l%256; l /= 256;
-          data[1] = l%256; l /= 256;
-          data[2] = l%256; l /= 256;
-          data[3] = l;
-          size_t j = 4;
-          for (const int8_t c : message) {
-            data[j++] = c;
-          }
-          
-          uint32_t currentBytes = 0;
-          uint32_t totalBytes = 0;
-          do {
-            currentBytes = connection->SendData(((int8_t*)data.data()) + totalBytes, uint32_t(data.size()-totalBytes), timeout);
-            totalBytes += currentBytes;
-            if (!continueRunning) break;
-          } while (currentBytes > 0 && totalBytes < data.size());
-        
+          sendRawMessage(message, timeout);
            
         } else {
           std::this_thread::sleep_for(std::chrono::milliseconds(1));

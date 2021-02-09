@@ -43,4 +43,9 @@ private:
   
   std::string handleIncommingData(int8_t* data, uint32_t bytes);
     
+  void sendRawMessage(std::string message, uint32_t timeout);
+  void sendRawMessage(std::vector<int8_t> rawData, uint32_t timeout);
+  void sendRawMessage(const int8_t* rawData, uint32_t size, uint32_t timeout);
+  std::vector<uint8_t> intToVec(uint32_t i) const;
+
 };
