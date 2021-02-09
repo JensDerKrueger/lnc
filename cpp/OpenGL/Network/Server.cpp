@@ -13,10 +13,13 @@ ClientConnection::ClientConnection(TCPSocket* connectionSocket, size_t id, const
 }
 
 ClientConnection::~ClientConnection() {
-  if (connectionSocket && connectionSocket->IsConnected()) {
-    connectionSocket->Close();
+  try {
+    if (connectionSocket && connectionSocket->IsConnected()) {
+      connectionSocket->Close();
+    }
+    delete connectionSocket;
+  } catch (SocketException const&  ) {
   }
-  delete connectionSocket;
 }
 
 bool ClientConnection::isConnected() {
@@ -35,6 +38,8 @@ std::string ClientConnection::checkData() {
 
 void ClientConnection::sendRawMessage(std::string message, uint32_t timeout) {
   uint32_t l = uint32_t(message.length());
+  
+  // overflow?
   if (l < message.length()) message.resize(l); // could create multiple messages
                                                // instead of simply truncating string
 
@@ -52,13 +57,17 @@ void ClientConnection::sendRawMessage(std::string message, uint32_t timeout) {
   
   uint32_t currentBytes = 0;
   uint32_t totalBytes = 0;
-  do {
-    currentBytes = connectionSocket->SendData(((int8_t*)data.data()) + totalBytes, uint32_t(data.size()-totalBytes), timeout);
-    totalBytes += currentBytes;
-  } while (currentBytes > 0 && totalBytes < data.size());
   
-  if (currentBytes == 0 && totalBytes < data.size()) {
-    std::cerr << "lost data" << std::endl;
+  try {
+    do {
+      currentBytes = connectionSocket->SendData(((int8_t*)data.data()) + totalBytes, uint32_t(data.size()-totalBytes), timeout);
+      totalBytes += currentBytes;
+    } while (currentBytes > 0 && totalBytes < data.size());
+    
+    if (currentBytes == 0 && totalBytes < data.size()) {
+      std::cerr << "lost data while trying to send " << data.size() << " (actually send:" << totalBytes << ", timeout:" <<  timeout << ")" << std::endl;
+    }
+  } catch (SocketException const&  ) {
   }
 }
 
@@ -260,13 +269,17 @@ void Server::serverFunc() {
         clientVecMutex.lock();
         ++id;
         clientConnections.push_back(std::make_shared<ClientConnection>(connectionSocket, id, key));
-        handleClientConnection(id);
+        try {
+          handleClientConnection(id);
+        } catch (SocketException const& ) {
+        }
         clientVecMutex.unlock();
       } catch (SocketException const& ) {
       }
       
     }
   }
+    
   shutdownServer();
 }
 

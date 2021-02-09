@@ -25,7 +25,6 @@ public:
     sendMessage(l.toString(), id);
   }
   
-  
   virtual void handleClientDisconnection(size_t id) override {
     ciMutex.lock();
     for (size_t i = 0;i<mouseInfo.size();++i) {
