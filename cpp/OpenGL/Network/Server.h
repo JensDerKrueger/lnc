@@ -32,7 +32,7 @@ private:
 
 class Server {
 public:
-  Server(short port, const std::string& key="", uint32_t timeout = 100);
+  Server(short port, const std::string& key="", uint32_t timeout = 5000);
   virtual ~Server();
   
   bool isStarting() const {return starting;}
