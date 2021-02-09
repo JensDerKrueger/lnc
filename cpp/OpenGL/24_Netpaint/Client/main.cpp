@@ -541,6 +541,11 @@ private:
   
   
   void paint(const Vec4& color, const Vec2i& pos) {
+    
+    if (pos.x() < 0 || uint32_t(pos.x()) >= image.width) return;
+    if (pos.y() < 0 || uint32_t(pos.y()) >= image.height) return;
+
+    
     image.setNormalizedValue(pos.x(),pos.y(),0,color.x());
     image.setNormalizedValue(pos.x(),pos.y(),1,color.y());
     image.setNormalizedValue(pos.x(),pos.y(),2,color.z());

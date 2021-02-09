@@ -81,8 +81,8 @@ public:
         CanvasUpdatePayload l(message);
         l.userID = id;
 
-        if (l.pos.x() < 0 || l.pos.x() >= image.width) break;
-        if (l.pos.y() < 0 || l.pos.y() >= image.height) break;
+        if (l.pos.x() < 0 || uint32_t(l.pos.x()) >= image.width) break;
+        if (l.pos.y() < 0 || uint32_t(l.pos.y()) >= image.height) break;
         
         image.setNormalizedValue(l.pos.x(),l.pos.y(),0,l.color.x());
         image.setNormalizedValue(l.pos.x(),l.pos.y(),1,l.color.y());
