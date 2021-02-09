@@ -79,6 +79,8 @@ public:
   virtual void handleNewConnection() override {
     NewUserPayload l(name, color);
     sendMessage(l.toString());
+    
+    std::cout << "Server notified" << std::endl;
   }
 
   virtual void handleServerMessage(const std::string& message) override {
@@ -119,12 +121,20 @@ public:
   }
   
   void setMousePos(const Vec2& normPos) {
+    if (isConnecting() || !initComplete) {
+      initComplete = false;
+      return;
+    }
+    
     MousePosPayload m(normPos);
     sendMessage(m.toString());
   }
   
   void paintSelf(const Vec2i& pos) {
-    if (!initComplete) return;
+    if (isConnecting() || !initComplete) {
+      initComplete = false;
+      return;
+    }
 
     paint(color, pos);
     CanvasUpdatePayload m{color, pos};
@@ -135,7 +145,11 @@ public:
     return mouseInfos;
   }
     
-  const Image& getImage() const {
+  const Image& getImage() {
+    if (isConnecting() || !initComplete) {
+      initComplete = false;
+    }
+    
     return image;
   }
   
@@ -150,7 +164,11 @@ public:
   Vec4 getColor() const {
     return color;
   }
-
+  
+  bool isValid() const {
+    return initComplete;
+  }
+  
 private:
   std::mutex miMutex;
   std::vector<MouseInfo> mouseInfos;
@@ -237,7 +255,16 @@ public:
     }
   }
     
-  virtual void draw() override {
+  virtual void draw() override {    
+    if (!client.isValid()) {
+      std::cout << "." << std::flush;
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      GL(glClear(GL_COLOR_BUFFER_BIT));
+      GL(glClearColor(1.0f,0.0f,0.0f,1.0f));
+      return;
+    }
+    
+    GL(glClearColor(0.0f,0.0f,0.0f,0.0f));
     GL(glClear(GL_COLOR_BUFFER_BIT));
     client.lockData();
     setDrawTransform(imageTransformation);
