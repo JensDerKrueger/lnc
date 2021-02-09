@@ -79,8 +79,6 @@ public:
   virtual void handleNewConnection() override {
     NewUserPayload l(name, color);
     sendMessage(l.toString());
-    
-    std::cout << "Server notified" << std::endl;
   }
 
   virtual void handleServerMessage(const std::string& message) override {
@@ -169,6 +167,10 @@ public:
     return initComplete;
   }
   
+  void newColor() {
+    color = Vec4{Vec3::hsvToRgb({360*Rand::rand01(),0.5f,1.0f}), 1.0f};
+  }
+  
 private:
   std::mutex miMutex;
   std::vector<MouseInfo> mouseInfos;
@@ -251,11 +253,18 @@ public:
         case GLFW_KEY_ESCAPE:
           closeWindow();
           break;
+        case GLFW_KEY_R:
+          imageTransformation = Mat4{};
+          updateMousePos();
+          break;
+        case GLFW_KEY_C:
+          client.newColor();
+          break;
       }
     }
   }
     
-  virtual void draw() override {    
+  virtual void draw() override {
     if (!client.isValid()) {
       std::cout << "." << std::flush;
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
