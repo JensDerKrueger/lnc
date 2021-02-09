@@ -68,14 +68,7 @@ public:
     mouseInfos = mi;
     initComplete = true;
   }
-  
-  void paint(const Vec4& color, const Vec2i& pos) {
-    image.setNormalizedValue(pos.x(),pos.y(),0,color.x());
-    image.setNormalizedValue(pos.x(),pos.y(),1,color.y());
-    image.setNormalizedValue(pos.x(),pos.y(),2,color.z());
-    image.setNormalizedValue(pos.x(),pos.y(),3,color.w());
-  }
-  
+    
   virtual void handleNewConnection() override {
     NewUserPayload l(name, color);
     sendMessage(l.toString());
@@ -128,7 +121,7 @@ public:
     sendMessage(m.toString());
   }
   
-  void paintSelf(const Vec2i& pos) {
+  void paint(const Vec2i& pos) {
     if (isConnecting() || !initComplete) {
       initComplete = false;
       return;
@@ -147,7 +140,6 @@ public:
     if (isConnecting() || !initComplete) {
       initComplete = false;
     }
-    
     return image;
   }
   
@@ -178,12 +170,21 @@ private:
   Vec4 color;
   bool initComplete{false};
   Image image{imageWidth,imageHeight};
+  
+  
+  void paint(const Vec4& color, const Vec2i& pos) {
+    image.setNormalizedValue(pos.x(),pos.y(),0,color.x());
+    image.setNormalizedValue(pos.x(),pos.y(),1,color.y());
+    image.setNormalizedValue(pos.x(),pos.y(),2,color.z());
+    image.setNormalizedValue(pos.x(),pos.y(),3,color.w());
+  }
+
 };
 
 class MyGLApp : public GLApp {
 public:
 
-  MyGLApp(MyClient& client) : GLApp(1024, size_t(1024.0f * float(imageHeight)/float(imageWidth)), 4, "Network Painter"), client(client) {}
+  MyGLApp(MyClient& client) : GLApp(1024, 786, 4, "Network Painter"), client(client) {}
   
   virtual void init() override {
     glEnv.setCursorMode(CursorMode::HIDDEN);
@@ -196,14 +197,27 @@ public:
   void updateMousePos() {
     Dimensions s = glEnv.getWindowSize();
     normPos = Vec2{float(xPositionMouse/s.width)-0.5f,float(1.0-yPositionMouse/s.height)-0.5f} * 2.0f;
-    normPos = (Mat4::inverse(imageTransformation) * Vec4{normPos,0.0f,1.0f}).xy();
+    normPos = (Mat4::inverse(userTransformation*baseTransformation) * Vec4{normPos,0.0f,1.0f}).xy();
   }
   
   void addTransformation(const Mat4& trafo) {
-    imageTransformation = trafo * imageTransformation;
+    userTransformation = trafo * userTransformation;
     updateMousePos();
   }
   
+  void dropPaint() {
+    const Vec2i iPos{int((normPos.x()/2.0f+0.5f)*client.getImage().width),int((normPos.y()/2.0f+0.5f)*client.getImage().height)};
+    client.paint(iPos);
+  }
+  
+  void updateBaseTransform() {
+    const Dimensions s = glEnv.getWindowSize();
+    const float ax = client.getImage().width/float(s.width);
+    const float ay = client.getImage().height/float(s.height);
+    const float m = std::max(ax,ay);
+    baseTransformation = Mat4::scaling({ax/m, ay/m, 1.0f});
+  }
+    
   virtual void mouseMove(double xPosition, double yPosition) override {
     Dimensions s = glEnv.getWindowSize();
     if (xPosition < 0 || xPosition > s.width || yPosition < 0 || yPosition > s.height) return;
@@ -213,7 +227,7 @@ public:
     updateMousePos();
 
     Vec2i iPos{int((normPos.x()/2.0f+0.5f)*client.getImage().width),int((normPos.y()/2.0f+0.5f)*client.getImage().height)};
-    if (rightMouseDown) client.paintSelf(iPos);
+    if (rightMouseDown) dropPaint();
     
     if (leftMouseDown) {
       const Vec2 trans = normPos - startDragPos;
@@ -230,6 +244,7 @@ public:
   virtual void mouseButton(int button, int state, int mods, double xPosition, double yPosition) override {
     if (button == GLFW_MOUSE_BUTTON_LEFT) {
       rightMouseDown = (state == GLFW_PRESS);
+      dropPaint();
     }
 
     if (button == GLFW_MOUSE_BUTTON_RIGHT) {
@@ -254,7 +269,7 @@ public:
           closeWindow();
           break;
         case GLFW_KEY_R:
-          imageTransformation = Mat4{};
+          userTransformation = Mat4{};
           updateMousePos();
           break;
         case GLFW_KEY_C:
@@ -273,10 +288,12 @@ public:
       return;
     }
     
+    updateBaseTransform();
+    
     GL(glClearColor(0.0f,0.0f,0.0f,0.0f));
     GL(glClear(GL_COLOR_BUFFER_BIT));
     client.lockData();
-    setDrawTransform(imageTransformation);
+    setDrawTransform(userTransformation*baseTransformation);
     setImageFilter(GL_NEAREST,GL_NEAREST);
     drawImage(client.getImage());
     std::vector<float> glShape;
@@ -306,7 +323,8 @@ private:
   Vec2 startDragPos;
   double xPositionMouse;
   double yPositionMouse;
-  Mat4 imageTransformation;
+  Mat4 baseTransformation;
+  Mat4 userTransformation;
 
 };
 
