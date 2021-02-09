@@ -80,6 +80,7 @@ void Client::clientFunc() {
     
     connecting = true;
     crypt = nullptr;
+    receiveCrypt = nullptr;
     
     if (connection && connection->IsConnected()) {
       try {
