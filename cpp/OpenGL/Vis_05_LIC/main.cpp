@@ -9,7 +9,9 @@
 class MyGLApp : public GLApp {
 public:
   const uint32_t fieldSize{256};
-  Flowfield flow = Flowfield::genDemo(fieldSize, DemoType::SATTLE);
+  //Flowfield flow = Flowfield::genDemo(fieldSize, DemoType::SATTLE);
+  
+  Flowfield flow = Flowfield::fromFile("four_sector_128.txt");
   Image inputImage = BMP::load("noise.bmp");
   Image licImage{fieldSize,fieldSize,3};
   

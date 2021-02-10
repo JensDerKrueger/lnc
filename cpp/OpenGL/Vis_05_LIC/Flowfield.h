@@ -1,9 +1,10 @@
 #pragma once
 
+#include <string>
 #include <vector>
+#include <stdexcept>
 
 #include <Vec3.h>
-
 
 enum class DemoType {
   DRAIN,
@@ -13,7 +14,7 @@ enum class DemoType {
 
 class Flowfield {
 public:
-  Flowfield(size_t sizeX, size_t sizeY, size_t sizeZ);  
+  Flowfield(size_t sizeX, size_t sizeY, size_t sizeZ);
   Vec3 interpolate(const Vec3& pos);
 
   size_t getSizeX() const {return sizeX;}
@@ -21,6 +22,7 @@ public:
   size_t getSizeZ() const {return sizeZ;}
 
   static Flowfield genDemo(size_t size, DemoType d);
+  static Flowfield fromFile(const std::string& filename);
 private:
   size_t sizeX;
   size_t sizeY;
