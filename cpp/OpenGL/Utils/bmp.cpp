@@ -99,7 +99,7 @@ namespace BMP {
 		Image texture;
 		
 		// make sure file exists.
-		std::ifstream file(filename.c_str(), std::ofstream::binary);
+		std::ifstream file(filename.c_str(), std::ifstream::binary);
 		if (!file.is_open()) {
 			std::stringstream s;
 			s << "Can't open BMP file " << filename;
