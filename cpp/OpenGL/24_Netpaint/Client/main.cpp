@@ -335,7 +335,7 @@ public:
     if (!client.isValid()) {
       GL(glClear(GL_COLOR_BUFFER_BIT));
       GL(glClearColor(0.0f,0.0f,0.0f,1.0f));
-      setDrawTransform(Mat4::scaling(1/1.0f) * computeBaseTransform({connectingImage.width, connectingImage.height}) );
+      setDrawTransform(Mat4::scaling(1/5.0f) * computeBaseTransform({connectingImage.width, connectingImage.height}) );
       drawImage(connectingImage);
       return;
     }

@@ -24,7 +24,6 @@ Image::Image(uint32_t width,
 {
 }
 
-
 void Image::generateAlphaFromLuminance() {
   if (componentCount == 4) {
     for (size_t i = 0; i<data.size()/4;i++) {
