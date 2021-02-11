@@ -3,7 +3,7 @@
 
 #include "Server.h"
 
-ClientConnection::ClientConnection(TCPSocket* connectionSocket, size_t id, const std::string& key) :
+ClientConnection::ClientConnection(TCPSocket* connectionSocket, uint32_t id, const std::string& key) :
   connectionSocket(connectionSocket),
   id(id),
   crypt(nullptr),
@@ -170,7 +170,7 @@ void Server::shutdownServer() {
   ok = false;
 }
 
-void Server::sendMessage(const std::string& message, size_t id, bool invertID) {
+void Server::sendMessage(const std::string& message, uint32_t id, bool invertID) {
   clientVecMutex.lock();
   for (size_t i = 0;i<clientConnections.size();++i) {
     if (id == 0 ||
@@ -183,7 +183,7 @@ void Server::sendMessage(const std::string& message, size_t id, bool invertID) {
 }
 
 void Server::removeClient(size_t i) {
-  const size_t cid = clientConnections[i]->getID();
+  const uint32_t cid = clientConnections[i]->getID();
   clientConnections.erase(clientConnections.begin() + i);
   handleClientDisconnection(cid);
 }
