@@ -11,10 +11,10 @@ constexpr uint32_t imageWidth = 400;
 constexpr uint32_t imageHeight= 400;
 
 struct MouseInfo {
-  size_t id;
-  std::string name;
-  Vec4 color;
-  Vec2 pos;
+  size_t id{0};
+  std::string name{""};
+  Vec4 color{0,0,0,0};
+  Vec2 pos{0,0};
 };
 
 enum class PayloadType {
@@ -207,8 +207,8 @@ struct InitPayload : public BasicPayload {
     }
     
     size_t pos = 3;
-    size_t w = std::stoi(token[pos++]);
-    size_t h = std::stoi(token[pos++]);
+    const uint32_t w = std::stoi(token[pos++]);
+    const uint32_t h = std::stoi(token[pos++]);
     image = Image(w,h);
     if (token.size() < pos+image.data.size()) {
       throw DSException("CanvasUpdatePayload message to short (second check)");
