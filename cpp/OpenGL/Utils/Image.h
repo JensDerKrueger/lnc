@@ -14,7 +14,7 @@ struct Image {
     width{width},
     height{height},
     componentCount{componentCount},
-    data(width*height*componentCount)
+    data(size_t(width)*size_t(height)*size_t(componentCount))
   {
   }
 
@@ -30,7 +30,7 @@ struct Image {
   }
 
   size_t computeIndex(uint32_t x, uint32_t y, uint32_t component) const {
-    return component+(x+y*width)*componentCount;
+    return size_t(component)+(size_t(x)+size_t(y)* size_t(width))* size_t(componentCount);
   }
   
   uint8_t getValue(uint32_t x, uint32_t y, uint32_t component) const {
