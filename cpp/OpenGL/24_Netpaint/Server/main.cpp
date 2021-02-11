@@ -31,12 +31,12 @@ public:
     BMP::save("artwork.bmp", image);
   }
 
-  virtual void handleClientConnection(size_t id) override {
+  virtual void handleClientConnection(uint32_t id) override {
     InitPayload l(image, mouseInfo);
     sendMessage(l.toString(), id);
   }
   
-  virtual void handleClientDisconnection(size_t id) override {
+  virtual void handleClientDisconnection(uint32_t id) override {
     ciMutex.lock();
     for (size_t i = 0;i<mouseInfo.size();++i) {
       if (mouseInfo[i].id == id) {
@@ -51,7 +51,7 @@ public:
     ciMutex.unlock();
   }
   
-  std::optional<MouseInfo> getMouseInfo(size_t id) {
+  std::optional<MouseInfo> getMouseInfo(uint32_t id) {
     for (auto& c : mouseInfo) {
       if (c.id == id) {
         return c;
@@ -60,7 +60,7 @@ public:
     return {};
   }
 
-  virtual void handleClientMessage(size_t id, const std::string& message) override {
+  virtual void handleClientMessage(uint32_t id, const std::string& message) override {
     PayloadType pt = identifyString(message);
     ciMutex.lock();
     switch (pt) {
