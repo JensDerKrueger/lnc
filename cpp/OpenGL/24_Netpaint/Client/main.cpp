@@ -227,15 +227,21 @@ public:
     updateMousePos();
   }
   
+  Vec2i computePixelPos() {
+    return Vec2i{int((normPos.x()/2.0f+0.5f)*imageSize.x()),int((normPos.y()/2.0f+0.5f)*imageSize.y())};
+  }
+  
   void dropPaint() {
-    const Vec2i iPos{int((normPos.x()/2.0f+0.5f)*client.getImage().width),int((normPos.y()/2.0f+0.5f)*client.getImage().height)};
-    client.paint(iPos);
+    client.paint(computePixelPos());
   }
   
   void updateBaseTransform() {
     const Dimensions s = glEnv.getWindowSize();
-    const float ax = client.getImage().width/float(s.width);
-    const float ay = client.getImage().height/float(s.height);
+    client.lockData();
+    imageSize = Vec2ui{client.getImage().width, client.getImage().height};
+    client.unlockData();
+    const float ax = imageSize.x()/float(s.width);
+    const float ay = imageSize.y()/float(s.height);
     const float m = std::max(ax,ay);
     baseTransformation = Mat4::scaling({ax/m, ay/m, 1.0f});
   }
@@ -248,7 +254,6 @@ public:
     yPositionMouse = yPosition;
     updateMousePos();
 
-    Vec2i iPos{int((normPos.x()/2.0f+0.5f)*client.getImage().width),int((normPos.y()/2.0f+0.5f)*client.getImage().height)};
     if (rightMouseDown) dropPaint();
     
     if (leftMouseDown) {
@@ -257,6 +262,7 @@ public:
       startDragPos = normPos;
     }
 
+    const Vec2i iPos = computePixelPos();
     if (iPos != lastMousePos) {
       client.setMousePos(normPos);
     }
@@ -346,6 +352,7 @@ private:
   double xPositionMouse{ 0.0 };
   double yPositionMouse{0.0};
   Mat4 baseTransformation;
+  Vec2ui imageSize{0,0};
   Mat4 userTransformation;
 
 };
