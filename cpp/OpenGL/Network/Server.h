@@ -4,12 +4,12 @@
 
 class ClientConnection {
 public:
-  ClientConnection(TCPSocket* connectionSocket, size_t id, const std::string& key);
+  ClientConnection(TCPSocket* connectionSocket, uint32_t id, const std::string& key);
   virtual ~ClientConnection();
   bool isConnected();
   std::string checkData();
   
-  size_t getID() const {return id;}
+  uint32_t getID() const {return id;}
   
   void sendMessage(std::string message, uint32_t timeout);
   void sendMessage(std::vector<int8_t> rawData, uint32_t timeout);
@@ -17,7 +17,7 @@ public:
   
 private:
   TCPSocket* connectionSocket;
-  size_t id;
+  uint32_t id;
   std::string message{""};
   uint32_t messageLength{0};
   std::vector<int8_t> recievedBytes;
@@ -41,18 +41,18 @@ public:
   bool isStarting() const {return starting;}
   bool isOK() const {return ok;}
   
-  virtual void handleClientConnection(size_t id) {};
-  virtual void handleClientMessage(size_t id, const std::string& message) = 0;
-  virtual void handleClientDisconnection(size_t id) {};
+  virtual void handleClientConnection(uint32_t id) {};
+  virtual void handleClientMessage(uint32_t id, const std::string& message) = 0;
+  virtual void handleClientDisconnection(uint32_t id) {};
   
-  void sendMessage(const std::string& message, size_t id=0, bool invertID=false);
+  void sendMessage(const std::string& message, uint32_t id=0, bool invertID=false);
   
   std::vector<uint32_t> getValidIDs();
   
 private:
   short port;
   uint32_t timeout;
-  size_t id = 0;
+  uint32_t id = 0;
   std::string key;
   
   bool ok{false};
