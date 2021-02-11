@@ -164,7 +164,7 @@ bool OpenGLRenderer::isAnimating() const {
 void OpenGLRenderer::setGameOver(bool gameOver, uint32_t score) {
     this->gameOver = gameOver;
     if (gameOver) {
-        particleBitmap = std::make_shared<Bitmap>(FontRenderer::renderNumber(score, "numbers.bmp", "numbers.pos" ), 64);
+        particleBitmap = std::make_shared<Bitmap>(FontRenderer::render(score, "numbers.bmp", "numbers.pos" ), 64);
         scoreParticleSystem.setBitmap(particleBitmap);
     }
 }
