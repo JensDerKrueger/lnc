@@ -24,6 +24,27 @@ Image::Image(uint32_t width,
 {
 }
 
+
+void Image::generateAlphaFromLuminance() {
+  if (componentCount == 4) {
+    for (size_t i = 0; i<data.size()/4;i++) {
+      data[i*4+3] = uint8_t(0.299 * data[i*4+0] + 0.587 * data[i*4+1] + 0.114 * data[i*4+2]);
+    }
+  } else if (componentCount == 3) {
+    std::vector<uint8_t> newData((data.size() / 3) * 4);
+    
+    for (size_t i = 0; i<data.size()/3;i++) {
+      newData[i*4+0] = data[i*3+0];
+      newData[i*4+1] = data[i*3+1];
+      newData[i*4+2] = data[i*3+2];
+      newData[i*4+3] = uint8_t(0.299 * data[i*3+0] + 0.587 * data[i*3+1] + 0.114 * data[i*3+2]);
+    }
+    
+    data = newData;
+    componentCount = 4;
+  }
+}
+
 size_t Image::computeIndex(uint32_t x, uint32_t y, uint32_t component) const {
   return size_t(component)+(size_t(x)+size_t(y)* size_t(width))* size_t(componentCount);
 }

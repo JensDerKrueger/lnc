@@ -11,18 +11,7 @@ const CharPosition& FontRenderer::findElement(char c, const std::vector<CharPosi
   return positions[0];
 }
 
-Image FontRenderer::render(uint32_t number,
-                           const std::string& imageFilename,
-                           const std::string& positionFilename) {
-  return render(std::to_string(number), imageFilename, positionFilename);
-}
-
-Image FontRenderer::render(const std::string& text,
-                           const std::string& imageFilename,
-                           const std::string& positionFilename) {
-
-  Image numberSource = BMP::load(imageFilename);
-
+const std::vector<CharPosition> FontRenderer::loadPositions(const std::string& positionFilename) {
   std::vector<CharPosition> positions;
   std::ifstream posfile (positionFilename);
   std::string line;
@@ -47,6 +36,25 @@ Image FontRenderer::render(const std::string& text,
     }
     posfile.close();
   }
+  return positions;
+}
+
+Image FontRenderer::render(uint32_t number,
+                           const std::string& imageFilename,
+                           const std::string& positionFilename) {
+  return render(std::to_string(number), imageFilename, positionFilename);
+}
+
+Image FontRenderer::render(const std::string& text,
+                           const std::string& imageFilename,
+                           const std::string& positionFilename) {
+  
+  return render(text, BMP::load(imageFilename), loadPositions(positionFilename));
+}
+
+Image FontRenderer::render(const std::string& text,
+                           const Image& fontImage,
+                           const std::vector<CharPosition>& positions) {
   
   Vec2ui dims{0,0};
   for (char element : text) {
@@ -55,14 +63,14 @@ Image FontRenderer::render(const std::string& text,
     dims = Vec2ui{dims.x()+size.x(), std::max(dims.y(), size.y())};
   }
   
-  Image result{dims.x(),dims.y(),numberSource.componentCount,
-  std::vector<uint8_t>(dims.x()*dims.y()*numberSource.componentCount)};
+  Image result{dims.x(),dims.y(),fontImage.componentCount,
+  std::vector<uint8_t>(dims.x()*dims.y()*fontImage.componentCount)};
   
   Vec2ui currentPos{0,0};
   for (char element : text) {
     const auto& pos = findElement(element, positions);
     Vec2ui size = pos.bottomRight-pos.topLeft;
-    BMP::blit(numberSource, pos.topLeft, pos.bottomRight, result, currentPos);
+    BMP::blit(fontImage, pos.topLeft, pos.bottomRight, result, currentPos);
     currentPos = Vec2ui(currentPos.x()+size.x(), currentPos.y());
   }
   

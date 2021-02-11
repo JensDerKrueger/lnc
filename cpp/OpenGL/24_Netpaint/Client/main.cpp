@@ -8,16 +8,27 @@
 #include <GLApp.h>
 #include <Rand.h>
 #include <Mat4.h>
+#include <FontRenderer.h>
 
 #include "../PainterCommon.h"
+
+struct ClientMouseInfo : public MouseInfo {
+  Image image;
+};
+
 
 class MyClient : public Client {
 public:
   MyClient(const std::string& address, short port, const std::string& name) :
-  Client{address, port, "asdn932lwnmflj23", 5000},
-  name{name},
-  color{Vec3::hsvToRgb({360*Rand::rand01(),0.5f,1.0f}), 1.0f}
+    Client{address, port, "asdn932lwnmflj23", 5000},
+    name{name},
+    color{Vec3::hsvToRgb({360*Rand::rand01(),0.5f,1.0f}), 1.0f}
   {
+    fontImage = BMP::load("helvetica_neue.bmp");
+    fontImage.generateAlphaFromLuminance();
+    
+    fontPos = FontRenderer::loadPositions("helvetica_neue.pos");
+
     for (uint32_t y = 0;y<image.height;++y) {
       for (uint32_t x = 0;x<image.width;++x) {
         const Vec3 rgb{0,0,0};
@@ -43,13 +54,14 @@ public:
     for (size_t i = 0;i<mouseInfos.size();++i) {
       if (mouseInfos[i].id == userID) {
         mouseInfos[i].name = name;
+        mouseInfos[i].image = FontRenderer::render(name, fontImage, fontPos);
         mouseInfos[i].color = color;
         found = true;
         break;
       }
     }
     if (!found) {
-      mouseInfos.push_back({userID, name, color, {0,0}});
+      mouseInfos.push_back({{userID, name, color, {0,0}}, FontRenderer::render(name, fontImage, fontPos)});
     }
   }
 
@@ -65,7 +77,12 @@ public:
   void initDataFromServer(const Image& serverImage,
                           const std::vector<MouseInfo>& mi) {
     image      = serverImage;
-    mouseInfos = mi;
+    
+    mouseInfos.clear();
+    for (const MouseInfo& m : mi) {
+      mouseInfos.push_back({{m.id, m.name, m.color, m.pos}, FontRenderer::render(m.name, fontImage, fontPos)});
+    }
+
     initComplete = true;
   }
     
@@ -133,7 +150,7 @@ public:
     sendMessage(m.toString());
   }
   
-  const std::vector<MouseInfo>& getOtherMouseInfos() const {
+  const std::vector<ClientMouseInfo>& getOtherMouseInfos() const {
     if (!rendererLock) {
       throw std::runtime_error("getImage called without lockData");
     }
@@ -179,21 +196,30 @@ public:
     color = Vec4{Vec3::hsvToRgb({360*Rand::rand01(),0.5f,1.0f}), 1.0f};
   }
   
+  const Image& getFontImage() const {
+    return fontImage;
+  }
+  
+  const std::vector<CharPosition>& getFontPos() {
+    return fontPos;
+  }
+  
+  
 private:
   bool rendererLock{false};
   std::mutex miMutex;
-  std::vector<MouseInfo> mouseInfos;
+  std::vector<ClientMouseInfo> mouseInfos;
   std::string name;
   Vec4 color;
   bool initComplete{false};
   Image image{imageWidth,imageHeight};
-  
+  Image fontImage;
+  std::vector<CharPosition> fontPos;
+
   
   void paint(const Vec4& color, const Vec2i& pos) {
-    
     if (pos.x() < 0 || uint32_t(pos.x()) >= image.width) return;
     if (pos.y() < 0 || uint32_t(pos.y()) >= image.height) return;
-
     
     image.setNormalizedValue(pos.x(),pos.y(),0,color.x());
     image.setNormalizedValue(pos.x(),pos.y(),1,color.y());
@@ -209,6 +235,8 @@ public:
   MyGLApp(MyClient& client) : GLApp(1024, 786, 4, "Network Painter"), client(client) {}
   
   virtual void init() override {
+    connectingImage = FontRenderer::render("Connecting", client.getFontImage(), client.getFontPos());
+    
     glEnv.setCursorMode(CursorMode::HIDDEN);
     GL(glEnable(GL_BLEND));
     GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
@@ -235,15 +263,12 @@ public:
     client.paint(computePixelPos());
   }
   
-  void updateBaseTransform() {
+  Mat4 computeBaseTransform(const Vec2ui& imageSize) {
     const Dimensions s = glEnv.getWindowSize();
-    client.lockData();
-    imageSize = Vec2ui{client.getImage().width, client.getImage().height};
-    client.unlockData();
     const float ax = imageSize.x()/float(s.width);
     const float ay = imageSize.y()/float(s.height);
     const float m = std::max(ax,ay);
-    baseTransformation = Mat4::scaling({ax/m, ay/m, 1.0f});
+    return Mat4::scaling({ax/m, ay/m, 1.0f});
   }
     
   virtual void mouseMove(double xPosition, double yPosition) override {
@@ -281,13 +306,12 @@ public:
         startDragPos = normPos;
       }
     }
-
   }
   
   virtual void mouseWheel(double x_offset, double y_offset, double xPosition, double yPosition) override {
     addTransformation(Mat4::translation(-normPos.x(), -normPos.y(), 0) *
-                                        Mat4::scaling(1.0f+float(y_offset)/100) *
-                                        Mat4::translation(normPos.x(), normPos.y(), 0));
+                      Mat4::scaling(1.0f+float(y_offset)/100) *
+                      Mat4::translation(normPos.x(), normPos.y(), 0));
   }
   
   virtual void keyboard(int key, int scancode, int action, int mods) override {
@@ -309,14 +333,17 @@ public:
     
   virtual void draw() override {
     if (!client.isValid()) {
-      std::cout << "." << std::flush;
-      std::this_thread::sleep_for(std::chrono::milliseconds(100));
       GL(glClear(GL_COLOR_BUFFER_BIT));
-      GL(glClearColor(1.0f,0.0f,0.0f,1.0f));
+      GL(glClearColor(0.0f,0.0f,0.0f,1.0f));
+      setDrawTransform(Mat4::scaling(1/1.0f) * computeBaseTransform({connectingImage.width, connectingImage.height}) );
+      drawImage(connectingImage);
       return;
     }
     
-    updateBaseTransform();
+    client.lockData();
+    imageSize = Vec2ui{client.getImage().width, client.getImage().height};
+    client.unlockData();
+    baseTransformation = computeBaseTransform(imageSize);
     
     GL(glClearColor(0.0f,0.0f,0.0f,0.0f));
     GL(glClear(GL_COLOR_BUFFER_BIT));
@@ -325,19 +352,30 @@ public:
     client.lockData();
     drawImage(client.getImage());
     std::vector<float> glShape;
-    const std::vector<MouseInfo> otherMice = client.getOtherMouseInfos();
-    for (const MouseInfo& m : otherMice) {
+    const std::vector<ClientMouseInfo> otherMice = client.getOtherMouseInfos();
+    for (const ClientMouseInfo& m : otherMice) {
       glShape.push_back(m.pos.x()); glShape.push_back(m.pos.y()); glShape.push_back(0.0f);
       glShape.push_back(m.color.x()); glShape.push_back(m.color.y()); glShape.push_back(m.color.z());  glShape.push_back(m.color.w());
     }
     Vec4 color{client.getColor()};
-    client.unlockData();
     drawPoints(glShape, 10, true);
+    
+    for (const ClientMouseInfo& m : otherMice) {
+      setDrawTransform( Mat4::translation(1.0f, 1.0f, 0.0f) * Mat4::scaling(1/10.0f) * computeBaseTransform({m.image.width, m.image.height}) * Mat4::translation(m.pos.x(), m.pos.y(), 0.0f) * userTransformation * baseTransformation );
+      drawImage(m.image);
+    }
+    
+    
+    client.unlockData();
     
     glShape.clear();
     glShape.push_back(normPos.x()); glShape.push_back(normPos.y()); glShape.push_back(0.0f);
     glShape.push_back(color.r()); glShape.push_back(color.y()); glShape.push_back(color.z());  glShape.push_back(color.w());
+    setDrawTransform(userTransformation*baseTransformation);
     drawPoints(glShape, 40, true);
+    
+    
+    
   }
 
 private:
@@ -354,6 +392,8 @@ private:
   Mat4 baseTransformation;
   Vec2ui imageSize{0,0};
   Mat4 userTransformation;
+  
+  Image connectingImage;
 
 };
 

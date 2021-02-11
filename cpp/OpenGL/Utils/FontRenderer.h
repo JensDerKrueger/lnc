@@ -17,11 +17,17 @@ struct CharPosition {
 class FontRenderer {
 public:
   static Image render(const std::string& text,
+                      const Image& image,
+                      const std::vector<CharPosition>& positions);
+  static Image render(const std::string& text,
                       const std::string& imageFilename,
                       const std::string& positionFilename);
   static Image render(uint32_t number,
                       const std::string& imageFilename,
                       const std::string& positionFilename);
+  
+  static const std::vector<CharPosition> loadPositions(const std::string& positionFilename);
+  
 private:
   static const CharPosition& findElement(char c, const std::vector<CharPosition>& positions);
 };
