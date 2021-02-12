@@ -11,11 +11,11 @@
 #include <FontRenderer.h>
 
 #include "../PainterCommon.h"
+#include "helvetica_neue.inc"
 
 struct ClientMouseInfo : public MouseInfo {
   Image image;
 };
-
 
 class MyClient : public Client {
 public:
@@ -24,11 +24,6 @@ public:
     name{name},
     color{Vec3::hsvToRgb({360*Rand::rand01(),0.5f,1.0f}), 1.0f}
   {
-    fontImage = BMP::load("helvetica_neue.bmp");
-    fontImage.generateAlphaFromLuminance();
-    
-    fontPos = FontRenderer::loadPositions("helvetica_neue.pos");
-
     for (uint32_t y = 0;y<image.height;++y) {
       for (uint32_t x = 0;x<image.width;++x) {
         const Vec3 rgb{0,0,0};
@@ -213,8 +208,6 @@ private:
   Vec4 color;
   bool initComplete{false};
   Image image{imageWidth,imageHeight};
-  Image fontImage;
-  std::vector<CharPosition> fontPos;
 
   
   void paint(const Vec4& color, const Vec2i& pos) {
@@ -441,7 +434,6 @@ private:
   bool rightMouseDown{false};
   bool leftMouseDown{false};
   Vec2i lastMousePos{-1,-1};
-
 
   Vec2 startDragPos{0,0};
   double xPositionMouse{ 0.0 };

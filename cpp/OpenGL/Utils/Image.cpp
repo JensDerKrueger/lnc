@@ -61,19 +61,14 @@ void Image::setNormalizedValue(uint32_t x, uint32_t y, uint32_t component, float
   data[computeIndex(x, y, component)] = iValue;
 }
 
-std::string Image::toCode(bool padding) const {
+std::string Image::toCode(const std::string& varName, bool padding) const {
   std::stringstream ss;
-  
-  ss << "class MyImage : public Image {\n";
-  ss << "public:\n";
-  ss << "  MyImage() : \n";
-  ss << "    Image("<< width << ",\n";
-  ss << "          " << height << ",\n";
-  ss << "          " << componentCount << ",\n";
-  ss << "          {";
+
+  ss << "Image " << varName << " {"<< width << "," << height << ","<< componentCount << ",\n";
+  ss << "              {";
 
   for (size_t i = 0;i<data.size();++i) {
-    if (i % 30 == 0) ss << "\n            ";
+    if (i % 30 == 0) ss << "\n              ";
     if (padding) {
       ss << std::setfill (' ') << std::setw (3) << int(data[i]);
     } else {
@@ -85,9 +80,7 @@ std::string Image::toCode(bool padding) const {
       ss << "\n";
   }
   
-  ss << "          }\n";
-  ss << "          ) {}\n";
-  ss << "} myImage;\n";
+  ss << "          }};\n";
   
   return ss.str();
 }

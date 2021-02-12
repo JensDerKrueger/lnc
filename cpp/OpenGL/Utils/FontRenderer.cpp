@@ -76,3 +76,22 @@ Image FontRenderer::render(const std::string& text,
   
   return result;
 }
+
+std::string FontRenderer::assetsToCode(const std::string& varName,
+                                       const Image& image,
+                                       const std::vector<CharPosition>& positions) {
+  std::stringstream ss;
+  ss << image.toCode(varName+"Image") << "\nstd::vector<CharPosition> " << varName << "Pos{";
+  
+  for (size_t i = 0;i<positions.size();++i) {
+    const CharPosition& p = positions[i];
+    ss << "{" << int(p.c) << ", {" << p.topLeft.x() << "," << p.topLeft.y() << "},";
+    ss << "{" << p.bottomRight.x() << "," << p.bottomRight.y() << "}}";
+    
+    if (i % 3 == 0) ss << "\n  ";
+    if (i<positions.size()-1) ss << ",";
+  }
+  ss << "};\n";
+  
+  return ss.str();
+}

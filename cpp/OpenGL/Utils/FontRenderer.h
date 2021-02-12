@@ -27,6 +27,11 @@ public:
                       const std::string& positionFilename);
   
   static const std::vector<CharPosition> loadPositions(const std::string& positionFilename);
+
+  static std::string assetsToCode(const std::string& varName,
+                                  const Image& image,
+                                  const std::vector<CharPosition>& positions);
+
   
 private:
   static const CharPosition& findElement(char c, const std::vector<CharPosition>& positions);
