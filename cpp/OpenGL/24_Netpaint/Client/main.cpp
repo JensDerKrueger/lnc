@@ -11,7 +11,13 @@
 #include <FontRenderer.h>
 
 #include "../PainterCommon.h"
-#include "helvetica_neue.inc"
+
+#ifndef WIN32
+  #include "helvetica_neue.inc"
+#else
+  Image fontImage = BMP::load("helvetica_neue.bmp");
+  std::vector<CharPosition> fontPos = FontRenderer::loadPositions("helvetica_neue.pos");
+#endif
 
 struct ClientMouseInfo : public MouseInfo {
   Image image;
