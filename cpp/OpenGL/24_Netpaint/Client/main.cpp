@@ -252,7 +252,7 @@ public:
   
   
   virtual void init() override {
-    connectingImage = FontRenderer::render("Connecting", client.getFontImage(), client.getFontPos());
+    connectingImage = FontRenderer::render("Connecting ...", client.getFontImage(), client.getFontPos());
     
     hsvImage = Image(255,255);
     fillHSVImage();
