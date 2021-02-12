@@ -192,8 +192,8 @@ public:
     return initComplete;
   }
   
-  void newColor() {
-    color = Vec4{Vec3::hsvToRgb({360*Rand::rand01(),0.5f,1.0f}), 1.0f};
+  void setColor(const Vec4& color) {
+    this->color = color;
   }
   
   const Image& getFontImage() const {
@@ -234,8 +234,28 @@ public:
 
   MyGLApp(MyClient& client) : GLApp(1024, 786, 4, "Network Painter"), client(client) {}
   
+  Vec3 convertPosToHSV(float x, float y) {
+    return Vec3::hsvToRgb({360*x,y,value});
+  }
+
+  void fillHSVImage() {
+    for (uint32_t y = 0;y<hsvImage.height;++y) {
+      for (uint32_t x = 0;x<hsvImage.width;++x) {
+        const Vec3 rgb = convertPosToHSV(float(x)/hsvImage.width, float(y)/hsvImage.height);
+        hsvImage.setNormalizedValue(x,y,0,rgb.x());
+        hsvImage.setNormalizedValue(x,y,1,rgb.y());
+        hsvImage.setNormalizedValue(x,y,2,rgb.z());
+        hsvImage.setValue(x,y,3,255);
+      }
+    }
+  }
+  
+  
   virtual void init() override {
     connectingImage = FontRenderer::render("Connecting", client.getFontImage(), client.getFontPos());
+    
+    hsvImage = Image(255,255);
+    fillHSVImage();
     
     glEnv.setCursorMode(CursorMode::HIDDEN);
     GL(glEnable(GL_BLEND));
@@ -279,39 +299,57 @@ public:
     yPositionMouse = yPosition;
     updateMousePos();
 
-    if (rightMouseDown) dropPaint();
+    if (colorChooserMode) {
+      if (rightMouseDown) client.setColor( Vec4{Vec3::hsvToRgb({360*(normPos.x()+1.0f)/2.0f,(normPos.y()+1.0f)/2.0f,value}), 1.0f} );
+    } else {
     
-    if (leftMouseDown) {
-      const Vec2 trans = normPos - startDragPos;
-      addTransformation(Mat4::translation(trans.x(), trans.y(), 0));
-      startDragPos = normPos;
-    }
+      if (rightMouseDown) dropPaint();
+      
+      if (leftMouseDown) {
+        const Vec2 trans = normPos - startDragPos;
+        addTransformation(Mat4::translation(trans.x(), trans.y(), 0));
+        startDragPos = normPos;
+      }
 
-    const Vec2i iPos = computePixelPos();
-    if (iPos != lastMousePos) {
-      client.setMousePos(normPos);
+      const Vec2i iPos = computePixelPos();
+      if (iPos != lastMousePos) {
+        client.setMousePos(normPos);
+      }
+      lastMousePos = iPos;
     }
-    lastMousePos = iPos;
   }
   
   virtual void mouseButton(int button, int state, int mods, double xPosition, double yPosition) override {
-    if (button == GLFW_MOUSE_BUTTON_LEFT) {
-      rightMouseDown = (state == GLFW_PRESS);
-      dropPaint();
-    }
+    if (colorChooserMode) {
+      if (button == GLFW_MOUSE_BUTTON_LEFT) {
+        rightMouseDown = (state == GLFW_PRESS);
+        if (rightMouseDown) client.setColor( Vec4{Vec3::hsvToRgb({360*(normPos.x()+1.0f)/2.0f,(normPos.y()+1.0f)/2.0f,value}), 1.0f} );
+      }
+    } else {
+      if (button == GLFW_MOUSE_BUTTON_LEFT) {
+        rightMouseDown = (state == GLFW_PRESS);
+        if (rightMouseDown) dropPaint();
+      }
 
-    if (button == GLFW_MOUSE_BUTTON_RIGHT) {
-      leftMouseDown = (state == GLFW_PRESS);
-      if (state == GLFW_PRESS) {
-        startDragPos = normPos;
+      if (button == GLFW_MOUSE_BUTTON_RIGHT) {
+        leftMouseDown = (state == GLFW_PRESS);
+        if (state == GLFW_PRESS) {
+          startDragPos = normPos;
+        }
       }
     }
   }
   
   virtual void mouseWheel(double x_offset, double y_offset, double xPosition, double yPosition) override {
-    addTransformation(Mat4::translation(-normPos.x(), -normPos.y(), 0) *
-                      Mat4::scaling(1.0f+float(y_offset)/100) *
-                      Mat4::translation(normPos.x(), normPos.y(), 0));
+    
+    if (colorChooserMode) {
+      value = std::clamp<float>(value + float(y_offset)/100, 0.0f, 1.0);
+      fillHSVImage();
+    } else {
+      addTransformation(Mat4::translation(-normPos.x(), -normPos.y(), 0) *
+                        Mat4::scaling(1.0f+float(y_offset)/100) *
+                        Mat4::translation(normPos.x(), normPos.y(), 0));
+    }
   }
   
   virtual void keyboard(int key, int scancode, int action, int mods) override {
@@ -325,33 +363,45 @@ public:
           updateMousePos();
           break;
         case GLFW_KEY_C:
-          client.newColor();
+          colorChooserMode = !colorChooserMode;
           break;
       }
     }
   }
     
   virtual void draw() override {
+    GL(glClearColor(0.0f,0.0f,0.0f,0.0f));
+    GL(glClear(GL_COLOR_BUFFER_BIT));
+    std::vector<float> glShape;
+
     if (!client.isValid()) {
-      GL(glClear(GL_COLOR_BUFFER_BIT));
-      GL(glClearColor(0.0f,0.0f,0.0f,1.0f));
       setDrawTransform(Mat4::scaling(1/5.0f) * computeBaseTransform({connectingImage.width, connectingImage.height}) );
       drawImage(connectingImage);
       return;
     }
+    
+    if (colorChooserMode) {
+      setDrawTransform(Mat4{});
+      drawImage(hsvImage);
+      
+      glShape.clear();
+      glShape.push_back(normPos.x()); glShape.push_back(normPos.y()); glShape.push_back(0.0f);
+      glShape.push_back(0.0f); glShape.push_back(0.0f); glShape.push_back(0.0f);  glShape.push_back(1.0f);
+      drawPoints(glShape, 10, false);
+
+      return;
+    }
+    
     
     client.lockData();
     imageSize = Vec2ui{client.getImage().width, client.getImage().height};
     client.unlockData();
     baseTransformation = computeBaseTransform(imageSize);
     
-    GL(glClearColor(0.0f,0.0f,0.0f,0.0f));
-    GL(glClear(GL_COLOR_BUFFER_BIT));
     setDrawTransform(userTransformation*baseTransformation);
     setImageFilter(GL_NEAREST,GL_NEAREST);
     client.lockData();
     drawImage(client.getImage());
-    std::vector<float> glShape;
     const std::vector<ClientMouseInfo> otherMice = client.getOtherMouseInfos();
     for (const ClientMouseInfo& m : otherMice) {
       glShape.push_back(m.pos.x()); glShape.push_back(m.pos.y()); glShape.push_back(0.0f);
@@ -365,7 +415,6 @@ public:
       drawImage(m.image);
     }
     
-    
     client.unlockData();
     
     glShape.clear();
@@ -373,9 +422,6 @@ public:
     glShape.push_back(color.r()); glShape.push_back(color.y()); glShape.push_back(color.z());  glShape.push_back(color.w());
     setDrawTransform(userTransformation*baseTransformation);
     drawPoints(glShape, 40, true);
-    
-    
-    
   }
 
 private:
@@ -394,6 +440,9 @@ private:
   Mat4 userTransformation;
   
   Image connectingImage;
+  Image hsvImage;
+  float value{1.0f};
+  bool colorChooserMode{false};
 
 };
 
