@@ -73,13 +73,13 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)..\..\..\VS\include;$(SolutionDir)..\..\..\Utils;$(SolutionDir)..\..\Network;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)..\..\VS\include;$(SolutionDir)..\..\Utils;$(SolutionDir)..\..\Network;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)bin\Client\$(Platform)-$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)tmp\Client\$(Platform)-$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)..\..\..\VS\include;$(SolutionDir)..\..\..\Utils;$(SolutionDir)..\..\Network;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)..\..\VS\include;$(SolutionDir)..\..\Utils;$(SolutionDir)..\..\Network;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)bin\Client\$(Platform)-$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)tmp\Client\$(Platform)-$(Configuration)\</IntDir>
   </PropertyGroup>
@@ -106,7 +106,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)..\..\..\VS\lib\Win32;$(PlatformTarget)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)Debug;$(SolutionDir)..\..\VS\lib\Win32;$(PlatformTarget)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>network.lib;utils.lib;opengl32.lib;glew32s.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -125,7 +125,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)..\..\..\VS\lib\Win32;$(PlatformTarget)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)Release;$(SolutionDir)..\..\VS\lib\Win32;$(PlatformTarget)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>network.lib;utils.lib;opengl32.lib;glew32s.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
