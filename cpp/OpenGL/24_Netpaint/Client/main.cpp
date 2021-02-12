@@ -190,15 +190,7 @@ public:
   void setColor(const Vec4& color) {
     this->color = color;
   }
-  
-  const Image& getFontImage() const {
-    return fontImage;
-  }
-  
-  const std::vector<CharPosition>& getFontPos() {
-    return fontPos;
-  }
-  
+    
   
 private:
   bool rendererLock{false};
@@ -225,7 +217,7 @@ private:
 class MyGLApp : public GLApp {
 public:
 
-  MyGLApp(MyClient& client) : GLApp(1024, 786, 4, "Network Painter"), client(client) {}
+  MyGLApp() : GLApp(1024, 786, 4, "Network Painter") {}
   
   Vec3 convertPosToHSV(float x, float y) {
     return Vec3::hsvToRgb({360*x,y,value});
@@ -243,13 +235,28 @@ public:
     }
   }
   
+  void trytoLoadSettings() {
+    std::ifstream settings ("settings.txt");
+    std::string line;
+    if (settings.is_open()) {
+      if (getline(settings,line) ) {
+        serverAddress = line;
+        addressComplete = true;
+      }
+        
+      if (getline(settings,line) ) {
+        userName = line;
+        nameComplete = true;
+      }
+
+      settings.close();
+    }
+  }
   
   virtual void init() override {
-    connectingImage[0] = FontRenderer::render("Connecting ", client.getFontImage(), client.getFontPos());
-    connectingImage[1] = FontRenderer::render("Connecting .", client.getFontImage(), client.getFontPos());
-    connectingImage[2] = FontRenderer::render("Connecting ..", client.getFontImage(), client.getFontPos());
-    connectingImage[3] = FontRenderer::render("Connecting ...", client.getFontImage(), client.getFontPos());
 
+    trytoLoadSettings();
+    
     hsvImage = Image(255,255);
     fillHSVImage();
     
@@ -280,7 +287,7 @@ public:
   }
   
   void dropPaint() {
-    client.paint(computePixelPos());
+    if (client) client->paint(computePixelPos());
   }
   
   Mat4 computeBaseTransform(const Vec2ui& imageSize) {
@@ -292,6 +299,8 @@ public:
   }
     
   virtual void mouseMove(double xPosition, double yPosition) override {
+    if (!client) return;
+    
     Dimensions s = glEnv.getWindowSize();
     if (xPosition < 0 || xPosition > s.width || yPosition < 0 || yPosition > s.height) return;
     
@@ -300,7 +309,7 @@ public:
     updateMousePos();
 
     if (colorChooserMode) {
-      if (rightMouseDown) client.setColor( Vec4{Vec3::hsvToRgb({360*(normPos.x()+1.0f)/2.0f,(normPos.y()+1.0f)/2.0f,value}), 1.0f} );
+      if (rightMouseDown) client->setColor( Vec4{Vec3::hsvToRgb({360*(normPos.x()+1.0f)/2.0f,(normPos.y()+1.0f)/2.0f,value}), 1.0f} );
     } else {
     
       if (rightMouseDown) dropPaint();
@@ -313,17 +322,19 @@ public:
 
       const Vec2i iPos = computePixelPos();
       if (iPos != lastMousePos) {
-        client.setMousePos(normPos);
+        client->setMousePos(normPos);
       }
       lastMousePos = iPos;
     }
   }
   
   virtual void mouseButton(int button, int state, int mods, double xPosition, double yPosition) override {
+    if (!client) return;
+    
     if (colorChooserMode) {
       if (button == GLFW_MOUSE_BUTTON_LEFT) {
         rightMouseDown = (state == GLFW_PRESS);
-        if (rightMouseDown) client.setColor( Vec4{Vec3::hsvToRgb({360*(normPos.x()+1.0f)/2.0f,(normPos.y()+1.0f)/2.0f,value}), 1.0f} );
+        if (rightMouseDown) client->setColor( Vec4{Vec3::hsvToRgb({360*(normPos.x()+1.0f)/2.0f,(normPos.y()+1.0f)/2.0f,value}), 1.0f} );
       }
     } else {
       if (button == GLFW_MOUSE_BUTTON_LEFT) {
@@ -341,6 +352,7 @@ public:
   }
   
   virtual void mouseWheel(double x_offset, double y_offset, double xPosition, double yPosition) override {
+    if (!client) return;
     
     if (colorChooserMode) {
       value = std::clamp<float>(value + float(y_offset)/100, 0.0f, 1.0);
@@ -352,8 +364,40 @@ public:
     }
   }
   
+  void handleInput(int key, std::string& str, bool& complete) {
+    switch (key) {
+      case GLFW_KEY_BACKSPACE :
+        if (str.size() > 0) str.erase(str.size() - 1);
+        break;
+      case GLFW_KEY_ENTER :
+        if (str.size() > 0) complete = true;
+        break;
+      default:
+        str = str + char(key);
+        break;
+    }
+  }
+    
   virtual void keyboard(int key, int scancode, int action, int mods) override {
     if (action == GLFW_PRESS) {
+      
+      if (key == GLFW_KEY_ESCAPE) {
+        closeWindow();
+        return;
+      }
+
+      if (!client) {
+        if (!addressComplete) {
+          handleInput(key, serverAddress, addressComplete);
+          responseImage = FontRenderer::render(serverAddress, fontImage, fontPos);
+        } else {
+          handleInput(key, userName, nameComplete);
+          responseImage = FontRenderer::render(userName, fontImage, fontPos);
+        }
+
+        return;
+      }
+            
       switch (key) {
         case GLFW_KEY_ESCAPE:
           closeWindow();
@@ -378,8 +422,31 @@ public:
     GL(glClear(GL_COLOR_BUFFER_BIT));
     std::vector<float> glShape;
 
-    if (!client.isValid()) {
-      setDrawTransform(Mat4::scaling(connectingImage[currentImage].width / (connectingImage[0].width * 5.0f)) * computeBaseTransform({connectingImage[currentImage].width, connectingImage[currentImage].height}) );
+    if (!client) {
+      
+      if (nameComplete && addressComplete) {
+        connectingImage[0] = FontRenderer::render("Connecting to " + serverAddress, fontImage, fontPos);
+        connectingImage[1] = FontRenderer::render("Connecting to " + serverAddress + " .", fontImage, fontPos);
+        connectingImage[2] = FontRenderer::render("Connecting to " + serverAddress + " ..", fontImage, fontPos);
+        connectingImage[3] = FontRenderer::render("Connecting to " + serverAddress + " ...", fontImage, fontPos);
+
+        client = std::make_shared<MyClient>(serverAddress, 11001, userName);
+      } else {
+        if (serverAddress.empty()) {
+          responseImage = FontRenderer::render("Type in server address:", fontImage, fontPos);
+        } else if (addressComplete && userName.empty()) {
+          responseImage = FontRenderer::render("Type in your name:", fontImage, fontPos);
+        }
+        setDrawTransform(Mat4::scaling(1.0f/3.0f) * computeBaseTransform({responseImage.width, responseImage.height}) );
+        drawImage(responseImage);
+        return;
+      }
+      
+    }
+    
+    
+    if (!client->isValid()) {
+      setDrawTransform(Mat4::scaling(connectingImage[currentImage].width / (connectingImage[0].width * 2.0f)) * computeBaseTransform({connectingImage[currentImage].width, connectingImage[currentImage].height}) );
       drawImage(connectingImage[currentImage]);
       return;
     }
@@ -397,21 +464,21 @@ public:
     }
     
     
-    client.lockData();
-    imageSize = Vec2ui{client.getImage().width, client.getImage().height};
-    client.unlockData();
+    client->lockData();
+    imageSize = Vec2ui{client->getImage().width, client->getImage().height};
+    client->unlockData();
     baseTransformation = computeBaseTransform(imageSize);
     
     setDrawTransform(userTransformation*baseTransformation);
     setImageFilter(GL_NEAREST,GL_NEAREST);
-    client.lockData();
-    drawImage(client.getImage());
-    const std::vector<ClientMouseInfo> otherMice = client.getOtherMouseInfos();
+    client->lockData();
+    drawImage(client->getImage());
+    const std::vector<ClientMouseInfo> otherMice = client->getOtherMouseInfos();
     for (const ClientMouseInfo& m : otherMice) {
       glShape.push_back(m.pos.x()); glShape.push_back(m.pos.y()); glShape.push_back(0.0f);
       glShape.push_back(m.color.x()); glShape.push_back(m.color.y()); glShape.push_back(m.color.z());  glShape.push_back(m.color.w());
     }
-    Vec4 color{client.getColor()};
+    Vec4 color{client->getColor()};
     drawPoints(glShape, 10, true);
     
     for (const ClientMouseInfo& m : otherMice) {
@@ -419,7 +486,7 @@ public:
       drawImage(m.image);
     }
     
-    client.unlockData();
+    client->unlockData();
     
     glShape.clear();
     glShape.push_back(normPos.x()); glShape.push_back(normPos.y()); glShape.push_back(0.0f);
@@ -429,7 +496,7 @@ public:
   }
 
 private:
-  MyClient& client;
+  std::shared_ptr<MyClient> client{nullptr};
   Vec2 normPos{0,0};
   bool rightMouseDown{false};
   bool leftMouseDown{false};
@@ -442,39 +509,23 @@ private:
   Vec2ui imageSize{0,0};
   Mat4 userTransformation;
   
+  Image promptImage;
+  Image responseImage;
+  
   size_t currentImage{0};
   std::array<Image,4> connectingImage;
   Image hsvImage;
   float value{1.0f};
   bool colorChooserMode{false};
 
+  bool addressComplete{false};
+  bool nameComplete{false};
+  std::string serverAddress{""};
+  std::string userName{""};
 };
 
 int main(int argc, char ** argv) {
-
- if (argc != 3) {
-    std::cerr << "Usage: " << argv[0] << " ServerIP YourName" << std::endl;
-    return EXIT_FAILURE;
-  }
- 
-  MyClient c{argv[1], 11001, argv[2]};
-  std::cout << "Searching for server ...";
-  while (c.isConnecting()) {
-    std::cout << "." << std::flush;
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-  }
-  std::cout << " Done" << std::endl;
-  
-  if (c.isOK()) {
-    try {
-      MyGLApp myApp(c);
-      myApp.run();
-    } catch (const GLException& e) {
-      std::cerr << "Insufficent OpenGL Support (Details: " << e.what() << ")"<< std::endl;
-    }
-    return EXIT_SUCCESS;
-  } else {
-    std::cerr << "Unable to start client" << std::endl;
-    return EXIT_FAILURE;
-  }
+  MyGLApp myApp;
+  myApp.run();
+  return EXIT_SUCCESS;
 }
