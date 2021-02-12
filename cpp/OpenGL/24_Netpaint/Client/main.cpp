@@ -12,7 +12,7 @@
 
 #include "../PainterCommon.h"
 
-#ifndef WIN32
+#ifndef _WIN32
   #include "helvetica_neue.inc"
 #else
   Image fontImage = BMP::load("helvetica_neue.bmp");
