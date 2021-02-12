@@ -8,7 +8,7 @@
 
 
 struct ClientInfo {
-  size_t id;
+  uint32_t id;
   std::string name;
 };
 
@@ -17,11 +17,11 @@ public:
   
   MyServer(short port) : Server(port, "asdn932lwnmflj23") {}
 
-  virtual void handleClientConnection(size_t id) override {
+  virtual void handleClientConnection(uint32_t id) override {
     clientInfo.push_back(ClientInfo{id,"Unknown"});
   }
   
-  virtual void handleClientDisconnection(size_t id) override {
+  virtual void handleClientDisconnection(uint32_t id) override {
     for (size_t i = 0;i<clientInfo.size();++i) {
       if (clientInfo[i].id == id) {
         sendMessage(clientInfo[i].name + " has left the building!", id, true);
@@ -31,7 +31,7 @@ public:
     }
   }
   
-  std::optional<ClientInfo> getClientInfo(size_t id) {
+  std::optional<ClientInfo> getClientInfo(uint32_t id) {
     for (auto& c : clientInfo) {
       if (c.id == id) {
         return c;
@@ -40,7 +40,7 @@ public:
     return {};
   }
   
-  virtual void handleClientMessage(size_t id, const std::string& message) override {
+  virtual void handleClientMessage(uint32_t id, const std::string& message) override {
     
     const std::vector<std::string> data = Coder::decode(message);
     
