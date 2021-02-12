@@ -252,8 +252,11 @@ public:
   
   
   virtual void init() override {
-    connectingImage = FontRenderer::render("Connecting ...", client.getFontImage(), client.getFontPos());
-    
+    connectingImage[0] = FontRenderer::render("Connecting ", client.getFontImage(), client.getFontPos());
+    connectingImage[1] = FontRenderer::render("Connecting .", client.getFontImage(), client.getFontPos());
+    connectingImage[2] = FontRenderer::render("Connecting ..", client.getFontImage(), client.getFontPos());
+    connectingImage[3] = FontRenderer::render("Connecting ...", client.getFontImage(), client.getFontPos());
+
     hsvImage = Image(255,255);
     fillHSVImage();
     
@@ -368,15 +371,19 @@ public:
       }
     }
   }
-    
+  
+  virtual void animate(double animationTime) override {
+    currentImage = size_t(animationTime*2) % connectingImage.size();
+  }
+  
   virtual void draw() override {
     GL(glClearColor(0.0f,0.0f,0.0f,0.0f));
     GL(glClear(GL_COLOR_BUFFER_BIT));
     std::vector<float> glShape;
 
     if (!client.isValid()) {
-      setDrawTransform(Mat4::scaling(1/5.0f) * computeBaseTransform({connectingImage.width, connectingImage.height}) );
-      drawImage(connectingImage);
+      setDrawTransform(Mat4::scaling(connectingImage[currentImage].width / (connectingImage[0].width * 5.0f)) * computeBaseTransform({connectingImage[currentImage].width, connectingImage[currentImage].height}) );
+      drawImage(connectingImage[currentImage]);
       return;
     }
     
@@ -439,7 +446,8 @@ private:
   Vec2ui imageSize{0,0};
   Mat4 userTransformation;
   
-  Image connectingImage;
+  size_t currentImage{0};
+  std::array<Image,4> connectingImage;
   Image hsvImage;
   float value{1.0f};
   bool colorChooserMode{false};
@@ -454,7 +462,7 @@ int main(int argc, char ** argv) {
   }
  
   MyClient c{argv[1], 11001, argv[2]};
-  std::cout << "connecting ...";
+  std::cout << "Searching for server ...";
   while (c.isConnecting()) {
     std::cout << "." << std::flush;
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
