@@ -270,7 +270,11 @@ public:
   void updateMousePos() {
     Dimensions s = glEnv.getWindowSize();
     normPos = Vec2{float(xPositionMouse/s.width)-0.5f,float(1.0-yPositionMouse/s.height)-0.5f} * 2.0f;
-    normPos = (Mat4::inverse(userTransformation*baseTransformation) * Vec4{normPos,0.0f,1.0f}).xy();
+    
+    if (colorChooserMode)
+      normPos = (Mat4::inverse(baseTransformation) * Vec4{normPos,0.0f,1.0f}).xy();
+    else
+      normPos = (Mat4::inverse(userTransformation*baseTransformation) * Vec4{normPos,0.0f,1.0f}).xy();
   }
   
   void addTransformation(const Mat4& trafo) {
