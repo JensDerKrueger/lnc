@@ -33,7 +33,7 @@ class GLEnv {
 public:
   GLEnv(uint32_t w, uint32_t h, uint32_t s, const std::string& title, bool fpsCounter=false, bool sync=true, int major=2, int minor=1, bool core=false);
   ~GLEnv();
-  void setKeyCallback(GLFWkeyfun f);
+  void setKeyCallbacks(GLFWkeyfun f, GLFWcharfun c);
   void setMouseCallbacks(GLFWcursorposfun p, GLFWmousebuttonfun b, GLFWscrollfun s);
   void setResizeCallback(GLFWframebuffersizefun f);
   

@@ -370,17 +370,15 @@ public:
     }
   }
   
-  void handleInput(int key, std::string& str, bool& complete) {
-    switch (key) {
-      case GLFW_KEY_BACKSPACE :
-        if (str.size() > 0) str.erase(str.size() - 1);
-        break;
-      case GLFW_KEY_ENTER :
-        if (str.size() > 0) complete = true;
-        break;
-      default:
-        str = str + char(key);
-        break;
+  virtual void keyboardChar(unsigned int codepoint) override {
+    if (!client) {
+      if (!addressComplete) {
+        serverAddress += char(codepoint);
+        responseImage = FontRenderer::render(serverAddress, fontImage, fontPos);
+      } else {
+        userName += char(codepoint);
+        responseImage = FontRenderer::render(userName, fontImage, fontPos);
+      }
     }
   }
     
@@ -393,14 +391,17 @@ public:
       }
 
       if (!client) {
-        if (!addressComplete) {
-          handleInput(key, serverAddress, addressComplete);
-          responseImage = FontRenderer::render(serverAddress, fontImage, fontPos);
-        } else {
-          handleInput(key, userName, nameComplete);
-          responseImage = FontRenderer::render(userName, fontImage, fontPos);
+        std::string& str = addressComplete ? userName : serverAddress;
+        bool& complete = addressComplete ? nameComplete : addressComplete;
+        switch (key) {
+          case GLFW_KEY_BACKSPACE :
+            if (str.size() > 0) str.erase(str.size() - 1);
+            responseImage = FontRenderer::render(str, fontImage, fontPos);
+            break;
+          case GLFW_KEY_ENTER :
+            if (str.size() > 0) complete = true;
+            break;
         }
-
         return;
       }
             

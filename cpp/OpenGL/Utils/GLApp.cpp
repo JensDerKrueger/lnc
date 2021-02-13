@@ -95,11 +95,10 @@ GLApp::GLApp(uint32_t w, uint32_t h, uint32_t s,
 {
   staticAppPtr = this;
   glEnv.setMouseCallbacks(cursorPositionCallback, mouseButtonCallback, scrollCallback);
-  glEnv.setKeyCallback(keyCallback);
+  glEnv.setKeyCallbacks(keyCallback, keyCharCallback);
   glEnv.setResizeCallback(sizeCallback);
   
   resetPointTexture();
-
   
   // setup a minimal shader and buffer
   shaderUpdate();

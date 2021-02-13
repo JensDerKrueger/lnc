@@ -66,9 +66,15 @@ public:
   
   virtual void resize(int width, int height);
   virtual void keyboard(int key, int scancode, int action, int mods) {}
+  virtual void keyboardChar(unsigned int codepoint) {}
   virtual void mouseMove(double xPosition, double yPosition) {}
   virtual void mouseButton(int button, int state, int mods, double xPosition, double yPosition) {}
   virtual void mouseWheel(double x_offset, double y_offset, double xPosition, double yPosition) {}
+  
+  
+  void character_callback(GLFWwindow* window, unsigned int codepoint)
+  {
+  }
   
 protected:
   GLEnv glEnv;
@@ -101,6 +107,9 @@ private:
   }
   static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     if (staticAppPtr) staticAppPtr->keyboard(key, scancode, action, mods);
+  }
+  static void keyCharCallback(GLFWwindow* window, unsigned int codepoint) {
+    if (staticAppPtr) staticAppPtr->keyboardChar(codepoint);
   }
   static void cursorPositionCallback(GLFWwindow* window, double xPosition, double yPosition) {
     if (staticAppPtr) staticAppPtr->mouseMove(xPosition, yPosition);
