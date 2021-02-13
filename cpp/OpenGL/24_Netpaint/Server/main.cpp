@@ -127,8 +127,14 @@ int main(int argc, char ** argv) {
   std::cout << std::endl;
   if (s.isOK()) {
     std::cout << "running ..." << std::endl;
-    std::string test;
-    std::cin >> test;
+    std::string user{""};
+    do {
+      std::cin >> user;
+      
+      // TODO: output server stats based on user commands
+      
+    } while (user != "q");
+
     return EXIT_SUCCESS;
   } else {
     std::cerr << "Unable to start server" << std::endl;
