@@ -36,12 +36,41 @@ void MyGLApp::tryToLoadSettings() {
   }
 }
 
-void MyGLApp::init() {
+void MyGLApp::genMouseCursor() {
+  cursorShape = Image(64,64,4);
 
+  for (size_t y = 0;y<cursorShape.height;++y) {
+    for (size_t x = 0;x<cursorShape.width;++x) {
+              
+      Vec2 nPos{x / float(cursorShape.width), y / float(cursorShape.width)};
+      
+      float val = std::max(0.0f,(0.5f-(Vec2(0.5f,0.5f)-nPos).length())*2.0f);
+      
+      const uint8_t r{val > 0.9 ? uint8_t(0) : uint8_t(val*255)};
+      const uint8_t g{val > 0.9 ? uint8_t(0) : uint8_t(val*255)};
+      const uint8_t b{val > 0.9 ? uint8_t(0) : uint8_t(val*255)};
+      const uint8_t a{uint8_t(val*255)};
+      
+      cursorShape.setValue(x,y,0,r);
+      cursorShape.setValue(x,y,1,g);
+      cursorShape.setValue(x,y,2,b);
+      cursorShape.setValue(x,y,3,a);
+    }
+  }
+  
+  
+  
+}
+
+
+void MyGLApp::init() {
+  
+  
   tryToLoadSettings();
   
   hsvImage = Image(255,255);
   fillHSVImage();
+  genMouseCursor();
   
   glEnv.setCursorMode(CursorMode::HIDDEN);
   GL(glEnable(GL_BLEND));
@@ -295,5 +324,8 @@ void MyGLApp::draw() {
   glShape.push_back(normPos.x()); glShape.push_back(normPos.y()); glShape.push_back(0.0f);
   glShape.push_back(color.r()); glShape.push_back(color.y()); glShape.push_back(color.z());  glShape.push_back(color.w());
   setDrawTransform(userTransformation*baseTransformation);
+  
+  setPointTexture(cursorShape);
   drawPoints(glShape, 40, true);
+  resetPointTexture();
 }

@@ -42,6 +42,7 @@ private:
   size_t currentImage{0};
   std::array<Image,4> connectingImage;
   Image hsvImage;
+  Image cursorShape;
   float value{1.0f};
   bool colorChooserMode{false};
 
@@ -58,4 +59,6 @@ private:
   Vec2i computePixelPos();
   void dropPaint();
   Mat4 computeBaseTransform(const Vec2ui& imageSize);
+  
+  void genMouseCursor();
 };
