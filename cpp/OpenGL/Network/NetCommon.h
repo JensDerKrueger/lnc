@@ -15,14 +15,21 @@
 struct Coder {
   
   static inline char DELIM = char(1);
-  
-  static std::string encode(const std::vector<std::string>& data, bool checkForDelim=true) {
+
+  static std::string merge(const std::string& a,
+                           const std::string& b) {
+    return a + DELIM + b;
+  }
+
+  static std::string append(const std::string& a,
+                            const std::vector<std::string>& data) {
+    return a + DELIM + encode(data);
+  }
+
+  static std::string encode(const std::vector<std::string>& data) {
     std::string result;
     for (size_t i = 0;i<data.size();++i) {
-      if (checkForDelim)
-        result += removeDelim(data[i]);
-      else
-        result += data[i];
+      result += removeDelim(data[i]);
       if (i<data.size()-1) result += DELIM;
     }
     return result;

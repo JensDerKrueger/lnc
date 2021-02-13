@@ -19,7 +19,7 @@ void MyGLApp::fillHSVImage() {
   }
 }
 
-void MyGLApp::trytoLoadSettings() {
+void MyGLApp::tryToLoadSettings() {
   std::ifstream settings ("settings.txt");
   std::string line;
   if (settings.is_open()) {
@@ -39,7 +39,7 @@ void MyGLApp::trytoLoadSettings() {
 
 void MyGLApp::init() {
 
-  trytoLoadSettings();
+  tryToLoadSettings();
   
   hsvImage = Image(255,255);
   fillHSVImage();
@@ -215,7 +215,7 @@ void MyGLApp::draw() {
       connectingImage[2] = MyClient::fr.render("Connecting to " + serverAddress + " ..");
       connectingImage[3] = MyClient::fr.render("Connecting to " + serverAddress + " ...");
 
-      client = std::make_shared<MyClient>(serverAddress, 11001, userName);
+      client = std::make_shared<MyClient>(serverAddress, serverPort, userName);
     } else {
       if (serverAddress.empty()) {
         responseImage = MyClient::fr.render("Type in server address:");
@@ -258,15 +258,15 @@ void MyGLApp::draw() {
   setImageFilter(GL_NEAREST,GL_NEAREST);
   client->lockData();
   drawImage(client->getImage());
-  const std::vector<ClientMouseInfo> otherMice = client->getOtherMouseInfos();
-  for (const ClientMouseInfo& m : otherMice) {
+  const std::vector<ClientInfoClientSide> others = client->getClientInfos();
+  for (const ClientInfoClientSide& m : others) {
     glShape.push_back(m.pos.x()); glShape.push_back(m.pos.y()); glShape.push_back(0.0f);
     glShape.push_back(m.color.x()); glShape.push_back(m.color.y()); glShape.push_back(m.color.z());  glShape.push_back(m.color.w());
   }
   Vec4 color{client->getColor()};
   drawPoints(glShape, 10, true);
   
-  for (const ClientMouseInfo& m : otherMice) {
+  for (const ClientInfoClientSide& m : others) {
     setDrawTransform( Mat4::translation(1.0f, 1.0f, 0.0f) * Mat4::scaling(1/10.0f) * computeBaseTransform({m.image.width, m.image.height}) * Mat4::translation(m.pos.x(), m.pos.y(), 0.0f) * userTransformation * baseTransformation );
     drawImage(m.image);
   }

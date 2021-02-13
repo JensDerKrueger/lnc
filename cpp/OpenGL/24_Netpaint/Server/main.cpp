@@ -32,15 +32,15 @@ public:
   }
 
   virtual void handleClientConnection(uint32_t id) override {
-    InitPayload l(image, mouseInfo);
+    InitPayload l(image, clientInfo);
     sendMessage(l.toString(), id);
   }
   
   virtual void handleClientDisconnection(uint32_t id) override {
     ciMutex.lock();
-    for (size_t i = 0;i<mouseInfo.size();++i) {
-      if (mouseInfo[i].id == id) {
-        mouseInfo.erase(mouseInfo.begin()+i);
+    for (size_t i = 0;i<clientInfo.size();++i) {
+      if (clientInfo[i].id == id) {
+        clientInfo.erase(clientInfo.begin()+i);
         ciMutex.unlock();
         LostUserPayload l;
         l.userID = id;
@@ -51,15 +51,6 @@ public:
     ciMutex.unlock();
   }
   
-  std::optional<MouseInfo> getMouseInfo(uint32_t id) {
-    for (auto& c : mouseInfo) {
-      if (c.id == id) {
-        return c;
-      }
-    }
-    return {};
-  }
-
   virtual void handleClientMessage(uint32_t id, const std::string& message) override {
     PayloadType pt = identifyString(message);
     ciMutex.lock();
@@ -67,13 +58,25 @@ public:
       case PayloadType::MousePosPayload : {
         MousePosPayload l(message);
         l.userID = id;
-        sendMessage(l.toString(), id, true);
+        const std::string message = l.toString();
+        
+        for (const auto& c : clientInfo) {
+          if (c.id == id || !c.fastCursorUpdates) continue;
+          sendMessage(message, c.id);
+        }
+
         break;
       }
       case PayloadType::NewUserPayload  : {
-        NewUserPayload l(message);
+        std::cerr << "old client connected, please update client" << std::endl;
+        break;
+      }
+      case PayloadType::ConnectPayload  : {
+        ConnectPayload r(message);
+        r.userID = id;
+        clientInfo.push_back({{id, r.name, r.color, {0,0}}, r.fastCursorUpdates});
+        NewUserPayload l(r.name, r.color);
         l.userID = id;
-        mouseInfo.push_back({id, l.name, l.color, {0,0}});
         sendMessage(l.toString(), id, true);
         break;
       }
@@ -99,14 +102,15 @@ public:
   }
   
 private:
-  std::vector<MouseInfo> mouseInfo;
+  std::vector<ClientInfoServerSide> clientInfo;
   std::mutex ciMutex;
-  Image image{imageWidth,imageHeight};
+  Image image;
 };
 
 
 int main(int argc, char ** argv) {
-  MyServer s{11001};
+  MyServer s{serverPort};
+  s.start();
   std::cout << "starting ...";
   while (s.isStarting()) {
     std::cout << "." << std::flush;

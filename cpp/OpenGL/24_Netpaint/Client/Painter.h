@@ -50,7 +50,7 @@ private:
   
   Vec3 convertPosToHSV(float x, float y);
   void fillHSVImage();
-  void trytoLoadSettings();
+  void tryToLoadSettings();
   void updateMousePos();
   void addTransformation(const Mat4& trafo);
   Vec2i computePixelPos();

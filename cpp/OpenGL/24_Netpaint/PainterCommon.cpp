@@ -9,7 +9,7 @@ PayloadType identifyString(const std::string& s) {
   int i;
   try {
     i = std::stoi( l[1] );
-    if (i < 0 || i > int(PayloadType::InitPayload)) return PayloadType::InvalidPayload;
+    if (i < 0 || i > int(PayloadType::ConnectPayload)) return PayloadType::InvalidPayload;
   } catch (const std::invalid_argument&) {
     return PayloadType::InvalidPayload;
   }

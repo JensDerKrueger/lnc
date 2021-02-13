@@ -1,11 +1,12 @@
 #include "MyClient.h"
 
-
 #ifndef _WIN32
   #include "helvetica_neue.inc"
   FontRenderer MyClient::fr{fontImage, fontPos};
+  bool acceptFastMousePosUpdates = true;
 #else
   FontRenderer MyClient::fr{"helvetica_neue.bmp", "helvetica_neue.pos"};
+  bool acceptFastMousePosUpdates = false;
 #endif
 
 MyClient::MyClient(const std::string& address, short port, const std::string& name) :
@@ -13,9 +14,6 @@ MyClient::MyClient(const std::string& address, short port, const std::string& na
   name{name},
   color{Vec3::hsvToRgb({360*Rand::rand01(),0.5f,1.0f}), 1.0f}
 {
-  
-  
-  
   for (uint32_t y = 0;y<image.height;++y) {
     for (uint32_t x = 0;x<image.width;++x) {
       const Vec3 rgb{0,0,0};
@@ -28,9 +26,9 @@ MyClient::MyClient(const std::string& address, short port, const std::string& na
 }
 
 void MyClient::moveMouse(uint32_t userID, const Vec2& pos) {
-  for (size_t i = 0;i<mouseInfos.size();++i) {
-    if (mouseInfos[i].id == userID) {
-      mouseInfos[i].pos = pos;
+  for (size_t i = 0;i<clientInfo.size();++i) {
+    if (clientInfo[i].id == userID) {
+      clientInfo[i].pos = pos;
       break;
     }
   }
@@ -38,43 +36,41 @@ void MyClient::moveMouse(uint32_t userID, const Vec2& pos) {
 
 void MyClient::addMouse(uint32_t userID, const std::string& name, const Vec4& color) {
   bool found{false};
-  for (size_t i = 0;i<mouseInfos.size();++i) {
-    if (mouseInfos[i].id == userID) {
-      mouseInfos[i].name = name;
-      mouseInfos[i].image = fr.render(name);
-      mouseInfos[i].color = color;
+  for (size_t i = 0;i<clientInfo.size();++i) {
+    if (clientInfo[i].id == userID) {
+      clientInfo[i].name = name;
+      clientInfo[i].image = fr.render(name);
+      clientInfo[i].color = color;
       found = true;
       break;
     }
   }
   if (!found) {
-    mouseInfos.push_back({{userID, name, color, {0,0}}, fr.render(name)});
+    clientInfo.push_back({{userID, name, color, {0,0}}, fr.render(name)});
   }
 }
 
 void MyClient::removeMouse(uint32_t userID) {
-  for (size_t i = 0;i<mouseInfos.size();++i) {
-    if (mouseInfos[i].id == userID) {
-      mouseInfos.erase(mouseInfos.begin()+i);
+  for (size_t i = 0;i<clientInfo.size();++i) {
+    if (clientInfo[i].id == userID) {
+      clientInfo.erase(clientInfo.begin()+i);
       break;
     }
   }
 }
 
 void MyClient::initDataFromServer(const Image& serverImage,
-                        const std::vector<MouseInfo>& mi) {
-  image      = serverImage;
-  
-  mouseInfos.clear();
-  for (const MouseInfo& m : mi) {
-    mouseInfos.push_back({{m.id, m.name, m.color, m.pos}, fr.render(m.name) });
+                                  const std::vector<ClientInfo>& mi) {
+  image = serverImage;
+  clientInfo.clear();
+  for (const ClientInfo& m : mi) {
+    clientInfo.push_back({{m.id, m.name, m.color, m.pos}, fr.render(m.name) });
   }
-
   initComplete = true;
 }
   
 void MyClient::handleNewConnection() {
-  NewUserPayload l(name, color);
+  ConnectPayload l(name, color, acceptFastMousePosUpdates);
   sendMessage(l.toString());
 }
 
@@ -100,16 +96,26 @@ void MyClient::handleServerMessage(const std::string& message) {
     }
     case PayloadType::InitPayload : {
       InitPayload l(message);
-      initDataFromServer(l.image, l.mouseInfos);
+      initDataFromServer(l.image, l.clientInfos);
       break;
     }
     case PayloadType::CanvasUpdatePayload : {
       CanvasUpdatePayload l(message);
+      if (!acceptFastMousePosUpdates) {
+        const Vec2 normPos{(l.pos.x()/float(image.width)-0.5f) * 2.0f,
+                           (l.pos.y()/float(image.height)-0.5f) * 2.0f};
+                
+        moveMouse(l.userID, normPos);
+      }
       paint(l.color, l.pos);
       break;
     }
+    case PayloadType::ConnectPayload : {
+      std::cerr << "Netwerk Error: ConnectPayload should never be send to a client" << std::endl;
+      break;
+    }
     default:
-      std::cout << "unknown message " << int(pt) << " received" << std::endl;
+      std::cerr << "Netwerk Error: unknown message " << int(pt) << " received" << std::endl;
       break;
   };
   miMutex.unlock();
@@ -137,11 +143,11 @@ void MyClient::paint(const Vec2i& pos) {
   sendMessage(m.toString());
 }
 
-const std::vector<ClientMouseInfo>& MyClient::getOtherMouseInfos() const {
+const std::vector<ClientInfoClientSide>& MyClient::getClientInfos() const {
   if (!rendererLock) {
-    throw std::runtime_error("getImage called without lockData");
+    throw std::runtime_error("getClientInfos called without lockData");
   }
-  return mouseInfos;
+  return clientInfo;
 }
   
 const Image& MyClient::getImage() {

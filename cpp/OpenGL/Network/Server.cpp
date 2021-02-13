@@ -148,8 +148,6 @@ Server::Server(short port, const std::string& key, uint32_t timeout) :
   timeout{timeout},
   key{key}
 {
-  connectionThread = std::thread(&Server::serverFunc, this);
-  clientThread = std::thread(&Server::clientFunc, this);
 }
 
 Server::~Server() {
@@ -158,7 +156,13 @@ Server::~Server() {
   clientThread.join();
 }
 
-  
+
+void Server::start() {
+  connectionThread = std::thread(&Server::serverFunc, this);
+  clientThread = std::thread(&Server::clientFunc, this);
+}
+
+
 void Server::shutdownServer() {
   starting = false;
   if (serverSocket) {

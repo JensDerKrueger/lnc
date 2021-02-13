@@ -37,6 +37,7 @@ class Server {
 public:
   Server(short port, const std::string& key="", uint32_t timeout = 5000);
   virtual ~Server();
+  void start();
   
   bool isStarting() const {return starting;}
   bool isOK() const {return ok;}
