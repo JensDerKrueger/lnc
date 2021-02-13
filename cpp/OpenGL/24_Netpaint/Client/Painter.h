@@ -30,6 +30,7 @@ private:
   Vec2i lastMousePos{-1,-1};
   std::array<Vec4,10> quickColors;
 
+  float wheelScale{100};
   Vec2 startDragPos{0,0};
   double xPositionMouse{ 0.0 };
   double yPositionMouse{0.0};

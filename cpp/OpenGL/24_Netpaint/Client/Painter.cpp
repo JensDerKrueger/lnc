@@ -1,6 +1,5 @@
 #include "Painter.h"
 
-
 MyGLApp::MyGLApp() : GLApp(1024, 786, 4, "Network Painter") {}
 
 Vec3 MyGLApp::convertPosToHSV(float x, float y) {
@@ -139,11 +138,11 @@ void MyGLApp::mouseWheel(double x_offset, double y_offset, double xPosition, dou
   if (!client) return;
   
   if (colorChooserMode) {
-    value = std::clamp<float>(value + float(y_offset)/100, 0.0f, 1.0);
+    value = std::clamp<float>(value + float(y_offset)/wheelScale, 0.0f, 1.0);
     fillHSVImage();
   } else {
     addTransformation(Mat4::translation(-normPos.x(), -normPos.y(), 0) *
-                      Mat4::scaling(1.0f+float(y_offset)/100) *
+                      Mat4::scaling(1.0f+float(y_offset)/wheelScale) *
                       Mat4::translation(normPos.x(), normPos.y(), 0));
   }
 }
@@ -194,6 +193,17 @@ void MyGLApp::keyboard(int key, int scancode, int action, int mods) {
     switch (key) {
       case GLFW_KEY_ESCAPE:
         closeWindow();
+        break;
+      case GLFW_KEY_Q:
+        wheelScale /= 1.5f;
+        break;
+      case GLFW_KEY_W:
+        wheelScale *= 1.5f;
+        break;
+      case GLFW_KEY_P:
+        client->lockData();
+        BMP::save("artwork.bmp", client->getImage());
+        client->unlockData();
         break;
       case GLFW_KEY_R:
         userTransformation = Mat4{};
