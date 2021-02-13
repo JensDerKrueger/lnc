@@ -28,6 +28,7 @@ private:
   bool rightMouseDown{false};
   bool leftMouseDown{false};
   Vec2i lastMousePos{-1,-1};
+  std::array<Vec4,10> quickColors;
 
   Vec2 startDragPos{0,0};
   double xPositionMouse{ 0.0 };

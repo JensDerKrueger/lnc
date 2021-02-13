@@ -182,7 +182,15 @@ void MyGLApp::keyboard(int key, int scancode, int action, int mods) {
       }
       return;
     }
-          
+
+    if (key >= GLFW_KEY_0 && key <= GLFW_KEY_9) {
+      if (colorChooserMode) {
+        quickColors[key-GLFW_KEY_0] = Vec4{Vec3::hsvToRgb({360*(normPos.x()+1.0f)/2.0f,(normPos.y()+1.0f)/2.0f,value}), 1.0f};
+      } else {
+        client->setColor(quickColors[key-GLFW_KEY_0]);
+      }
+    }
+    
     switch (key) {
       case GLFW_KEY_ESCAPE:
         closeWindow();
