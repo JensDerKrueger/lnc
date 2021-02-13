@@ -112,7 +112,10 @@ private:
 
 int main(int argc, char ** argv) {
   bool skipMousePosTransfer{false};
-  if (argc > 1 && argv[1][0] == 's') skipMousePosTransfer = true;
+  if (argc > 1 && argv[1][0] == 's') {
+    std::cout << "Skipping live cursor movement" << std::endl;
+    skipMousePosTransfer = true;
+  }
   
   MyServer s{serverPort, skipMousePosTransfer};
   s.start();
