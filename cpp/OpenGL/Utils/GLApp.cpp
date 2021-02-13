@@ -108,6 +108,10 @@ GLApp::GLApp(uint32_t w, uint32_t h, uint32_t s,
   glViewport(0, 0, dim.width, dim.height);
 }
 
+void GLApp::setPointTexture(const Image& shape) {
+  setPointTexture(shape.data, shape.width, shape.height, shape.componentCount);
+}
+
 void GLApp::setPointTexture(const std::vector<uint8_t>& shape, uint32_t x, uint32_t y, uint32_t components) {
   pointSprite.setData(shape, x, y, components);
 }

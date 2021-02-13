@@ -59,6 +59,7 @@ public:
   void setDrawTransform(const Mat4& mat);
   void resetPointTexture(uint32_t resolution=64);
   void setPointTexture(const std::vector<uint8_t>& shape, uint32_t x, uint32_t y, uint32_t components);
+  void setPointTexture(const Image& shape);
   
   virtual void init() {}
   virtual void draw() {}
