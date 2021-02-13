@@ -38,22 +38,7 @@ class DSException : public std::exception {
     std::string whatStr;
 };
 
-PayloadType identifyString(const std::string& s) {
-  std::vector<std::string> l = Coder::decode(s);
-
-  if (l.size() < 2) return PayloadType::InvalidPayload;
-  if (l[0] != "painter") return PayloadType::InvalidPayload;
-  
-  int i;
-  try {
-    i = std::stoi( l[1] );
-    if (i < 0 || i > int(PayloadType::InitPayload)) return PayloadType::InvalidPayload;
-  } catch (const std::invalid_argument&) {
-    return PayloadType::InvalidPayload;
-  }
-  
-  return PayloadType(std::stoi(l[1]));
-}
+PayloadType identifyString(const std::string& s);
 
 struct BasicPayload {
   PayloadType pt;

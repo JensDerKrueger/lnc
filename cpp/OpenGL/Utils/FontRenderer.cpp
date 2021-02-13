@@ -39,22 +39,30 @@ const std::vector<CharPosition> FontRenderer::loadPositions(const std::string& p
   return positions;
 }
 
-Image FontRenderer::render(uint32_t number,
-                           const std::string& imageFilename,
-                           const std::string& positionFilename) {
-  return render(std::to_string(number), imageFilename, positionFilename);
+FontRenderer::FontRenderer(const std::string& imageFilename,
+                           const std::string& positionFilename) :
+  FontRenderer(BMP::load(imageFilename), loadPositions(positionFilename))
+{
 }
 
-Image FontRenderer::render(const std::string& text,
-                           const std::string& imageFilename,
-                           const std::string& positionFilename) {
-  
-  return render(text, BMP::load(imageFilename), loadPositions(positionFilename));
+FontRenderer::FontRenderer(const Image& fontImage,
+                           const std::string& positionFilename) :
+  FontRenderer(fontImage, loadPositions(positionFilename))
+{
 }
 
-Image FontRenderer::render(const std::string& text,
-                           const Image& fontImage,
-                           const std::vector<CharPosition>& positions) {
+FontRenderer::FontRenderer(const Image& fontImage,
+                           const std::vector<CharPosition>& positions) :
+fontImage(fontImage),
+positions(positions)
+{
+}
+
+Image FontRenderer::render(uint32_t number) {
+  return render(std::to_string(number));
+}
+
+Image FontRenderer::render(const std::string& text) {
   
   Vec2ui dims{0,0};
   for (char element : text) {
@@ -77,11 +85,9 @@ Image FontRenderer::render(const std::string& text,
   return result;
 }
 
-std::string FontRenderer::assetsToCode(const std::string& varName,
-                                       const Image& image,
-                                       const std::vector<CharPosition>& positions) {
+std::string FontRenderer::toCode(const std::string& varName) {
   std::stringstream ss;
-  ss << image.toCode(varName+"Image") << "\nstd::vector<CharPosition> " << varName << "Pos{";
+  ss << fontImage.toCode(varName+"Image") << "\nstd::vector<CharPosition> " << varName << "Pos{";
   
   for (size_t i = 0;i<positions.size();++i) {
     const CharPosition& p = positions[i];

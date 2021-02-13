@@ -201,6 +201,13 @@ XCOPY "$(ProjectDir)..\Client\*.pos" "$(ProjectDir)*.*" /Y</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\Client\main.cpp" />
+    <ClCompile Include="..\Client\MyClient.cpp" />
+    <ClCompile Include="..\Client\Painter.cpp" />
+    <ClCompile Include="..\PainterCommon.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Client\MyClient.h" />
+    <ClInclude Include="..\Client\Painter.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

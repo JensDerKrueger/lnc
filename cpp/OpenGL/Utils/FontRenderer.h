@@ -2,7 +2,6 @@
 
 #include <string>
 #include <vector>
-
 #include <utility>
 
 #include "bmp.h"
@@ -16,23 +15,25 @@ struct CharPosition {
 
 class FontRenderer {
 public:
-  static Image render(const std::string& text,
-                      const Image& image,
-                      const std::vector<CharPosition>& positions);
-  static Image render(const std::string& text,
-                      const std::string& imageFilename,
-                      const std::string& positionFilename);
-  static Image render(uint32_t number,
-                      const std::string& imageFilename,
-                      const std::string& positionFilename);
+  FontRenderer(const std::string& imageFilename,
+               const std::string& positionFilename);
+
+  FontRenderer(const Image& fontImage,
+               const std::string& positionFilename);
+
+  FontRenderer(const Image& fontImage,
+               const std::vector<CharPosition>& positions);
+
+  Image render(const std::string& text);
+  Image render(uint32_t number);
   
   static const std::vector<CharPosition> loadPositions(const std::string& positionFilename);
 
-  static std::string assetsToCode(const std::string& varName,
-                                  const Image& image,
-                                  const std::vector<CharPosition>& positions);
+  std::string toCode(const std::string& varName);
 
-  
 private:
-  static const CharPosition& findElement(char c, const std::vector<CharPosition>& positions);
+  Image fontImage;
+  std::vector<CharPosition> positions;
+  
+  const CharPosition& findElement(char c, const std::vector<CharPosition>& positions);
 };

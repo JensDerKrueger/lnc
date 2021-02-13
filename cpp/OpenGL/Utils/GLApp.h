@@ -71,7 +71,6 @@ public:
   virtual void mouseButton(int button, int state, int mods, double xPosition, double yPosition) {}
   virtual void mouseWheel(double x_offset, double y_offset, double xPosition, double yPosition) {}
   
-  
   void character_callback(GLFWwindow* window, unsigned int codepoint)
   {
   }

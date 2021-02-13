@@ -102,6 +102,10 @@ void GLEnv::endOfFrame() {
   }
 }
 
+void GLEnv::setKeyCallback(GLFWkeyfun f) {
+  glfwSetKeyCallback(window, f);
+}
+
 void GLEnv::setKeyCallbacks(GLFWkeyfun f, GLFWcharfun c) {
   glfwSetKeyCallback(window, f);
   glfwSetCharCallback(window, c);

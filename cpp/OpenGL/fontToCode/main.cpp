@@ -14,8 +14,10 @@ int main(int argc, char ** argv) {
   
   try {
     Image fontImage = BMP::load(argv[1]);
-    fontImage.generateAlphaFromLuminance();
-    std::vector<CharPosition> fontPos = FontRenderer::loadPositions(argv[2]);
+    if (fontImage.componentCount == 3)
+      fontImage.generateAlphaFromLuminance();
+    
+    FontRenderer r{fontImage,argv[2]};
     
     std::ofstream outStream(argv[3]);
     if (!outStream.is_open())  {
@@ -23,7 +25,7 @@ int main(int argc, char ** argv) {
       return EXIT_FAILURE;
     }
     
-    outStream << FontRenderer::assetsToCode(argv[4], fontImage, fontPos);
+    outStream << r.toCode(argv[4]);
 
     outStream.close();
   } catch (const BMP::BMPException& e) {
