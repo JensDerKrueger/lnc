@@ -12,7 +12,10 @@
 class MyServer : public Server {
 public:
   
-  MyServer(short port) : Server(port, "asdn932lwnmflj23") {
+  MyServer(short port, bool skipMousePosTransfer) :
+    Server(port, "asdn932lwnmflj23"),
+    skipMousePosTransfer(skipMousePosTransfer)
+  {
     try {
       image = BMP::load("artwork.bmp");
       std::cout << "Resuming session" << std::endl;
@@ -56,6 +59,8 @@ public:
     ciMutex.lock();
     switch (pt) {
       case PayloadType::MousePosPayload : {
+        if (skipMousePosTransfer) break;
+        
         MousePosPayload l(message);
         l.userID = id;
         const std::string message = l.toString();
@@ -65,10 +70,6 @@ public:
           sendMessage(message, c.id);
         }
 
-        break;
-      }
-      case PayloadType::NewUserPayload  : {
-        std::cerr << "old client connected, please update client" << std::endl;
         break;
       }
       case PayloadType::ConnectPayload  : {
@@ -105,11 +106,15 @@ private:
   std::vector<ClientInfoServerSide> clientInfo;
   std::mutex ciMutex;
   Image image;
+  bool skipMousePosTransfer{true};
 };
 
 
 int main(int argc, char ** argv) {
-  MyServer s{serverPort};
+  bool skipMousePosTransfer{false};
+  if (argc > 1 && argv[1][0] == 's') skipMousePosTransfer = true;
+  
+  MyServer s{serverPort, skipMousePosTransfer};
   s.start();
   std::cout << "starting ...";
   while (s.isStarting()) {

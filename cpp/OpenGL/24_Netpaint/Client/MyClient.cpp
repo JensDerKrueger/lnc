@@ -101,12 +101,9 @@ void MyClient::handleServerMessage(const std::string& message) {
     }
     case PayloadType::CanvasUpdatePayload : {
       CanvasUpdatePayload l(message);
-      if (!acceptFastMousePosUpdates) {
-        const Vec2 normPos{(l.pos.x()/float(image.width)-0.5f) * 2.0f,
-                           (l.pos.y()/float(image.height)-0.5f) * 2.0f};
-                
-        moveMouse(l.userID, normPos);
-      }
+      const Vec2 normPos{(l.pos.x()/float(image.width)-0.5f) * 2.0f,
+                         (l.pos.y()/float(image.height)-0.5f) * 2.0f};              
+      moveMouse(l.userID, normPos);
       paint(l.color, l.pos);
       break;
     }
