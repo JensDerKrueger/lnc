@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 #include <chrono>
+#include <exception>
 #include <Server.h>
 #include <Image.h>
 #include <bmp.h>
@@ -158,8 +159,26 @@ private:
   std::chrono::time_point<Clock> lastime = Clock::now();
 };
 
+void globalExceptionHandler () {
+  std::cerr << "terminate called after throwing an instance of ";
+  try
+  {
+      std::rethrow_exception(std::current_exception());
+  } catch (const std::exception &ex) {
+      std::cerr << typeid(ex).name() << std::endl;
+      std::cerr << "  what(): " << ex.what() << std::endl;
+  } catch (...) {
+      std::cerr << typeid(std::current_exception()).name() << std::endl;
+      std::cerr << " ...something, not an exception, dunno what." << std::endl;
+  }
+  std::cerr << "errno: " << errno << ": " << std::strerror(errno) << std::endl;
+  std::abort();
+}
 
 int main(int argc, char ** argv) {
+  std::set_terminate (globalExceptionHandler);
+  
+  
   bool skipMousePosTransfer{false};
   bool recordInteraction{false};
   for (int i = 1;i<argc;++i) {
