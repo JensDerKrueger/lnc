@@ -34,11 +34,11 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked; OnlyBelowVersion: 0,6.1
 
 [Files]
-Source: "C:\Users\Jens Krüger\Documents\Visual Studio 2019\lnc\cpp\OpenGL\24_Netpaint\VS\bin\Client\x64-Release\NetPaint.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\Jens Krüger\Documents\Visual Studio 2019\lnc\cpp\OpenGL\24_Netpaint\VS\bin\Client\x64-Release\helvetica_neue.pos"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\Jens Krüger\Documents\Visual Studio 2019\lnc\cpp\OpenGL\24_Netpaint\VS\bin\Client\x64-Release\helvetica_neue.bmp"; DestDir: "{app}"; Flags: ignoreversion
+Source: "bin\Client\x64-Release\NetPaint.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "bin\Client\x64-Release\helvetica_neue.pos"; DestDir: "{app}"; Flags: ignoreversion
+Source: "bin\Client\x64-Release\helvetica_neue.bmp"; DestDir: "{app}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
-Source: "..\..\..\..\..\..\..\Desktop\VC_redist.x64.exe"; DestDir: "{tmp}"; Flags: ignoreversion deleteafterinstall
+Source: "VC_redist.x64.exe"; DestDir: "{tmp}"; Flags: ignoreversion deleteafterinstall
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
