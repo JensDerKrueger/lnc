@@ -3,12 +3,14 @@
 #include <string>
 #include <memory>
 #include <vector>
-#include <optional>
+#include <chrono>
 #include <Server.h>
 #include <Image.h>
 #include <bmp.h>
 
 #include "../PainterCommon.h"
+
+typedef std::chrono::high_resolution_clock Clock;
 
 class MyServer : public Server {
 public:
@@ -38,10 +40,15 @@ public:
   }
   
   ~MyServer() {
-    BMP::save("artwork.bmp", image);
+    saveArt();
     if (recordInteraction) {
       recordFile.close();
     }
+  }
+  
+  void saveArt() {
+    BMP::save("artwork.bmp", image);
+    if (recordInteraction) recordFile.flush();
   }
 
   virtual void handleClientConnection(uint32_t id) override {
@@ -73,6 +80,13 @@ public:
   }
   
   virtual void handleClientMessage(uint32_t id, const std::string& message) override {
+    
+    auto currentTime = Clock::now();
+    if ( std::chrono::duration_cast<std::chrono::seconds>(currentTime-lastime).count() > 60 ) {
+      saveArt();
+      lastime = currentTime;
+    }
+    
     ciMutex.lock();
     try {
       PayloadType pt = identifyString(message);
@@ -140,6 +154,8 @@ private:
   bool skipMousePosTransfer;
   bool recordInteraction;
   std::ofstream recordFile;
+  
+  std::chrono::time_point<Clock> lastime = Clock::now();
 };
 
 
