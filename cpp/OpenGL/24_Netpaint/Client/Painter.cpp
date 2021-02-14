@@ -212,6 +212,9 @@ void MyGLApp::keyboard(int key, int scancode, int action, int mods) {
       case GLFW_KEY_ESCAPE:
         closeWindow();
         break;
+      case GLFW_KEY_L:
+        showLabel = !showLabel;
+        break;
       case GLFW_KEY_Q:
         wheelScale /= 1.5f;
         break;
@@ -300,9 +303,11 @@ void MyGLApp::draw() {
   Vec4 color{client->getColor()};
   drawPoints(glShape, 10, true);
   
-  for (const ClientInfoClientSide& m : others) {
-    setDrawTransform( Mat4::translation(1.0f, 1.0f, 0.0f) * Mat4::scaling(1/10.0f) * computeBaseTransform({m.image.width, m.image.height}) * Mat4::translation(m.pos.x(), m.pos.y(), 0.0f) * userTransformation * baseTransformation );
-    drawImage(m.image);
+  if (showLabel) {
+    for (const ClientInfoClientSide& m : others) {
+      setDrawTransform( Mat4::translation(1.0f, 1.0f, 0.0f) * Mat4::scaling(1/10.0f) * computeBaseTransform({m.image.width, m.image.height}) * Mat4::translation(m.pos.x(), m.pos.y(), 0.0f) * userTransformation * baseTransformation );
+      drawImage(m.image);
+    }
   }
   
   client->unlockData();

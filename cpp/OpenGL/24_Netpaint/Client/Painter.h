@@ -45,6 +45,7 @@ private:
   Image cursorShape;
   float value{1.0f};
   bool colorChooserMode{false};
+  bool showLabel{true};
 
   bool addressComplete{false};
   bool nameComplete{false};
