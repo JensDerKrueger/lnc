@@ -56,6 +56,7 @@ FontRenderer::FontRenderer(const Image& fontImage,
 fontImage(fontImage),
 positions(positions)
 {
+  if (fontImage.componentCount == 3) this->fontImage.generateAlphaFromLuminance();
 }
 
 Image FontRenderer::render(uint32_t number) {
