@@ -56,9 +56,10 @@ struct BasicPayload {
   PayloadType pt;
   uint32_t userID{0};
   size_t startToken;
+  std::vector<std::string> token;
 
   BasicPayload(const std::string& message) {
-    std::vector<std::string> token = Coder::decode(message);
+    token = Coder::decode(message);
     if (token.size() < 3) {
       throw DSException("BasicPayload message to short");
     }
@@ -89,7 +90,6 @@ struct MousePosPayload : public BasicPayload {
   MousePosPayload(const std::string& message) :
     BasicPayload(message)
   {
-    std::vector<std::string> token = Coder::decode(message);
     if (token.size() < startToken + 2) {
       throw DSException("MousePosPayload message to short");
     }
@@ -117,7 +117,6 @@ struct NewUserPayload : public BasicPayload {
   NewUserPayload(const std::string& message) :
     BasicPayload(message)
   {
-    std::vector<std::string> token = Coder::decode(message);
     if (token.size() < startToken + 5) {
       std::stringstream ss;
       ss << "NewUserPayload message to short. Expected at least " << startToken + 5 << " elements but received only " << token.size() << ".";
@@ -154,7 +153,6 @@ struct ConnectPayload : public NewUserPayload {
   ConnectPayload(const std::string& message) :
     NewUserPayload(message)
   {
-    std::vector<std::string> token = Coder::decode(message);
     if (token.size() < startToken + 1) {
       std::stringstream ss;
       ss << "ConnectPayload message to short. Expected at least " << startToken + 1 << " elements but received only " << token.size() << ".";
@@ -200,7 +198,6 @@ struct CanvasUpdatePayload : public BasicPayload {
   CanvasUpdatePayload(const std::string& message) :
     BasicPayload(message)
   {
-    std::vector<std::string> token = Coder::decode(message);
     if (token.size() < startToken + 6) {
       std::stringstream ss;
       ss << "CanvasUpdatePayload message to short. Expected at least " << startToken + 6 << " elements but received only " << token.size() << ".";
@@ -239,7 +236,6 @@ struct InitPayload : public BasicPayload {
   InitPayload(const std::string& message) :
     BasicPayload(message)
   {
-    std::vector<std::string> token = Coder::decode(message);
     if (token.size() < startToken + 3) {
       std::stringstream ss;
       ss << "InitPayload message to short (first check). Expected at least " << startToken + 3 << " elements but received only " << token.size() << ".";

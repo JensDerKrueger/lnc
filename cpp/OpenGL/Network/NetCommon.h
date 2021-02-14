@@ -35,17 +35,24 @@ struct Coder {
     return result;
   }
 
-  static std::vector<std::string> decode(const std::string& input) {
+  static std::vector<std::string> decode(const std::string& input, size_t maxItems=0) {
     std::vector<std::string> result;
     size_t start = 0;
     size_t delimPos = input.find(DELIM,start);
     
-    while (delimPos != std::string::npos) {
-      result.push_back( input.substr(start,delimPos-start) );
-      start = delimPos+1;
-      delimPos = input.find(DELIM,start);
+    if (maxItems == 0) {
+      while (delimPos != std::string::npos) {
+        result.push_back(input.substr(start, delimPos - start));
+        start = delimPos + 1;
+        delimPos = input.find(DELIM, start);
+      }
+    } else {
+      while (delimPos != std::string::npos && result.size() <= maxItems) {
+        result.push_back(input.substr(start, delimPos - start));
+        start = delimPos + 1;
+        delimPos = input.find(DELIM, start);
+      }
     }
-    
     result.push_back( input.substr(start) );
     
     return result;

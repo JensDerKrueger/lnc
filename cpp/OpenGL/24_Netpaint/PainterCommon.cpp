@@ -1,7 +1,7 @@
 #include "PainterCommon.h"
 
 PayloadType identifyString(const std::string& s) {
-  std::vector<std::string> l = Coder::decode(s);
+  std::vector<std::string> l = Coder::decode(s,2);
 
   if (l.size() < 2) return PayloadType::InvalidPayload;
   if (l[0] != "painter") return PayloadType::InvalidPayload;

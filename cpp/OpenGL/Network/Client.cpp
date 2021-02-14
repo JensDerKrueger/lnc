@@ -166,12 +166,13 @@ void Client::clientFunc() {
     // send/receive data loop
     try {
       while (continueRunning && connection->IsConnected()) {
-        
+        bool receivedData{ false };
         try {
           int8_t data[2048];
           const uint32_t maxSize = std::min<uint32_t>(std::max<uint32_t>(4,messageLength),2048);
           const uint32_t bytes = connection->ReceiveData(data, maxSize, 1);
           if (bytes > 0) {
+            receivedData = true;
             std::string message = handleIncommingData(data, bytes);
             if (!message.empty() && continueRunning) handleServerMessage(message);
           }
@@ -199,7 +200,7 @@ void Client::clientFunc() {
           sendRawMessage(message, timeout);
            
         } else {
-          std::this_thread::sleep_for(std::chrono::milliseconds(1));
+          if (!receivedData) std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
         sendMessageMutex.unlock();
       }
