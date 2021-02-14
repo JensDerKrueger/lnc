@@ -1,20 +1,21 @@
 #pragma once
 
+#include <queue>
+
 #include "NetCommon.h"
+
 
 class ClientConnection {
 public:
-  ClientConnection(TCPSocket* connectionSocket, uint32_t id, const std::string& key);
+  ClientConnection(TCPSocket* connectionSocket, uint32_t id, const std::string& key, uint32_t timeout);
   virtual ~ClientConnection();
   bool isConnected();
   std::string checkData();
   
   uint32_t getID() const {return id;}
   
-  void sendMessage(std::string message, uint32_t timeout);
-  void sendMessage(std::vector<int8_t> rawData, uint32_t timeout);
+  void enqueueMessage(const std::string& m);
 
-  
 private:
   TCPSocket* connectionSocket;
   uint32_t id;
@@ -24,13 +25,24 @@ private:
   std::unique_ptr<AESCrypt> crypt;
   std::unique_ptr<AESCrypt> sendCrypt;
   std::string key;
+  uint32_t timeout;
   
+  std::mutex messageQueueLock;
+  std::queue<std::string> messageQueue;
+
+  bool continueRunning{true};
+  std::thread sendThread;
+
   std::string handleIncommingData(int8_t* data, uint32_t bytes);
   
   void sendRawMessage(std::string message, uint32_t timeout);
   void sendRawMessage(std::vector<int8_t> rawData, uint32_t timeout);
   void sendRawMessage(const int8_t* rawData, uint32_t size, uint32_t timeout);
   std::vector<uint8_t> intToVec(uint32_t i) const;
+  
+  void sendMessage(std::string message);
+
+  void sendFunc();
 };
 
 class Server {

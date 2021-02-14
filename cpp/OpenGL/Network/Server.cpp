@@ -3,13 +3,15 @@
 
 #include "Server.h"
 
-ClientConnection::ClientConnection(TCPSocket* connectionSocket, uint32_t id, const std::string& key) :
+ClientConnection::ClientConnection(TCPSocket* connectionSocket, uint32_t id, const std::string& key, uint32_t timeout) :
   connectionSocket(connectionSocket),
   id(id),
   crypt(nullptr),
   sendCrypt(nullptr),
-  key(key)
+  key(key),
+  timeout(timeout)
 {
+  sendThread = std::thread(&ClientConnection::sendFunc, this);
 }
 
 ClientConnection::~ClientConnection() {
@@ -20,6 +22,9 @@ ClientConnection::~ClientConnection() {
     delete connectionSocket;
   } catch (SocketException const&  ) {
   }
+  
+  continueRunning = false;
+  sendThread.join();
 }
 
 bool ClientConnection::isConnected() {
@@ -89,7 +94,7 @@ void ClientConnection::sendRawMessage(std::string message, uint32_t timeout) {
 }
 
 
-void ClientConnection::sendMessage(std::string message, uint32_t timeout) {
+void ClientConnection::sendMessage(std::string message) {
   if (!key.empty()) {
     if (sendCrypt) {
       message = sendCrypt->encryptString(message);
@@ -143,6 +148,26 @@ std::string ClientConnection::handleIncommingData(int8_t* data, uint32_t bytes) 
   return "";
 }
 
+void ClientConnection::enqueueMessage(const std::string& m) {
+  messageQueueLock.lock();
+  messageQueue.push(m);
+  messageQueueLock.unlock();
+}
+
+void ClientConnection::sendFunc() {
+  while (continueRunning) {
+    if (!messageQueue.empty()) {
+      messageQueueLock.lock();
+      std::string front = messageQueue.front();
+      messageQueue.pop();
+      messageQueueLock.unlock();
+      sendMessage(front);
+    } else {
+      std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+  }
+}
+
 Server::Server(short port, const std::string& key, uint32_t timeout) :
   port{port},
   timeout{timeout},
@@ -180,7 +205,7 @@ void Server::sendMessage(const std::string& message, uint32_t id, bool invertID)
     if (id == 0 ||
         (!invertID && clientConnections[i]->getID() == id) ||
         (invertID && clientConnections[i]->getID() != id)) {
-      clientConnections[i]->sendMessage(message, timeout);
+      clientConnections[i]->enqueueMessage(message);
     }
   }
   clientVecMutex.unlock();
@@ -289,7 +314,7 @@ void Server::serverFunc() {
 
         clientVecMutex.lock();
         ++id;
-        clientConnections.push_back(std::make_shared<ClientConnection>(connectionSocket, id, key));
+        clientConnections.push_back(std::make_shared<ClientConnection>(connectionSocket, id, key, timeout));
         try {
           handleClientConnection(id);
         } catch (SocketException const& ) {
