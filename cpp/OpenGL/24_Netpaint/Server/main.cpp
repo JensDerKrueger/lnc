@@ -13,7 +13,7 @@ class MyServer : public Server {
 public:
   
   MyServer(short port, bool skipMousePosTransfer) :
-    Server(port, "asdn932lwnmflj23"),
+    Server(port),
     skipMousePosTransfer(skipMousePosTransfer)
   {
     try {
@@ -130,9 +130,6 @@ int main(int argc, char ** argv) {
     std::string user{""};
     do {
       std::cin >> user;
-      
-      // TODO: output server stats based on user commands
-      
     } while (user != "q");
 
     return EXIT_SUCCESS;
