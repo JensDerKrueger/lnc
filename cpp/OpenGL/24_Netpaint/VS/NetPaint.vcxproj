@@ -208,6 +208,7 @@ XCOPY "$(ProjectDir)..\Client\*.pos" "$(ProjectDir)*.*" /Y</Command>
   <ItemGroup>
     <ClInclude Include="..\Client\MyClient.h" />
     <ClInclude Include="..\Client\Painter.h" />
+    <ClInclude Include="..\PainterCommon.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

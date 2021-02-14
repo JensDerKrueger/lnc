@@ -12,7 +12,7 @@ constexpr uint32_t imageHeight= 400;
 constexpr uint16_t serverPort = 11002;
 
 struct ClientInfo {
-  size_t id{0};
+  uint32_t id{0};
   std::string name{""};
   Vec4 color{0,0,0,0};
   Vec2 pos{0,0};
