@@ -42,17 +42,14 @@ void MyGLApp::genMouseCursor() {
               
       Vec2 nPos{x / float(cursorShape.width), y / float(cursorShape.width)};
       
-      float val = std::max(0.0f,(0.5f-(Vec2(0.5f,0.5f)-nPos).length())*2.0f);
+      const float fVal = std::max(0.0f,(0.5f-(Vec2(0.5f,0.5f)-nPos).length())*2.0f);
+      const uint8_t val = (fVal > 0.90f) ? uint8_t(255) : (fVal > 0.8f ? uint8_t(0) : uint8_t(fVal*255));
       
-      const uint8_t r{val > 0.9 ? uint8_t(0) : uint8_t(val*255)};
-      const uint8_t g{val > 0.9 ? uint8_t(0) : uint8_t(val*255)};
-      const uint8_t b{val > 0.9 ? uint8_t(0) : uint8_t(val*255)};
-      const uint8_t a{uint8_t(val*255)};
       
-      cursorShape.setValue(x,y,0,r);
-      cursorShape.setValue(x,y,1,g);
-      cursorShape.setValue(x,y,2,b);
-      cursorShape.setValue(x,y,3,a);
+      cursorShape.setValue(x,y,0,val);
+      cursorShape.setValue(x,y,1,val);
+      cursorShape.setValue(x,y,2,val);
+      cursorShape.setValue(x,y,3,uint8_t(fVal*255));
     }
   }
 }
