@@ -25,13 +25,11 @@ void MyGLApp::tryToLoadSettings() {
     if (getline(settings,line) ) {
       serverAddress = line;
       addressComplete = true;
-    }
-      
+    } 
     if (getline(settings,line) ) {
       userName = line;
       nameComplete = true;
     }
-
     settings.close();
   }
 }
@@ -39,8 +37,8 @@ void MyGLApp::tryToLoadSettings() {
 void MyGLApp::genMouseCursor() {
   cursorShape = Image(64,64,4);
 
-  for (size_t y = 0;y<cursorShape.height;++y) {
-    for (size_t x = 0;x<cursorShape.width;++x) {
+  for (uint32_t y = 0;y<cursorShape.height;++y) {
+    for (uint32_t x = 0;x<cursorShape.width;++x) {
               
       Vec2 nPos{x / float(cursorShape.width), y / float(cursorShape.width)};
       
@@ -57,17 +55,11 @@ void MyGLApp::genMouseCursor() {
       cursorShape.setValue(x,y,3,a);
     }
   }
-  
-  
-  
 }
 
-
 void MyGLApp::init() {
-  
-  
   tryToLoadSettings();
-  
+
   hsvImage = Image(255,255);
   fillHSVImage();
   genMouseCursor();
@@ -273,9 +265,7 @@ void MyGLApp::draw() {
       drawImage(responseImage);
       return;
     }
-    
   }
-  
   
   if (!client->isValid()) {
     setDrawTransform(Mat4::scaling(connectingImage[currentImage].width / (connectingImage[0].width * 2.0f)) * computeBaseTransform({connectingImage[currentImage].width, connectingImage[currentImage].height}) );

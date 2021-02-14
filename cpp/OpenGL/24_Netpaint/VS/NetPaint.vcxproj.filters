@@ -35,5 +35,8 @@
     <ClInclude Include="..\Client\Painter.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="..\PainterCommon.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
