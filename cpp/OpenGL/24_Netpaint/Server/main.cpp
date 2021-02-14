@@ -39,7 +39,6 @@ public:
   
   ~MyServer() {
     BMP::save("artwork.bmp", image);
-    
     if (recordInteraction) {
       recordFile.close();
     }
@@ -52,79 +51,85 @@ public:
   
   virtual void handleClientDisconnection(uint32_t id) override {
     ciMutex.lock();
-    for (size_t i = 0;i<clientInfo.size();++i) {
-      if (clientInfo[i].id == id) {
-        clientInfo.erase(clientInfo.begin()+i);
-        ciMutex.unlock();
-        LostUserPayload l;
-        l.userID = id;
-        sendMessage(l.toString(), id, true);
-        
-        if (recordInteraction) {
-          recordFile << "drop;" << l.userID << "\n";
-        }
+    try {
+      for (size_t i = 0;i<clientInfo.size();++i) {
+        if (clientInfo[i].id == id) {
+          clientInfo.erase(clientInfo.begin()+i);
+          ciMutex.unlock();
+          LostUserPayload l;
+          l.userID = id;
+          sendMessage(l.toString(), id, true);
+          
+          if (recordInteraction) {
+            recordFile << "drop;" << l.userID << "\n";
+          }
 
-        return;
+          return;
+        }
       }
+    } catch (const SocketException& ) {
     }
     ciMutex.unlock();
   }
   
   virtual void handleClientMessage(uint32_t id, const std::string& message) override {
-    PayloadType pt = identifyString(message);
     ciMutex.lock();
-    switch (pt) {
-      case PayloadType::MousePosPayload : {
-        if (skipMousePosTransfer) break;
-        
-        MousePosPayload l(message);
-        l.userID = id;
-        const std::string message = l.toString();
-        
-        for (const auto& c : clientInfo) {
-          if (c.id == id || !c.fastCursorUpdates) continue;
-          sendMessage(message, c.id);
+    try {
+      PayloadType pt = identifyString(message);
+      switch (pt) {
+        case PayloadType::MousePosPayload : {
+          if (skipMousePosTransfer) break;
+          
+          MousePosPayload l(message);
+          l.userID = id;
+          const std::string message = l.toString();
+          
+          for (const auto& c : clientInfo) {
+            if (c.id == id || !c.fastCursorUpdates) continue;
+            sendMessage(message, c.id);
+          }
+          
+          break;
         }
-        
-        break;
-      }
-      case PayloadType::ConnectPayload  : {
-        ConnectPayload r(message);
-        r.userID = id;
-        clientInfo.push_back({{id, r.name, r.color, {0,0}}, r.fastCursorUpdates});
-        NewUserPayload l(r.name, r.color);
-        l.userID = id;
-        sendMessage(l.toString(), id, true);
+        case PayloadType::ConnectPayload  : {
+          ConnectPayload r(message);
+          r.userID = id;
+          clientInfo.push_back({{id, r.name, r.color, {0,0}}, r.fastCursorUpdates});
+          NewUserPayload l(r.name, r.color);
+          l.userID = id;
+          sendMessage(l.toString(), id, true);
 
-        if (recordInteraction) {
-          recordFile << "new;" << l.userID << ";" << l.name << ";" << l.color << "\n";
+          if (recordInteraction) {
+            recordFile << "new;" << l.userID << ";" << l.name << ";" << l.color << "\n";
+          }
+
+          break;
         }
+        case PayloadType::CanvasUpdatePayload  : {
+          CanvasUpdatePayload l(message);
+          l.userID = id;
 
-        break;
-      }
-      case PayloadType::CanvasUpdatePayload  : {
-        CanvasUpdatePayload l(message);
-        l.userID = id;
+          if (l.pos.x() < 0 || uint32_t(l.pos.x()) >= image.width) break;
+          if (l.pos.y() < 0 || uint32_t(l.pos.y()) >= image.height) break;
+          
+          if (recordInteraction) {
+            recordFile << "paint;" << l.userID << ";" << l.pos << ";" << l.color << "\n";
+          }
 
-        if (l.pos.x() < 0 || uint32_t(l.pos.x()) >= image.width) break;
-        if (l.pos.y() < 0 || uint32_t(l.pos.y()) >= image.height) break;
-        
-        if (recordInteraction) {
-          recordFile << "paint;" << l.userID << ";" << l.pos << ";" << l.color << "\n";
+          
+          image.setNormalizedValue(l.pos.x(),l.pos.y(),0,l.color.x());
+          image.setNormalizedValue(l.pos.x(),l.pos.y(),1,l.color.y());
+          image.setNormalizedValue(l.pos.x(),l.pos.y(),2,l.color.z());
+          image.setNormalizedValue(l.pos.x(),l.pos.y(),3,l.color.w());
+
+          sendMessage(l.toString(), id, true);
+          break;
         }
-
-        
-        image.setNormalizedValue(l.pos.x(),l.pos.y(),0,l.color.x());
-        image.setNormalizedValue(l.pos.x(),l.pos.y(),1,l.color.y());
-        image.setNormalizedValue(l.pos.x(),l.pos.y(),2,l.color.z());
-        image.setNormalizedValue(l.pos.x(),l.pos.y(),3,l.color.w());
-
-        sendMessage(l.toString(), id, true);
-        break;
-      }
-      default:
-        break;
-    };
+        default:
+          break;
+      };
+    } catch (const SocketException& ) {
+    }
     ciMutex.unlock();
   }
   
