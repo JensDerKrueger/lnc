@@ -11,10 +11,8 @@ int main(int argc, char ** argv) {
     MyGLApp myApp;
     myApp.run();
   } catch (const GLException& e) {
-
     std::stringstream ss;
     ss << "Insufficient OpenGL Support " << e.what();
-
 #ifndef _WIN32
     std::cerr << ss.str().c_str() << std::endl;
 #else
