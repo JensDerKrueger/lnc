@@ -6,4 +6,4 @@ A simple network painting app.
 
 Simply compile from source or download the installer for Windows.
 
-[Windows Installer](VS/Ooutput/setup.exe)
+[Windows Installer](VS/Output/setup.exe)
