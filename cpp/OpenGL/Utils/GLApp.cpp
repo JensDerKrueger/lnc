@@ -41,6 +41,24 @@ GLApp::GLApp(uint32_t w, uint32_t h, uint32_t s,
      "void main() {\n"
      "    FragColor = color*texture(pointSprite, gl_PointCoord);\n"
      "}\n")},
+  simpleHLSpriteProg{GLProgram::createFromString(
+     "#version 410\n"
+     "uniform mat4 MVP;\n"
+     "layout (location = 0) in vec3 vPos;\n"
+     "layout (location = 1) in vec4 vColor;\n"
+     "out vec4 color;\n"
+     "void main() {\n"
+     "    gl_Position = MVP * vec4(vPos, 1.0);\n"
+     "    color = vColor;\n"
+     "}\n",
+     "#version 410\n"
+     "uniform sampler2D pointSprite;\n"
+     "uniform sampler2D pointSpriteHighlight;\n"
+     "in vec4 color;\n"
+     "out vec4 FragColor;\n"
+     "void main() {\n"
+     "    FragColor = color*texture(pointSprite, gl_PointCoord)+texture(pointSpriteHighlight, gl_PointCoord);\n"
+     "}\n")},
   simpleTexProg{GLProgram::createFromString(
      "#version 410\n"
      "uniform mat4 MVP;\n"
@@ -90,6 +108,7 @@ GLApp::GLApp(uint32_t w, uint32_t h, uint32_t s,
   simpleVb{GL_ARRAY_BUFFER},
   raster{GL_LINEAR, GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE},
   pointSprite{GL_LINEAR, GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE},
+  pointSpriteHighlight{GL_LINEAR, GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE},
   resumeTime{0},
   animationActive{true}
 {
@@ -112,6 +131,10 @@ void GLApp::setPointTexture(const Image& shape) {
   setPointTexture(shape.data, shape.width, shape.height, shape.componentCount);
 }
 
+void GLApp::setPointHighlightTexture(const Image& shape) {
+  pointSpriteHighlight.setData(shape.data, shape.width, shape.height, shape.componentCount);
+}
+
 void GLApp::setPointTexture(const std::vector<uint8_t>& shape, uint32_t x, uint32_t y, uint32_t components) {
   pointSprite.setData(shape, x, y, components);
 }
@@ -130,6 +153,11 @@ void GLApp::resetPointTexture(uint32_t resolution) {
     }
   }
   setPointTexture(disk, resolution, resolution, 4);
+}
+
+void GLApp::resetPointHighlightTexture() {
+  Image i{0,0};
+  setPointHighlightTexture(i);
 }
 
 void GLApp::run() {
@@ -301,12 +329,23 @@ void GLApp::drawPoints(const std::vector<float>& data, float pointSize, bool use
   shaderUpdate();
   
   if (useTex) {
-    simpleSpriteProg.enable();
-    simpleSpriteProg.setTexture("pointSprite", pointSprite, 0);
-    simpleVb.setData(data,7,GL_DYNAMIC_DRAW);
-    simpleArray.bind();
-    simpleArray.connectVertexAttrib(simpleVb, simpleSpriteProg, "vPos", 3);
-    simpleArray.connectVertexAttrib(simpleVb, simpleSpriteProg, "vColor", 4, 3);
+    if (pointSpriteHighlight.getHeight() > 0) {
+      simpleHLSpriteProg.enable();
+      simpleHLSpriteProg.setTexture("pointSprite", pointSprite, 0);
+      simpleHLSpriteProg.setTexture("pointSpriteHighlight", pointSpriteHighlight, 1);
+      simpleVb.setData(data,7,GL_DYNAMIC_DRAW);
+      simpleArray.bind();
+      simpleArray.connectVertexAttrib(simpleVb, simpleHLSpriteProg, "vPos", 3);
+      simpleArray.connectVertexAttrib(simpleVb, simpleHLSpriteProg, "vColor", 4, 3);
+    } else {
+      simpleSpriteProg.enable();
+      simpleSpriteProg.setTexture("pointSprite", pointSprite, 0);
+      simpleVb.setData(data,7,GL_DYNAMIC_DRAW);
+      simpleArray.bind();
+      simpleArray.connectVertexAttrib(simpleVb, simpleSpriteProg, "vPos", 3);
+      simpleArray.connectVertexAttrib(simpleVb, simpleSpriteProg, "vColor", 4, 3);
+    }
+    
   } else {
     simpleProg.enable();
     simpleVb.setData(data,7,GL_DYNAMIC_DRAW);
@@ -384,6 +423,9 @@ void GLApp::shaderUpdate() {
   simpleSpriteProg.enable();
   simpleSpriteProg.setUniform("MVP", mv*p);
 
+  simpleHLSpriteProg.enable();
+  simpleHLSpriteProg.setUniform("MVP", mv*p);
+  
   simpleTexProg.enable();
   simpleTexProg.setUniform("MVP", mv*p);
 

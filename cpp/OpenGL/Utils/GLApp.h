@@ -60,7 +60,9 @@ public:
   void resetPointTexture(uint32_t resolution=64);
   void setPointTexture(const std::vector<uint8_t>& shape, uint32_t x, uint32_t y, uint32_t components);
   void setPointTexture(const Image& shape);
-  
+  void setPointHighlightTexture(const Image& shape);
+  void resetPointHighlightTexture();
+
   virtual void init() {}
   virtual void draw() {}
   virtual void animate(double animationTime) {}
@@ -71,11 +73,7 @@ public:
   virtual void mouseMove(double xPosition, double yPosition) {}
   virtual void mouseButton(int button, int state, int mods, double xPosition, double yPosition) {}
   virtual void mouseWheel(double x_offset, double y_offset, double xPosition, double yPosition) {}
-  
-  void character_callback(GLFWwindow* window, unsigned int codepoint)
-  {
-  }
-  
+    
 protected:
   GLEnv glEnv;
   Mat4 p;
@@ -83,12 +81,14 @@ protected:
   Mat4 mvi;
   GLProgram simpleProg;
   GLProgram simpleSpriteProg;
+  GLProgram simpleHLSpriteProg;
   GLProgram simpleTexProg;
   GLProgram simpleLightProg;
   GLArray simpleArray;
   GLBuffer simpleVb;
   GLTexture2D raster;
   GLTexture2D pointSprite;
+  GLTexture2D pointSpriteHighlight;
   double resumeTime;
   
   void closeWindow() {
