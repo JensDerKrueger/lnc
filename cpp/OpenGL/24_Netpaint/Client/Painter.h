@@ -43,6 +43,7 @@ private:
   std::array<Image,4> connectingImage;
   Image hsvImage;
   Image cursorShape;
+  Image cursorHighlight;
   float value{1.0f};
   bool colorChooserMode{false};
   bool showLabel{true};

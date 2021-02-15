@@ -36,6 +36,7 @@ void MyGLApp::tryToLoadSettings() {
 
 void MyGLApp::genMouseCursor() {
   cursorShape = Image(64,64,4);
+  cursorHighlight = Image(64,64,4);
 
   for (uint32_t y = 0;y<cursorShape.height;++y) {
     for (uint32_t x = 0;x<cursorShape.width;++x) {
@@ -43,13 +44,19 @@ void MyGLApp::genMouseCursor() {
       Vec2 nPos{x / float(cursorShape.width), y / float(cursorShape.width)};
       
       const float fVal = std::max(0.0f,(0.5f-(Vec2(0.5f,0.5f)-nPos).length())*2.0f);
-      const uint8_t val = (fVal > 0.90f) ? uint8_t(255) : (fVal > 0.8f ? uint8_t(0) : uint8_t(fVal*255));
-      
+      uint8_t val = (fVal > 0.8f) ? uint8_t(0) : uint8_t(fVal*255);
       
       cursorShape.setValue(x,y,0,val);
       cursorShape.setValue(x,y,1,val);
       cursorShape.setValue(x,y,2,val);
       cursorShape.setValue(x,y,3,uint8_t(fVal*255));
+
+      val = (fVal > 0.90f) ? uint8_t(255) : uint8_t(0);
+
+      cursorHighlight.setValue(x,y,0,val);
+      cursorHighlight.setValue(x,y,1,val);
+      cursorHighlight.setValue(x,y,2,val);
+      cursorHighlight.setValue(x,y,3,0);
     }
   }
 }
@@ -318,6 +325,8 @@ void MyGLApp::draw() {
   setDrawTransform(userTransformation*baseTransformation);
   
   setPointTexture(cursorShape);
+  setPointHighlightTexture(cursorHighlight);
   drawPoints(glShape, 40, true);
   resetPointTexture();
+  resetPointHighlightTexture();
 }
