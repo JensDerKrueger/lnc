@@ -135,7 +135,6 @@ public:
           if (recordInteraction) {
             recordFile << "paint;" << l.userID << ";" << l.pos << ";" << l.color << "\n";
           }
-
           
           image.setNormalizedValue(l.pos.x(),l.pos.y(),0,l.color.x());
           image.setNormalizedValue(l.pos.x(),l.pos.y(),1,l.color.y());
