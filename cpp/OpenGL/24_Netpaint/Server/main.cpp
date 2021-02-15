@@ -13,6 +13,11 @@
 
 typedef std::chrono::high_resolution_clock Clock;
 
+bool fexists(const std::string& filename) {
+  std::ifstream ifile(filename);
+  return (bool)ifile;
+}
+
 class MyServer : public Server {
 public:
   
@@ -35,8 +40,8 @@ public:
     }
     
     if (recordInteraction) {
-      BMP::save("recording.bmp", image);
-      recordFile.open("recording.csv");
+      if (!fexists("recording.bmp")) BMP::save("recording.bmp", image);
+      recordFile.open("recording.csv",std::ios_base::app);
     }
   }
   
