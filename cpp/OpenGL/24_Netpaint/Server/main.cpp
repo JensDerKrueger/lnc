@@ -75,6 +75,7 @@ public:
           
           if (recordInteraction) {
             recordFile << "drop;" << l.userID << "\n";
+            recordedEvents++;
           }
 
           return;
@@ -114,13 +115,16 @@ public:
         case PayloadType::ConnectPayload  : {
           ConnectPayload r(message);
           r.userID = id;
-          clientInfo.push_back({{id, r.name, r.color, {0,0}}, r.fastCursorUpdates});
-          NewUserPayload l(r.name, r.color);
+          ClientInfoServerSide ci{id, r.name, r.color, {0,0}, r.fastCursorUpdates};
+          clientInfo.push_back(ci);
+          
+          NewUserPayload l(ci.name, ci.color);
           l.userID = id;
           sendMessage(l.toString(), id, true);
 
           if (recordInteraction) {
             recordFile << "new;" << l.userID << ";" << l.name << ";" << l.color << "\n";
+            recordedEvents++;
           }
 
           break;
@@ -134,6 +138,7 @@ public:
           
           if (recordInteraction) {
             recordFile << "paint;" << l.userID << ";" << l.pos << ";" << l.color << "\n";
+            recordedEvents++;
           }
           
           image.setNormalizedValue(l.pos.x(),l.pos.y(),0,l.color.x());
@@ -152,6 +157,38 @@ public:
     ciMutex.unlock();
   }
   
+  std::vector<ClientInfoServerSide> getClientInfo() {
+    std::vector<ClientInfoServerSide> result;
+    ciMutex.lock();
+    result = clientInfo;
+    ciMutex.unlock();
+    return result;
+  }
+  
+  void setSkipMousePosTransfer(bool skipMousePosTransfer) {
+    this->skipMousePosTransfer = skipMousePosTransfer;
+  }
+
+  bool getSkipMousePosTransfer() const {
+    return skipMousePosTransfer;
+  }
+
+  
+  size_t getRecordedEvents() const {
+    return recordedEvents;
+  }
+  
+  int64_t getSecondsSinceLastBackup() const {
+    auto currentTime = Clock::now();
+    return std::chrono::duration_cast<std::chrono::seconds>(currentTime-lastime).count();
+  }
+  
+  int64_t uptime() const {
+    auto currentTime = Clock::now();
+    return std::chrono::duration_cast<std::chrono::seconds>(currentTime-startTime).count();
+  }
+
+  
 private:
   std::vector<ClientInfoServerSide> clientInfo;
   std::mutex ciMutex;
@@ -159,8 +196,10 @@ private:
   bool skipMousePosTransfer;
   bool recordInteraction;
   std::ofstream recordFile;
+  size_t recordedEvents{0};
   
   std::chrono::time_point<Clock> lastime = Clock::now();
+  std::chrono::time_point<Clock> startTime = Clock::now();
 };
 
 void globalExceptionHandler () {
@@ -185,7 +224,6 @@ void globalExceptionHandler () {
 
 int main(int argc, char ** argv) {
   std::set_terminate (globalExceptionHandler);
-  
   
   bool skipMousePosTransfer{false};
   bool recordInteraction{false};
@@ -214,7 +252,38 @@ int main(int argc, char ** argv) {
     std::cout << "running ..." << std::endl;
     std::string user{""};
     do {
+      std::cout << "(? for help) >";
       std::cin >> user;
+      
+      switch (user[0]) {
+        case '?' :
+          std::cout << "? : help\n";
+          std::cout << "l : list acive users\n";
+          std::cout << "q : quit server\n";
+          std::cout << "m : toggle mousePos transfer\n";
+          std::cout << "s : statisics\n";
+          break;
+        case 'l' : {
+          std::vector<ClientInfoServerSide> ci = s.getClientInfo();
+          for (const ClientInfoServerSide& client : ci) {
+            std::cout << "ID:" << client.id << " Name:" << client.name << " Color:" << client.color << " Pos:" << client.pos << " FastUpdates:" << client.fastCursorUpdates << "\n";
+          }
+          break;
+        }
+        case 'm' : {
+          s.setSkipMousePosTransfer(!s.getSkipMousePosTransfer());
+          std::cout << "setSkipMousePosTransfer is now:"<< s.getSkipMousePosTransfer() << "\n";
+          break;
+        }
+        case 's' : {
+          std::cout << "Server Uptime:"<< s.uptime() << " sec.\n";
+          std::cout << "Time since last backup:"<< s.getSecondsSinceLastBackup() << " sec.\n";
+          std::cout << "Recorded Events:"<< s.getRecordedEvents() << "\n";
+          break;
+        }
+      }
+      std::cout << std::endl;
+      
     } while (user != "q");
 
     return EXIT_SUCCESS;

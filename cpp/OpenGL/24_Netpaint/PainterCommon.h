@@ -11,22 +11,62 @@ constexpr uint32_t imageWidth = 400;
 constexpr uint32_t imageHeight= 400;
 constexpr uint16_t serverPort = 11002;
 
-struct ClientInfo {
+class ClientInfo {
+public:
   uint32_t id{0};
   std::string name{""};
   Vec4 color{0,0,0,0};
   Vec2 pos{0,0};
+  
+  ClientInfo() {}
+  
+  ClientInfo(uint32_t id, const std::string& name, const Vec4& color, const Vec2 pos) :
+    id{id},
+    name{cleanupName(name)},
+    color{color},
+    pos{pos}
+  {}
+
+  static std::string cleanupName(const std::string& name) {
+    std::string cName{name};
+    for (size_t i = 0;i<name.length();++i) {
+      cName[i] = cleanupChar(name[i]);
+    }
+    return cName;
+  }
+
+private:
+  static char cleanupChar(char c) {
+    std::string validChars{"01234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ(),._ ;:"};
+    if (validChars.find(c) != std::string::npos) return c; else return '_';
+  }
+
 };
 
-
-struct ClientInfoServerSide : public ClientInfo {
+class ClientInfoServerSide : public ClientInfo {
+public:
   bool fastCursorUpdates;
+  
+  ClientInfoServerSide(uint32_t id, const std::string& name, const Vec4& color,
+                       const Vec2 pos, bool fastCursorUpdates) :
+  ClientInfo(id, name, color, pos),
+  fastCursorUpdates(fastCursorUpdates)
+  {
+  }
+
 };
 
-struct ClientInfoClientSide : public ClientInfo {
+class ClientInfoClientSide : public ClientInfo {
+public:
   Image image;
+  
+  ClientInfoClientSide(uint32_t id, const std::string& name, const Vec4& color,
+                       const Vec2 pos, const Image& image) :
+  ClientInfo(id, name, color, pos),
+  image(image)
+  {
+  }
 };
-
 
 enum class PayloadType {
   InvalidPayload = 0,
