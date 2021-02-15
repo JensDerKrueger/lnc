@@ -143,6 +143,7 @@ void MyGLApp::mouseButton(int button, int state, int mods, double xPosition, dou
     if (button == GLFW_MOUSE_BUTTON_LEFT) {
       rightMouseDown = (state == GLFW_PRESS);
       if (rightMouseDown) client->setColor( Vec4{Vec3::hsvToRgb({360*(normPos.x()+1.0f)/2.0f,(normPos.y()+1.0f)/2.0f,value}), 1.0f} );
+      colorChooserMode = false;
     }
   } else {
     if (button == GLFW_MOUSE_BUTTON_LEFT) {
@@ -188,7 +189,10 @@ void MyGLApp::keyboard(int key, int scancode, int action, int mods) {
   if (action == GLFW_PRESS) {
     
     if (key == GLFW_KEY_ESCAPE) {
-      closeWindow();
+      if (colorChooserMode)
+        colorChooserMode = false;
+      else
+        closeWindow();
       return;
     }
 
@@ -216,9 +220,6 @@ void MyGLApp::keyboard(int key, int scancode, int action, int mods) {
     }
     
     switch (key) {
-      case GLFW_KEY_ESCAPE:
-        closeWindow();
-        break;
       case GLFW_KEY_L:
         showLabel = !showLabel;
         break;
@@ -287,7 +288,11 @@ void MyGLApp::draw() {
     glShape.clear();
     glShape.push_back(normPos.x()); glShape.push_back(normPos.y()); glShape.push_back(0.0f);
     glShape.push_back(0.0f); glShape.push_back(0.0f); glShape.push_back(0.0f);  glShape.push_back(1.0f);
-    drawPoints(glShape, 10, false);
+    setPointTexture(cursorShape);
+    setPointHighlightTexture(cursorHighlight);
+    drawPoints(glShape, 60, true);
+    resetPointTexture();
+    resetPointHighlightTexture();
 
     return;
   }
