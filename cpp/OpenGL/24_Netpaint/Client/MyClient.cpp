@@ -46,7 +46,7 @@ void MyClient::addMouse(uint32_t userID, const std::string& name, const Vec4& co
     }
   }
   if (!found) {
-    clientInfo.push_back({{userID, name, color, {0,0}}, fr.render(name)});
+    clientInfo.push_back({userID, name, color, {0,0}, fr.render(name)});
   }
 }
 
@@ -64,7 +64,7 @@ void MyClient::initDataFromServer(const Image& serverImage,
   image = serverImage;
   clientInfo.clear();
   for (const ClientInfo& m : mi) {
-    clientInfo.push_back({{m.id, m.name, m.color, m.pos}, fr.render(m.name) });
+    clientInfo.push_back({m.id, m.name, m.color, m.pos, fr.render(m.name) });
   }
   initComplete = true;
 }
