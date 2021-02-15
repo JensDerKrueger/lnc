@@ -175,7 +175,11 @@ void globalExceptionHandler () {
       std::cerr << typeid(std::current_exception()).name() << std::endl;
       std::cerr << " ...something, not an exception, dunno what." << std::endl;
   }
+#ifdef _WIN32
+  std::cerr << "errno: " << errno << std::endl;
+#else
   std::cerr << "errno: " << errno << ": " << std::strerror(errno) << std::endl;
+#endif // _WIN32
   std::abort();
 }
 
