@@ -6,12 +6,14 @@
 #include <vector>
 
 #include <GLApp.h>
+#include <GLTexture2D.h>
 
 #include "MyClient.h"
 
 class MyGLApp : public GLApp {
 public:
   MyGLApp();
+  virtual ~MyGLApp();
   
   virtual void init() override;
   virtual void mouseMove(double xPosition, double yPosition) override;
@@ -24,6 +26,8 @@ public:
 
 private:
   std::shared_ptr<MyClient> client{nullptr};
+  std::shared_ptr<GLTexture2D> texture{nullptr};
+
   Vec2 normPos{0,0};
   bool rightMouseDown{false};
   bool leftMouseDown{false};

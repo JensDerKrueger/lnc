@@ -14,15 +14,6 @@ MyClient::MyClient(const std::string& address, short port, const std::string& na
   name{name},
   color{Vec3::hsvToRgb({360*Rand::rand01(),0.5f,1.0f}), 1.0f}
 {
-  for (uint32_t y = 0;y<image.height;++y) {
-    for (uint32_t x = 0;x<image.width;++x) {
-      const Vec3 rgb{0,0,0};
-      image.setNormalizedValue(x,y,0,rgb.x());
-      image.setNormalizedValue(x,y,1,rgb.y());
-      image.setNormalizedValue(x,y,2,rgb.z());
-      image.setValue(x,y,3,255);
-    }
-  }
 }
 
 void MyClient::moveMouse(uint32_t userID, const Vec2& pos) {
@@ -61,7 +52,9 @@ void MyClient::removeMouse(uint32_t userID) {
 
 void MyClient::initDataFromServer(const Image& serverImage,
                                   const std::vector<ClientInfo>& mi) {
-  image = serverImage;
+  canvasImage = std::make_shared<Image>(serverImage);
+  canvasDims = Dimensions{serverImage.width, serverImage.height};
+  
   clientInfo.clear();
   for (const ClientInfo& m : mi) {
     clientInfo.push_back({m.id, m.name, m.color, m.pos, fr.render(m.name) });
@@ -101,8 +94,8 @@ void MyClient::handleServerMessage(const std::string& message) {
     }
     case PayloadType::CanvasUpdatePayload : {
       CanvasUpdatePayload l(message);
-      const Vec2 normPos{(l.pos.x()/float(image.width)-0.5f) * 2.0f,
-                         (l.pos.y()/float(image.height)-0.5f) * 2.0f};              
+      const Vec2 normPos{(l.pos.x()/float(canvasDims.width)-0.5f) * 2.0f,
+                         (l.pos.y()/float(canvasDims.height)-0.5f) * 2.0f};
       moveMouse(l.userID, normPos);
       paint(l.color, l.pos);
       break;
@@ -147,17 +140,6 @@ const std::vector<ClientInfoClientSide>& MyClient::getClientInfos() const {
   return clientInfo;
 }
   
-const Image& MyClient::getImage() {
-  if (!rendererLock) {
-    throw std::runtime_error("getImage called without lockData");
-  }
-
-  if (isConnecting() || !initComplete) {
-    initComplete = false;
-  }
-  return image;
-}
-
 void MyClient::lockData() {
   if (rendererLock) {
     throw std::runtime_error("lockData called repeatedly without unlockData");
@@ -187,11 +169,8 @@ void MyClient::setColor(const Vec4& color) {
 }
 
 void MyClient::paint(const Vec4& color, const Vec2i& pos) {
-  if (pos.x() < 0 || uint32_t(pos.x()) >= image.width) return;
-  if (pos.y() < 0 || uint32_t(pos.y()) >= image.height) return;
-  
-  image.setNormalizedValue(pos.x(),pos.y(),0,color.x());
-  image.setNormalizedValue(pos.x(),pos.y(),1,color.y());
-  image.setNormalizedValue(pos.x(),pos.y(),2,color.z());
-  image.setNormalizedValue(pos.x(),pos.y(),3,color.w());
+  if (pos.x() < 0 || uint32_t(pos.x()) >= canvasDims.width) return;
+  if (pos.y() < 0 || uint32_t(pos.y()) >= canvasDims.height) return;
+    
+  paintQueue.push({color,pos});
 }

@@ -2,6 +2,9 @@
 
 MyGLApp::MyGLApp() : GLApp(1024, 786, 4, "Network Painter") {}
 
+MyGLApp::~MyGLApp() {
+}
+
 Vec3 MyGLApp::convertPosToHSV(float x, float y) {
   return Vec3::hsvToRgb({360*x,y,value});
 }
@@ -230,9 +233,8 @@ void MyGLApp::keyboard(int key, int scancode, int action, int mods) {
         wheelScale *= 1.5f;
         break;
       case GLFW_KEY_P:
-        client->lockData();
-        BMP::save("artwork.bmp", client->getImage());
-        client->unlockData();
+        if (texture)
+          BMP::save("artwork.bmp", texture->getImage());
         break;
       case GLFW_KEY_R:
         userTransformation = Mat4{};
@@ -297,17 +299,37 @@ void MyGLApp::draw() {
     return;
   }
   
-  
   client->lockData();
-  imageSize = Vec2ui{client->getImage().width, client->getImage().height};
+  imageSize = Vec2ui{client->getDims().width, client->getDims().height};
   client->unlockData();
   baseTransformation = computeBaseTransform(imageSize);
   
   setDrawTransform(userTransformation*baseTransformation);
   setImageFilter(GL_NEAREST,GL_NEAREST);
   client->lockData();
-  drawImage(client->getImage());
-  const std::vector<ClientInfoClientSide> others = client->getClientInfos();
+
+  if (client->canvasImage) {
+    texture = std::make_shared<GLTexture2D>(*client->canvasImage);
+    client->canvasImage = nullptr;
+  }
+
+  
+  while (!client->paintQueue.empty()) {
+    const PaintJob& paintJob = client->paintQueue.front();
+    std::vector<GLubyte> data{
+      uint8_t(paintJob.color.x()*255),
+      uint8_t(paintJob.color.y()*255),
+      uint8_t(paintJob.color.z()*255),
+      uint8_t(paintJob.color.w()*255)
+    };
+    texture->setPixel(data, paintJob.pos.x(), paintJob.pos.y());
+    client->paintQueue.pop();
+  }
+
+  
+  drawImage(*texture);
+
+  const std::vector<ClientInfoClientSide>& others = client->getClientInfos();
   for (const ClientInfoClientSide& m : others) {
     glShape.push_back(m.pos.x()); glShape.push_back(m.pos.y()); glShape.push_back(0.0f);
     glShape.push_back(m.color.x()); glShape.push_back(m.color.y()); glShape.push_back(m.color.z());  glShape.push_back(m.color.w());
@@ -321,7 +343,6 @@ void MyGLApp::draw() {
       drawImage(m.image);
     }
   }
-  
   client->unlockData();
   
   glShape.clear();
