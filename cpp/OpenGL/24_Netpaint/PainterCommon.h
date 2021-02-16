@@ -27,6 +27,8 @@ public:
     pos{pos}
   {}
 
+  virtual ~ClientInfo() {}
+  
   static std::string cleanupName(const std::string& name) {
     std::string cName{name};
     for (size_t i = 0;i<name.length();++i) {
@@ -54,6 +56,7 @@ public:
   {
   }
 
+  virtual ~ClientInfoServerSide() {}
 };
 
 class ClientInfoClientSide : public ClientInfo {
@@ -66,6 +69,8 @@ public:
   image(image)
   {
   }
+  
+  virtual ~ClientInfoClientSide() {}
 };
 
 enum class PayloadType {
@@ -78,7 +83,6 @@ enum class PayloadType {
   InitPayload = 6,
   ConnectPayload = 7
 };
-
 
 class DSException : public std::exception {
   public:
@@ -109,10 +113,11 @@ struct BasicPayload {
     pt = PayloadType::BasicPayload;
   }
   
-  BasicPayload()
-  {
+  BasicPayload() {
     pt = PayloadType::BasicPayload;
   }
+  
+  virtual ~BasicPayload() {}
   
   virtual std::string toString() {
     return Coder::encode({
@@ -143,6 +148,8 @@ struct MousePosPayload : public BasicPayload {
   {
     pt = PayloadType::MousePosPayload;
   }
+  
+  virtual ~MousePosPayload() {}
 
   virtual std::string toString() override {
     return Coder::append(BasicPayload::toString(), {std::to_string(mousePos.x()),std::to_string(mousePos.y())});
@@ -174,6 +181,8 @@ struct NewUserPayload : public BasicPayload {
   {
     pt = PayloadType::NewUserPayload;
   }
+  
+  virtual ~NewUserPayload() {}
   
   virtual std::string toString() override {
     return Coder::append(BasicPayload::toString(), {
@@ -210,6 +219,8 @@ struct ConnectPayload : public NewUserPayload {
     pt = PayloadType::ConnectPayload;
   }
   
+  virtual ~ConnectPayload() {}
+  
   virtual std::string toString() override {
     return Coder::append(NewUserPayload::toString(), {
       fastCursorUpdates ? "1" : "0"
@@ -229,6 +240,8 @@ struct LostUserPayload : public BasicPayload {
   LostUserPayload() {
     pt = PayloadType::LostUserPayload;
   }
+  
+  virtual ~LostUserPayload() {}
 };
 
 struct CanvasUpdatePayload : public BasicPayload {
@@ -256,6 +269,8 @@ struct CanvasUpdatePayload : public BasicPayload {
   {
     pt = PayloadType::CanvasUpdatePayload;
   }
+  
+  virtual ~CanvasUpdatePayload() {}
   
   virtual std::string toString() override {
     return Coder::append(BasicPayload::toString(), {
@@ -323,6 +338,8 @@ struct InitPayload : public BasicPayload {
     }
     pt = PayloadType::InitPayload;
   }
+  
+  virtual ~InitPayload() {}
   
   virtual std::string toString() override {
     std::vector<std::string> v;
