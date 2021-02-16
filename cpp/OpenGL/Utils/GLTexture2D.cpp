@@ -42,7 +42,6 @@ void GLTexture2D::setFilter(GLint magFilter, GLint minFilter) {
 }
 
 GLTexture2D::~GLTexture2D() {
-  std::cout << "bye bye" << std::endl;
   GL(glDeleteTextures(1, &id));
 }
 
