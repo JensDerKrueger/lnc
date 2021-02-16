@@ -64,24 +64,21 @@ public:
   
   virtual void handleClientDisconnection(uint32_t id) override {
     ciMutex.lock();
-    try {
-      for (size_t i = 0;i<clientInfo.size();++i) {
-        if (clientInfo[i].id == id) {
-          clientInfo.erase(clientInfo.begin()+i);
-          ciMutex.unlock();
-          LostUserPayload l;
-          l.userID = id;
-          sendMessage(l.toString(), id, true);
-          
-          if (recordInteraction) {
-            recordFile << "drop;" << l.userID << "\n";
-            recordedEvents++;
-          }
-
-          return;
+    for (size_t i = 0;i<clientInfo.size();++i) {
+      if (clientInfo[i].id == id) {
+        clientInfo.erase(clientInfo.begin()+i);
+        ciMutex.unlock();
+        LostUserPayload l;
+        l.userID = id;
+        sendMessage(l.toString(), id, true);
+        
+        if (recordInteraction) {
+          recordFile << "drop;" << l.userID << "\n";
+          recordedEvents++;
         }
+
+        return;
       }
-    } catch (const SocketException& ) {
     }
     ciMutex.unlock();
   }
@@ -95,65 +92,62 @@ public:
     }
     
     ciMutex.lock();
-    try {
-      PayloadType pt = identifyString(message);
-      switch (pt) {
-        case PayloadType::MousePosPayload : {
-          if (skipMousePosTransfer) break;
-          
-          MousePosPayload l(message);
-          l.userID = id;
-          const std::string targetMessage = l.toString();
-          
-          for (const auto& c : clientInfo) {
-            if (c.id == id || !c.fastCursorUpdates) continue;
-            sendMessage(targetMessage, c.id);
-          }
-          
-          break;
+    PayloadType pt = identifyString(message);
+    switch (pt) {
+      case PayloadType::MousePosPayload : {
+        if (skipMousePosTransfer) break;
+        
+        MousePosPayload l(message);
+        l.userID = id;
+        const std::string targetMessage = l.toString();
+        
+        for (const auto& c : clientInfo) {
+          if (c.id == id || !c.fastCursorUpdates) continue;
+          sendMessage(targetMessage, c.id);
         }
-        case PayloadType::ConnectPayload  : {
-          ConnectPayload r(message);
-          r.userID = id;
-          ClientInfoServerSide ci{id, r.name, r.color, {0,0}, r.fastCursorUpdates};
-          clientInfo.push_back(ci);
-          
-          NewUserPayload l(ci.name, ci.color);
-          l.userID = id;
-          sendMessage(l.toString(), id, true);
+        
+        break;
+      }
+      case PayloadType::ConnectPayload  : {
+        ConnectPayload r(message);
+        r.userID = id;
+        ClientInfoServerSide ci{id, r.name, r.color, {0,0}, r.fastCursorUpdates};
+        clientInfo.push_back(ci);
+        
+        NewUserPayload l(ci.name, ci.color);
+        l.userID = id;
+        sendMessage(l.toString(), id, true);
 
-          if (recordInteraction) {
-            recordFile << "new;" << l.userID << ";" << l.name << ";" << l.color << "\n";
-            recordedEvents++;
-          }
-
-          break;
+        if (recordInteraction) {
+          recordFile << "new;" << l.userID << ";" << l.name << ";" << l.color << "\n";
+          recordedEvents++;
         }
-        case PayloadType::CanvasUpdatePayload  : {
-          CanvasUpdatePayload l(message);
-          l.userID = id;
 
-          if (l.pos.x() < 0 || uint32_t(l.pos.x()) >= image.width) break;
-          if (l.pos.y() < 0 || uint32_t(l.pos.y()) >= image.height) break;
-          
-          if (recordInteraction) {
-            recordFile << "paint;" << l.userID << ";" << l.pos << ";" << l.color << "\n";
-            recordedEvents++;
-          }
-          
-          image.setNormalizedValue(l.pos.x(),l.pos.y(),0,l.color.x());
-          image.setNormalizedValue(l.pos.x(),l.pos.y(),1,l.color.y());
-          image.setNormalizedValue(l.pos.x(),l.pos.y(),2,l.color.z());
-          image.setNormalizedValue(l.pos.x(),l.pos.y(),3,l.color.w());
+        break;
+      }
+      case PayloadType::CanvasUpdatePayload  : {
+        CanvasUpdatePayload l(message);
+        l.userID = id;
 
-          sendMessage(l.toString(), id, true);
-          break;
+        if (l.pos.x() < 0 || uint32_t(l.pos.x()) >= image.width) break;
+        if (l.pos.y() < 0 || uint32_t(l.pos.y()) >= image.height) break;
+        
+        if (recordInteraction) {
+          recordFile << "paint;" << l.userID << ";" << l.pos << ";" << l.color << "\n";
+          recordedEvents++;
         }
-        default:
-          break;
-      };
-    } catch (const SocketException& ) {
-    }
+        
+        image.setNormalizedValue(l.pos.x(),l.pos.y(),0,l.color.x());
+        image.setNormalizedValue(l.pos.x(),l.pos.y(),1,l.color.y());
+        image.setNormalizedValue(l.pos.x(),l.pos.y(),2,l.color.z());
+        image.setNormalizedValue(l.pos.x(),l.pos.y(),3,l.color.w());
+
+        sendMessage(l.toString(), id, true);
+        break;
+      }
+      default:
+        break;
+    };
     ciMutex.unlock();
   }
   

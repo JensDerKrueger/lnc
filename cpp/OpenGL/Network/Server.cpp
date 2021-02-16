@@ -107,7 +107,6 @@ void ClientConnection::sendMessage(std::string message) {
       message = sendCrypt->encryptString(message);
     }
   }
-  
   sendRawMessage(message);
 }
 
@@ -156,14 +155,22 @@ void ClientConnection::enqueueMessage(const std::string& m) {
 
 void ClientConnection::sendFunc() {
   while (continueRunning) {
-    if (!messageQueue.empty()) {
-      messageQueueLock.lock();
-      std::string front = messageQueue.front();
-      messageQueue.pop();
-      messageQueueLock.unlock();
-      sendMessage(front);
-    } else {
-      std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    try {
+      if (!messageQueue.empty()) {
+        messageQueueLock.lock();
+        std::string front = messageQueue.front();
+        messageQueue.pop();
+        messageQueueLock.unlock();
+        sendMessage(front);
+      } else {
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+      }
+    } catch (SocketException const& e) {
+      std::cerr << "sendFunc SocketException: " << e.what() << std::endl;
+      continue;
+    } catch (AESException const& e) {
+      std::cerr << "encryption error: " << e.what() << std::endl;
+      continue;
     }
   }
 }
@@ -236,7 +243,6 @@ void Server::clientFunc() {
           handleClientMessage(clientConnections[i]->getID(), message);
           clientVecMutex.lock();
         }
-          
       } catch (SocketException const& ) {
         removeClient(i);
         continue;
