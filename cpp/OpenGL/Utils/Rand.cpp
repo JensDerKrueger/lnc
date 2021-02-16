@@ -10,7 +10,7 @@ std::uniform_real_distribution<float> Rand::dis01{0.0f, 1.0f};
 std::uniform_real_distribution<float> Rand::dis005{0.0f, 0.5f};
 std::uniform_real_distribution<float> Rand::dis051{0.5f, 1.0f};
 std::uniform_real_distribution<float> Rand::dis11{-1.0f, 1.0f};
-std::uniform_real_distribution<float> Rand::disPi{0.0f, 2.0f * M_PI};
+std::uniform_real_distribution<float> Rand::disPi{0.0f, 2.0f * float(M_PI)};
 
 float Rand::rand01() {
     return dis01(gen);
