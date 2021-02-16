@@ -19,7 +19,6 @@ public:
 private:
   TCPSocket* connectionSocket;
   uint32_t id;
-  std::string message{""};
   uint32_t messageLength{0};
   std::vector<int8_t> recievedBytes;
   std::unique_ptr<AESCrypt> crypt;
@@ -35,9 +34,9 @@ private:
 
   std::string handleIncommingData(int8_t* data, uint32_t bytes);
   
-  void sendRawMessage(std::string message, uint32_t timeout);
-  void sendRawMessage(std::vector<int8_t> rawData, uint32_t timeout);
-  void sendRawMessage(const int8_t* rawData, uint32_t size, uint32_t timeout);
+  void sendRawMessage(std::string message);
+  void sendRawMessage(std::vector<int8_t> rawData);
+  void sendRawMessage(const int8_t* rawData, uint32_t size);
   std::vector<uint8_t> intToVec(uint32_t i) const;
   
   void sendMessage(std::string message);
@@ -54,9 +53,9 @@ public:
   bool isStarting() const {return starting;}
   bool isOK() const {return ok;}
   
-  virtual void handleClientConnection(uint32_t id) {};
+  virtual void handleClientConnection(uint32_t /* id */) {};
   virtual void handleClientMessage(uint32_t id, const std::string& message) = 0;
-  virtual void handleClientDisconnection(uint32_t id) {};
+  virtual void handleClientDisconnection(uint32_t /* id */) {};
   
   void sendMessage(const std::string& message, uint32_t id=0, bool invertID=false);
   
@@ -65,7 +64,7 @@ public:
 private:
   short port;
   uint32_t timeout;
-  uint32_t id = 0;
+  uint32_t lastClientId{0};
   std::string key;
   
   bool ok{false};

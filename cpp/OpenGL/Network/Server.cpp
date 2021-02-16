@@ -41,7 +41,7 @@ std::string ClientConnection::checkData() {
   return "";
 }
 
-void ClientConnection::sendRawMessage(const int8_t* rawData, uint32_t size, uint32_t timeout) {
+void ClientConnection::sendRawMessage(const int8_t* rawData, uint32_t size) {
   uint32_t currentBytes = 0;
   uint32_t totalBytes = 0;
 
@@ -68,7 +68,7 @@ std::vector<uint8_t> ClientConnection::intToVec(uint32_t i) const {
 }
 
 
-void ClientConnection::sendRawMessage(std::vector<int8_t> rawData, uint32_t timeout) {
+void ClientConnection::sendRawMessage(std::vector<int8_t> rawData) {
   uint32_t l = uint32_t(rawData.size());
   if (l != rawData.size()) {
     std::cerr << "lost data truncating long message" << std::endl;
@@ -76,21 +76,21 @@ void ClientConnection::sendRawMessage(std::vector<int8_t> rawData, uint32_t time
   
   std::vector<uint8_t> data = intToVec(l);
 
-  sendRawMessage((int8_t*)data.data(), 4,timeout);
-  sendRawMessage(rawData.data(), l, timeout);
+  sendRawMessage((int8_t*)data.data(), 4);
+  sendRawMessage(rawData.data(), l);
 }
 
 
-void ClientConnection::sendRawMessage(std::string message, uint32_t timeout) {
+void ClientConnection::sendRawMessage(std::string message) {
   const uint32_t l = uint32_t(message.length());
   if (l != message.length()) {
     std::cerr << "lost data truncating long message" << std::endl;
   }
 
   std::vector<uint8_t> data = intToVec(l);
-  sendRawMessage((int8_t*)data.data(), 4, timeout);
+  sendRawMessage((int8_t*)data.data(), 4);
   const int8_t* cStr = (int8_t*)(message.c_str());
-  sendRawMessage(cStr, l, timeout);
+  sendRawMessage(cStr, l);
 }
 
 
@@ -103,12 +103,12 @@ void ClientConnection::sendMessage(std::string message) {
       std::string iv = AESCrypt::genIVString();
       std::string initMessage = tempCrypt.encryptString(genHandshake(iv, key));
       sendCrypt = std::make_unique<AESCrypt>(iv,key);
-      sendRawMessage(initMessage, timeout);
+      sendRawMessage(initMessage);
       message = sendCrypt->encryptString(message);
     }
   }
   
-  sendRawMessage(message, timeout);
+  sendRawMessage(message);
 }
 
 std::string ClientConnection::handleIncommingData(int8_t* data, uint32_t bytes) {
@@ -313,10 +313,10 @@ void Server::serverFunc() {
         }
 
         clientVecMutex.lock();
-        ++id;
-        clientConnections.push_back(std::make_shared<ClientConnection>(connectionSocket, id, key, timeout));
+        ++lastClientId;
+        clientConnections.push_back(std::make_shared<ClientConnection>(connectionSocket, lastClientId, key, timeout));
         try {
-          handleClientConnection(id);
+          handleClientConnection(lastClientId);
         } catch (SocketException const& ) {
         }
         clientVecMutex.unlock();
