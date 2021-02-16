@@ -4,7 +4,7 @@
 
 #include "FontRenderer.h"
 
-const CharPosition& FontRenderer::findElement(char c, const std::vector<CharPosition>& positions) {
+const CharPosition& FontRenderer::findElement(char c) {
   for (size_t i = 0;i<positions.size();++i) {
     if (positions[i].c == c) return positions[i];
   }
@@ -67,7 +67,7 @@ Image FontRenderer::render(const std::string& text) {
   
   Vec2ui dims{0,0};
   for (char element : text) {
-    const auto& pos = findElement(element, positions);
+    const auto& pos = findElement(element);
     Vec2ui size = pos.bottomRight-pos.topLeft;
     dims = Vec2ui{dims.x()+size.x(), std::max(dims.y(), size.y())};
   }
@@ -77,7 +77,7 @@ Image FontRenderer::render(const std::string& text) {
   
   Vec2ui currentPos{0,0};
   for (char element : text) {
-    const auto& pos = findElement(element, positions);
+    const auto& pos = findElement(element);
     Vec2ui size = pos.bottomRight-pos.topLeft;
     BMP::blit(fontImage, pos.topLeft, pos.bottomRight, result, currentPos);
     currentPos = Vec2ui(currentPos.x()+size.x(), currentPos.y());

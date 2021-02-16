@@ -35,5 +35,5 @@ private:
   Image fontImage;
   std::vector<CharPosition> positions;
   
-  const CharPosition& findElement(char c, const std::vector<CharPosition>& positions);
+  const CharPosition& findElement(char c);
 };
