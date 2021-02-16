@@ -24,12 +24,12 @@ class Vec4 {
 		float x() const;
 		float y() const;
 		float z() const;
-        float w() const;
+    float w() const;
 
 		float r() const;
 		float g() const;
 		float b() const;
-        float a() const;
+    float a() const;
 
 		Vec4 operator+(const Vec4& val) const;
 		Vec4 operator-(const Vec4& val) const;
