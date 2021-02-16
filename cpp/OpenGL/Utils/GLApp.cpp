@@ -439,9 +439,10 @@ void GLApp::setImageFilter(GLint magFilter, GLint minFilter) {
   raster.setFilter(magFilter, minFilter);
 }
 
-void GLApp::drawImage(const Image& image, const Vec3& bl,
+void GLApp::drawImage(const GLTexture2D& image, const Vec3& bl,
                       const Vec3& br, const Vec3& tl,
                       const Vec3& tr) {
+
   shaderUpdate();
   
   simpleTexProg.enable();
@@ -456,13 +457,19 @@ void GLApp::drawImage(const Image& image, const Vec3& bl,
   };
   
   simpleVb.setData(data,5,GL_DYNAMIC_DRAW);
-    
-  raster.setData(image.data, image.width, image.height, image.componentCount);
   
   simpleArray.bind();
   simpleArray.connectVertexAttrib(simpleVb, simpleTexProg, "vPos", 3);
   simpleArray.connectVertexAttrib(simpleVb, simpleTexProg, "vTexCoords", 2, 3);
-  simpleTexProg.setTexture("raster",raster,0);
+  simpleTexProg.setTexture("raster",image,0);
 
   GL(glDrawArrays(GL_TRIANGLES, 0, GLsizei(data.size()/5)));
+}
+
+void GLApp::drawImage(const Image& image, const Vec3& bl,
+                      const Vec3& br, const Vec3& tl,
+                      const Vec3& tr) {
+
+  raster.setData(image.data, image.width, image.height, image.componentCount);
+  drawImage(raster, bl, br, tl, tr);
 }
