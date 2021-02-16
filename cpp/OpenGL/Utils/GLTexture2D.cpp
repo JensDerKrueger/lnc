@@ -135,9 +135,9 @@ void GLTexture2D::setData(const std::vector<GLfloat>& data, uint32_t width, uint
 }
 
 static std::array<GLenum,3> dataTypeToGL(GLDataType dataType, uint32_t componentCount) {
-  GLenum type;
-  GLenum internalformat;
-  GLenum format;
+  GLenum type{0};
+  GLenum internalformat{0};
+  GLenum format{0};
   
   switch (dataType) {
     case GLDataType::BYTE :
