@@ -13,7 +13,7 @@
 
 typedef std::chrono::high_resolution_clock Clock;
 
-bool fexists(const std::string& filename) {
+static bool fexists(const std::string& filename) {
   std::ifstream ifile(filename);
   return (bool)ifile;
 }
@@ -103,11 +103,11 @@ public:
           
           MousePosPayload l(message);
           l.userID = id;
-          const std::string message = l.toString();
+          const std::string targetMessage = l.toString();
           
           for (const auto& c : clientInfo) {
             if (c.id == id || !c.fastCursorUpdates) continue;
-            sendMessage(message, c.id);
+            sendMessage(targetMessage, c.id);
           }
           
           break;
@@ -165,8 +165,8 @@ public:
     return result;
   }
   
-  void setSkipMousePosTransfer(bool skipMousePosTransfer) {
-    this->skipMousePosTransfer = skipMousePosTransfer;
+  void setSkipMousePosTransfer(bool newSkipMousePosTransfer) {
+    skipMousePosTransfer = newSkipMousePosTransfer;
   }
 
   bool getSkipMousePosTransfer() const {
@@ -202,7 +202,7 @@ private:
   std::chrono::time_point<Clock> startTime = Clock::now();
 };
 
-void globalExceptionHandler () {
+static void globalExceptionHandler () {
   std::cerr << "terminate called after throwing an instance of ";
   try
   {
