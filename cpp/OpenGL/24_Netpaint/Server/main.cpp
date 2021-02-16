@@ -42,6 +42,7 @@ public:
     if (recordInteraction) {
       if (!fexists("recording.bmp")) BMP::save("recording.bmp", image);
       recordFile.open("recording.csv",std::ios_base::app);
+      recordFile << "start\n";
     }
   }
   
@@ -260,19 +261,19 @@ int main(int argc, char ** argv) {
         case 'l' : {
           std::vector<ClientInfoServerSide> ci = s.getClientInfo();
           for (const ClientInfoServerSide& client : ci) {
-            std::cout << "ID:" << client.id << " Name:" << client.name << " Color:" << client.color << " Pos:" << client.pos << " FastUpdates:" << client.fastCursorUpdates << "\n";
+            std::cout << "ID:" << client.id << " Name:" << client.name << " Color:" << client.color << " Pos:" << client.pos << " FastUpdates: " << client.fastCursorUpdates << "\n";
           }
           break;
         }
         case 'm' : {
           s.setSkipMousePosTransfer(!s.getSkipMousePosTransfer());
-          std::cout << "setSkipMousePosTransfer is now:"<< s.getSkipMousePosTransfer() << "\n";
+          std::cout << "setSkipMousePosTransfer is now: "<< s.getSkipMousePosTransfer() << "\n";
           break;
         }
         case 's' : {
-          std::cout << "Server Uptime:"<< s.uptime() << " sec.\n";
-          std::cout << "Time since last backup:"<< s.getSecondsSinceLastBackup() << " sec.\n";
-          std::cout << "Recorded Events:"<< s.getRecordedEvents() << "\n";
+          std::cout << "Server Uptime: "<< s.uptime() << " sec.\n";
+          std::cout << "Time since last backup: "<< s.getSecondsSinceLastBackup() << " sec.\n";
+          std::cout << "Recorded Events: "<< s.getRecordedEvents() << "\n";
           break;
         }
       }
