@@ -11,7 +11,7 @@ public:
   bool isOK() const {return ok;}
     
   void sendMessage(const std::string& message);
-  virtual void handleServerMessage(const std::string& message) {};
+  virtual void handleServerMessage(const std::string& /* message */) {};
   virtual void handleNewConnection() {};
 
   size_t cueSize();
@@ -43,9 +43,9 @@ private:
   
   std::string handleIncommingData(int8_t* data, uint32_t bytes);
     
-  void sendRawMessage(std::string message, uint32_t timeout);
-  void sendRawMessage(std::vector<int8_t> rawData, uint32_t timeout);
-  void sendRawMessage(const int8_t* rawData, uint32_t size, uint32_t timeout);
+  void sendRawMessage(std::string message);
+  void sendRawMessage(std::vector<int8_t> rawData);
+  void sendRawMessage(const int8_t* rawData, uint32_t size);
   std::vector<uint8_t> intToVec(uint32_t i) const;
 
 };

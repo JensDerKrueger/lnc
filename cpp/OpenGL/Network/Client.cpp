@@ -76,7 +76,7 @@ std::string Client::handleIncommingData(int8_t* data, uint32_t bytes) {
 }
 
 
-void Client::sendRawMessage(const int8_t* rawData, uint32_t size, uint32_t timeout) {
+void Client::sendRawMessage(const int8_t* rawData, uint32_t size) {
   uint32_t currentBytes = 0;
   uint32_t totalBytes = 0;
 
@@ -103,7 +103,7 @@ std::vector<uint8_t> Client::intToVec(uint32_t i) const {
 }
 
 
-void Client::sendRawMessage(std::vector<int8_t> rawData, uint32_t timeout) {
+void Client::sendRawMessage(std::vector<int8_t> rawData) {
   uint32_t l = uint32_t(rawData.size());
   if (l != rawData.size()) {
     std::cerr << "lost data truncating long message" << std::endl;
@@ -111,21 +111,21 @@ void Client::sendRawMessage(std::vector<int8_t> rawData, uint32_t timeout) {
   
   std::vector<uint8_t> data = intToVec(l);
 
-  sendRawMessage((int8_t*)data.data(), 4,timeout);
-  sendRawMessage(rawData.data(), l, timeout);
+  sendRawMessage((int8_t*)data.data(), 4);
+  sendRawMessage(rawData.data(), l);
 }
 
 
-void Client::sendRawMessage(std::string message, uint32_t timeout) {
+void Client::sendRawMessage(std::string message) {
   const uint32_t l = uint32_t(message.length());
   if (l != message.length()) {
     std::cerr << "lost data truncating long message" << std::endl;
   }
 
   std::vector<uint8_t> data = intToVec(l);
-  sendRawMessage((int8_t*)data.data(), 4, timeout);
+  sendRawMessage((int8_t*)data.data(), 4);
   const int8_t* cStr = (int8_t*)(message.c_str());
-  sendRawMessage(cStr, l, timeout);
+  sendRawMessage(cStr, l);
 }
 
 void Client::clientFunc() {
@@ -197,7 +197,7 @@ void Client::clientFunc() {
             }
           }
           
-          sendRawMessage(message, timeout);
+          sendRawMessage(message);
            
         } else {
           if (!receivedData) std::this_thread::sleep_for(std::chrono::milliseconds(1));
