@@ -75,13 +75,12 @@ public:
     name(name)
   {}
 
-
   std::string clean(const std::string& message) {
-    static const std::string unsafeChars = "\\~";   // we may want to add other harmfull chars here
+    static const std::string safeChars = "abcdefghijklmonqrstuvwxyzABCDEFGHIJKLMNOPRSTUVWXYZ1234567890ß+-*,.;:-_<># !?";
 
     std::string safeString{""};
     for (size_t i = 0;i<message.size();++i) {
-      if ( unsafeChars.find(message[i]) !=std::string::npos ) {
+      if ( safeChars.find(message[i]) == std::string::npos ) {
         safeString += "_";
       } else {
         safeString += message[i];
@@ -131,6 +130,7 @@ int main(int argc, char ** argv) {
     }
   } else if (argc == 1) {
     MyServer s{11000};
+    s.start();
     std::cout << "starting ...";
     while (s.isStarting()) {
       std::cout << "." << std::flush;
