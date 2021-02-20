@@ -253,7 +253,7 @@ int main(int argc, char ** argv) {
       switch (user[0]) {
         case '?' :
           std::cout << "? : help\n";
-          std::cout << "l : list acive users\n";
+          std::cout << "l : list active users\n";
           std::cout << "q : quit server\n";
           std::cout << "m : toggle mousePos transfer\n";
           std::cout << "s : statisics\n";
