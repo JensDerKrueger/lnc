@@ -46,7 +46,7 @@ public:
     }
   }
   
-  ~MyServer() {
+  virtual ~MyServer() {
     saveArt();
     if (recordInteraction) {
       recordFile.close();
