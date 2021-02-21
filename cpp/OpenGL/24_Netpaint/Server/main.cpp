@@ -102,7 +102,8 @@ public:
         l.userID = id;
         const std::string targetMessage = l.toString();
         
-        for (const auto& c : clientInfo) {
+        for (auto& c : clientInfo) {
+          if (c.id == id) c.pos = l.mousePos;
           if (c.id == id || !c.fastCursorUpdates) continue;
           sendMessage(targetMessage, c.id);
         }
@@ -129,6 +130,11 @@ public:
       case PayloadType::CanvasUpdatePayload  : {
         CanvasUpdatePayload l(message);
         l.userID = id;
+
+        for (auto& c : clientInfo) {
+          if (c.id == id) c.pos = Vec2(float(l.pos.x()) / image.width, float(l.pos.x()) / image.height);
+        }
+
 
         if (l.pos.x() < 0 || uint32_t(l.pos.x()) >= image.width) break;
         if (l.pos.y() < 0 || uint32_t(l.pos.y()) >= image.height) break;
