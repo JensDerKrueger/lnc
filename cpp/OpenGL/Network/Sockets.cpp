@@ -1022,6 +1022,7 @@ bool ListenSocket::AcceptNewConnection(ConnectionSocket ** connectedSocket, uint
       catch (...)
       {
         delete connectionSocket;
+        connectionSocket = nullptr;
         throw;
       }
       *connectedSocket = connectionSocket;
