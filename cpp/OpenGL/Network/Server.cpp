@@ -15,16 +15,17 @@ ClientConnection::ClientConnection(TCPSocket* connectionSocket, uint32_t id, con
 }
 
 ClientConnection::~ClientConnection() {
+  continueRunning = false;
+  sendThread.join();
+
   try {
     if (connectionSocket && connectionSocket->IsConnected()) {
       connectionSocket->Close();
     }
     delete connectionSocket;
+    connectionSocket = nullptr;
   } catch (SocketException const&  ) {
-  }
-  
-  continueRunning = false;
-  sendThread.join();
+  }  
 }
 
 bool ClientConnection::isConnected() {
