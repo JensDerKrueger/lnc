@@ -10,16 +10,6 @@
 
 constexpr uint16_t serverPort = 11003;
 
-class MessageException : public std::exception {
-  public:
-  MessageException(const std::string& whatStr) : whatStr(whatStr) {}
-    virtual const char* what() const throw() {
-      return whatStr.c_str();
-    }
-  private:
-    std::string whatStr;
-};
-
 enum class MessageType {
   InvalidMessage = 0,
   BasicMessage = 1,
@@ -34,21 +24,20 @@ MessageType identifyString(const std::string& s);
 struct BasicMessage {
   MessageType pt;
   uint32_t userID{0};
-  size_t startToken;
-  std::vector<std::string> token;
+  Tokenizer tokenizer;
 
-  BasicMessage(const std::string& message) {
-    token = Coder::decode(message);
-    if (token.size() < 3) {
-      throw MessageException("BasicMessage message to short");
-    }
-    pt = MessageType(std::stoi(token[1]));
-    userID = std::stoi(token[2]);
-    startToken = 3;
+  BasicMessage(const std::string& message) :
+    tokenizer{message}
+  {
+    if (tokenizer.nextString() != "game") throw MessageException("Invalid message");
+    pt = MessageType(tokenizer.nextUint32());
+    userID = tokenizer.nextUint32();
     pt = MessageType::BasicMessage;
   }
   
-  BasicMessage() {
+  BasicMessage() :
+    tokenizer{""}
+  {
     pt = MessageType::BasicMessage;
   }
   
@@ -103,15 +92,9 @@ struct ConnectMessage : public BasicMessage {
   ConnectMessage(const std::string& message) :
     BasicMessage(message)
   {
-    if (token.size() < startToken + 3) {
-      std::stringstream ss;
-      ss << "ConnectMessage message to short. Expected at least " << startToken + 3 << " elements but received only " << token.size() << ".";
-      throw MessageException(ss.str());
-    }
-    name = token[startToken+0];
-    gameID = std::stoi(token[startToken+1]);
-    level = std::stoi(token[startToken+2]);
-    startToken += 3;
+    name = tokenizer.nextString();
+    gameID = tokenizer.nextUint32();
+    level = tokenizer.nextUint32();
     pt = MessageType::ConnectMessage;
   }
   
@@ -126,7 +109,7 @@ struct ConnectMessage : public BasicMessage {
   virtual ~ConnectMessage() {}
   
   virtual std::string toString() override {
-    return Coder::append(BasicMessage::toString(), {
+    return BasicMessage::toString() + Coder::encode({
       name,
       std::to_string(gameID),
       std::to_string(level),
@@ -141,18 +124,12 @@ struct GameMessage : public BasicMessage {
   GameMessage(const std::string& message) :
     BasicMessage(message)
   {
-    if (token.size() < startToken + 1) {
-      std::stringstream ss;
-      ss << "GameMessage message to short. Expected at least " << startToken + 1 << " elements but received only " << token.size() << ".";
-      throw MessageException(ss.str());
-    }
-    payload = token[startToken];
-    startToken += 1;
+    payload = tokenizer.nextString();
     pt = MessageType::GameMessage;
   }
   
   GameMessage() :
-  payload{}
+    payload{}
   {
     pt = MessageType::GameMessage;
   }
@@ -160,8 +137,6 @@ struct GameMessage : public BasicMessage {
   virtual ~GameMessage() {}
   
   virtual std::string toString() override {
-    return Coder::append(BasicMessage::toString(), {
-      payload,
-    });
+    return BasicMessage::toString() + Coder::encode({payload});
   }
 };
