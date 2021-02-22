@@ -63,45 +63,47 @@ void MyClient::initDataFromServer(const Image& serverImage,
 }
   
 void MyClient::handleNewConnection() {
-  ConnectPayload l(name, color, acceptFastMousePosUpdates);
+  ConnectMessage l(name, color, acceptFastMousePosUpdates);
   sendMessage(l.toString());
 }
 
-void MyClient::handleServerMessage(const std::string& message) {
-  PayloadType pt = identifyString(message);
+void MyClient::handleServerMessage(const std::string& m) {
+  const std::string message = m + Coder::DELIM;  // support for old clients
+  
+  MessageType pt = identifyString(message);
      
   miMutex.lock();
   switch (pt) {
-    case PayloadType::MousePosPayload : {
-      MousePosPayload l(message);
+    case MessageType::MousePosMessage : {
+      MousePosMessage l(message);
       moveMouse(l.userID, l.mousePos);
       break;
     }
-    case PayloadType::NewUserPayload  : {
-      NewUserPayload l(message);
+    case MessageType::NewUserMessage  : {
+      NewUserMessage l(message);
       addMouse(l.userID, l.name, l.color);
       break;
     }
-    case PayloadType::LostUserPayload : {
-      LostUserPayload l(message);
+    case MessageType::LostUserMessage : {
+      LostUserMessage l(message);
       removeMouse(l.userID);
       break;
     }
-    case PayloadType::InitPayload : {
-      InitPayload l(message);
+    case MessageType::InitMessage : {
+      InitMessage l(message);
       initDataFromServer(l.image, l.clientInfos);
       break;
     }
-    case PayloadType::CanvasUpdatePayload : {
-      CanvasUpdatePayload l(message);
+    case MessageType::CanvasUpdateMessage : {
+      CanvasUpdateMessage l(message);
       const Vec2 normPos{(l.pos.x()/float(canvasDims.width)-0.5f) * 2.0f,
                          (l.pos.y()/float(canvasDims.height)-0.5f) * 2.0f};
       moveMouse(l.userID, normPos);
       paint(l.color, l.pos);
       break;
     }
-    case PayloadType::ConnectPayload : {
-      std::cerr << "Netwerk Error: ConnectPayload should never be send to a client" << std::endl;
+    case MessageType::ConnectMessage : {
+      std::cerr << "Netwerk Error: ConnectMessage should never be send to a client" << std::endl;
       break;
     }
     default:
@@ -117,7 +119,7 @@ void MyClient::setMousePos(const Vec2& normPos) {
     return;
   }
   
-  MousePosPayload m(normPos);
+  MousePosMessage m(normPos);
   sendMessage(m.toString());
 }
 
@@ -129,7 +131,7 @@ void MyClient::paint(const Vec2i& pos) {
   }
 
   paint(color, pos);
-  CanvasUpdatePayload m{color, pos};
+  CanvasUpdateMessage m{color, pos};
   sendMessage(m.toString());
 }
 

@@ -20,6 +20,7 @@ static bool fexists(const std::string& filename) {
 
 class MyServer : public Server {
 public:
+  bool showErrors{true};
   
   MyServer(short port, bool skipMousePosTransfer, bool recordInteraction) :
     Server(port),
@@ -59,7 +60,7 @@ public:
   }
 
   virtual void handleClientConnection(uint32_t id) override {
-    InitPayload l(image, clientInfo);
+    InitMessage l(image, clientInfo);
     sendMessage(l.toString(), id);
   }
   
@@ -69,7 +70,7 @@ public:
       if (clientInfo[i].id == id) {
         clientInfo.erase(clientInfo.begin()+i);
         ciMutex.unlock();
-        LostUserPayload l;
+        LostUserMessage l;
         l.userID = id;
         sendMessage(l.toString(), id, true);
         
@@ -84,7 +85,8 @@ public:
     ciMutex.unlock();
   }
   
-  virtual void handleClientMessage(uint32_t id, const std::string& message) override {
+  virtual void handleClientMessage(uint32_t id, const std::string& m) override {
+    const std::string message = m + Coder::DELIM;  // support for old clients
     
     auto currentTime = Clock::now();
     if ( std::chrono::duration_cast<std::chrono::seconds>(currentTime-lastime).count() > 60 ) {
@@ -93,68 +95,74 @@ public:
     }
     
     ciMutex.lock();
-    PayloadType pt = identifyString(message);
-    switch (pt) {
-      case PayloadType::MousePosPayload : {
-        if (skipMousePosTransfer) break;
-        
-        MousePosPayload l(message);
-        l.userID = id;
-        const std::string targetMessage = l.toString();
-        
-        for (auto& c : clientInfo) {
-          if (c.id == id) c.pos = l.mousePos;
-          if (c.id == id || !c.fastCursorUpdates) continue;
-          sendMessage(targetMessage, c.id);
+    try {
+      MessageType pt = identifyString(message);
+      switch (pt) {
+        case MessageType::MousePosMessage : {
+          if (skipMousePosTransfer) break;
+          
+          MousePosMessage l(message);
+          l.userID = id;
+          const std::string targetMessage = l.toString();
+          
+          for (auto& c : clientInfo) {
+            if (c.id == id) c.pos = l.mousePos;
+            if (c.id == id || !c.fastCursorUpdates) continue;
+            sendMessage(targetMessage, c.id);
+          }
+          
+          break;
         }
-        
-        break;
+        case MessageType::ConnectMessage  : {
+          ConnectMessage r(message);
+          r.userID = id;
+          ClientInfoServerSide ci{id, r.name, r.color, {0,0}, r.fastCursorUpdates};
+          clientInfo.push_back(ci);
+          
+          NewUserMessage l(ci.name, ci.color);
+          l.userID = id;
+          sendMessage(l.toString(), id, true);
+
+          if (recordInteraction) {
+            recordFile << "new;" << l.userID << ";" << l.name << ";" << l.color << "\n";
+            recordedEvents++;
+          }
+
+          break;
+        }
+        case MessageType::CanvasUpdateMessage  : {
+          CanvasUpdateMessage l(message);
+          l.userID = id;
+
+          for (auto& c : clientInfo) {
+            if (c.id == id) c.pos = Vec2(float(l.pos.x()) / image.width, float(l.pos.x()) / image.height);
+          }
+
+
+          if (l.pos.x() < 0 || uint32_t(l.pos.x()) >= image.width) break;
+          if (l.pos.y() < 0 || uint32_t(l.pos.y()) >= image.height) break;
+          
+          if (recordInteraction) {
+            recordFile << "paint;" << l.userID << ";" << l.pos << ";" << l.color << "\n";
+            recordedEvents++;
+          }
+          
+          image.setNormalizedValue(l.pos.x(),l.pos.y(),0,l.color.x());
+          image.setNormalizedValue(l.pos.x(),l.pos.y(),1,l.color.y());
+          image.setNormalizedValue(l.pos.x(),l.pos.y(),2,l.color.z());
+          image.setNormalizedValue(l.pos.x(),l.pos.y(),3,l.color.w());
+
+          sendMessage(l.toString(), id, true);
+          break;
+        }
+        default:
+          break;
+      };
+    } catch (const MessageException& e) {
+      if (showErrors) {
+        std::cerr << "MessageException: " << e.what() << std::endl;
       }
-      case PayloadType::ConnectPayload  : {
-        ConnectPayload r(message);
-        r.userID = id;
-        ClientInfoServerSide ci{id, r.name, r.color, {0,0}, r.fastCursorUpdates};
-        clientInfo.push_back(ci);
-        
-        NewUserPayload l(ci.name, ci.color);
-        l.userID = id;
-        sendMessage(l.toString(), id, true);
-
-        if (recordInteraction) {
-          recordFile << "new;" << l.userID << ";" << l.name << ";" << l.color << "\n";
-          recordedEvents++;
-        }
-
-        break;
-      }
-      case PayloadType::CanvasUpdatePayload  : {
-        CanvasUpdatePayload l(message);
-        l.userID = id;
-
-        for (auto& c : clientInfo) {
-          if (c.id == id) c.pos = Vec2(float(l.pos.x()) / image.width, float(l.pos.x()) / image.height);
-        }
-
-
-        if (l.pos.x() < 0 || uint32_t(l.pos.x()) >= image.width) break;
-        if (l.pos.y() < 0 || uint32_t(l.pos.y()) >= image.height) break;
-        
-        if (recordInteraction) {
-          recordFile << "paint;" << l.userID << ";" << l.pos << ";" << l.color << "\n";
-          recordedEvents++;
-        }
-        
-        image.setNormalizedValue(l.pos.x(),l.pos.y(),0,l.color.x());
-        image.setNormalizedValue(l.pos.x(),l.pos.y(),1,l.color.y());
-        image.setNormalizedValue(l.pos.x(),l.pos.y(),2,l.color.z());
-        image.setNormalizedValue(l.pos.x(),l.pos.y(),3,l.color.w());
-
-        sendMessage(l.toString(), id, true);
-        break;
-      }
-      default:
-        break;
-    };
+    }
     ciMutex.unlock();
   }
   
@@ -262,6 +270,7 @@ int main(int argc, char ** argv) {
           std::cout << "l : list active users\n";
           std::cout << "q : quit server\n";
           std::cout << "m : toggle mousePos transfer\n";
+          std::cout << "e : toggle message error display\n";
           std::cout << "s : statisics\n";
           break;
         case 'l' : {
@@ -280,6 +289,11 @@ int main(int argc, char ** argv) {
           std::cout << "Server Uptime: "<< s.uptime() << " sec.\n";
           std::cout << "Time since last backup: "<< s.getSecondsSinceLastBackup() << " sec.\n";
           std::cout << "Recorded Events: "<< s.getRecordedEvents() << "\n";
+          break;
+        }
+        case 'e' : {
+          s.showErrors = !s.showErrors;
+          std::cout << "Error Display set to : "<< s.showErrors << "\n";
           break;
         }
       }

@@ -73,15 +73,15 @@ public:
   virtual ~ClientInfoClientSide() {}
 };
 
-enum class PayloadType {
-  InvalidPayload = 0,
-  BasicPayload = 1,
-  MousePosPayload = 2,
-  NewUserPayload = 3,
-  LostUserPayload = 4,
-  CanvasUpdatePayload = 5,
-  InitPayload = 6,
-  ConnectPayload = 7
+enum class MessageType {
+  InvalidMessage = 0,
+  BasicMessage = 1,
+  MousePosMessage = 2,
+  NewUserMessage = 3,
+  LostUserMessage = 4,
+  CanvasUpdateMessage = 5,
+  InitMessage = 6,
+  ConnectMessage = 7
 };
 
 class DSException : public std::exception {
@@ -94,30 +94,29 @@ class DSException : public std::exception {
     std::string whatStr;
 };
 
-PayloadType identifyString(const std::string& s);
+MessageType identifyString(const std::string& s);
 
-struct BasicPayload {
-  PayloadType pt;
+struct BasicMessage {
+  MessageType pt;
   uint32_t userID{0};
-  size_t startToken;
-  std::vector<std::string> token;
+  Tokenizer tokenizer;
 
-  BasicPayload(const std::string& message) {
-    token = Coder::decode(message);
-    if (token.size() < 3) {
-      throw DSException("BasicPayload message to short");
-    }
-    pt = PayloadType(std::stoi(token[1]));
-    userID = std::stoi(token[2]);
-    startToken = 3;
-    pt = PayloadType::BasicPayload;
+  BasicMessage(const std::string& message) :
+    tokenizer{message}
+  {
+    if (tokenizer.nextString() != "painter") throw DSException("Invalid message");
+    pt = MessageType(tokenizer.nextUint32());
+    userID = tokenizer.nextUint32();
+    pt = MessageType::BasicMessage;
   }
   
-  BasicPayload() {
-    pt = PayloadType::BasicPayload;
+  BasicMessage() :
+    tokenizer{""}
+  {
+    pt = MessageType::BasicMessage;
   }
   
-  virtual ~BasicPayload() {}
+  virtual ~BasicMessage() {}
   
   virtual std::string toString() {
     return Coder::encode({
@@ -129,63 +128,59 @@ struct BasicPayload {
   
 };
 
-struct MousePosPayload : public BasicPayload {
+struct MousePosMessage : public BasicMessage {
   Vec2 mousePos;
 
-  MousePosPayload(const std::string& message) :
-    BasicPayload(message)
+  MousePosMessage(const std::string& message) :
+    BasicMessage(message)
   {
-    if (token.size() < startToken + 2) {
-      throw DSException("MousePosPayload message to short");
-    }
-    mousePos = Vec2(std::stof(token[startToken]), std::stof(token[startToken+1]));
-    startToken += 2;
-    pt = PayloadType::MousePosPayload;
+    float x = tokenizer.nextFloat();
+    float y = tokenizer.nextFloat();
+    mousePos = Vec2(x,y);
+    pt = MessageType::MousePosMessage;
   }
   
-  MousePosPayload(const Vec2& mousePos) :
+  MousePosMessage(const Vec2& mousePos) :
     mousePos(mousePos)
   {
-    pt = PayloadType::MousePosPayload;
+    pt = MessageType::MousePosMessage;
   }
   
-  virtual ~MousePosPayload() {}
+  virtual ~MousePosMessage() {}
 
   virtual std::string toString() override {
-    return Coder::append(BasicPayload::toString(), {std::to_string(mousePos.x()),std::to_string(mousePos.y())});
+    return BasicMessage::toString() + Coder::encode({std::to_string(mousePos.x()),std::to_string(mousePos.y())});
   }
 
 };
 
-struct NewUserPayload : public BasicPayload {
+struct NewUserMessage : public BasicMessage {
   std::string name;
   Vec4 color;
   
-  NewUserPayload(const std::string& message) :
-    BasicPayload(message)
+  NewUserMessage(const std::string& message) :
+    BasicMessage(message)
   {
-    if (token.size() < startToken + 5) {
-      std::stringstream ss;
-      ss << "NewUserPayload message to short. Expected at least " << startToken + 5 << " elements but received only " << token.size() << ".";
-      throw DSException(ss.str());
-    }
-    name = token[startToken];
-    color = Vec4(std::stof(token[startToken+1]), std::stof(token[startToken+2]),std::stof(token[startToken+3]), std::stof(token[startToken+4]));
-    startToken += 5;
-    pt = PayloadType::NewUserPayload;
+    name = tokenizer.nextString();
+    float r = tokenizer.nextFloat();
+    float g = tokenizer.nextFloat();
+    float b = tokenizer.nextFloat();
+    float a = tokenizer.nextFloat();
+    color = Vec4(r,g,b,a);
+    pt = MessageType::NewUserMessage;
   }
   
-  NewUserPayload(const std::string& name, const Vec4& color) :
+  NewUserMessage(const std::string& name, const Vec4& color) :
     name(name),
     color(color)
   {
-    pt = PayloadType::NewUserPayload;
+    pt = MessageType::NewUserMessage;
   }
   
-  virtual ~NewUserPayload() {}
+  virtual ~NewUserMessage() {}
   
   virtual std::string toString() override {
-    return Coder::append(BasicPayload::toString(), {
+    return BasicMessage::toString() + Coder::encode({
       name,
       std::to_string(color.x()),
       std::to_string(color.y()),
@@ -196,84 +191,79 @@ struct NewUserPayload : public BasicPayload {
 };
 
 
-struct ConnectPayload : public NewUserPayload {
+struct ConnectMessage : public NewUserMessage {
   bool fastCursorUpdates;
   
-  ConnectPayload(const std::string& message) :
-    NewUserPayload(message)
+  ConnectMessage(const std::string& message) :
+    NewUserMessage(message)
   {
-    if (token.size() < startToken + 1) {
-      std::stringstream ss;
-      ss << "ConnectPayload message to short. Expected at least " << startToken + 1 << " elements but received only " << token.size() << ".";
-      throw DSException(ss.str());
-    }
-    fastCursorUpdates = std::stoi(token[startToken]);
-    startToken += 1;
-    pt = PayloadType::ConnectPayload;
+    fastCursorUpdates = tokenizer.nextBool();
+    pt = MessageType::ConnectMessage;
   }
   
-  ConnectPayload(const std::string& name, const Vec4& color, bool fastCursorUpdates) :
-  NewUserPayload(name, color),
+  ConnectMessage(const std::string& name, const Vec4& color, bool fastCursorUpdates) :
+  NewUserMessage(name, color),
   fastCursorUpdates(fastCursorUpdates)
   {
-    pt = PayloadType::ConnectPayload;
+    pt = MessageType::ConnectMessage;
   }
   
-  virtual ~ConnectPayload() {}
+  virtual ~ConnectMessage() {}
   
   virtual std::string toString() override {
-    return Coder::append(NewUserPayload::toString(), {
+    return NewUserMessage::toString() + Coder::encode({
       fastCursorUpdates ? "1" : "0"
     });
   }
 
 };
 
-struct LostUserPayload : public BasicPayload {
+struct LostUserMessage : public BasicMessage {
   
-  LostUserPayload(const std::string& message) :
-    BasicPayload(message)
+  LostUserMessage(const std::string& message) :
+    BasicMessage(message)
   {
-    pt = PayloadType::LostUserPayload;
+    pt = MessageType::LostUserMessage;
   }
   
-  LostUserPayload() {
-    pt = PayloadType::LostUserPayload;
+  LostUserMessage() {
+    pt = MessageType::LostUserMessage;
   }
   
-  virtual ~LostUserPayload() {}
+  virtual ~LostUserMessage() {}
 };
 
-struct CanvasUpdatePayload : public BasicPayload {
+struct CanvasUpdateMessage : public BasicMessage {
   Vec4 color;
   Vec2i pos;
 
-  CanvasUpdatePayload(const std::string& message) :
-    BasicPayload(message)
+  CanvasUpdateMessage(const std::string& message) :
+    BasicMessage(message)
   {
-    if (token.size() < startToken + 6) {
-      std::stringstream ss;
-      ss << "CanvasUpdatePayload message to short. Expected at least " << startToken + 6 << " elements but received only " << token.size() << ".";
-      throw DSException(ss.str());
-    }
-    color = Vec4(std::stof(token[startToken]), std::stof(token[startToken+1]), std::stof(token[startToken+2]), std::stof(token[startToken+3]));
-    pos = Vec2i(std::stoi(token[startToken+4]), std::stoi(token[startToken+5]));
-    
-    startToken += 6;
-    pt = PayloadType::CanvasUpdatePayload;
+    float r = tokenizer.nextFloat();
+    float g = tokenizer.nextFloat();
+    float b = tokenizer.nextFloat();
+    float a = tokenizer.nextFloat();
+    color = Vec4(r,g,b,a);
+
+    float x = tokenizer.nextInt32();
+    float y = tokenizer.nextInt32();
+    pos = Vec2i(x,y);
+
+    pt = MessageType::CanvasUpdateMessage;
   }
   
-  CanvasUpdatePayload(const Vec4& color, const Vec2i& pos) :
+  CanvasUpdateMessage(const Vec4& color, const Vec2i& pos) :
     color(color),
     pos(pos)
   {
-    pt = PayloadType::CanvasUpdatePayload;
+    pt = MessageType::CanvasUpdateMessage;
   }
   
-  virtual ~CanvasUpdatePayload() {}
+  virtual ~CanvasUpdateMessage() {}
   
   virtual std::string toString() override {
-    return Coder::append(BasicPayload::toString(), {
+    return BasicMessage::toString() + Coder::encode({
       std::to_string(color.x()),
       std::to_string(color.y()),
       std::to_string(color.z()),
@@ -284,49 +274,37 @@ struct CanvasUpdatePayload : public BasicPayload {
   }
 };
 
-struct InitPayload : public BasicPayload {
+struct InitMessage : public BasicMessage {
   Image image;
   std::vector<ClientInfo> clientInfos;
 
-  InitPayload(const std::string& message) :
-    BasicPayload(message)
+  InitMessage(const std::string& message) :
+    BasicMessage(message)
   {
-    if (token.size() < startToken + 3) {
-      std::stringstream ss;
-      ss << "InitPayload message to short (first check). Expected at least " << startToken + 3 << " elements but received only " << token.size() << ".";
-      throw DSException(ss.str());
-    }
-    
-    const uint32_t w = std::stoi(token[startToken++]);
-    const uint32_t h = std::stoi(token[startToken++]);
+    const uint32_t w = tokenizer.nextUint32();
+    const uint32_t h = tokenizer.nextUint32();
     image = Image(w,h);
-    if (token.size() < startToken+image.data.size()) {
-      std::stringstream ss;
-      ss << "InitPayload message to short (second check). Expected at least " << startToken + image.data.size() << " elements but received only " << token.size() << ".";
-      throw DSException(ss.str());
-    }
-    for (size_t i = 0;i<image.data.size();++i) {
-      image.data[i] = std::stoi(token[startToken++]);
-    }
+    for (size_t i = 0;i<image.data.size();++i) image.data[i] = tokenizer.nextUint8();
 
-    clientInfos.resize(std::stoi(token[startToken++]));
-    if (token.size() < startToken+clientInfos.size()*8) {
-      std::stringstream ss;
-      ss << "InitPayload message to short (third check). Expected at least " << (startToken+clientInfos.size()*8) << " elements but received only " << token.size() << ".";
-      throw DSException(ss.str());
-    }
+    clientInfos.resize(tokenizer.nextUint32());
     for (size_t i = 0;i<clientInfos.size();++i) {
-      clientInfos[i].id = std::stoi(token[startToken++]);
-      clientInfos[i].name = token[startToken++];
-      clientInfos[i].color = Vec4{std::stof(token[startToken]),std::stof(token[startToken+1]),std::stof(token[startToken+2]),std::stof(token[startToken+3])};
-      startToken += 4;
-      clientInfos[i].pos = Vec2{std::stof(token[startToken]),std::stof(token[startToken+1])};
-      startToken += 2;
+      clientInfos[i].id = tokenizer.nextUint32();
+      clientInfos[i].name = tokenizer.nextString();
+      
+      float r = tokenizer.nextFloat();
+      float g = tokenizer.nextFloat();
+      float b = tokenizer.nextFloat();
+      float a = tokenizer.nextFloat();
+      clientInfos[i].color = Vec4(r,g,b,a);
+
+      float x = tokenizer.nextFloat();
+      float y = tokenizer.nextFloat();
+      clientInfos[i].pos = Vec2(x,y);
     }
-    pt = PayloadType::InitPayload;
+    pt = MessageType::InitMessage;
   }
 
-  InitPayload(const Image& image, const std::vector<ClientInfoServerSide>& clientInfosSS) :
+  InitMessage(const Image& image, const std::vector<ClientInfoServerSide>& clientInfosSS) :
     image(image)
   {
     clientInfos.resize(clientInfosSS.size());
@@ -336,10 +314,10 @@ struct InitPayload : public BasicPayload {
       clientInfos[i].color = clientInfosSS[i].color;
       clientInfos[i].pos = clientInfosSS[i].pos;
     }
-    pt = PayloadType::InitPayload;
+    pt = MessageType::InitMessage;
   }
   
-  virtual ~InitPayload() {}
+  virtual ~InitMessage() {}
   
   virtual std::string toString() override {
     std::vector<std::string> v;
@@ -362,7 +340,7 @@ struct InitPayload : public BasicPayload {
       v.push_back(std::to_string(clientInfos[i].pos.y()));
     }
     
-    return Coder::append(BasicPayload::toString(), v);
+    return BasicMessage::toString() + Coder::encode(v);
   }
 };
 
