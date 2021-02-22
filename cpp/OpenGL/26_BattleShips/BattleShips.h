@@ -17,8 +17,9 @@ enum class GameState {
   Connecting,
   Pairing,
   BoardSetup,
+  WaitingBoardSetup,
   Firing,
-  Waiting,
+  WaitingFiring,
   Finished
 };
 
@@ -51,7 +52,6 @@ private:
   Mat4 baseTransformation;
   
   size_t currentImage{0};
-  std::array<Image,4> connectingImage;
 
   bool addressComplete{false};
   bool nameComplete{false};
@@ -64,6 +64,23 @@ private:
   Mat4 computeImageTransform(const Vec2ui& imageSize) const;
   
   static FontRenderer fr;
-
+  
+  GameState gameState{GameState::Startup};
+  uint32_t level{0};
+  uint32_t pairingMessage{0};
+  
+  std::vector<std::string> pairingMessages{
+    "Searching for victim",
+    "Search boat's cook",
+    "Triggering final boss",
+    "Hero captain looking for work",
+    "Is anyone there? hello",
+    "Searching for ez target",
+    "Activate Radar"
+  };
+  
+  void drawStartup();
+  void drawConnecting();
+  void drawPairing();
   
 };

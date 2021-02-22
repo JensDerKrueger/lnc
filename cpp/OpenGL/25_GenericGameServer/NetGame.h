@@ -10,6 +10,11 @@
 
 constexpr uint16_t serverPort = 11003;
 
+enum class GameIDs {
+  InvalidID = 0,
+  BattleShips = 1
+};
+
 enum class MessageType {
   InvalidMessage = 0,
   BasicMessage = 1,
@@ -86,19 +91,19 @@ struct PairedMessage : public BasicMessage {
 
 struct ConnectMessage : public BasicMessage {
   std::string name;
-  uint32_t gameID;
+  GameIDs gameID;
   uint32_t level;
   
   ConnectMessage(const std::string& message) :
     BasicMessage(message)
   {
     name = tokenizer.nextString();
-    gameID = tokenizer.nextUint32();
+    gameID = (GameIDs)tokenizer.nextUint32();
     level = tokenizer.nextUint32();
     pt = MessageType::ConnectMessage;
   }
   
-  ConnectMessage(const std::string& name, uint32_t gameID, uint32_t level) :
+  ConnectMessage(const std::string& name, GameIDs gameID, uint32_t level) :
     name(name),
     gameID(gameID),
     level(level)
@@ -111,7 +116,7 @@ struct ConnectMessage : public BasicMessage {
   virtual std::string toString() override {
     return BasicMessage::toString() + Coder::encode({
       name,
-      std::to_string(gameID),
+      std::to_string(uint32_t(gameID)),
       std::to_string(level),
     });
   }

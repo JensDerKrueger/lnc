@@ -1,5 +1,7 @@
 #include "BattleShips.h"
 
+#include <Rand.h>
+
 #ifndef _WIN32
   #include "helvetica_neue.inc"
   FontRenderer BattleShips::fr{fontImage, fontPos};
@@ -126,40 +128,105 @@ Mat4 BattleShips::computeImageTransform(const Vec2ui& imageSize) const {
 }
 
 void BattleShips::animate(double animationTime) {
-  currentImage = size_t(animationTime*2) % connectingImage.size();
+  currentImage = size_t(animationTime*2);
+  
+  if (client && !client->isOK())
+    gameState = GameState::Connecting;
+  
+  switch (gameState) {
+    case GameState::Startup :
+      if (nameComplete && addressComplete) {
+        client = std::make_shared<GameClient>(serverAddress, serverPort, userName, level);
+        gameState = GameState::Connecting;
+      }
+      break;
+    case GameState::Connecting :
+      if (client && client->getInitMessageSend()) {
+        gameState = GameState::Pairing;
+        pairingMessage = size_t(Rand::rand01() * pairingMessages.size());
+      }
+      break;
+    case GameState::Pairing :
+      if (client && client->getReceivedPairingInfo())
+        gameState = GameState::BoardSetup;
+      break;
+    default:
+      std::cout << "oops" << std::endl;
+      break;
+  }
+}
+
+void BattleShips::drawStartup() {
+  if (serverAddress.empty()) {
+    responseImage = fr.render("Type in server address:");
+  } else if (addressComplete && userName.empty()) {
+    responseImage = fr.render("Type in your name:");
+  }
+  setDrawTransform(Mat4::scaling(1.0f/3.0f) * computeImageTransform({responseImage.width, responseImage.height}) );
+  drawImage(responseImage);
+}
+
+void BattleShips::drawConnecting() {
+  Image connectingImage = fr.render("Connecting to " + serverAddress);
+  const size_t baseTextWidth = connectingImage.width;
+  
+  switch (currentImage % 4) {
+    default:
+      break;
+    case 1 :
+      connectingImage = fr.render("Connecting to " + serverAddress + " .");
+      break;
+    case 2 :
+      connectingImage = fr.render("Connecting to " + serverAddress + " ..");
+      break;
+    case 3 :
+      connectingImage = fr.render("Connecting to " + serverAddress + " ...");
+      break;
+  }
+
+  setDrawTransform(Mat4::scaling(connectingImage.width / (baseTextWidth * 2.0f)) * computeImageTransform({connectingImage.width, connectingImage.height}) );
+  drawImage(connectingImage);
+}
+
+void BattleShips::drawPairing() {
+  Image connectingImage = fr.render(pairingMessages[pairingMessage]);
+  const size_t baseTextWidth = connectingImage.width;
+  
+  switch (currentImage % 4) {
+    default:
+      break;
+    case 1 :
+      connectingImage = fr.render(pairingMessages[pairingMessage] + " .");
+      break;
+    case 2 :
+      connectingImage = fr.render(pairingMessages[pairingMessage] + " ..");
+      break;
+    case 3 :
+      connectingImage = fr.render(pairingMessages[pairingMessage] + " ...");
+      break;
+  }
+
+  setDrawTransform(Mat4::scaling(connectingImage.width / (baseTextWidth * 2.0f)) * computeImageTransform({connectingImage.width, connectingImage.height}) );
+  drawImage(connectingImage);
 }
 
 void BattleShips::draw() {
   GL(glClearColor(0.0f,0.0f,0.0f,0.0f));
   GL(glClear(GL_COLOR_BUFFER_BIT));
-  std::vector<float> glShape;
-
-  if (!client) {
-    
-    if (nameComplete && addressComplete) {
-      connectingImage[0] = fr.render("Connecting to " + serverAddress);
-      connectingImage[1] = fr.render("Connecting to " + serverAddress + " .");
-      connectingImage[2] = fr.render("Connecting to " + serverAddress + " ..");
-      connectingImage[3] = fr.render("Connecting to " + serverAddress + " ...");
-
-      client = std::make_shared<GameClient>(serverAddress, serverPort, userName);
-    } else {
-      if (serverAddress.empty()) {
-        responseImage = fr.render("Type in server address:");
-      } else if (addressComplete && userName.empty()) {
-        responseImage = fr.render("Type in your name:");
-      }
-      setDrawTransform(Mat4::scaling(1.0f/3.0f) * computeImageTransform({responseImage.width, responseImage.height}) );
-      drawImage(responseImage);
-      return;
-    }
+  
+  switch (gameState) {
+    case GameState::Startup :
+      drawStartup();
+      break;
+    case GameState::Connecting :
+      drawConnecting();
+      break;
+    case GameState::Pairing :
+      drawPairing();
+      break;
+    default:
+      std::cout << "oops draw" << std::endl;
+      break;
   }
   
-  if (!client->isValid()) {
-    setDrawTransform(Mat4::scaling(connectingImage[currentImage].width / (connectingImage[0].width * 2.0f)) * computeImageTransform({connectingImage[currentImage].width, connectingImage[currentImage].height}) );
-    drawImage(connectingImage[currentImage]);
-    return;
-  }
-
-  // TODO Draw
 }

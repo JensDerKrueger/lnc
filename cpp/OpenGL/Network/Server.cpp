@@ -25,7 +25,7 @@ ClientConnection::~ClientConnection() {
     delete connectionSocket;
     connectionSocket = nullptr;
   } catch (SocketException const&  ) {
-  }  
+  }
 }
 
 bool ClientConnection::isConnected() {

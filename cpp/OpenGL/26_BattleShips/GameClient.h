@@ -12,15 +12,23 @@
 
 class GameClient : public Client {
 public:
-  GameClient(const std::string& address, short port, const std::string& name);
+  GameClient(const std::string& address, short port, const std::string& name, uint32_t level);
 
-  void initDataFromServer();
   virtual void handleNewConnection() override;
   virtual void handleServerMessage(const std::string& message) override;
 
-  bool isValid() const;
-
+  bool getInitMessageSend() const {
+    return initMessageSend;
+  }
+  
+  bool getReceivedPairingInfo() const {
+    return receivedPairingInfo;
+  }
+  
 private:
   std::string name{""};
-  bool initComplete{false};
+  uint32_t level{0};
+  
+  bool initMessageSend{false};
+  bool receivedPairingInfo{false};
 };
