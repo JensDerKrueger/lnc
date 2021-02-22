@@ -13,7 +13,7 @@ else
 	INCLUDES=-I. -I../Utils -I ../../openmp/include -I /opt/homebrew/include -I../Network
 endif
 
-SRC = main.cpp BattleShips.cpp GameClient.cpp
+SRC = main.cpp BattleShips.cpp GameClient.cpp ../25_GenericGameServer/NetGame.cpp
 OBJ = $(SRC:.cpp=.o)
 TARGET = battleShips
 

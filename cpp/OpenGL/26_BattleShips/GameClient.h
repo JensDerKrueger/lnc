@@ -8,6 +8,8 @@
 
 #include <Client.h>
 
+#include "../25_GenericGameServer/NetGame.h"
+
 class GameClient : public Client {
 public:
   GameClient(const std::string& address, short port, const std::string& name);

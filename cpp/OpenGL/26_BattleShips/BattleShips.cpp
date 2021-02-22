@@ -117,6 +117,14 @@ void BattleShips::keyboard(int key, int scancode, int action, int mods) {
   }
 }
 
+Mat4 BattleShips::computeImageTransform(const Vec2ui& imageSize) const {
+  const Dimensions s = glEnv.getWindowSize();
+  const float ax = imageSize.x()/float(s.width);
+  const float ay = imageSize.y()/float(s.height);
+  const float m = std::max(ax,ay);
+  return Mat4::scaling({ax/m, ay/m, 1.0f});
+}
+
 void BattleShips::animate(double animationTime) {
   currentImage = size_t(animationTime*2) % connectingImage.size();
 }
@@ -141,14 +149,14 @@ void BattleShips::draw() {
       } else if (addressComplete && userName.empty()) {
         responseImage = fr.render("Type in your name:");
       }
-      //setDrawTransform(Mat4::scaling(1.0f/3.0f) * computeBaseTransform({responseImage.width, responseImage.height}) );
+      setDrawTransform(Mat4::scaling(1.0f/3.0f) * computeImageTransform({responseImage.width, responseImage.height}) );
       drawImage(responseImage);
       return;
     }
   }
   
   if (!client->isValid()) {
-    //setDrawTransform(Mat4::scaling(connectingImage[currentImage].width / (connectingImage[0].width * 2.0f)) * computeBaseTransform({connectingImage[currentImage].width, connectingImage[currentImage].height}) );
+    setDrawTransform(Mat4::scaling(connectingImage[currentImage].width / (connectingImage[0].width * 2.0f)) * computeImageTransform({connectingImage[currentImage].width, connectingImage[currentImage].height}) );
     drawImage(connectingImage[currentImage]);
     return;
   }

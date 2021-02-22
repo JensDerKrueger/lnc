@@ -12,7 +12,16 @@
 
 #include "GameClient.h"
 
-constexpr uint16_t serverPort = 11003;
+enum class GameState {
+  Startup,
+  Connecting,
+  Pairing,
+  BoardSetup,
+  Firing,
+  Waiting,
+  Finished
+};
+
 
 class BattleShips : public GLApp {
 public:
@@ -52,6 +61,7 @@ private:
   void tryToLoadSettings();
   
   void updateMousePos();
+  Mat4 computeImageTransform(const Vec2ui& imageSize) const;
   
   static FontRenderer fr;
 
