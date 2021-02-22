@@ -73,43 +73,48 @@ void MyClient::handleServerMessage(const std::string& m) {
   MessageType pt = identifyString(message);
      
   miMutex.lock();
-  switch (pt) {
-    case MessageType::MousePosMessage : {
-      MousePosMessage l(message);
-      moveMouse(l.userID, l.mousePos);
-      break;
-    }
-    case MessageType::NewUserMessage  : {
-      NewUserMessage l(message);
-      addMouse(l.userID, l.name, l.color);
-      break;
-    }
-    case MessageType::LostUserMessage : {
-      LostUserMessage l(message);
-      removeMouse(l.userID);
-      break;
-    }
-    case MessageType::InitMessage : {
-      InitMessage l(message);
-      initDataFromServer(l.image, l.clientInfos);
-      break;
-    }
-    case MessageType::CanvasUpdateMessage : {
-      CanvasUpdateMessage l(message);
-      const Vec2 normPos{(l.pos.x()/float(canvasDims.width)-0.5f) * 2.0f,
-                         (l.pos.y()/float(canvasDims.height)-0.5f) * 2.0f};
-      moveMouse(l.userID, normPos);
-      paint(l.color, l.pos);
-      break;
-    }
-    case MessageType::ConnectMessage : {
-      std::cerr << "Netwerk Error: ConnectMessage should never be send to a client" << std::endl;
-      break;
-    }
-    default:
-      std::cerr << "Netwerk Error: unknown message " << int(pt) << " received" << std::endl;
-      break;
-  };
+  try {
+    switch (pt) {
+      case MessageType::MousePosMessage : {
+        MousePosMessage l(message);
+        moveMouse(l.userID, l.mousePos);
+        break;
+      }
+      case MessageType::NewUserMessage  : {
+        NewUserMessage l(message);
+        addMouse(l.userID, l.name, l.color);
+        break;
+      }
+      case MessageType::LostUserMessage : {
+        LostUserMessage l(message);
+        removeMouse(l.userID);
+        break;
+      }
+      case MessageType::InitMessage : {
+        InitMessage l(message);
+        initDataFromServer(l.image, l.clientInfos);
+        break;
+      }
+      case MessageType::CanvasUpdateMessage : {
+        CanvasUpdateMessage l(message);
+        const Vec2 normPos{(l.pos.x()/float(canvasDims.width)-0.5f) * 2.0f,
+                           (l.pos.y()/float(canvasDims.height)-0.5f) * 2.0f};
+        moveMouse(l.userID, normPos);
+        paint(l.color, l.pos);
+        break;
+      }
+      case MessageType::ConnectMessage : {
+        std::cerr << "Netwerk Error: ConnectMessage should never be send to a client" << std::endl;
+        break;
+      }
+      default:
+        std::cerr << "Netwerk Error: unknown message " << int(pt) << " received" << std::endl;
+        break;
+    };
+  } catch (const MessageException& e) {
+    std::cerr << "MessageException: " << e.what() << std::endl;
+  }
+
   miMutex.unlock();
 }
 
