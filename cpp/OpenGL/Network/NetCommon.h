@@ -11,26 +11,47 @@
 #include "AES.h"
 #include "Sockets.h"
 
+class MessageException : public std::exception {
+  public:
+  MessageException(const std::string& whatStr) : whatStr(whatStr) {}
+    virtual const char* what() const throw() {
+      return whatStr.c_str();
+    }
+  private:
+    std::string whatStr;
+};
+
+class Tokenizer {
+public:
+  Tokenizer(const std::string& message, char delimititer = char(1));
+  
+  std::string nextString();
+  uint8_t nextUint8();
+  int8_t nextInt8();
+  uint32_t nextUint32();
+  int32_t nextInt32();
+  uint64_t nextUint64();
+  int64_t nextInt64();
+  float nextFloat();
+  double nextDouble();
+  bool nextBool();
+  
+private:
+  char delimititer;
+  const std::string message;
+  size_t currentIndex{0};
+};
+
 
 struct Coder {
   
   static inline char DELIM = char(1);
 
-  static std::string merge(const std::string& a,
-                           const std::string& b) {
-    return a + DELIM + b;
-  }
-
-  static std::string append(const std::string& a,
-                            const std::vector<std::string>& data) {
-    return a + DELIM + encode(data);
-  }
-
   static std::string encode(const std::vector<std::string>& data) {
     std::string result;
     for (size_t i = 0;i<data.size();++i) {
       result += removeDelim(data[i]);
-      if (i<data.size()-1) result += DELIM;
+      result += DELIM;
     }
     return result;
   }
