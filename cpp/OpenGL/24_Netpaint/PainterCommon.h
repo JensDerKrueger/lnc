@@ -84,16 +84,6 @@ enum class MessageType {
   ConnectMessage = 7
 };
 
-class DSException : public std::exception {
-  public:
-  DSException(const std::string& whatStr) : whatStr(whatStr) {}
-    virtual const char* what() const throw() {
-      return whatStr.c_str();
-    }
-  private:
-    std::string whatStr;
-};
-
 MessageType identifyString(const std::string& s);
 
 struct BasicMessage {
@@ -104,7 +94,7 @@ struct BasicMessage {
   BasicMessage(const std::string& message) :
     tokenizer{message}
   {
-    if (tokenizer.nextString() != "painter") throw DSException("Invalid message");
+    if (tokenizer.nextString() != "painter") throw MessageException("Invalid message");
     pt = MessageType(tokenizer.nextUint32());
     userID = tokenizer.nextUint32();
     pt = MessageType::BasicMessage;
