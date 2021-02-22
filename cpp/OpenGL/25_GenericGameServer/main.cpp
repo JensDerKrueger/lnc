@@ -116,7 +116,7 @@ public:
     try {
       MessageType pt = identifyString(message);
       switch (pt) {
-        case MessageType::ConnectMessage  : {
+        case MessageType::ConnectMessage : {
           ConnectMessage r(message);
           r.userID = id;
           ClientInfo ci{id, r.name, r.gameID, r.level};
@@ -232,6 +232,8 @@ int main(int argc, char ** argv) {
       std::cout << std::endl;
       
     } while (user != "q");
+    
+    std::cout << "Shutting down server ..." << std::endl;
 
     return EXIT_SUCCESS;
   } else {
