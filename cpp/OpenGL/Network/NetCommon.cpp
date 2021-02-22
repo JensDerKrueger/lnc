@@ -116,8 +116,7 @@ uint64_t Tokenizer::nextUint64() {
   try {
     const auto conversion = std::stoll(nextString());
     
-    if (conversion < std::numeric_limits<uint64_t>::lowest() ||
-        conversion > std::numeric_limits<uint64_t>::max() )
+    if (conversion < 0)
       throw MessageException("Value out of uint64_t range");
     
     return uint64_t(conversion);
