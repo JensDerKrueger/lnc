@@ -12,8 +12,14 @@ public:
   virtual void init() override {
     glEnv.setTitle("Alpha");
     GL(glEnable(GL_DEPTH_TEST));
+
     GL(glEnable(GL_BLEND));
+    // back to front
     GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+ 
+    //front to back
+    //GL(glBlendFuncSeparate(GL_DST_ALPHA, GL_ONE, GL_ZERO, GL_ONE_MINUS_SRC_ALPHA);
+  
     GL(glBlendEquation(GL_FUNC_ADD));
 
     Image backgroundImage{10,10};
@@ -23,7 +29,7 @@ public:
         backgroundImage.setNormalizedValue(x,y,0,val);
         backgroundImage.setNormalizedValue(x,y,1,val);
         backgroundImage.setNormalizedValue(x,y,2,val);
-        backgroundImage.setValue(x,y,3,255);
+        backgroundImage.setNormalizedValue(x,y,3,1.0f);
       }
     }
     background = GLTexture2D(backgroundImage);
@@ -34,12 +40,12 @@ public:
         rect1.setNormalizedValue(x,y,0,1.0f);
         rect1.setNormalizedValue(x,y,1,0.0f);
         rect1.setNormalizedValue(x,y,2,0.0f);
-        rect1.setValue(x,y,3,100);
+        rect1.setNormalizedValue(x,y,3,float(y)/rect1.height);
 
         rect2.setNormalizedValue(x,y,0,0.0f);
         rect2.setNormalizedValue(x,y,1,1.0f);
         rect2.setNormalizedValue(x,y,2,0.0f);
-        rect2.setValue(x,y,3,255);
+        rect2.setNormalizedValue(x,y,3,1.0f);
       }
     }
   }
@@ -71,7 +77,8 @@ public:
     drawImage(rect2);
 
     setDrawTransform(Mat4::scaling(0.2f) * Mat4::translation( 0.5f, 0.5f, -0.6f) * Mat4::rotationZ(angle*2) * windowScale);
-    drawImage(rect1);    
+    drawImage(rect1);
+    
   }
 
 } myApp;
