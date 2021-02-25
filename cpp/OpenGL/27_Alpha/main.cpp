@@ -20,7 +20,7 @@ public:
         backgroundImage.setNormalizedValue(x,y,0,val);
         backgroundImage.setNormalizedValue(x,y,1,val);
         backgroundImage.setNormalizedValue(x,y,2,val);
-        backgroundImage.setValue(x,y,3,255);
+        backgroundImage.setNormalizedValue(x,y,3,1.0f);
       }
     }
     background = GLTexture2D(backgroundImage);
@@ -31,12 +31,12 @@ public:
         rect1.setNormalizedValue(x,y,0,1.0f);
         rect1.setNormalizedValue(x,y,1,0.0f);
         rect1.setNormalizedValue(x,y,2,0.0f);
-        rect1.setValue(x,y,3,255);
+        rect1.setNormalizedValue(x,y,3,1.0f);
 
         rect2.setNormalizedValue(x,y,0,0.0f);
         rect2.setNormalizedValue(x,y,1,1.0f);
         rect2.setNormalizedValue(x,y,2,0.0f);
-        rect2.setValue(x,y,3,255);
+        rect2.setNormalizedValue(x,y,3,1.0f);
       }
     }
   }
@@ -68,7 +68,7 @@ public:
     drawImage(rect2);
 
     setDrawTransform(Mat4::scaling(0.2f) * Mat4::translation( 0.5f, 0.5f, -0.6f) * Mat4::rotationZ(angle*2) * windowScale);
-    drawImage(rect1);
+    drawImage(rect1);    
   }
 
 } myApp;
