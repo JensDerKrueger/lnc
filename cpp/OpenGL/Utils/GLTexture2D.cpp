@@ -58,25 +58,25 @@ GLTexture2D::GLTexture2D(const GLTexture2D& other) :
 }
 
 GLTexture2D& GLTexture2D::operator=(const GLTexture2D& other) {
-    magFilter = other.magFilter;
-    minFilter = other.minFilter;
-    wrapX = other.wrapX;
-    wrapY = other.wrapY;
-    
-    GL(glBindTexture(GL_TEXTURE_2D, id));
-    GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapX));
-    GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapY));
-    GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter));
-    GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter));
-    
-    if (other.height > 0 && other.width > 0) {
-      switch (dataType) {
-        case GLDataType::BYTE  : setData(other.data, other.height, other.width, other.componentCount); break;
-        case GLDataType::HALF  : setData(other.hdata, other.height, other.width, other.componentCount); break;
-        case GLDataType::FLOAT : setData(other.fdata, other.height, other.width, other.componentCount); break;
-      }
+  magFilter = other.magFilter;
+  minFilter = other.minFilter;
+  wrapX = other.wrapX;
+  wrapY = other.wrapY;
+
+  GL(glBindTexture(GL_TEXTURE_2D, id));
+  GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapX));
+  GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapY));
+  GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter));
+  GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter));
+  
+  if (other.height > 0 && other.width > 0) {
+    switch (dataType) {
+      case GLDataType::BYTE  : setData(other.data, other.height, other.width, other.componentCount); break;
+      case GLDataType::HALF  : setData(other.hdata, other.height, other.width, other.componentCount); break;
+      case GLDataType::FLOAT : setData(other.fdata, other.height, other.width, other.componentCount); break;
     }
-    return *this;
+  }
+  return *this;
 }
 
 const GLint GLTexture2D::getId() const {
@@ -88,6 +88,7 @@ void GLTexture2D::clear() {
 }
 
 void GLTexture2D::setData(const Image& image) {
+  this->data = image.data;
   setData((GLvoid*)(image.data.data()), image.width, image.height, image.componentCount, GLDataType::BYTE);
 }
 

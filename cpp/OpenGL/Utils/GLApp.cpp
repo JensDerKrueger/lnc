@@ -439,6 +439,23 @@ void GLApp::setImageFilter(GLint magFilter, GLint minFilter) {
   raster.setFilter(magFilter, minFilter);
 }
 
+void GLApp::drawImage(const GLTexture2D& image, const Vec2& bl, const Vec2& tr) {
+  drawImage(image,
+            {bl.x(),bl.y(),0.0f},
+            {tr.x(),bl.y(),0.0f},
+            {bl.x(),tr.y(),0.0f},
+            {tr.x(),tr.y(),0.0f});
+}
+
+void GLApp::drawImage(const Image& image, const Vec2& bl, const Vec2& tr) {
+    drawImage(image,
+              {bl.x(),bl.y(),0.0f},
+              {tr.x(),bl.y(),0.0f},
+              {bl.x(),tr.y(),0.0f},
+              {tr.x(),tr.y(),0.0f});
+}
+
+
 void GLApp::drawImage(const GLTexture2D& image, const Vec3& bl,
                       const Vec3& br, const Vec3& tl,
                       const Vec3& tr) {

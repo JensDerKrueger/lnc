@@ -130,7 +130,7 @@ Mat4 BattleShips::computeImageTransform(const Vec2ui& imageSize) const {
 void BattleShips::animate(double animationTime) {
   currentImage = size_t(animationTime*2);
   
-  if (client && !client->isOK())
+  if (gameState > GameState::Connecting && client && !client->isOK())
     gameState = GameState::Connecting;
   
   switch (gameState) {
