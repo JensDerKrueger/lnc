@@ -3,12 +3,12 @@
 
 GLDepthBuffer::GLDepthBuffer(uint32_t width, uint32_t height) :
 	id(0),
-    width(width),
-    height(height)
+  width(width),
+  height(height)
 {
-    GL(glGenRenderbuffers(1, &id));
-    GL(glBindRenderbuffer(GL_RENDERBUFFER, id));
-    GL(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height));
+  GL(glGenRenderbuffers(1, &id));
+  GL(glBindRenderbuffer(GL_RENDERBUFFER, id));
+  GL(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height));
 }
 
 GLDepthBuffer::~GLDepthBuffer() {
@@ -17,4 +17,11 @@ GLDepthBuffer::~GLDepthBuffer() {
 
 const GLint GLDepthBuffer::getId() const {
 	return id;
+}
+
+void GLDepthBuffer::setSize(uint32_t width, uint32_t height) {
+  this->width = width;
+  this->height =height;
+  GL(glBindRenderbuffer(GL_RENDERBUFFER, id));
+  GL(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height));
 }
