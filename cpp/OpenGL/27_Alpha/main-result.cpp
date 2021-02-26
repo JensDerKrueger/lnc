@@ -37,10 +37,13 @@ public:
     
     for (uint32_t y = 0;y<rect1.height;++y) {
       for (uint32_t x = 0;x<rect1.width;++x) {
-        rect1.setNormalizedValue(x,y,0,1.0f);
-        rect1.setNormalizedValue(x,y,1,0.0f);
-        rect1.setNormalizedValue(x,y,2,0.0f);
-        rect1.setNormalizedValue(x,y,3,float(y)/rect1.height);
+        
+        const float alpha = float(y)/rect1.height;
+        
+        rect1.setNormalizedValue(x,y,0,1.0f*alpha);
+        rect1.setNormalizedValue(x,y,1,0.0f*alpha);
+        rect1.setNormalizedValue(x,y,2,0.0f*alpha);
+        rect1.setNormalizedValue(x,y,3,alpha);
 
         rect2.setNormalizedValue(x,y,0,0.0f);
         rect2.setNormalizedValue(x,y,1,1.0f);
