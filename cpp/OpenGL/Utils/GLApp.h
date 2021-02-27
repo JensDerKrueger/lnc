@@ -61,6 +61,8 @@ public:
   void drawTriangles(const std::vector<float>& data, TrisDrawType t, bool wireframe, bool lighting);
   void redrawTriangles(bool wireframe);
 
+  Mat4 computeImageTransform(const Vec2ui& imageSize) const;
+  
   void drawLines(const std::vector<float>& data, LineDrawType t, float lineThickness=1.0f);
   void drawPoints(const std::vector<float>& data, float pointSize=1.0f, bool useTex=false);
   void setDrawProjection(const Mat4& mat);

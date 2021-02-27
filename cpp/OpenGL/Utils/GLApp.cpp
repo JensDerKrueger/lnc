@@ -490,3 +490,11 @@ void GLApp::drawImage(const Image& image, const Vec3& bl,
   raster.setData(image.data, image.width, image.height, image.componentCount);
   drawImage(raster, bl, br, tl, tr);
 }
+
+Mat4 GLApp::computeImageTransform(const Vec2ui& imageSize) const {
+  const Dimensions s = glEnv.getWindowSize();
+  const float ax = imageSize.x()/float(s.width);
+  const float ay = imageSize.y()/float(s.height);
+  const float m = std::max(ax,ay);
+  return Mat4::scaling({ax/m, ay/m, 1.0f});
+}

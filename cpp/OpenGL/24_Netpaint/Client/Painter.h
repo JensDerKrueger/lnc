@@ -64,7 +64,6 @@ private:
   void addTransformation(const Mat4& trafo);
   Vec2i computePixelPos();
   void dropPaint();
-  Mat4 computeBaseTransform(const Vec2ui& imageSize);
   
   void genMouseCursor();
 };

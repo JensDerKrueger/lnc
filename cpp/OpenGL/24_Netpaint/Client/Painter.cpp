@@ -100,14 +100,6 @@ Vec2i MyGLApp::computePixelPos() {
 void MyGLApp::dropPaint() {
   if (client) client->paint(computePixelPos());
 }
-
-Mat4 MyGLApp::computeBaseTransform(const Vec2ui& imageSize) {
-  const Dimensions s = glEnv.getWindowSize();
-  const float ax = imageSize.x()/float(s.width);
-  const float ay = imageSize.y()/float(s.height);
-  const float m = std::max(ax,ay);
-  return Mat4::scaling({ax/m, ay/m, 1.0f});
-}
   
 void MyGLApp::mouseMove(double xPosition, double yPosition) {
   if (!client) return;
@@ -271,14 +263,14 @@ void MyGLApp::draw() {
       } else if (addressComplete && userName.empty()) {
         responseImage = MyClient::fr.render("Type in your name:");
       }
-      setDrawTransform(Mat4::scaling(1.0f/3.0f) * computeBaseTransform({responseImage.width, responseImage.height}) );
+      setDrawTransform(Mat4::scaling(1.0f/3.0f) * computeImageTransform({responseImage.width, responseImage.height}) );
       drawImage(responseImage);
       return;
     }
   }
   
   if (!client->isValid()) {
-    setDrawTransform(Mat4::scaling(connectingImage[currentImage].width / (connectingImage[0].width * 2.0f)) * computeBaseTransform({connectingImage[currentImage].width, connectingImage[currentImage].height}) );
+    setDrawTransform(Mat4::scaling(connectingImage[currentImage].width / (connectingImage[0].width * 2.0f)) * computeImageTransform({connectingImage[currentImage].width, connectingImage[currentImage].height}) );
     drawImage(connectingImage[currentImage]);
     return;
   }
@@ -302,7 +294,7 @@ void MyGLApp::draw() {
   client->lockData();
   imageSize = Vec2ui{client->getDims().width, client->getDims().height};
   client->unlockData();
-  baseTransformation = computeBaseTransform(imageSize);
+  baseTransformation = computeImageTransform(imageSize);
   
   setDrawTransform(userTransformation*baseTransformation);
   setImageFilter(GL_NEAREST,GL_NEAREST);
@@ -339,7 +331,7 @@ void MyGLApp::draw() {
   
   if (showLabel) {
     for (const ClientInfoClientSide& m : others) {
-      setDrawTransform( Mat4::translation(1.0f, 1.0f, 0.0f) * Mat4::scaling(1/10.0f) * computeBaseTransform({m.image.width, m.image.height}) * Mat4::translation(m.pos.x(), m.pos.y(), 0.0f) * userTransformation * baseTransformation );
+      setDrawTransform( Mat4::translation(1.0f, 1.0f, 0.0f) * Mat4::scaling(1/10.0f) * computeImageTransform({m.image.width, m.image.height}) * Mat4::translation(m.pos.x(), m.pos.y(), 0.0f) * userTransformation * baseTransformation );
       drawImage(m.image);
     }
   }
