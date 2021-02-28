@@ -14,7 +14,7 @@ void GameClient::handleNewConnection() {
 }
 
 void GameClient::handleServerMessage(const std::string& message) {
-
+  // TODO
 }
 
 
