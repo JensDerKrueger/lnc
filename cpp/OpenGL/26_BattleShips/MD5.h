@@ -4,6 +4,9 @@
 #include <vector>
 #include <cstdint>
 
+typedef std::array<uint8_t,16> MD5Sum;
+
+
 class MD5 {
 public:
   MD5();
@@ -31,7 +34,7 @@ private:
 };
 
 template<typename Iter, typename T>
-std::array<uint8_t,16> md5(Iter begin, Iter end) {
+MD5Sum md5(Iter begin, Iter end) {
   MD5 md;
   int error = 0;
   while(begin != end) {
@@ -40,7 +43,7 @@ std::array<uint8_t,16> md5(Iter begin, Iter end) {
   }
   std::vector<uint8_t> final = md.final(error);
   
-  std::array<uint8_t,16> rv;
+  MD5Sum rv;
   std::copy(final.begin(), final.end(), rv.begin());
   return rv;
 }
