@@ -66,7 +66,7 @@ private:
   
   GameState gameState{GameState::Startup};
   uint32_t level{0};
-  uint32_t pairingMessage{0};
+  size_t pairingMessage{0};
   
   std::vector<std::string> pairingMessages{
     "Searching for victim",
