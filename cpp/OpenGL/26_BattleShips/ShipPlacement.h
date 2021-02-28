@@ -39,7 +39,7 @@ public:
   const std::vector<Ship>& getShips() const {return ships;}
 
 private:
-  Vec2i gridSize;
+  Vec2ui gridSize;
   std::vector<Ship> ships;
 
   bool shipTypeValid(const Ship& newShip) const;
