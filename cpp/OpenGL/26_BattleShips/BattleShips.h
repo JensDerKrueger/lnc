@@ -4,10 +4,11 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include <array>
+#include <optional>
 
 #include <GLApp.h>
 #include <GLTexture2D.h>
-
 #include <FontRenderer.h>
 
 #include "GameClient.h"
@@ -43,7 +44,6 @@ private:
 
   Vec2 normPos{0,0};
   bool rightMouseDown{false};
-  bool leftMouseDown{false};
   Vec2i lastMousePos{-1,-1};
   float wheelScale{100};
   Vec2 startDragPos{0,0};
@@ -61,7 +61,6 @@ private:
   void tryToLoadSettings();
   
   void updateMousePos();
-  Mat4 computeImageTransform(const Vec2ui& imageSize) const;
   
   static FontRenderer fr;
   
@@ -83,4 +82,9 @@ private:
   void drawConnecting();
   void drawPairing();
   
+  MD5Sum otherShipPlacementMD5;
+  bool shipsPlaced{false};
+  ShipPlacement myShipPlacement;
+  
+  MD5Sum shipPlacementToMD5(const ShipPlacement& sp);
 };

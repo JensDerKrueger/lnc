@@ -16,3 +16,13 @@ void GameClient::handleNewConnection() {
 void GameClient::handleServerMessage(const std::string& message) {
 
 }
+
+
+std::optional<std::array<uint8_t,16>> GameClient::getReceivedShipPlacementMD5() const {
+  // TODO
+  return {};
+}
+
+void GameClient::sendShipPlacementMD5(const MD5Sum& md5) {
+  // TODO
+}

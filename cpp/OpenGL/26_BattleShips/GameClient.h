@@ -5,10 +5,13 @@
 #include <memory>
 #include <vector>
 #include <queue>
+#include <optional>
 
 #include <Client.h>
 
 #include "../25_GenericGameServer/NetGame.h"
+#include "ShipPlacement.h"
+#include "MD5.h"
 
 class GameClient : public Client {
 public:
@@ -24,6 +27,9 @@ public:
   bool getReceivedPairingInfo() const {
     return receivedPairingInfo;
   }
+  
+  std::optional<MD5Sum> getReceivedShipPlacementMD5() const;
+  void sendShipPlacementMD5(const MD5Sum& md5);
   
 private:
   std::string name{""};

@@ -54,8 +54,6 @@ void BattleShips::mouseMove(double xPosition, double yPosition) {
   xPositionMouse = xPosition;
   yPositionMouse = yPosition;
   updateMousePos();
-
-  // if (rightMouseDown) dropPaint();
     
 }
 
@@ -64,7 +62,6 @@ void BattleShips::mouseButton(int button, int state, int mods, double xPosition,
   
   if (button == GLFW_MOUSE_BUTTON_LEFT) {
     rightMouseDown = (state == GLFW_PRESS);
-    //if (rightMouseDown) dropPaint();
   }
 
 }
@@ -107,24 +104,7 @@ void BattleShips::keyboard(int key, int scancode, int action, int mods) {
       }
       return;
     }
-    
-    switch (key) {
-      case GLFW_KEY_Q:
-        wheelScale /= 1.5f;
-        break;
-      case GLFW_KEY_W:
-        wheelScale *= 1.5f;
-        break;
-    }
   }
-}
-
-Mat4 BattleShips::computeImageTransform(const Vec2ui& imageSize) const {
-  const Dimensions s = glEnv.getWindowSize();
-  const float ax = imageSize.x()/float(s.width);
-  const float ay = imageSize.y()/float(s.height);
-  const float m = std::max(ax,ay);
-  return Mat4::scaling({ax/m, ay/m, 1.0f});
 }
 
 void BattleShips::animate(double animationTime) {
@@ -141,14 +121,29 @@ void BattleShips::animate(double animationTime) {
       }
       break;
     case GameState::Connecting :
-      if (client && client->getInitMessageSend()) {
+      if (client->getInitMessageSend()) {
         gameState = GameState::Pairing;
         pairingMessage = size_t(Rand::rand01() * pairingMessages.size());
       }
       break;
     case GameState::Pairing :
-      if (client && client->getReceivedPairingInfo())
+      if (client->getReceivedPairingInfo())
         gameState = GameState::BoardSetup;
+      break;
+    case GameState::BoardSetup :
+      if (shipsPlaced) {
+        client->sendShipPlacementMD5(shipPlacementToMD5(myShipPlacement));
+        gameState = GameState::WaitingBoardSetup;
+      }
+      break;
+    case GameState::WaitingBoardSetup :
+      {
+        auto shipPlacementMD5 = client->getReceivedShipPlacementMD5();
+        if (shipPlacementMD5) {
+          gameState = GameState::Firing;
+          otherShipPlacementMD5 = *shipPlacementMD5;
+        }
+      }
       break;
     default:
       std::cout << "oops" << std::endl;
@@ -229,4 +224,8 @@ void BattleShips::draw() {
       break;
   }
   
+}
+
+std::array<uint8_t,16> BattleShips::shipPlacementToMD5(const ShipPlacement& sp) {
+  return {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};  // TODO
 }

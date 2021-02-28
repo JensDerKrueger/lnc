@@ -3,16 +3,21 @@
 class MyGLApp : public GLApp {
 public:
   
-  Image rect1{10,10};
-  Image rect2{10,10};
+  Image rectRed{10,10};
+  Image rectGreen{10,10};
   float angle{0};
   Mat4 windowScale;
   GLTexture2D background;
   
   virtual void init() override {
     glEnv.setTitle("Alpha");
+    
     GL(glEnable(GL_DEPTH_TEST));
-
+    
+    GL(glEnable(GL_BLEND));
+    GL(glBlendEquation(GL_FUNC_ADD));
+    GL(glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA));
+    
     Image backgroundImage{10,10};
     for (uint32_t y = 0;y<backgroundImage.height;++y) {
       for (uint32_t x = 0;x<backgroundImage.width;++x) {
@@ -26,17 +31,17 @@ public:
     background = GLTexture2D(backgroundImage);
     
     
-    for (uint32_t y = 0;y<rect1.height;++y) {
-      for (uint32_t x = 0;x<rect1.width;++x) {
-        rect1.setNormalizedValue(x,y,0,1.0f);
-        rect1.setNormalizedValue(x,y,1,0.0f);
-        rect1.setNormalizedValue(x,y,2,0.0f);
-        rect1.setNormalizedValue(x,y,3,1.0f);
+    for (uint32_t y = 0;y<rectRed.height;++y) {
+      for (uint32_t x = 0;x<rectRed.width;++x) {
+        rectRed.setNormalizedValue(x,y,0,1.0f);
+        rectRed.setNormalizedValue(x,y,1,0.0f);
+        rectRed.setNormalizedValue(x,y,2,0.0f);
+        rectRed.setNormalizedValue(x,y,3,y/float(rectRed.height));
 
-        rect2.setNormalizedValue(x,y,0,0.0f);
-        rect2.setNormalizedValue(x,y,1,1.0f);
-        rect2.setNormalizedValue(x,y,2,0.0f);
-        rect2.setNormalizedValue(x,y,3,1.0f);
+        rectGreen.setNormalizedValue(x,y,0,0.0f);
+        rectGreen.setNormalizedValue(x,y,1,1.0f);
+        rectGreen.setNormalizedValue(x,y,2,0.0f);
+        rectGreen.setNormalizedValue(x,y,3,1.0f);
       }
     }
   }
@@ -48,12 +53,7 @@ public:
     const float m = std::max(ax,ay);
     windowScale = Mat4::scaling({ax/m, ay/m, 1.0f});
   }
-  
-  virtual void mouseMove(double xPosition, double yPosition) override {
-    Dimensions s = glEnv.getWindowSize();
-    if (xPosition < 0 || xPosition > s.width || yPosition < 0 || yPosition > s.height) return;
-  }
-    
+      
   virtual void animate(double animationTime) override {
     angle = float(animationTime)*10;
   }
@@ -63,12 +63,12 @@ public:
 
     setDrawTransform(windowScale);
     drawImage(background);
-    
+
     setDrawTransform(Mat4::scaling(0.2f) * Mat4::translation(-0.5f,-0.5f, -0.5f) * Mat4::rotationZ(-angle*3) * windowScale);
-    drawImage(rect2);
+    drawImage(rectGreen);
 
     setDrawTransform(Mat4::scaling(0.2f) * Mat4::translation( 0.5f, 0.5f, -0.6f) * Mat4::rotationZ(angle*2) * windowScale);
-    drawImage(rect1);    
+    drawImage(rectRed);
   }
 
 } myApp;
