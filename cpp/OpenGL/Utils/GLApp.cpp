@@ -127,6 +127,9 @@ GLApp::GLApp(uint32_t w, uint32_t h, uint32_t s,
   glViewport(0, 0, dim.width, dim.height);
 }
 
+GLApp::~GLApp() {
+}
+
 void GLApp::setPointTexture(const Image& shape) {
   setPointTexture(shape.data, shape.width, shape.height, shape.componentCount);
 }
