@@ -226,6 +226,6 @@ void BattleShips::draw() {
   
 }
 
-std::array<uint8_t,16> BattleShips::shipPlacementToMD5(const ShipPlacement& sp) {
+MD5Sum BattleShips::shipPlacementToMD5(const ShipPlacement& sp) {
   return {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};  // TODO
 }
