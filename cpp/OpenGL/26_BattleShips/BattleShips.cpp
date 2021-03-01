@@ -9,7 +9,7 @@
   FontRenderer BattleShips::fr{"helvetica_neue.bmp", "helvetica_neue.pos"};
 #endif
 
-BattleShips::BattleShips() : GLApp(1024, 786, 4, "Network Painter") {}
+BattleShips::BattleShips() : GLApp(1024, 786, 4, "Online Battleships") {}
 
 BattleShips::~BattleShips() {
 }
@@ -38,6 +38,8 @@ void BattleShips::init() {
   GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
   GL(glBlendEquation(GL_FUNC_ADD));
   GL(glClearColor(0.0f,0.0f,0.0f,0.0f));
+    
+  gridLines = gridToLines();
 }
 
 void BattleShips::updateMousePos() {
@@ -66,9 +68,6 @@ void BattleShips::mouseButton(int button, int state, int mods, double xPosition,
 
 }
 
-void BattleShips::mouseWheel(double x_offset, double y_offset, double xPosition, double yPosition) {
-  if (!client) return;
-}
 
 void BattleShips::keyboardChar(unsigned int codepoint) {
   if (!client) {
@@ -127,21 +126,23 @@ void BattleShips::animate(double animationTime) {
       }
       break;
     case GameState::Pairing :
-      if (client->getReceivedPairingInfo())
+      if (client->getReceivedPairingInfo()) {
         gameState = GameState::BoardSetup;
+      }
       break;
     case GameState::BoardSetup :
       if (shipsPlaced) {
-        client->sendShipPlacementMD5(shipPlacementToMD5(myShipPlacement));
+        password = AESCrypt::genIVString();
+        client->sendEncryptedShipPlacement(myShipPlacement.toEncryptedString(password));
         gameState = GameState::WaitingBoardSetup;
       }
       break;
     case GameState::WaitingBoardSetup :
       {
-        auto shipPlacementMD5 = client->getReceivedShipPlacementMD5();
-        if (shipPlacementMD5) {
+        auto encPlacement = client->getEncryptedShipPlacement();
+        if (encPlacement) {
+          encOtherShipPlacement = *encPlacement;
           gameState = GameState::Firing;
-          otherShipPlacementMD5 = *shipPlacementMD5;
         }
       }
       break;
@@ -205,6 +206,67 @@ void BattleShips::drawPairing() {
   drawImage(connectingImage);
 }
 
+
+std::vector<float> BattleShips::gridToLines() const {
+  std::vector<float> lines;
+  
+  const uint32_t w = myBoard.getSize().x();
+  const uint32_t h = myBoard.getSize().y();
+  
+  for (uint32_t y = 0;y<h+1;++y) {
+    lines.push_back(-1);
+    lines.push_back(1.0f-2.0f*float(y)/h);
+    lines.push_back(0);
+    
+    lines.push_back(1);
+    lines.push_back(1);
+    lines.push_back(1);
+    lines.push_back(1);
+    
+    lines.push_back(1);
+    lines.push_back(1.0f-2.0f*float(y)/h);
+    lines.push_back(0);
+
+    lines.push_back(1);
+    lines.push_back(1);
+    lines.push_back(1);
+    lines.push_back(1);
+  }
+
+  for (size_t x = 0;x<w+1;++x) {
+    lines.push_back(1.0f-2.0f*float(x)/w);
+    lines.push_back(-1);
+    lines.push_back(0);
+    
+    lines.push_back(1);
+    lines.push_back(1);
+    lines.push_back(1);
+    lines.push_back(1);
+    
+    lines.push_back(1.0f-2.0f*float(x)/w);
+    lines.push_back(1);
+    lines.push_back(0);
+
+    lines.push_back(1);
+    lines.push_back(1);
+    lines.push_back(1);
+    lines.push_back(1);
+  }
+  
+  return lines;
+}
+
+void BattleShips::drawBoards() {
+  setDrawTransform(Mat4::scaling(0.8f,0.8f,0.8f) * Mat4::translation(0.0f,0.0f,0.0f));
+  drawLines(gridLines, LineDrawType::LIST, 3);
+
+  if (gameState != GameState::BoardSetup) {
+    setDrawTransform(Mat4::scaling(0.8f,0.8f,0.8f) * Mat4::translation(0.0f,0.0f,0.0f));
+    drawLines(gridLines, LineDrawType::LIST, 3);
+  }
+}
+
+
 void BattleShips::draw() {
   GL(glClearColor(0.0f,0.0f,0.0f,0.0f));
   GL(glClear(GL_COLOR_BUFFER_BIT));
@@ -219,13 +281,14 @@ void BattleShips::draw() {
     case GameState::Pairing :
       drawPairing();
       break;
+    case GameState::BoardSetup :
+    case GameState::Firing :
+    case GameState::WaitingFiring :
+      drawBoards();
+      break;
     default:
       std::cout << "oops draw" << std::endl;
       break;
   }
   
-}
-
-MD5Sum BattleShips::shipPlacementToMD5(const ShipPlacement& sp) {
-  return {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};  // TODO
 }

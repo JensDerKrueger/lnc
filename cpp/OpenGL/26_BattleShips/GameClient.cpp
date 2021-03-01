@@ -13,16 +13,41 @@ void GameClient::handleNewConnection() {
   initMessageSend = true;
 }
 
+
+void GameClient::parseGameMessage(const std::string& m) {
+  // TODO
+}
+
 void GameClient::handleServerMessage(const std::string& message) {
-  // TODO
+  MessageType pt = identifyString(message);
+     
+  try {
+    switch (pt) {
+      case MessageType::PairedMessage : {
+        receivedPairingInfo = true;
+        break;
+      }
+      case MessageType::GameMessage : {
+        GameMessage m(message);
+        parseGameMessage(m.payload);
+        break;
+      }
+      default:
+        std::cerr << "Unkown Message received" << std::endl;
+        break;
+    }
+  } catch (const MessageException& e) {
+    std::cerr << "MessageException: " << e.what() << std::endl;
+  }
+
+
 }
 
 
-std::optional<std::array<uint8_t,16>> GameClient::getReceivedShipPlacementMD5() const {
-  // TODO
-  return {};
+std::optional<std::string> GameClient::getEncryptedShipPlacement() const {
+  return otherShipPlacement;
 }
 
-void GameClient::sendShipPlacementMD5(const MD5Sum& md5) {
-  // TODO
+void GameClient::sendEncryptedShipPlacement(const std::string& sp) {
+  
 }

@@ -11,7 +11,6 @@
 
 #include "../25_GenericGameServer/NetGame.h"
 #include "ShipPlacement.h"
-#include "MD5.h"
 
 class GameClient : public Client {
 public:
@@ -28,13 +27,16 @@ public:
     return receivedPairingInfo;
   }
   
-  std::optional<MD5Sum> getReceivedShipPlacementMD5() const;
-  void sendShipPlacementMD5(const MD5Sum& md5);
+  std::optional<std::string> getEncryptedShipPlacement() const;
+  void sendEncryptedShipPlacement(const std::string& sp);
   
 private:
   std::string name{""};
   uint32_t level{0};
+  std::optional<std::string> otherShipPlacement{};
   
   bool initMessageSend{false};
   bool receivedPairingInfo{false};
+  
+  void parseGameMessage(const std::string& m);
 };

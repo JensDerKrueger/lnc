@@ -25,6 +25,8 @@ enum class GameState {
 };
 
 
+const Vec2ui boardSize{10,10};
+
 class BattleShips : public GLApp {
 public:
   BattleShips();
@@ -33,7 +35,6 @@ public:
   virtual void init() override;
   virtual void mouseMove(double xPosition, double yPosition) override;
   virtual void mouseButton(int button, int state, int mods, double xPosition, double yPosition) override;
-  virtual void mouseWheel(double x_offset, double y_offset, double xPosition, double yPosition) override;
   virtual void keyboardChar(unsigned int codepoint) override;
   virtual void keyboard(int key, int scancode, int action, int mods) override;
   virtual void animate(double animationTime) override ;
@@ -45,7 +46,6 @@ private:
   Vec2 normPos{0,0};
   bool rightMouseDown{false};
   Vec2i lastMousePos{-1,-1};
-  float wheelScale{100};
   Vec2 startDragPos{0,0};
   double xPositionMouse{ 0.0 };
   double yPositionMouse{0.0};
@@ -81,10 +81,18 @@ private:
   void drawStartup();
   void drawConnecting();
   void drawPairing();
+  void drawBoards();
   
-  MD5Sum otherShipPlacementMD5;
+  std::string password;
+  std::string encOtherShipPlacement;
   bool shipsPlaced{false};
-  ShipPlacement myShipPlacement;
+  ShipPlacement myShipPlacement{boardSize};
+  std::vector<float> gridLines;
   
-  MD5Sum shipPlacementToMD5(const ShipPlacement& sp);
+  GameGrid myBoard{boardSize};
+  GameGrid otherBoard{boardSize};
+    
+  void myShipPlacementToGrid();
+    
+  std::vector<float> gridToLines() const;
 };

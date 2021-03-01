@@ -7,9 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		564194E925EB29FF00A6B8A8 /* NetGame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 564194E825EB29FF00A6B8A8 /* NetGame.cpp */; };
+		56A7B0FC25EBFF99001B324D /* settings.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = 56A7B0F725EBFE1D001B324D /* settings.txt */; };
 		A231F11325EAF65400CBFC23 /* BattleShips.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A231F10C25EAF65400CBFC23 /* BattleShips.cpp */; };
 		A231F11425EAF65400CBFC23 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A231F10D25EAF65400CBFC23 /* main.cpp */; };
-		A231F11525EAF65400CBFC23 /* MD5.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A231F11125EAF65400CBFC23 /* MD5.cpp */; };
 		A231F11625EAF65400CBFC23 /* GameClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A231F11225EAF65400CBFC23 /* GameClient.cpp */; };
 		A231F11B25EB1AA000CBFC23 /* ShipPlacement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A231F11925EB1AA000CBFC23 /* ShipPlacement.cpp */; };
 /* End PBXBuildFile section */
@@ -17,23 +18,25 @@
 /* Begin PBXCopyFilesBuildPhase section */
 		A231F0FD25EAF61A00CBFC23 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
+			buildActionMask = 12;
+			dstPath = "";
+			dstSubfolderSpec = 7;
 			files = (
+				56A7B0FC25EBFF99001B324D /* settings.txt in CopyFiles */,
 			);
-			runOnlyForDeploymentPostprocessing = 1;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		564194E725EB29FF00A6B8A8 /* NetGame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NetGame.h; path = ../25_GenericGameServer/NetGame.h; sourceTree = "<group>"; };
+		564194E825EB29FF00A6B8A8 /* NetGame.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NetGame.cpp; path = ../25_GenericGameServer/NetGame.cpp; sourceTree = "<group>"; };
+		56A7B0F725EBFE1D001B324D /* settings.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = settings.txt; sourceTree = "<group>"; };
 		A231F0FF25EAF61A00CBFC23 /* Battleships */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Battleships; sourceTree = BUILT_PRODUCTS_DIR; };
 		A231F10C25EAF65400CBFC23 /* BattleShips.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BattleShips.cpp; sourceTree = "<group>"; };
 		A231F10D25EAF65400CBFC23 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		A231F10E25EAF65400CBFC23 /* GameClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GameClient.h; sourceTree = "<group>"; };
-		A231F10F25EAF65400CBFC23 /* MD5.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MD5.h; sourceTree = "<group>"; };
 		A231F11025EAF65400CBFC23 /* BattleShips.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BattleShips.h; sourceTree = "<group>"; };
-		A231F11125EAF65400CBFC23 /* MD5.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MD5.cpp; sourceTree = "<group>"; };
 		A231F11225EAF65400CBFC23 /* GameClient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GameClient.cpp; sourceTree = "<group>"; };
 		A231F11925EB1AA000CBFC23 /* ShipPlacement.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ShipPlacement.cpp; sourceTree = "<group>"; };
 		A231F11A25EB1AA000CBFC23 /* ShipPlacement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShipPlacement.h; sourceTree = "<group>"; };
@@ -60,8 +63,9 @@
 				A231F11225EAF65400CBFC23 /* GameClient.cpp */,
 				A231F10E25EAF65400CBFC23 /* GameClient.h */,
 				A231F10D25EAF65400CBFC23 /* main.cpp */,
-				A231F11125EAF65400CBFC23 /* MD5.cpp */,
-				A231F10F25EAF65400CBFC23 /* MD5.h */,
+				564194E825EB29FF00A6B8A8 /* NetGame.cpp */,
+				564194E725EB29FF00A6B8A8 /* NetGame.h */,
+				56A7B0F725EBFE1D001B324D /* settings.txt */,
 				A231F10025EAF61A00CBFC23 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -132,9 +136,9 @@
 			files = (
 				A231F11625EAF65400CBFC23 /* GameClient.cpp in Sources */,
 				A231F11B25EB1AA000CBFC23 /* ShipPlacement.cpp in Sources */,
-				A231F11525EAF65400CBFC23 /* MD5.cpp in Sources */,
 				A231F11425EAF65400CBFC23 /* main.cpp in Sources */,
 				A231F11325EAF65400CBFC23 /* BattleShips.cpp in Sources */,
+				564194E925EB29FF00A6B8A8 /* NetGame.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -153,10 +157,12 @@
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_ASSIGN_ENUM = YES;
+				CLANG_WARN_ATOMIC_IMPLICIT_SEQ_CST = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_CXX0X_EXTENSIONS = YES;
 				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
@@ -194,7 +200,9 @@
 				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = YES;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
 				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
+				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
 				GCC_WARN_SHADOW = YES;
 				GCC_WARN_SIGN_COMPARE = YES;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
@@ -246,10 +254,12 @@
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_ASSIGN_ENUM = YES;
+				CLANG_WARN_ATOMIC_IMPLICIT_SEQ_CST = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_CXX0X_EXTENSIONS = YES;
 				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
@@ -281,7 +291,9 @@
 				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = YES;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
 				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
+				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
 				GCC_WARN_SHADOW = YES;
 				GCC_WARN_SIGN_COMPARE = YES;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
