@@ -33,18 +33,58 @@ void BattleShips::tryToLoadSettings() {
 void BattleShips::init() {
   tryToLoadSettings();
 
-  glEnv.setCursorMode(CursorMode::HIDDEN);
   GL(glEnable(GL_BLEND));
   GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
   GL(glBlendEquation(GL_FUNC_ADD));
   GL(glClearColor(0.0f,0.0f,0.0f,0.0f));
     
+  Image cellImage{10,10};
+  for (uint32_t y = 0;y<cellImage.width;++y) {
+    for (uint32_t x = 0;x<cellImage.height;++x) {
+      cellImage.setNormalizedValue(x, y, 0, 0.0f);
+      cellImage.setNormalizedValue(x, y, 1, 0.0f);
+      cellImage.setNormalizedValue(x, y, 2, 1.0f);
+      cellImage.setNormalizedValue(x, y, 3, 1.0f);
+    }
+  }
+  emptyCell = GLTexture2D{cellImage};
+  for (uint32_t y = 0;y<cellImage.width;++y) {
+    for (uint32_t x = 0;x<cellImage.height;++x) {
+      cellImage.setNormalizedValue(x, y, 0, 0.3f);
+      cellImage.setNormalizedValue(x, y, 1, 0.3f);
+      cellImage.setNormalizedValue(x, y, 2, 0.3f);
+      cellImage.setNormalizedValue(x, y, 3, 1.0f);
+    }
+  }
+  unknownCell = GLTexture2D{cellImage};
+  
+  for (uint32_t y = 0;y<cellImage.width;++y) {
+    for (uint32_t x = 0;x<cellImage.height;++x) {
+      cellImage.setNormalizedValue(x, y, 0, 1.0f);
+      cellImage.setNormalizedValue(x, y, 1, 0.0f);
+      cellImage.setNormalizedValue(x, y, 2, 0.0f);
+      cellImage.setNormalizedValue(x, y, 3, 1.0f);
+    }
+  }
+  shipCell = GLTexture2D{cellImage};
+  
   gridLines = gridToLines();
 }
 
 void BattleShips::updateMousePos() {
   Dimensions s = glEnv.getWindowSize();
   normPos = Vec2{float(xPositionMouse/s.width)-0.5f,float(1.0-yPositionMouse/s.height)-0.5f} * 2.0f;
+  
+  const Mat4 invMyBoardTrans = Mat4::inverse(myBoardTrans);
+  const Vec2 normMyBoardPos = ((invMyBoardTrans * Vec4(normPos,0,1)).xy() + Vec2{1.0f,1.0f}) / 2.0f;
+  myCellPos = Vec2ui{std::min(boardSize.x()-1, uint32_t(normMyBoardPos.x() * boardSize.x())),
+                     std::min(boardSize.y()-1, uint32_t(normMyBoardPos.y() * boardSize.y()))};
+
+  const Mat4 invOtherBoardTrans = Mat4::inverse(otherBoardTrans);
+  const Vec2 normOtherBoardPos = ((invOtherBoardTrans * Vec4(normPos,0,1)).xy() + Vec2{1.0f,1.0f}) / 2.0f;
+  otherCellPos = Vec2ui{std::min(boardSize.x()-1, uint32_t(normOtherBoardPos.x() * boardSize.x())),
+                        std::min(boardSize.y()-1, uint32_t(normOtherBoardPos.y() * boardSize.y()))};
+
 }
 
 void BattleShips::mouseMove(double xPosition, double yPosition) {
@@ -56,18 +96,39 @@ void BattleShips::mouseMove(double xPosition, double yPosition) {
   xPositionMouse = xPosition;
   yPositionMouse = yPosition;
   updateMousePos();
-    
 }
 
 void BattleShips::mouseButton(int button, int state, int mods, double xPosition, double yPosition) {
   if (!client) return;
   
-  if (button == GLFW_MOUSE_BUTTON_LEFT) {
+  if (button == GLFW_MOUSE_BUTTON_RIGHT) {
     rightMouseDown = (state == GLFW_PRESS);
   }
 
+  if (button == GLFW_MOUSE_BUTTON_LEFT) {
+    leftMouseDown = (state == GLFW_PRESS);
+  }
+
+  if (rightMouseDown) {
+    toggleOrientation();
+  }
+
+  if (leftMouseDown) {
+    switch (gameState) {
+      case GameState::BoardSetup :
+        myShipPlacement.addShip({placementOrder[currentPlacement], currentOrientation, myCellPos});
+        currentPlacement++;
+        break;
+      default:
+        break;
+    }
+  }
 }
 
+
+void BattleShips::toggleOrientation() {
+  currentOrientation = Orientation(1-uint32_t(currentOrientation));
+}
 
 void BattleShips::keyboardChar(unsigned int codepoint) {
   if (!client) {
@@ -89,19 +150,38 @@ void BattleShips::keyboard(int key, int scancode, int action, int mods) {
       return;
     }
 
-    if (!client) {
-      std::string& str = addressComplete ? userName : serverAddress;
-      bool& complete = addressComplete ? nameComplete : addressComplete;
-      switch (key) {
-        case GLFW_KEY_BACKSPACE :
-          if (str.size() > 0) str.erase(str.size() - 1);
-          responseImage = fr.render(str);
-          break;
-        case GLFW_KEY_ENTER :
-          if (str.size() > 0) complete = true;
-          break;
-      }
-      return;
+    switch (gameState) {
+      case GameState::Startup : {
+          std::string& str = addressComplete ? userName : serverAddress;
+          bool& complete = addressComplete ? nameComplete : addressComplete;
+          switch (key) {
+            case GLFW_KEY_BACKSPACE :
+              if (str.size() > 0) str.erase(str.size() - 1);
+              responseImage = fr.render(str);
+              break;
+            case GLFW_KEY_ENTER :
+              if (str.size() > 0) complete = true;
+              break;
+          }
+          return;
+        }
+        break;
+      case GameState::BoardSetup : {
+          switch (key) {
+            case GLFW_KEY_R :
+              toggleOrientation();
+              break;
+            case GLFW_KEY_U :
+              if (currentPlacement > 0) {
+                currentPlacement--;
+                myShipPlacement.deleteShipAt(currentPlacement);
+              }
+              break;
+          }
+        }
+        break;
+      default:
+        break;
     }
   }
 }
@@ -131,7 +211,7 @@ void BattleShips::animate(double animationTime) {
       }
       break;
     case GameState::BoardSetup :
-      if (shipsPlaced) {
+      if (currentPlacement == placementOrder.size()) {
         password = AESCrypt::genIVString();
         client->sendEncryptedShipPlacement(myShipPlacement.toEncryptedString(password));
         gameState = GameState::WaitingBoardSetup;
@@ -256,14 +336,49 @@ std::vector<float> BattleShips::gridToLines() const {
   return lines;
 }
 
+void BattleShips::drawBoardSetup() {
+  if(currentPlacement >= placementOrder.size()) return;
+  
+  myBoardTrans = Mat4::scaling(0.8f,0.8f,1.0f) * Mat4::translation(0.0f,0.0f,0.0f);
+
+  setDrawTransform(myBoardTrans);
+  drawLines(gridLines, LineDrawType::LIST, 3);
+  
+  const std::vector<Ship>& ships = myShipPlacement.getShips();
+  
+  bool shipAdded = myShipPlacement.addShip({placementOrder[currentPlacement], currentOrientation, myCellPos});
+   
+  
+  for (const Ship& ship : ships) {
+    const Vec2ui start = ship.pos;
+    const Vec2ui end   = ship.computeEnd();
+    for (size_t y = start.y(); y <= end.y(); ++y) {
+      for (size_t x = start.x(); x <= end.x(); ++x) {
+        
+        float tX = (x+0.5f)/boardSize.x()*2.0f-1.0f;
+        float tY = (y+0.5f)/boardSize.y()*2.0f-1.0f;
+
+        setDrawTransform( Mat4::scaling(1.0f/boardSize.x(),1.0f/boardSize.y(),1.0f) * Mat4::translation(tX,tY,0.0f) * myBoardTrans);
+        drawImage(shipCell);
+      }
+    }
+  }
+  
+  if (shipAdded)
+    myShipPlacement.deleteShipAt(ships.size()-1);
+  
+}
+
+
 void BattleShips::drawBoards() {
-  setDrawTransform(Mat4::scaling(0.8f,0.8f,0.8f) * Mat4::translation(0.0f,0.0f,0.0f));
+  myBoardTrans = Mat4::scaling(0.8f,0.8f,0.8f) * Mat4::translation(0.0f,0.0f,0.0f);
+  otherBoardTrans = Mat4::scaling(0.8f,0.8f,0.8f) * Mat4::translation(0.0f,0.0f,0.0f);
+
+  setDrawTransform(myBoardTrans);
   drawLines(gridLines, LineDrawType::LIST, 3);
 
-  if (gameState != GameState::BoardSetup) {
-    setDrawTransform(Mat4::scaling(0.8f,0.8f,0.8f) * Mat4::translation(0.0f,0.0f,0.0f));
-    drawLines(gridLines, LineDrawType::LIST, 3);
-  }
+  setDrawTransform(otherBoardTrans);
+  drawLines(gridLines, LineDrawType::LIST, 3);
 }
 
 
@@ -282,6 +397,8 @@ void BattleShips::draw() {
       drawPairing();
       break;
     case GameState::BoardSetup :
+      drawBoardSetup();
+      break;
     case GameState::Firing :
     case GameState::WaitingFiring :
       drawBoards();

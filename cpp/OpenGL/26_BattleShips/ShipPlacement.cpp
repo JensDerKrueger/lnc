@@ -25,7 +25,6 @@ ShipPlacement::ShipPlacement(const Vec2ui& gridSize) :
 {
 }
 
-
 bool ShipPlacement::shipTypeValid(const Ship& newShip) const {
   if (ships.size() == 6) return false;
 
@@ -137,6 +136,16 @@ bool ShipPlacement::incomming(const Vec2ui& pos) const {
   return false;
 }
 
+bool ShipPlacement::isValid() const {
+  ShipPlacement temp{gridSize};
+  if (ships.size() == 6) return false;  
+  for (const Ship& s : ships) {
+    if (!temp.addShip(s)) return false;
+  }
+  return true;
+}
+
+
 GameGrid::GameGrid(const Vec2ui& gridSize) :
 gridSize{gridSize}
 {
@@ -171,6 +180,8 @@ bool GameGrid::validate(const std::string& encryptedString, const std::string& p
   try {
     ShipPlacement sp = ShipPlacement::fromEncryptedString(encryptedString, password);
     
+    if (!sp.isValid()) return false;
+    
     for (const Vec2ui& hit : hits) {
       if (!sp.incomming(hit)) return false;
     }
@@ -199,8 +210,6 @@ void GameGrid::setShips(const ShipPlacement& sp) {
     }
   }
 }
-
-
 
 void GameGrid::clearEmpty() {
   grid.resize(gridSize.x() * gridSize.y());

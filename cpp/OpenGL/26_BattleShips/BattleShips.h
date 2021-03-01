@@ -45,6 +45,7 @@ private:
 
   Vec2 normPos{0,0};
   bool rightMouseDown{false};
+  bool leftMouseDown{false};
   Vec2i lastMousePos{-1,-1};
   Vec2 startDragPos{0,0};
   double xPositionMouse{ 0.0 };
@@ -82,17 +83,32 @@ private:
   void drawConnecting();
   void drawPairing();
   void drawBoards();
+  void drawBoardSetup();
   
+  GLTexture2D emptyCell;
+  GLTexture2D unknownCell;
+  GLTexture2D shipCell;
+
+  Mat4 myBoardTrans;
+  Mat4 otherBoardTrans;
+  
+  Vec2ui myCellPos;
+  Vec2ui otherCellPos;
+
   std::string password;
   std::string encOtherShipPlacement;
-  bool shipsPlaced{false};
   ShipPlacement myShipPlacement{boardSize};
   std::vector<float> gridLines;
   
   GameGrid myBoard{boardSize};
   GameGrid otherBoard{boardSize};
+  
+  Orientation currentOrientation{Orientation::Vertical};
+  size_t currentPlacement{0};
+  std::vector<ShipSize> placementOrder{ShipSize::TWO,ShipSize::THREE,ShipSize::THREE,ShipSize::FOUR,ShipSize::FOUR,ShipSize::FIVE};
     
   void myShipPlacementToGrid();
     
   std::vector<float> gridToLines() const;
+  void toggleOrientation();
 };

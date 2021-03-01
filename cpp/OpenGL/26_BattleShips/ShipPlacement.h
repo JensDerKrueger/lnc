@@ -44,6 +44,8 @@ public:
 
   bool incomming(const Vec2ui& pos) const;
   
+  bool isValid() const;
+
 private:
   Vec2ui gridSize;
   std::vector<Ship> ships;
@@ -54,6 +56,7 @@ private:
 
   std::string toString() const;
   ShipPlacement(const std::string& str);
+
 };
 
 enum class Cell {
@@ -65,8 +68,6 @@ enum class Cell {
 class GameGrid {
 public:
   GameGrid(const Vec2ui& gridSize=Vec2ui{10,10});
-  
-  
 
   void setShips(const ShipPlacement& sp);
   
