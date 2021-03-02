@@ -101,6 +101,7 @@ public:
     for (const auto& client : clientInfos) {
       if (client.second.id != id &&
           client.second.gameID == clientInfos[id].gameID &&
+          client.second.partnerID == 0 &&
           uint32_t(abs(int64_t(client.second.level) - int64_t(clientInfos[id].level))) < minAbs) {
         match = client.second.id;
         minAbs = uint32_t(abs(int64_t(client.second.level) - int64_t(clientInfos[id].level)));
