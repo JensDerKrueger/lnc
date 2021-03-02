@@ -41,24 +41,29 @@ public:
   }
   
   virtual void handleClientMessage(uint32_t id, const std::string& message) override {
-    
-    const std::vector<std::string> data = Coder::decode(message);
-    
-    if (data[0] == "name") {
-      for (auto& c : clientInfo) {
-        if (c.id == id) {
-          c.name = data[1];
-          break;
+    try {
+      Tokenizer t{message};
+      const std::string messageID = t.nextString();
+      const std::string messageContent = t.nextString();
+        
+      if (messageID == "name") {
+        for (auto& c : clientInfo) {
+          if (c.id == id) {
+            c.name = messageContent;
+            break;
+          }
         }
+        sendMessage(messageContent + " joined the chat!", id, true);
+      } else if (messageID == "message") {
+        auto ci = getClientInfo(id);
+        if (ci.has_value() ) {
+          sendMessage(ci.value().name + " writes " + messageContent, id, true);
+        }
+      }  else {
+        std::cerr << "client send unknown command" << std::endl;
       }
-      sendMessage(data[1] + " joined the chat!", id, true);
-    } else if (data[0] == "message") {
-      auto ci = getClientInfo(id);
-      if (ci.has_value() ) {
-        sendMessage(ci.value().name + " writes " + data[1], id, true);
-      }
-    } else {
-      std::cerr << "client send unknown command" << std::endl;
+    } catch (const MessageException& e) {
+      std::cerr << e.what() << std::endl;
     }
     
   }
@@ -90,7 +95,9 @@ public:
   }
   
   virtual void handleNewConnection() override {
-    sendMessage(Coder::encode({"name",name}));
+    Encoder e;
+    e.add({"name",name});
+    sendMessage(e.getEncodedMessage());
   }
 
   virtual void handleServerMessage(const std::string& message) override {
@@ -119,8 +126,10 @@ int main(int argc, char ** argv) {
         std::getline (std::cin,message);
         if (message == "q") {
           break;
-        } else {          
-          c.sendMessage(Coder::encode({"message",message}));
+        } else {
+          Encoder e;
+          e.add({"message",message});
+          c.sendMessage(e.getEncodedMessage());
         }
       }
       return EXIT_SUCCESS;
