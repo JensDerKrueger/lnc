@@ -15,14 +15,14 @@ class ClientInfo {
 public:
   uint32_t id{0};
   std::string name{""};
-  uint32_t gameID{0};
+  GameIDs gameID{GameIDs::InvalidID};
   uint32_t level{0};
   bool paired{false};
   uint32_t partnerID{0};
   
   ClientInfo() {}
   
-  ClientInfo(uint32_t id, const std::string& name, uint32_t gameID, uint32_t level) :
+  ClientInfo(uint32_t id, const std::string& name, GameIDs gameID, uint32_t level) :
     id{id},
     name{cleanupName(name)},
     gameID{gameID},
@@ -216,7 +216,7 @@ int main(int argc, char ** argv) {
         case 'l' : {
           const std::vector<ClientInfo> ci = s.getClientInfo();
           for (const ClientInfo& client : ci) {
-            std::cout << "ID:" << client.id << " Name:" << client.name << " Game ID:" << client.gameID << " Level:" << client.level << "\n";
+            std::cout << "ID:" << client.id << " Name:" << client.name << " Game ID:" << uint32_t(client.gameID) << " Level:" << client.level << "\n";
           }
           break;
         }
