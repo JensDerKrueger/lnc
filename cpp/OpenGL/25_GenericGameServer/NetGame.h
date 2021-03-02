@@ -49,11 +49,11 @@ struct BasicMessage {
   virtual ~BasicMessage() {}
   
   virtual std::string toString() {
-    return Coder::encode({
-      "game",
-      std::to_string(int(pt)),
-      std::to_string(userID),
-    });
+    Encoder coder;
+    coder.add("game");
+    coder.add(int(pt));
+    coder.add(userID);
+    return coder.getEncodedMessage();
   }
 };
 
@@ -114,11 +114,11 @@ struct ConnectMessage : public BasicMessage {
   virtual ~ConnectMessage() {}
   
   virtual std::string toString() override {
-    return BasicMessage::toString() + Coder::encode({
-      name,
-      std::to_string(uint32_t(gameID)),
-      std::to_string(level),
-    });
+    Encoder coder;
+    coder.add(name);
+    coder.add(uint32_t(gameID));
+    coder.add(level);
+    return BasicMessage::toString() + coder.getEncodedMessage();
   }
 };
 
@@ -142,6 +142,8 @@ struct GameMessage : public BasicMessage {
   virtual ~GameMessage() {}
   
   virtual std::string toString() override {
-    return BasicMessage::toString() + Coder::encode({payload});
+    Encoder coder;
+    coder.add(payload);
+    return BasicMessage::toString() + coder.getEncodedMessage();
   }
 };
