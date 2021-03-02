@@ -50,8 +50,7 @@ struct Coder {
   static std::string encode(const std::vector<std::string>& data) {
     std::string result;
     for (size_t i = 0;i<data.size();++i) {
-      result += removeDelim(data[i]);
-      result += DELIM;
+      result += removeDelim(data[i]) + DELIM;
     }
     return result;
   }
