@@ -68,7 +68,7 @@ void MyClient::handleNewConnection() {
 }
 
 void MyClient::handleServerMessage(const std::string& m) {
-  const std::string message = m + Coder::DELIM;  // support for old clients
+  const std::string message = m + char(1);  // HACK: support for old clients
   
   MessageType pt = identifyString(message);
      

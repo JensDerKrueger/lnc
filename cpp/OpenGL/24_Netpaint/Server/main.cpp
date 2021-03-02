@@ -86,7 +86,7 @@ public:
   }
   
   virtual void handleClientMessage(uint32_t id, const std::string& m) override {
-    const std::string message = m + Coder::DELIM;  // support for old clients
+    const std::string message = m + char(1);  // HACK: support for old clients
     
     auto currentTime = Clock::now();
     if ( std::chrono::duration_cast<std::chrono::seconds>(currentTime-lastime).count() > 60 ) {

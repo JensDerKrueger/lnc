@@ -109,11 +109,11 @@ struct BasicMessage {
   virtual ~BasicMessage() {}
   
   virtual std::string toString() {
-    return Coder::encode({
-      "painter",
-      std::to_string(int(pt)),
-      std::to_string(userID),
-    });
+    Encoder e;
+    e.add("painter");
+    e.add(uint32_t(pt));
+    e.add(userID);
+    return e.getEncodedMessage();
   }
   
 };
@@ -139,7 +139,10 @@ struct MousePosMessage : public BasicMessage {
   virtual ~MousePosMessage() {}
 
   virtual std::string toString() override {
-    return BasicMessage::toString() + Coder::encode({std::to_string(mousePos.x()),std::to_string(mousePos.y())});
+    Encoder e;
+    e.add(mousePos.x());
+    e.add(mousePos.y());
+    return BasicMessage::toString() + e.getEncodedMessage();
   }
 
 };
@@ -170,16 +173,15 @@ struct NewUserMessage : public BasicMessage {
   virtual ~NewUserMessage() {}
   
   virtual std::string toString() override {
-    return BasicMessage::toString() + Coder::encode({
-      name,
-      std::to_string(color.x()),
-      std::to_string(color.y()),
-      std::to_string(color.z()),
-      std::to_string(color.w())
-    });
+    Encoder e;
+    e.add(name);
+    e.add(color.x());
+    e.add(color.y());
+    e.add(color.z());
+    e.add(color.w());
+    return BasicMessage::toString() + e.getEncodedMessage();
   }
 };
-
 
 struct ConnectMessage : public NewUserMessage {
   bool fastCursorUpdates;
@@ -201,9 +203,9 @@ struct ConnectMessage : public NewUserMessage {
   virtual ~ConnectMessage() {}
   
   virtual std::string toString() override {
-    return NewUserMessage::toString() + Coder::encode({
-      fastCursorUpdates ? "1" : "0"
-    });
+    Encoder e;
+    e.add(fastCursorUpdates);
+    return NewUserMessage::toString() + e.getEncodedMessage();
   }
 
 };
@@ -253,14 +255,14 @@ struct CanvasUpdateMessage : public BasicMessage {
   virtual ~CanvasUpdateMessage() {}
   
   virtual std::string toString() override {
-    return BasicMessage::toString() + Coder::encode({
-      std::to_string(color.x()),
-      std::to_string(color.y()),
-      std::to_string(color.z()),
-      std::to_string(color.w()),
-      std::to_string(pos.x()),
-      std::to_string(pos.y())
-    });
+    Encoder e;
+    e.add(color.x());
+    e.add(color.y());
+    e.add(color.z());
+    e.add(color.w());
+    e.add(pos.x());
+    e.add(pos.y());
+    return BasicMessage::toString() + e.getEncodedMessage();
   }
 };
 
@@ -310,27 +312,25 @@ struct InitMessage : public BasicMessage {
   virtual ~InitMessage() {}
   
   virtual std::string toString() override {
-    std::vector<std::string> v;
+    Encoder e;
     
-    v.push_back(std::to_string(image.width));
-    v.push_back(std::to_string(image.height));
+    e.add(image.width);
+    e.add(image.height);
     for (size_t i = 0;i<image.data.size();++i) {
-      v.push_back(std::to_string(image.data[i]));
+      e.add(image.data[i]);
     }
 
-    v.push_back(std::to_string(clientInfos.size()));
+    e.add(uint32_t(clientInfos.size()));
     for (size_t i = 0;i<clientInfos.size();++i) {
-      v.push_back(std::to_string(clientInfos[i].id));
-      v.push_back(clientInfos[i].name);
-      v.push_back(std::to_string(clientInfos[i].color.x()));
-      v.push_back(std::to_string(clientInfos[i].color.y()));
-      v.push_back(std::to_string(clientInfos[i].color.z()));
-      v.push_back(std::to_string(clientInfos[i].color.w()));
-      v.push_back(std::to_string(clientInfos[i].pos.x()));
-      v.push_back(std::to_string(clientInfos[i].pos.y()));
+      e.add(clientInfos[i].id);
+      e.add(clientInfos[i].name);
+      e.add(clientInfos[i].color.x());
+      e.add(clientInfos[i].color.y());
+      e.add(clientInfos[i].color.z());
+      e.add(clientInfos[i].color.w());
+      e.add(clientInfos[i].pos.x());
+      e.add(clientInfos[i].pos.y());
     }
-    
-    return BasicMessage::toString() + Coder::encode(v);
+    return BasicMessage::toString() + e.getEncodedMessage();
   }
 };
-

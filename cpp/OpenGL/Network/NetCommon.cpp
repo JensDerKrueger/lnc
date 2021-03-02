@@ -167,3 +167,68 @@ double Tokenizer::nextDouble() {
 bool Tokenizer::nextBool() {
   return nextUint32() != 0;
 }
+
+
+Encoder::Encoder(char delimititer) :
+delimititer(delimititer)
+{
+}
+
+void Encoder::add(const char msg[]) {
+  return add(std::string(msg));
+}
+
+void Encoder::add(const std::string& msg) {
+  message += removeDelim(msg) + delimititer;
+}
+
+void Encoder::add(const std::vector<std::string>& v) {
+  for (const std::string& s : v) {
+    add(s);
+  }
+}
+
+void Encoder::add(uint8_t i) {
+  message += std::to_string(i) + delimititer;
+}
+
+void Encoder::add(int8_t i) {
+  message += std::to_string(i) + delimititer;
+}
+
+void Encoder::add(uint32_t i) {
+  message += std::to_string(i) + delimititer;
+}
+
+void Encoder::add(int32_t i) {
+  message += std::to_string(i) + delimititer;
+}
+
+void Encoder::add(uint64_t i) {
+  message += std::to_string(i) + delimititer;
+}
+
+void Encoder::add(int64_t i) {
+  message += std::to_string(i) + delimititer;
+}
+
+void Encoder::add(float f) {
+  message += std::to_string(f) + delimititer;
+}
+
+void Encoder::add(double d) {
+  message += std::to_string(d) + delimititer;
+}
+
+void Encoder::add(bool b) {
+  message += std::to_string(b) + delimititer;
+}
+std::string Encoder::removeDelim(std::string input) const {
+  size_t pos=0;
+  while(pos<input.size()) {
+    pos=input.find(delimititer,pos);
+    if(pos==std::string::npos) break;
+    input.replace(pos,1,"");
+  }
+  return input;
+}

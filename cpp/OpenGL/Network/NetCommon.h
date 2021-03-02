@@ -42,51 +42,31 @@ private:
   size_t currentIndex{0};
 };
 
+class Encoder {
+public:
+  Encoder(char delimititer = char(1));
 
-struct Coder {
+  void add(const char msg[]);
+  void add(const std::string& msg);
+  void add(const std::vector<std::string>& v);
+  void add(uint8_t i);
+  void add(int8_t i);
+  void add(uint32_t i);
+  void add(int32_t i);
+  void add(uint64_t i);
+  void add(int64_t i);
+  void add(float f);
+  void add(double d);
+  void add(bool b);
   
-  static inline char DELIM = char(1);
-
-  static std::string encode(const std::vector<std::string>& data) {
-    std::string result;
-    for (size_t i = 0;i<data.size();++i) {
-      result += removeDelim(data[i]) + DELIM;
-    }
-    return result;
-  }
-
-  static std::vector<std::string> decode(const std::string& input, size_t maxItems=0) {
-    std::vector<std::string> result;
-    size_t start = 0;
-    size_t delimPos = input.find(DELIM,start);
-    
-    if (maxItems == 0) {
-      while (delimPos != std::string::npos) {
-        result.push_back(input.substr(start, delimPos - start));
-        start = delimPos + 1;
-        delimPos = input.find(DELIM, start);
-      }
-    } else {
-      while (delimPos != std::string::npos && result.size() <= maxItems) {
-        result.push_back(input.substr(start, delimPos - start));
-        start = delimPos + 1;
-        delimPos = input.find(DELIM, start);
-      }
-    }
-    result.push_back( input.substr(start) );
-    
-    return result;
-  }
-
-  static std::string removeDelim(std::string input) {
-    size_t pos=0;
-    while(pos<input.size()) {
-      pos=input.find(DELIM,pos);
-      if(pos==std::string::npos) break;
-      input.replace(pos,1,"");
-    }
-    return input;
-  }
+  std::string getEncodedMessage() const {return message;}
+  void clear() {message = "";}
+  
+private:
+  char delimititer;
+  std::string message;
+  
+  std::string removeDelim(std::string input) const;
 };
 
 std::string genHandshake(const std::string& iv, const std::string& key);
