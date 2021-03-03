@@ -66,6 +66,4 @@ private:
   void stateTransition();
   void tryToLoadSettings();
   void restartGame();
-  
-//  friend GamePhase;
 };
