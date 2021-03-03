@@ -68,16 +68,16 @@ public:
   
   virtual void handleClientDisconnection(uint32_t id) override {
     ciMutex.lock();
-    
-    if (clientInfos[id].partnerID != 0) {
-      const uint32_t partnerID = clientInfos[id].partnerID;
+
+    const uint32_t partnerID = clientInfos[id].partnerID;    
+    if (partnerID != 0) {
       LostUserMessage l;
       l.userID = id;
       sendMessage(l.toString(), partnerID);
       clientInfos[partnerID].partnerID = 0;
     }
     clientInfos.erase(id);
-    
+    searchForMatch(partnerID);
     ciMutex.unlock();
   }
   

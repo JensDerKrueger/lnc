@@ -15,7 +15,30 @@ void GameClient::handleNewConnection() {
 
 
 void GameClient::parseGameMessage(const std::string& m) {
-  // TODO
+  Tokenizer tokenizer{m, char(2)};
+
+  GameMessageType mt = GameMessageType(tokenizer.nextUint32());
+  switch (mt) {
+    case GameMessageType::EncryptedShipPlacement :
+      otherShipPlacement = tokenizer.nextString();
+      break;
+    case GameMessageType::Shot :
+      // TODO
+      break;
+    case GameMessageType::ShotResult :
+      // TODO
+      break;
+    case GameMessageType::ShipPlacementPassword :
+      // TODO
+      break;
+    default:
+      break;
+  }
+}
+
+void GameClient::lostConnection() {
+  otherShipPlacement = {};
+  receivedPairingInfo = false;
 }
 
 void GameClient::handleServerMessage(const std::string& message) {
@@ -28,8 +51,12 @@ void GameClient::handleServerMessage(const std::string& message) {
         break;
       }
       case MessageType::GameMessage : {
-        GameMessage m(message);
+        GameMessage m{message};
         parseGameMessage(m.payload);
+        break;
+      }
+      case MessageType::LostUserMessage : {
+        lostConnection();
         break;
       }
       default:
@@ -39,8 +66,6 @@ void GameClient::handleServerMessage(const std::string& message) {
   } catch (const MessageException& e) {
     std::cerr << "MessageException: " << e.what() << std::endl;
   }
-
-
 }
 
 
@@ -49,5 +74,14 @@ std::optional<std::string> GameClient::getEncryptedShipPlacement() const {
 }
 
 void GameClient::sendEncryptedShipPlacement(const std::string& sp) {
-  
+  sendGameMessage(GameMessageType::EncryptedShipPlacement, {sp});
+}
+
+void GameClient::sendGameMessage(GameMessageType mt, const std::vector<std::string>& data) {
+  Encoder e{char(2)};
+  e.add(uint32_t(mt));
+  e.add(data);
+  GameMessage m;
+  m.payload = e.getEncodedMessage();
+  sendMessage(m.toString());
 }

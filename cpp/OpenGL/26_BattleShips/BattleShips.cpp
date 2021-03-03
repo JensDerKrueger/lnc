@@ -1,6 +1,11 @@
+#include <limits>
+
 #include "BattleShips.h"
 
 #include <Rand.h>
+
+#include "Messages.inc"
+
 
 #ifndef _WIN32
   #include "helvetica_neue.inc"
@@ -9,7 +14,17 @@
   FontRenderer BattleShips::fr{"helvetica_neue.bmp", "helvetica_neue.pos"};
 #endif
 
-BattleShips::BattleShips() : GLApp(1024, 786, 4, "Online Battleships") {}
+BattleShips::BattleShips() :
+  GLApp(1024, 786, 4, "Online Battleships"),
+  adressPhase{this, GamePhaseID::AdressSetup, "Enter server address:"},
+  namePhase{this, GamePhaseID::NameSetup, "Enter callsign:"},
+  connectingPhase{this, GamePhaseID::Connecting},
+  pairingPhase{this, GamePhaseID::Pairing},
+  boardSetupPhase{this, GamePhaseID::BoardSetup, boardSize},
+  waitingBoardSetupPhase{this, GamePhaseID::WaitingBoardSetup, "Waiting for other Captain"},
+  mainPhase{this, GamePhaseID::MainPhase, "Game here"},
+  finishedPhase{this, GamePhaseID::Finished}
+{}
 
 BattleShips::~BattleShips() {
 }
@@ -18,11 +33,11 @@ void BattleShips::tryToLoadSettings() {
   std::ifstream settings ("settings.txt");
   std::string line;
   if (settings.is_open()) {
-    if (getline(settings,line) ) {
+    if (getline(settings,line) && !line.empty() ) {
       serverAddress = line;
       addressComplete = true;
     } 
-    if (getline(settings,line) ) {
+    if (getline(settings,line) && !line.empty() ) {
       userName = line;
       nameComplete = true;
     }
@@ -37,194 +52,121 @@ void BattleShips::init() {
   GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
   GL(glBlendEquation(GL_FUNC_ADD));
   GL(glClearColor(0.0f,0.0f,0.0f,0.0f));
-    
-  Image cellImage{10,10};
-  for (uint32_t y = 0;y<cellImage.width;++y) {
-    for (uint32_t x = 0;x<cellImage.height;++x) {
-      cellImage.setNormalizedValue(x, y, 0, 0.0f);
-      cellImage.setNormalizedValue(x, y, 1, 0.0f);
-      cellImage.setNormalizedValue(x, y, 2, 1.0f);
-      cellImage.setNormalizedValue(x, y, 3, 1.0f);
-    }
-  }
-  emptyCell = GLTexture2D{cellImage};
-  for (uint32_t y = 0;y<cellImage.width;++y) {
-    for (uint32_t x = 0;x<cellImage.height;++x) {
-      cellImage.setNormalizedValue(x, y, 0, 0.3f);
-      cellImage.setNormalizedValue(x, y, 1, 0.3f);
-      cellImage.setNormalizedValue(x, y, 2, 0.3f);
-      cellImage.setNormalizedValue(x, y, 3, 1.0f);
-    }
-  }
-  unknownCell = GLTexture2D{cellImage};
-  
-  for (uint32_t y = 0;y<cellImage.width;++y) {
-    for (uint32_t x = 0;x<cellImage.height;++x) {
-      cellImage.setNormalizedValue(x, y, 0, 1.0f);
-      cellImage.setNormalizedValue(x, y, 1, 0.0f);
-      cellImage.setNormalizedValue(x, y, 2, 0.0f);
-      cellImage.setNormalizedValue(x, y, 3, 1.0f);
-    }
-  }
-  shipCell = GLTexture2D{cellImage};
-  
-  gridLines = gridToLines();
-}
 
-void BattleShips::updateMousePos() {
-  Dimensions s = glEnv.getWindowSize();
-  normPos = Vec2{float(xPositionMouse/s.width)-0.5f,float(1.0-yPositionMouse/s.height)-0.5f} * 2.0f;
-  
-  const Mat4 invMyBoardTrans = Mat4::inverse(myBoardTrans);
-  const Vec2 normMyBoardPos = ((invMyBoardTrans * Vec4(normPos,0,1)).xy() + Vec2{1.0f,1.0f}) / 2.0f;
-  myCellPos = Vec2ui{std::min(boardSize.x()-1, uint32_t(normMyBoardPos.x() * boardSize.x())),
-                     std::min(boardSize.y()-1, uint32_t(normMyBoardPos.y() * boardSize.y()))};
-
-  const Mat4 invOtherBoardTrans = Mat4::inverse(otherBoardTrans);
-  const Vec2 normOtherBoardPos = ((invOtherBoardTrans * Vec4(normPos,0,1)).xy() + Vec2{1.0f,1.0f}) / 2.0f;
-  otherCellPos = Vec2ui{std::min(boardSize.x()-1, uint32_t(normOtherBoardPos.x() * boardSize.x())),
-                        std::min(boardSize.y()-1, uint32_t(normOtherBoardPos.y() * boardSize.y()))};
-
+  adressPhase.init();
+  namePhase.init();
+  connectingPhase.init();
+  pairingPhase.init();
+  boardSetupPhase.init();
+  waitingBoardSetupPhase.init();
+  mainPhase.init();
+  finishedPhase.init();
 }
 
 void BattleShips::mouseMove(double xPosition, double yPosition) {
-  if (!client) return;
-  
-  Dimensions s = glEnv.getWindowSize();
-  if (xPosition < 0 || xPosition > s.width || yPosition < 0 || yPosition > s.height) return;
-  
-  xPositionMouse = xPosition;
-  yPositionMouse = yPosition;
-  updateMousePos();
+  if (currentPhase) currentPhase->mouseMove(xPosition, yPosition);
 }
 
 void BattleShips::mouseButton(int button, int state, int mods, double xPosition, double yPosition) {
-  if (!client) return;
-  
-  if (button == GLFW_MOUSE_BUTTON_RIGHT) {
-    rightMouseDown = (state == GLFW_PRESS);
-  }
-
-  if (button == GLFW_MOUSE_BUTTON_LEFT) {
-    leftMouseDown = (state == GLFW_PRESS);
-  }
-
-  if (rightMouseDown) {
-    toggleOrientation();
-  }
-
-  if (leftMouseDown) {
-    switch (gameState) {
-      case GameState::BoardSetup :
-        myShipPlacement.addShip({placementOrder[currentPlacement], currentOrientation, myCellPos});
-        currentPlacement++;
-        break;
-      default:
-        break;
-    }
-  }
-}
-
-
-void BattleShips::toggleOrientation() {
-  currentOrientation = Orientation(1-uint32_t(currentOrientation));
+  if (currentPhase) currentPhase->mouseButton(button, state, mods, xPosition, yPosition);
 }
 
 void BattleShips::keyboardChar(unsigned int codepoint) {
-  if (!client) {
-    if (!addressComplete) {
-      serverAddress += char(codepoint);
-      responseImage = fr.render(serverAddress);
-    } else {
-      userName += char(codepoint);
-      responseImage = fr.render(userName);
-    }
-  }
+  if (currentPhase) currentPhase->keyboardChar(codepoint);
 }
   
 void BattleShips::keyboard(int key, int scancode, int action, int mods) {
   if (action == GLFW_PRESS) {
-    
     if (key == GLFW_KEY_ESCAPE) {
       closeWindow();
       return;
     }
-
-    switch (gameState) {
-      case GameState::Startup : {
-          std::string& str = addressComplete ? userName : serverAddress;
-          bool& complete = addressComplete ? nameComplete : addressComplete;
-          switch (key) {
-            case GLFW_KEY_BACKSPACE :
-              if (str.size() > 0) str.erase(str.size() - 1);
-              responseImage = fr.render(str);
-              break;
-            case GLFW_KEY_ENTER :
-              if (str.size() > 0) complete = true;
-              break;
-          }
-          return;
-        }
-        break;
-      case GameState::BoardSetup : {
-          switch (key) {
-            case GLFW_KEY_R :
-              toggleOrientation();
-              break;
-            case GLFW_KEY_U :
-              if (currentPlacement > 0) {
-                currentPlacement--;
-                myShipPlacement.deleteShipAt(currentPlacement);
-              }
-              break;
-          }
-        }
-        break;
-      default:
-        break;
-    }
   }
+  if (currentPhase) currentPhase->keyboard(key, scancode, action, mods);
 }
 
-void BattleShips::animate(double animationTime) {
-  currentImage = size_t(animationTime*2);
+void BattleShips::restartGame() {
+  boardSetupPhase.reset();
+
+  myShipPlacement = ShipPlacement{boardSize};
+  myBoard = GameGrid{boardSize};
+  otherBoard = GameGrid{boardSize};
+  password = "";
+  encOtherShipPlacement = "";
+}
+
+
+void BattleShips::stateTransition() {
+  const GamePhaseID gamePhaseID = currentPhase ? currentPhase->getGamePhaseID() : GamePhaseID::Boot;
+      
+  if (gamePhaseID > GamePhaseID::Connecting && client && !client->isOK()) {
+    currentPhase = &connectingPhase;
+  }
+
+  if (gamePhaseID > GamePhaseID::Pairing && !client->getReceivedPairingInfo()) {
+    currentPhase = &pairingPhase;
+    restartGame();
+  }
   
-  if (gameState > GameState::Connecting && client && !client->isOK())
-    gameState = GameState::Connecting;
-  
-  switch (gameState) {
-    case GameState::Startup :
-      if (nameComplete && addressComplete) {
+  switch (gamePhaseID) {
+    case GamePhaseID::Boot :
+      if (!addressComplete) {
+        currentPhase = &adressPhase;
+      } else {
+        if (!nameComplete) {
+          currentPhase = &namePhase;
+        } else {
+          connectingPhase.setText(std::string("Connecting to ") + serverAddress);
+          currentPhase = &connectingPhase;
+          client = std::make_shared<GameClient>(serverAddress, serverPort, userName, level);
+        }
+      }
+      break;
+    case GamePhaseID::AdressSetup :
+      if (adressPhase.getInput()) {
+        serverAddress = *(adressPhase.getInput());
+        currentPhase = &namePhase;
+      }
+      break;
+    case GamePhaseID::NameSetup :
+      if (namePhase.getInput()) {
+        userName = *(namePhase.getInput());
+        connectingPhase.setText(std::string("Connecting to ") + serverAddress);
+        currentPhase = &connectingPhase;
         client = std::make_shared<GameClient>(serverAddress, serverPort, userName, level);
-        gameState = GameState::Connecting;
       }
       break;
-    case GameState::Connecting :
+    case GamePhaseID::Connecting :
       if (client->getInitMessageSend()) {
-        gameState = GameState::Pairing;
-        pairingMessage = size_t(Rand::rand01() * pairingMessages.size());
+        pairingPhase.setText(pairingMessages[size_t(Rand::rand01() * pairingMessages.size())]);
+        currentPhase = &pairingPhase;
       }
       break;
-    case GameState::Pairing :
+    case GamePhaseID::Pairing :
       if (client->getReceivedPairingInfo()) {
-        gameState = GameState::BoardSetup;
+        currentPhase = &boardSetupPhase;
       }
       break;
-    case GameState::BoardSetup :
-      if (currentPlacement == placementOrder.size()) {
+    case GamePhaseID::BoardSetup :
+      if (boardSetupPhase.getPlacement()) {
+        myShipPlacement = *(boardSetupPhase.getPlacement());
         password = AESCrypt::genIVString();
         client->sendEncryptedShipPlacement(myShipPlacement.toEncryptedString(password));
-        gameState = GameState::WaitingBoardSetup;
+        waitingBoardSetupPhase.setText(waitingMessages[size_t(Rand::rand01() * waitingMessages.size())]);
+        currentPhase = &waitingBoardSetupPhase;
       }
       break;
-    case GameState::WaitingBoardSetup :
+    case GamePhaseID::WaitingBoardSetup :
       {
         auto encPlacement = client->getEncryptedShipPlacement();
         if (encPlacement) {
           encOtherShipPlacement = *encPlacement;
-          gameState = GameState::Firing;
+          currentPhase = &mainPhase;
         }
       }
+    case GamePhaseID::MainPhase :
+      break;
+    case GamePhaseID::Finished :
       break;
     default:
       std::cout << "oops" << std::endl;
@@ -232,180 +174,12 @@ void BattleShips::animate(double animationTime) {
   }
 }
 
-void BattleShips::drawStartup() {
-  if (serverAddress.empty()) {
-    responseImage = fr.render("Type in server address:");
-  } else if (addressComplete && userName.empty()) {
-    responseImage = fr.render("Type in your name:");
-  }
-  setDrawTransform(Mat4::scaling(1.0f/3.0f) * computeImageTransform({responseImage.width, responseImage.height}) );
-  drawImage(responseImage);
-}
-
-void BattleShips::drawConnecting() {
-  Image connectingImage = fr.render("Connecting to " + serverAddress);
-  const size_t baseTextWidth = connectingImage.width;
-  
-  switch (currentImage % 4) {
-    default:
-      break;
-    case 1 :
-      connectingImage = fr.render("Connecting to " + serverAddress + " .");
-      break;
-    case 2 :
-      connectingImage = fr.render("Connecting to " + serverAddress + " ..");
-      break;
-    case 3 :
-      connectingImage = fr.render("Connecting to " + serverAddress + " ...");
-      break;
-  }
-
-  setDrawTransform(Mat4::scaling(connectingImage.width / (baseTextWidth * 2.0f)) * computeImageTransform({connectingImage.width, connectingImage.height}) );
-  drawImage(connectingImage);
-}
-
-void BattleShips::drawPairing() {
-  Image connectingImage = fr.render(pairingMessages[pairingMessage]);
-  const size_t baseTextWidth = connectingImage.width;
-  
-  switch (currentImage % 4) {
-    default:
-      break;
-    case 1 :
-      connectingImage = fr.render(pairingMessages[pairingMessage] + " .");
-      break;
-    case 2 :
-      connectingImage = fr.render(pairingMessages[pairingMessage] + " ..");
-      break;
-    case 3 :
-      connectingImage = fr.render(pairingMessages[pairingMessage] + " ...");
-      break;
-  }
-
-  setDrawTransform(Mat4::scaling(connectingImage.width / (baseTextWidth * 2.0f)) * computeImageTransform({connectingImage.width, connectingImage.height}) );
-  drawImage(connectingImage);
-}
-
-
-std::vector<float> BattleShips::gridToLines() const {
-  std::vector<float> lines;
-  
-  const uint32_t w = myBoard.getSize().x();
-  const uint32_t h = myBoard.getSize().y();
-  
-  for (uint32_t y = 0;y<h+1;++y) {
-    lines.push_back(-1);
-    lines.push_back(1.0f-2.0f*float(y)/h);
-    lines.push_back(0);
-    
-    lines.push_back(1);
-    lines.push_back(1);
-    lines.push_back(1);
-    lines.push_back(1);
-    
-    lines.push_back(1);
-    lines.push_back(1.0f-2.0f*float(y)/h);
-    lines.push_back(0);
-
-    lines.push_back(1);
-    lines.push_back(1);
-    lines.push_back(1);
-    lines.push_back(1);
-  }
-
-  for (size_t x = 0;x<w+1;++x) {
-    lines.push_back(1.0f-2.0f*float(x)/w);
-    lines.push_back(-1);
-    lines.push_back(0);
-    
-    lines.push_back(1);
-    lines.push_back(1);
-    lines.push_back(1);
-    lines.push_back(1);
-    
-    lines.push_back(1.0f-2.0f*float(x)/w);
-    lines.push_back(1);
-    lines.push_back(0);
-
-    lines.push_back(1);
-    lines.push_back(1);
-    lines.push_back(1);
-    lines.push_back(1);
-  }
-  
-  return lines;
-}
-
-void BattleShips::drawBoardSetup() {
-  if(currentPlacement >= placementOrder.size()) return;
-  
-  myBoardTrans = Mat4::scaling(0.8f,0.8f,1.0f) * Mat4::translation(0.0f,0.0f,0.0f);
-
-  setDrawTransform(myBoardTrans);
-  drawLines(gridLines, LineDrawType::LIST, 3);
-  
-  const std::vector<Ship>& ships = myShipPlacement.getShips();
-  
-  bool shipAdded = myShipPlacement.addShip({placementOrder[currentPlacement], currentOrientation, myCellPos});
-   
-  
-  for (const Ship& ship : ships) {
-    const Vec2ui start = ship.pos;
-    const Vec2ui end   = ship.computeEnd();
-    for (size_t y = start.y(); y <= end.y(); ++y) {
-      for (size_t x = start.x(); x <= end.x(); ++x) {
-        
-        float tX = (x+0.5f)/boardSize.x()*2.0f-1.0f;
-        float tY = (y+0.5f)/boardSize.y()*2.0f-1.0f;
-
-        setDrawTransform( Mat4::scaling(1.0f/boardSize.x(),1.0f/boardSize.y(),1.0f) * Mat4::translation(tX,tY,0.0f) * myBoardTrans);
-        drawImage(shipCell);
-      }
-    }
-  }
-  
-  if (shipAdded)
-    myShipPlacement.deleteShipAt(ships.size()-1);
-  
-}
-
-
-void BattleShips::drawBoards() {
-  myBoardTrans = Mat4::scaling(0.8f,0.8f,0.8f) * Mat4::translation(0.0f,0.0f,0.0f);
-  otherBoardTrans = Mat4::scaling(0.8f,0.8f,0.8f) * Mat4::translation(0.0f,0.0f,0.0f);
-
-  setDrawTransform(myBoardTrans);
-  drawLines(gridLines, LineDrawType::LIST, 3);
-
-  setDrawTransform(otherBoardTrans);
-  drawLines(gridLines, LineDrawType::LIST, 3);
+void BattleShips::animate(double animationTime) {
+  stateTransition();
+  if (currentPhase) currentPhase->animate(animationTime);
 }
 
 
 void BattleShips::draw() {
-  GL(glClearColor(0.0f,0.0f,0.0f,0.0f));
-  GL(glClear(GL_COLOR_BUFFER_BIT));
-  
-  switch (gameState) {
-    case GameState::Startup :
-      drawStartup();
-      break;
-    case GameState::Connecting :
-      drawConnecting();
-      break;
-    case GameState::Pairing :
-      drawPairing();
-      break;
-    case GameState::BoardSetup :
-      drawBoardSetup();
-      break;
-    case GameState::Firing :
-    case GameState::WaitingFiring :
-      drawBoards();
-      break;
-    default:
-      std::cout << "oops draw" << std::endl;
-      break;
-  }
-  
+  if (currentPhase) currentPhase->draw();
 }

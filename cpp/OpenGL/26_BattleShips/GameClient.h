@@ -12,6 +12,14 @@
 #include "../25_GenericGameServer/NetGame.h"
 #include "ShipPlacement.h"
 
+enum class GameMessageType {
+  Invalid = 0,
+  EncryptedShipPlacement = 1,
+  Shot = 2,
+  ShotResult = 3,
+  ShipPlacementPassword = 4
+};
+
 class GameClient : public Client {
 public:
   GameClient(const std::string& address, short port, const std::string& name, uint32_t level);
@@ -39,4 +47,7 @@ private:
   bool receivedPairingInfo{false};
   
   void parseGameMessage(const std::string& m);
+  void lostConnection();
+  
+  void sendGameMessage(GameMessageType mt, const std::vector<std::string>& data);
 };

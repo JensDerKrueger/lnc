@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5601A4EB25EEBAFB00077919 /* TextPhase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5601A4E925EEBAFB00077919 /* TextPhase.cpp */; };
+		5601A4F425EEE99B00077919 /* InputPhase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5601A4F325EEE99B00077919 /* InputPhase.cpp */; };
+		5601A4F825EEFB6200077919 /* BoardPhase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5601A4F725EEFB6200077919 /* BoardPhase.cpp */; };
+		5601A4FC25EEFD1D00077919 /* GamePhase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5601A4FB25EEFD1D00077919 /* GamePhase.cpp */; };
+		5601A50125EEFF4300077919 /* BoardSetupPhase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5601A4FF25EEFF4300077919 /* BoardSetupPhase.cpp */; };
 		564194E925EB29FF00A6B8A8 /* NetGame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 564194E825EB29FF00A6B8A8 /* NetGame.cpp */; };
 		56A7B0FC25EBFF99001B324D /* settings.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = 56A7B0F725EBFE1D001B324D /* settings.txt */; };
 		A231F11325EAF65400CBFC23 /* BattleShips.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A231F10C25EAF65400CBFC23 /* BattleShips.cpp */; };
@@ -29,6 +34,17 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		5601A4E925EEBAFB00077919 /* TextPhase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TextPhase.cpp; sourceTree = "<group>"; };
+		5601A4EA25EEBAFB00077919 /* GamePhase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GamePhase.h; sourceTree = "<group>"; };
+		5601A4ED25EEBBB200077919 /* TextPhase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TextPhase.h; sourceTree = "<group>"; };
+		5601A4F225EEE99B00077919 /* InputPhase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InputPhase.h; sourceTree = "<group>"; };
+		5601A4F325EEE99B00077919 /* InputPhase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InputPhase.cpp; sourceTree = "<group>"; };
+		5601A4F625EEFB6100077919 /* BoardPhase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BoardPhase.h; sourceTree = "<group>"; };
+		5601A4F725EEFB6200077919 /* BoardPhase.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = BoardPhase.cpp; sourceTree = "<group>"; };
+		5601A4FB25EEFD1D00077919 /* GamePhase.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GamePhase.cpp; sourceTree = "<group>"; };
+		5601A4FF25EEFF4300077919 /* BoardSetupPhase.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = BoardSetupPhase.cpp; sourceTree = "<group>"; };
+		5601A50025EEFF4300077919 /* BoardSetupPhase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BoardSetupPhase.h; sourceTree = "<group>"; };
+		5601A50925EF13BE00077919 /* Messages.inc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.pascal; path = Messages.inc; sourceTree = "<group>"; };
 		564194E725EB29FF00A6B8A8 /* NetGame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NetGame.h; path = ../25_GenericGameServer/NetGame.h; sourceTree = "<group>"; };
 		564194E825EB29FF00A6B8A8 /* NetGame.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NetGame.cpp; path = ../25_GenericGameServer/NetGame.cpp; sourceTree = "<group>"; };
 		56A7B0F725EBFE1D001B324D /* settings.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = settings.txt; sourceTree = "<group>"; };
@@ -66,6 +82,17 @@
 				564194E825EB29FF00A6B8A8 /* NetGame.cpp */,
 				564194E725EB29FF00A6B8A8 /* NetGame.h */,
 				56A7B0F725EBFE1D001B324D /* settings.txt */,
+				5601A4EA25EEBAFB00077919 /* GamePhase.h */,
+				5601A4FB25EEFD1D00077919 /* GamePhase.cpp */,
+				5601A4ED25EEBBB200077919 /* TextPhase.h */,
+				5601A4E925EEBAFB00077919 /* TextPhase.cpp */,
+				5601A4F225EEE99B00077919 /* InputPhase.h */,
+				5601A4F325EEE99B00077919 /* InputPhase.cpp */,
+				5601A4F625EEFB6100077919 /* BoardPhase.h */,
+				5601A4F725EEFB6200077919 /* BoardPhase.cpp */,
+				5601A50025EEFF4300077919 /* BoardSetupPhase.h */,
+				5601A4FF25EEFF4300077919 /* BoardSetupPhase.cpp */,
+				5601A50925EF13BE00077919 /* Messages.inc */,
 				A231F10025EAF61A00CBFC23 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -134,11 +161,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5601A4F825EEFB6200077919 /* BoardPhase.cpp in Sources */,
+				5601A4FC25EEFD1D00077919 /* GamePhase.cpp in Sources */,
+				5601A50125EEFF4300077919 /* BoardSetupPhase.cpp in Sources */,
 				A231F11625EAF65400CBFC23 /* GameClient.cpp in Sources */,
+				5601A4EB25EEBAFB00077919 /* TextPhase.cpp in Sources */,
 				A231F11B25EB1AA000CBFC23 /* ShipPlacement.cpp in Sources */,
 				A231F11425EAF65400CBFC23 /* main.cpp in Sources */,
 				A231F11325EAF65400CBFC23 /* BattleShips.cpp in Sources */,
 				564194E925EB29FF00A6B8A8 /* NetGame.cpp in Sources */,
+				5601A4F425EEE99B00077919 /* InputPhase.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

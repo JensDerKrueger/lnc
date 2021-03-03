@@ -35,7 +35,7 @@ public:
   bool checkShip(const Ship& ship) const;
 
   bool addShip(const Ship& shid);
-  void deleteShipAt(size_t shipIndex);
+  void deleteLastShip();
   
   const std::vector<Ship>& getShips() const {return ships;}
 

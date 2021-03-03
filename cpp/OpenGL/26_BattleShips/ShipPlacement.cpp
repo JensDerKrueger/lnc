@@ -76,8 +76,8 @@ bool ShipPlacement::addShip(const Ship& ship) {
   return false;
 }
 
-void ShipPlacement::deleteShipAt(size_t shipIndex) {
-  ships.erase(ships.begin()+shipIndex);
+void ShipPlacement::deleteLastShip() {
+  ships.pop_back();
 }
 
 ShipPlacement ShipPlacement::fromEncryptedString(const std::string& encryptedString, const std::string& password) {
@@ -91,18 +91,18 @@ std::string ShipPlacement::toEncryptedString(const std::string& password) const 
 }
 
 std::string ShipPlacement::toString() const {
-  std::vector<std::string> data;
-  data.push_back("ShipPlacement");
-  data.push_back(std::to_string(gridSize.x()));
-  data.push_back(std::to_string(gridSize.y()));
-  data.push_back(std::to_string(ships.size()));
+  Encoder e;
+  e.add("ShipPlacement");
+  e.add(gridSize.x());
+  e.add(gridSize.y());
+  e.add(uint32_t(ships.size()));
   for (const Ship& s : ships) {
-    data.push_back(std::to_string(uint32_t(s.shipSize)));
-    data.push_back(std::to_string(uint32_t(s.orientation)));
-    data.push_back(std::to_string(s.pos.x()));
-    data.push_back(std::to_string(s.pos.y()));
+    e.add(uint32_t(s.shipSize));
+    e.add(uint32_t(s.orientation));
+    e.add(s.pos.x());
+    e.add(s.pos.y());
   }
-  return Coder::encode(data);
+  return e.getEncodedMessage();
 }
 
 ShipPlacement::ShipPlacement(const std::string& str) {
