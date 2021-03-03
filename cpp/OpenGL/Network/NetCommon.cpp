@@ -40,7 +40,7 @@ std::string Tokenizer::nextString() {
   size_t delimPos = message.find(delimititer,currentIndex);
   
   if (delimPos == std::string::npos)
-      throw MessageException("Message to short");
+      throw MessageException("Message too short");
   
   const std::string result = message.substr(currentIndex, delimPos - currentIndex);
   currentIndex = delimPos + 1;
