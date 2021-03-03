@@ -18,6 +18,8 @@
 #include "InputPhase.h"
 #include "BoardSetupPhase.h"
 
+#include "GameGrid.h"
+
 const Vec2ui boardSize{10,10};
 
 class BattleShips : public GLApp {
