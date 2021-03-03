@@ -37,11 +37,21 @@ public:
   
   std::optional<std::string> getEncryptedShipPlacement() const;
   void sendEncryptedShipPlacement(const std::string& sp);
+
+  std::optional<std::string> getShipPlacementPassword() const;
+  void sendShipPlacementPassword(const std::string& sp);
+  
+  std::vector<Vec2ui> getShotReceived() const;
+  std::vector<bool> getShotResults() const;
   
 private:
   std::string name{""};
   uint32_t level{0};
   std::optional<std::string> otherShipPlacement{};
+  std::optional<std::string> shipPlacementPassword{};
+  
+  std::vector<Vec2ui> shotReceived;
+  std::vector<bool> shotResult;
   
   bool initMessageSend{false};
   bool receivedPairingInfo{false};

@@ -13,7 +13,6 @@ void GameClient::handleNewConnection() {
   initMessageSend = true;
 }
 
-
 void GameClient::parseGameMessage(const std::string& m) {
   Tokenizer tokenizer{m, char(2)};
 
@@ -23,15 +22,20 @@ void GameClient::parseGameMessage(const std::string& m) {
       otherShipPlacement = tokenizer.nextString();
       break;
     case GameMessageType::Shot :
-      // TODO
+      {
+        uint32_t x = tokenizer.nextUint32();
+        uint32_t y = tokenizer.nextUint32();
+        shotReceived.push_back({x,y});
+      }
       break;
     case GameMessageType::ShotResult :
-      // TODO
+      shotResult.push_back(tokenizer.nextUint32());
       break;
     case GameMessageType::ShipPlacementPassword :
-      // TODO
+      shipPlacementPassword = tokenizer.nextString();
       break;
     default:
+      std::cerr << "Unkown game message received" << std::endl;
       break;
   }
 }
@@ -60,7 +64,7 @@ void GameClient::handleServerMessage(const std::string& message) {
         break;
       }
       default:
-        std::cerr << "Unkown Message received" << std::endl;
+        std::cerr << "Unkown network message received" << std::endl;
         break;
     }
   } catch (const MessageException& e) {
@@ -68,13 +72,14 @@ void GameClient::handleServerMessage(const std::string& message) {
   }
 }
 
-
 std::optional<std::string> GameClient::getEncryptedShipPlacement() const {
   return otherShipPlacement;
 }
 
 void GameClient::sendEncryptedShipPlacement(const std::string& sp) {
   sendGameMessage(GameMessageType::EncryptedShipPlacement, {sp});
+  shotReceived.clear();
+  shotResult.clear();
 }
 
 void GameClient::sendGameMessage(GameMessageType mt, const std::vector<std::string>& data) {
@@ -84,4 +89,20 @@ void GameClient::sendGameMessage(GameMessageType mt, const std::vector<std::stri
   GameMessage m;
   m.payload = e.getEncodedMessage();
   sendMessage(m.toString());
+}
+
+std::optional<std::string> GameClient::getShipPlacementPassword() const {
+  return shipPlacementPassword;
+}
+
+void GameClient::sendShipPlacementPassword(const std::string& sp) {
+  sendGameMessage(GameMessageType::ShipPlacementPassword, {sp});
+}
+
+std::vector<Vec2ui> GameClient::getShotReceived() const {
+  return shotReceived;
+}
+
+std::vector<bool> GameClient::getShotResults() const {
+  return shotResult;
 }
