@@ -494,6 +494,29 @@ void GLApp::drawImage(const Image& image, const Vec3& bl,
   drawImage(raster, bl, br, tl, tr);
 }
 
+void GLApp::drawRect(const Vec4& color, const Vec2& bl, const Vec2& tr) {
+  drawRect(color,
+            {bl.x(),bl.y(),0.0f},
+            {tr.x(),bl.y(),0.0f},
+            {bl.x(),tr.y(),0.0f},
+            {tr.x(),tr.y(),0.0f});
+}
+
+void GLApp::drawRect(const Vec4& color, const Vec3& bl, const Vec3& br,
+                     const Vec3& tl, const Vec3& tr) {
+  
+  std::vector<GLubyte> data{
+    GLubyte(color.x()*255),
+    GLubyte(color.y()*255),
+    GLubyte(color.z()*255),
+    GLubyte(color.w()*255)
+  };
+  raster.setData(data, 1, 1, 4);
+  drawImage(raster, bl, br, tl, tr);
+}
+
+
+
 Mat4 GLApp::computeImageTransform(const Vec2ui& imageSize) const {
   const Dimensions s = glEnv.getWindowSize();
   const float ax = imageSize.x()/float(s.width);

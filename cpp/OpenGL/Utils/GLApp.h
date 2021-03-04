@@ -46,6 +46,13 @@ public:
 
   void setImageFilter(GLint magFilter, GLint minFilter);
 
+  void drawRect(const Vec4& color, const Vec2& bl, const Vec2& tr);
+  void drawRect(const Vec4& color,
+                const Vec3& bl=Vec3{-1.0f,-1.0f,0.0f},
+                const Vec3& br=Vec3{1.0f,-1.0f,0.0f},
+                const Vec3& tl=Vec3{-1.0f,1.0f,0.0f},
+                const Vec3& tr=Vec3{1.0f,1.0f,0.0f});
+
   void drawImage(const GLTexture2D& image, const Vec2& bl, const Vec2& tr);
   void drawImage(const Image& image, const Vec2& bl, const Vec2& tr);
   void drawImage(const GLTexture2D& image,
