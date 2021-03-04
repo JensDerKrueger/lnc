@@ -238,8 +238,8 @@ struct CanvasUpdateMessage : public BasicMessage {
     float a = tokenizer.nextFloat();
     color = Vec4(r,g,b,a);
 
-    float x = tokenizer.nextInt32();
-    float y = tokenizer.nextInt32();
+    uint32_t x = tokenizer.nextInt32();
+    uint32_t y = tokenizer.nextInt32();
     pos = Vec2i(x,y);
 
     pt = MessageType::CanvasUpdateMessage;
