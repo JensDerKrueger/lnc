@@ -5,11 +5,11 @@
 
 std::vector<ShipSize> ShipPlacement::completePlacement{
   ShipSize::TWO,
-/*  ShipSize::THREE,
+  ShipSize::THREE,
   ShipSize::THREE,
   ShipSize::FOUR,
   ShipSize::FOUR,
-  ShipSize::FIVE,*/
+  ShipSize::FIVE
 };
 
 Ship::Ship(ShipSize shipSize, Orientation orientation, const Vec2ui& pos) :
