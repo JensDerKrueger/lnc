@@ -10,7 +10,9 @@
 enum class Cell {
   Unknown,
   Empty,
-  Ship
+  Ship,
+  EmptyShot,
+  ShipShot
 };
 
 class GameGrid {
@@ -18,9 +20,11 @@ public:
   GameGrid(const Vec2ui& gridSize=Vec2ui{10,10});
 
   void setShips(const ShipPlacement& sp);
+  void setEnemyShips(const ShipPlacement& sp);
   
   void addHit(const Vec2ui& pos);
   void addMiss(const Vec2ui& pos);
+  void addShot(const Vec2ui& pos);
 
   bool validate(const std::string& encryptedString, const std::string& password);
   
@@ -29,6 +33,8 @@ public:
   
   void clearUnknown();
 
+  size_t getRemainingHits() const;
+  
 private:
   Vec2ui gridSize;
   std::vector<Cell> grid;

@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <map>
 
 #include <Vec2.h>
 
@@ -48,9 +49,14 @@ public:
   
   Vec2ui getGridSize() const {return gridSize;}
 
+  static std::vector<ShipSize> completePlacement;
+  
+  static size_t getHitsToWin();
+
 private:
   Vec2ui gridSize;
   std::vector<Ship> ships;
+  std::map<ShipSize, size_t> completePlacementMap;
 
   bool shipTypeValid(const Ship& newShip) const;
   bool shipInGrid(const Ship& newShip) const;
@@ -59,4 +65,5 @@ private:
   std::string toString() const;
   ShipPlacement(const std::string& str);
 
+  void buildCompletePlacementMap();
 };

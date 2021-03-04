@@ -15,19 +15,15 @@ public:
   virtual void keyboard(int key, int scancode, int action, int mods) override;
   virtual void draw() override;
 
-  void reset();
-  
   std::optional<ShipPlacement> getPlacement() const;
     
 private:
   Mat4 myBoardTrans;
-  Vec2ui myCellPos;
+  Vec2ui myCellPos{std::numeric_limits<uint32_t>::max(), std::numeric_limits<uint32_t>::max()};
 
   Orientation currentOrientation{Orientation::Vertical};
   size_t currentPlacement{0};
-  std::vector<ShipSize> placementOrder{ShipSize::TWO,ShipSize::THREE,ShipSize::THREE,ShipSize::FOUR,ShipSize::FOUR,ShipSize::FIVE};
   ShipPlacement myShipPlacement;
-  
   
   void toggleOrientation();
 };

@@ -17,6 +17,7 @@ protected:
   GLTexture2D unknownCell;
   GLTexture2D shipCell;
   GLTexture2D aimCell;
+  GLTexture2D shotCell;
   std::vector<float> gridLines;
 
 private:

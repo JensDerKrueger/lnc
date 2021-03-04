@@ -31,15 +31,26 @@ void GameClient::parseGameMessage(const std::string& m) {
     case GameMessageType::Shot : {
         uint32_t x = tokenizer.nextUint32();
         uint32_t y = tokenizer.nextUint32();
-        const std::scoped_lock<std::mutex> lock(shotReceivedMutex);
-        shotReceived.push_back({x,y});
+        const std::scoped_lock<std::mutex> lock(shotsMutex);
+        shotsReceived.push_back({x,y});
       }
       break;
     case GameMessageType::ShotResult : {
-        const std::scoped_lock<std::mutex> lock(shotResultMutex);
-        shotResult.push_back(tokenizer.nextUint32());
+      const std::scoped_lock<std::mutex> lock(shotsMutex);
+      uint32_t x = tokenizer.nextUint32();
+      uint32_t y = tokenizer.nextUint32();
+      bool hit = tokenizer.nextBool();
+    
+      if (shotResults.size() >= shotsFired.size() ||
+          shotsFired[shotResults.size()].x() != x ||
+          shotsFired[shotResults.size()].y() != y) {
+        std::cerr << "Invalid shot response" << std::endl;
+        return;
       }
-      break;
+      
+      shotResults.push_back(ShotResult{x,y,hit});
+    }
+    break;
     case GameMessageType::ShipPlacementPassword :
       shipPlacementPassword = tokenizer.nextString();
       break;
@@ -87,8 +98,8 @@ std::optional<std::string> GameClient::getEncryptedShipPlacement() const {
 
 void GameClient::sendEncryptedShipPlacement(const std::string& sp) {
   sendGameMessage(GameMessageType::EncryptedShipPlacement, {sp});
-  shotReceived.clear();
-  shotResult.clear();
+  shotsReceived.clear();
+  shotResults.clear();
 }
 
 void GameClient::sendGameMessage(GameMessageType mt, const std::vector<std::string>& data) {
@@ -108,15 +119,15 @@ void GameClient::sendShipPlacementPassword(const std::string& sp) {
   sendGameMessage(GameMessageType::ShipPlacementPassword, {sp});
 }
 
-std::vector<Vec2ui> GameClient::getShotReceived() {
-  const std::scoped_lock<std::mutex> lock(shotReceivedMutex);
-  std::vector<Vec2ui> result = shotReceived;
+std::vector<Vec2ui> GameClient::getShotsReceived() {
+  const std::scoped_lock<std::mutex> lock(shotsMutex);
+  std::vector<Vec2ui> result = shotsReceived;
   return result;
 }
 
-std::vector<bool> GameClient::getShotResults() {
-  const std::scoped_lock<std::mutex> lock(shotResultMutex);
-  std::vector<bool> result = shotResult;
+std::vector<ShotResult> GameClient::getShotResults() {
+  const std::scoped_lock<std::mutex> lock(shotsMutex);
+  std::vector<ShotResult> result = shotResults;
   return result;
 }
 
@@ -126,7 +137,10 @@ Vec2ui GameClient::getAim() {
   return result;
 }
 
-void GameClient::fireAt(const Vec2ui& pos) {
+void GameClient::shootAt(const Vec2ui& pos) {
+  const std::scoped_lock<std::mutex> lock(shotsMutex);
+  shotsFired.push_back(pos);
+  
   Encoder e{char(2)};
   e.add(uint32_t(GameMessageType::Shot));
   e.add(pos.x());
@@ -149,3 +163,13 @@ void GameClient::aimAt(const Vec2ui& pos) {
   sendMessage(m.toString());
 }
 
+void GameClient::sendShotResult(const ShotResult& r) {
+  Encoder e{char(2)};
+  e.add(uint32_t(GameMessageType::ShotResult));
+  e.add(r.x);
+  e.add(r.y);
+  e.add(r.hit);
+  GameMessage m;
+  m.payload = e.getEncodedMessage();
+  sendMessage(m.toString());
+}

@@ -19,6 +19,7 @@
 #include "InputPhase.h"
 #include "BoardSetupPhase.h"
 #include "MainPhase.h"
+#include "FinishPhase.h"
 
 #include "GameGrid.h"
 
@@ -40,10 +41,7 @@ public:
   static FontRenderer fr;
 
   Dimensions getWindowSize() const {return glEnv.getWindowSize();}
-  
-  GameGrid getMyBoard();
-  GameGrid getOtherBoard();
-  
+    
   std::shared_ptr<GameClient> getClient() {return client;}
   
 private:
@@ -55,13 +53,9 @@ private:
   std::string userName{""};
   uint32_t level{0};
   
-  std::string password;
+  std::string myPassword;
   std::string encOtherShipPlacement;
-  ShipPlacement myShipPlacement{boardSize};
-  
-  GameGrid myBoard{boardSize};
-  GameGrid otherBoard{boardSize};
-  
+    
   GamePhase* currentPhase{nullptr};
   InputPhase adressPhase;
   InputPhase namePhase;
@@ -70,11 +64,9 @@ private:
   BoardSetupPhase boardSetupPhase;
   TextPhase waitingBoardSetupPhase;
   MainPhase mainPhase;
-  TextPhase finishedPhase;
+  FinishPhase finishedPhase;
 
   void stateTransition();
   void tryToLoadSettings();
   void restartGame();
-  
-  std::mutex boardMutex;
 };

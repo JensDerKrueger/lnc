@@ -28,6 +28,24 @@ void GameGrid::addMiss(const Vec2ui& pos) {
   misses.push_back(pos);
 }
 
+void GameGrid::addShot(const Vec2ui& pos) {
+  Cell c = getCell(pos.x(), pos.y());
+  switch (c) {
+    case Cell::Unknown:
+    case Cell::ShipShot :
+    case Cell::EmptyShot :
+      break;
+    case Cell::Ship :
+      setCell(pos.x(), pos.y(), Cell::ShipShot);
+      hits.push_back(pos);
+      break;
+    case Cell::Empty :
+      setCell(pos.x(), pos.y(), Cell::EmptyShot);
+      misses.push_back(pos);
+      break;
+  }
+}
+
 void GameGrid::addShip(const Vec2ui& pos) {
   setCell(pos.x(), pos.y(), Cell::Ship);
 }
@@ -67,6 +85,20 @@ void GameGrid::setShips(const ShipPlacement& sp) {
   }
 }
 
+void GameGrid::setEnemyShips(const ShipPlacement& sp) {
+  for (const Ship& s : sp.getShips()) {
+    const Vec2ui start = s.pos;
+    const Vec2ui end   = s.computeEnd();
+    
+    for (uint32_t y = start.y();y<=end.y();y++) {
+      for (uint32_t x = start.x();x<=end.x();x++) {
+        if (getCell(x, y) == Cell::Unknown )
+          addShip({x,y});
+      }
+    }
+  }
+}
+
 void GameGrid::clearEmpty() {
   grid.resize(gridSize.x() * gridSize.y());
   for (size_t i = 0; i< grid.size();++i) {
@@ -83,4 +115,8 @@ void GameGrid::clearUnknown() {
   }
   hits.clear();
   misses.clear();
+}
+
+size_t GameGrid::getRemainingHits() const {
+  return ShipPlacement::getHitsToWin() - hits.size();
 }

@@ -1,10 +1,16 @@
 #include "ShipPlacement.h"
 
-#include <map>
-
 #include <AES.h>
 #include <NetCommon.h>
 
+std::vector<ShipSize> ShipPlacement::completePlacement{
+  ShipSize::TWO,
+/*  ShipSize::THREE,
+  ShipSize::THREE,
+  ShipSize::FOUR,
+  ShipSize::FOUR,
+  ShipSize::FIVE,*/
+};
 
 Ship::Ship(ShipSize shipSize, Orientation orientation, const Vec2ui& pos) :
   shipSize(shipSize),
@@ -23,25 +29,28 @@ Vec2ui Ship::computeEnd() const {
 ShipPlacement::ShipPlacement(const Vec2ui& gridSize) :
   gridSize(gridSize)
 {
+  buildCompletePlacementMap();
 }
 
 bool ShipPlacement::shipTypeValid(const Ship& newShip) const {
-  if (ships.size() == 6) return false;
+  if (ships.size() == completePlacement.size()) return false;
 
   std::map<ShipSize, size_t> histo;
 
-  histo[ShipSize::TWO] = 0;
-  histo[ShipSize::THREE] = 0;
-  histo[ShipSize::FOUR] = 0;
-  histo[ShipSize::FIVE] = 0;
-  
   histo[newShip.shipSize]++;
   for (const Ship& other : ships) {
     histo[other.shipSize]++;
   }
   
-  return (histo[ShipSize::TWO] <= 1 && histo[ShipSize::THREE] <= 2 &&
-          histo[ShipSize::FOUR] <= 2 && histo[ShipSize::FIVE] <= 1);
+  try {
+    for (const auto& e : histo) {
+      if (completePlacementMap.at(e.first) < e.second) return false;
+    }
+  } catch (const std::out_of_range& ){
+    return false;
+  }
+  
+  return true;
 }
 
 bool ShipPlacement::shipInGrid(const Ship& newShip) const {
@@ -138,9 +147,24 @@ bool ShipPlacement::incomming(const Vec2ui& pos) const {
 
 bool ShipPlacement::isValid() const {
   ShipPlacement temp{gridSize};
-  if (ships.size() == 6) return false;  
+  if (ships.size() != completePlacement.size()) return false;
   for (const Ship& s : ships) {
     if (!temp.addShip(s)) return false;
   }
   return true;
+}
+
+void ShipPlacement::buildCompletePlacementMap() {
+  completePlacementMap.clear();
+  for (const ShipSize& s : completePlacement) {
+    completePlacementMap[s]++;
+  }
+}
+
+size_t ShipPlacement::getHitsToWin() {
+  size_t total = 0;
+  for (const ShipSize& s : completePlacement) {
+    total += size_t(s);
+  }
+  return total;
 }

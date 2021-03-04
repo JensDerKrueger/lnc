@@ -7,13 +7,8 @@ BoardPhase(app, gamePhaseID, b),
 myShipPlacement{b}
 {}
 
-void BoardSetupPhase::reset() {
-  currentPlacement = 0;
-  myShipPlacement = ShipPlacement{boardSize};
-}
-
 std::optional<ShipPlacement> BoardSetupPhase::getPlacement() const {
-  if (currentPlacement >= placementOrder.size())
+  if (currentPlacement >= ShipPlacement::completePlacement.size())
     return myShipPlacement;
   else
     return {};
@@ -42,7 +37,7 @@ void BoardSetupPhase::mouseButton(int button, int state, int mods, double xPosit
 
   if (button == GLFW_MOUSE_BUTTON_LEFT && state == GLFW_PRESS) {
     if (myCellPos.x() < boardSize.x() && myCellPos.y() < boardSize.y()) {
-      if (myShipPlacement.addShip({placementOrder[currentPlacement], currentOrientation, myCellPos})) currentPlacement++;
+      if (myShipPlacement.addShip({ShipPlacement::completePlacement[currentPlacement], currentOrientation, myCellPos})) currentPlacement++;
     }
   }
 
@@ -68,7 +63,7 @@ void BoardSetupPhase::keyboard(int key, int scancode, int action, int mods) {
 void BoardSetupPhase::draw() {
   BoardPhase::draw();
   
-  if(currentPlacement >= placementOrder.size()) return;
+  if(currentPlacement >= ShipPlacement::completePlacement.size()) return;
   
   
   Image prompt = app->fr.render("Position Your Fleet");
@@ -82,7 +77,7 @@ void BoardSetupPhase::draw() {
   
   const std::vector<Ship>& ships = myShipPlacement.getShips();
   
-  bool shipAdded = myShipPlacement.addShip({placementOrder[currentPlacement], currentOrientation, myCellPos});
+  bool shipAdded = myShipPlacement.addShip({ShipPlacement::completePlacement[currentPlacement], currentOrientation, myCellPos});
      
   for (const Ship& ship : ships) {
     const Vec2ui start = ship.pos;

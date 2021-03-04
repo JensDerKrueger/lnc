@@ -8,10 +8,29 @@ static std::vector<std::string> pairingMessages {
   "Activate Radar"
 };
 
-static std::vector<std::string> waitingMessages {
+static std::vector<std::string> waitingBoardMessages {
   "Waiting for slow admiral to position fleet",
   "Waiting for looser to get startet",
   "Waiting for other player to finish fleet setup",
   "Heating up barrels",
   "Preparing for battle"
+};
+
+static std::vector<std::string> waitingShotMessages {
+  "Preparing for other player",
+  "Waiting for other Admiral",
+  "Incomming"
+};
+
+static std::vector<std::string> homeTitles {
+  "Home",
+  "Good",
+  "My Fleet"
+};
+
+static std::vector<std::string> guestTitles {
+  "Guest",
+  "Enemy",
+  "Evil",
+  "Enemy Fleet"
 };

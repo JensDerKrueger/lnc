@@ -23,7 +23,7 @@ BattleShips::BattleShips() :
   boardSetupPhase{this, GamePhaseID::BoardSetup, boardSize},
   waitingBoardSetupPhase{this, GamePhaseID::WaitingBoardSetup, "Waiting for other Captain"},
   mainPhase{this, GamePhaseID::MainPhase, boardSize},
-  finishedPhase{this, GamePhaseID::Finished}
+  finishedPhase{this, GamePhaseID::Finished, boardSize}
 {}
 
 BattleShips::~BattleShips() {
@@ -86,25 +86,28 @@ void BattleShips::keyboard(int key, int scancode, int action, int mods) {
 }
 
 void BattleShips::restartGame() {
-  boardSetupPhase.reset();
-
-  myShipPlacement = ShipPlacement{boardSize};
-  myBoard = GameGrid{boardSize};
-  otherBoard = GameGrid{boardSize};
-  password = "";
+  boardSetupPhase = BoardSetupPhase{this, GamePhaseID::BoardSetup, boardSize};
+  boardSetupPhase.init();
+  mainPhase = MainPhase{this, GamePhaseID::MainPhase, boardSize};
+  mainPhase.init();
+  finishedPhase = FinishPhase{this, GamePhaseID::Finished, boardSize};
+  finishedPhase.init();
+  
+  myPassword = "";
   encOtherShipPlacement = "";
+  currentPhase = &connectingPhase;
+  client = std::make_shared<GameClient>(serverAddress, serverPort, userName, level);
 }
-
 
 void BattleShips::stateTransition() {
   const GamePhaseID gamePhaseID = currentPhase ? currentPhase->getGamePhaseID() : GamePhaseID::Boot;
       
   if (gamePhaseID > GamePhaseID::Connecting && client && !client->isOK()) {
+    restartGame();
     currentPhase = &connectingPhase;
   }
 
-  if (gamePhaseID > GamePhaseID::Pairing && !client->getReceivedPairingInfo()) {
-    currentPhase = &pairingPhase;
+  if (gamePhaseID > GamePhaseID::Pairing && gamePhaseID < GamePhaseID::Finished && !client->getReceivedPairingInfo()) {
     restartGame();
   }
   
@@ -149,12 +152,11 @@ void BattleShips::stateTransition() {
       break;
     case GamePhaseID::BoardSetup :
       if (boardSetupPhase.getPlacement()) {
-        myShipPlacement = *(boardSetupPhase.getPlacement());
-        myBoard.setShips(myShipPlacement);
-        otherBoard.clearUnknown();
-        password = AESCrypt::genIVString();
-        client->sendEncryptedShipPlacement(myShipPlacement.toEncryptedString(password));
-        waitingBoardSetupPhase.setText(waitingMessages[size_t(Rand::rand01() * waitingMessages.size())]);
+        ShipPlacement myShipPlacement = *(boardSetupPhase.getPlacement());
+        mainPhase.prepare(myShipPlacement);
+        myPassword = AESCrypt::genIVString();
+        client->sendEncryptedShipPlacement(myShipPlacement.toEncryptedString(myPassword));
+        waitingBoardSetupPhase.setText(waitingBoardMessages[size_t(Rand::rand01() * waitingBoardMessages.size())]);
         currentPhase = &waitingBoardSetupPhase;
       }
       break;
@@ -167,8 +169,16 @@ void BattleShips::stateTransition() {
         }
       }
     case GamePhaseID::MainPhase :
+      if (mainPhase.gameOver()) {
+        client->sendShipPlacementPassword(myPassword);
+        finishedPhase.prepare(mainPhase.getMyBoard(), mainPhase.getOtherBoard(), encOtherShipPlacement, mainPhase.gameOver());
+        currentPhase = &finishedPhase;
+      }
       break;
     case GamePhaseID::Finished :
+      if (finishedPhase.getTerminate()) {
+        restartGame();
+      }
       break;
     default:
       std::cout << "oops" << std::endl;
@@ -181,19 +191,6 @@ void BattleShips::animate(double animationTime) {
   if (currentPhase) currentPhase->animate(animationTime);
 }
 
-
 void BattleShips::draw() {
   if (currentPhase) currentPhase->draw();
-}
-
-GameGrid BattleShips::getMyBoard() {
-  const std::scoped_lock<std::mutex> lock(boardMutex);
-  GameGrid g = myBoard;
-  return g;
-}
-
-GameGrid BattleShips::getOtherBoard() {
-  const std::scoped_lock<std::mutex> lock(boardMutex);
-  GameGrid g = otherBoard;
-  return g;
 }

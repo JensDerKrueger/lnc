@@ -44,6 +44,16 @@ void BoardPhase::init() {
     for (uint32_t x = 0;x<cellImage.height;++x) {
       cellImage.setNormalizedValue(x, y, 0, 1.0f);
       cellImage.setNormalizedValue(x, y, 1, 1.0f);
+      cellImage.setNormalizedValue(x, y, 2, 1.0f);
+      cellImage.setNormalizedValue(x, y, 3, 0.5f);
+    }
+  }
+  shotCell = GLTexture2D{cellImage};
+  
+  for (uint32_t y = 0;y<cellImage.width;++y) {
+    for (uint32_t x = 0;x<cellImage.height;++x) {
+      cellImage.setNormalizedValue(x, y, 0, 1.0f);
+      cellImage.setNormalizedValue(x, y, 1, 1.0f);
       cellImage.setNormalizedValue(x, y, 2, 0.0f);
       cellImage.setNormalizedValue(x, y, 3, 0.5f);
     }

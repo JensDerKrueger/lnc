@@ -21,6 +21,12 @@ enum class GameMessageType {
   ShipPlacementPassword = 5
 };
 
+struct ShotResult {
+  uint32_t x;
+  uint32_t y;
+  bool hit;
+};
+
 class GameClient : public Client {
 public:
   GameClient(const std::string& address, short port, const std::string& name, uint32_t level);
@@ -42,11 +48,12 @@ public:
   std::optional<std::string> getShipPlacementPassword() const;
   void sendShipPlacementPassword(const std::string& sp);
   
-  std::vector<Vec2ui> getShotReceived();
-  std::vector<bool> getShotResults();
+  std::vector<Vec2ui> getShotsReceived();
+  void sendShotResult(const ShotResult& r);
+  std::vector<ShotResult> getShotResults();
   Vec2ui getAim();
   
-  void fireAt(const Vec2ui& pos);
+  void shootAt(const Vec2ui& pos);
   void aimAt(const Vec2ui& pos);
   
 private:
@@ -56,13 +63,13 @@ private:
   std::optional<std::string> shipPlacementPassword{};
   
   std::mutex aimMutex;
-  std::mutex shotReceivedMutex;
-  std::mutex shotResultMutex;
-  Vec2ui aim;
-  Vec2ui lastAim;
-  std::vector<Vec2ui> shotReceived;
-  std::vector<bool> shotResult;
-  
+  std::mutex shotsMutex;
+  Vec2ui aim{std::numeric_limits<uint32_t>::max(), std::numeric_limits<uint32_t>::max()};
+  Vec2ui lastAim{std::numeric_limits<uint32_t>::max(), std::numeric_limits<uint32_t>::max()};
+  std::vector<Vec2ui> shotsReceived;
+  std::vector<ShotResult> shotResults;
+  std::vector<Vec2ui> shotsFired;
+
   bool initMessageSend{false};
   bool receivedPairingInfo{false};
   
