@@ -74,7 +74,6 @@ public:
       LostUserMessage l;
       l.userID = id;
       sendMessage(l.toString(), partnerID);
-      clientInfos[partnerID].partnerID = 0;
     }
     clientInfos.erase(id);
     searchForMatch(partnerID);
@@ -123,6 +122,11 @@ public:
           ClientInfo ci{id, r.name, r.gameID, r.level};
           clientInfos[id] = ci;
           searchForMatch(id);
+          break;
+        }
+        case MessageType::ReadyForNewMessage : {
+          ReadyForNewMessage r(message);
+          clientInfos[r.userID].partnerID = 0;
           break;
         }
         case MessageType::GameMessage : {

@@ -21,7 +21,8 @@ enum class MessageType {
   ConnectMessage = 2,
   LostUserMessage = 3,
   PairedMessage = 4,
-  GameMessage = 5
+  ReadyForNewMessage = 5,
+  GameMessage = 6
 };
 
 MessageType identifyString(const std::string& s);
@@ -87,6 +88,23 @@ struct PairedMessage : public BasicMessage {
   
   virtual ~PairedMessage() {}
 };
+
+
+struct ReadyForNewMessage : public BasicMessage {
+  
+  ReadyForNewMessage(const std::string& message) :
+    BasicMessage(message)
+  {
+    pt = MessageType::PairedMessage;
+  }
+  
+  ReadyForNewMessage() {
+    pt = MessageType::PairedMessage;
+  }
+  
+  virtual ~ReadyForNewMessage() {}
+};
+
 
 
 struct ConnectMessage : public BasicMessage {
