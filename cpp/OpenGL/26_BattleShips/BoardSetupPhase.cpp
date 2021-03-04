@@ -2,7 +2,7 @@
 
 #include "BoardSetupPhase.h"
 
-BoardSetupPhase::BoardSetupPhase(BattleShips* app, GamePhaseID gamePhaseID, const Vec2ui b) :
+BoardSetupPhase::BoardSetupPhase(BattleShips* app, GamePhaseID gamePhaseID, const Vec2ui& b) :
 BoardPhase(app, gamePhaseID, b),
 myShipPlacement{b}
 {}
@@ -72,10 +72,10 @@ void BoardSetupPhase::draw() {
   
   
   Image prompt = app->fr.render("Position Your Fleet");
-  app->setDrawTransform(app->computeImageTransform({prompt.width, prompt.height}) * Mat4::scaling(0.3f,0.3f,1.0f) * Mat4::translation(0.0f,0.9f,0.0f));
+  app->setDrawTransform(app->computeImageTransform({prompt.width, prompt.height}) * Mat4::scaling(0.3f) * Mat4::translation(0.0f,0.9f,0.0f));
   app->drawImage(prompt);
 
-  myBoardTrans = app->computeImageTransform(boardSize) * Mat4::scaling(0.8f,0.8f,1.0f) * Mat4::translation(0.0f,0.0f,0.0f);
+  myBoardTrans = app->computeImageTransform(boardSize) * Mat4::scaling(0.8f);
 
   app->setDrawTransform(myBoardTrans);
   app->drawLines(gridLines, LineDrawType::LIST, 3);

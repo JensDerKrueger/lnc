@@ -15,9 +15,10 @@
 enum class GameMessageType {
   Invalid = 0,
   EncryptedShipPlacement = 1,
-  Shot = 2,
-  ShotResult = 3,
-  ShipPlacementPassword = 4
+  Aim = 2,
+  Shot = 3,
+  ShotResult = 4,
+  ShipPlacementPassword = 5
 };
 
 class GameClient : public Client {
@@ -41,8 +42,12 @@ public:
   std::optional<std::string> getShipPlacementPassword() const;
   void sendShipPlacementPassword(const std::string& sp);
   
-  std::vector<Vec2ui> getShotReceived() const;
-  std::vector<bool> getShotResults() const;
+  std::vector<Vec2ui> getShotReceived();
+  std::vector<bool> getShotResults();
+  Vec2ui getAim();
+  
+  void fireAt(const Vec2ui& pos);
+  void aimAt(const Vec2ui& pos);
   
 private:
   std::string name{""};
@@ -50,6 +55,11 @@ private:
   std::optional<std::string> otherShipPlacement{};
   std::optional<std::string> shipPlacementPassword{};
   
+  std::mutex aimMutex;
+  std::mutex shotReceivedMutex;
+  std::mutex shotResultMutex;
+  Vec2ui aim;
+  Vec2ui lastAim;
   std::vector<Vec2ui> shotReceived;
   std::vector<bool> shotResult;
   

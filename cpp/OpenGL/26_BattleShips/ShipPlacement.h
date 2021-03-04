@@ -45,6 +45,8 @@ public:
   bool incomming(const Vec2ui& pos) const;
   
   bool isValid() const;
+  
+  Vec2ui getGridSize() const {return gridSize;}
 
 private:
   Vec2ui gridSize;

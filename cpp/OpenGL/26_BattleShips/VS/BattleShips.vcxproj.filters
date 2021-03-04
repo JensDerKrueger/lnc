@@ -48,6 +48,9 @@
     <ClCompile Include="..\..\25_GenericGameServer\NetGame.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="..\MainPhase.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\BoardPhase.h">
@@ -78,6 +81,9 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="..\..\25_GenericGameServer\NetGame.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="..\MainPhase.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

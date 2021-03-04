@@ -27,6 +27,8 @@ public:
   Vec2ui getSize() const {return gridSize;}
   Cell getCell(uint32_t x, uint32_t y) const;
   
+  void clearUnknown();
+
 private:
   Vec2ui gridSize;
   std::vector<Cell> grid;
@@ -34,7 +36,6 @@ private:
   std::vector<Vec2ui> misses;
 
   void clearEmpty();
-  void clearUnknown();
   
   void addShip(const Vec2ui& pos);
   void setCell(uint32_t x, uint32_t y, Cell c);

@@ -21,15 +21,24 @@ void GameClient::parseGameMessage(const std::string& m) {
     case GameMessageType::EncryptedShipPlacement :
       otherShipPlacement = tokenizer.nextString();
       break;
-    case GameMessageType::Shot :
-      {
+    case GameMessageType::Aim : {
         uint32_t x = tokenizer.nextUint32();
         uint32_t y = tokenizer.nextUint32();
+        const std::scoped_lock<std::mutex> lock(aimMutex);
+        aim = Vec2ui{x,y};
+      }
+      break;
+    case GameMessageType::Shot : {
+        uint32_t x = tokenizer.nextUint32();
+        uint32_t y = tokenizer.nextUint32();
+        const std::scoped_lock<std::mutex> lock(shotReceivedMutex);
         shotReceived.push_back({x,y});
       }
       break;
-    case GameMessageType::ShotResult :
-      shotResult.push_back(tokenizer.nextUint32());
+    case GameMessageType::ShotResult : {
+        const std::scoped_lock<std::mutex> lock(shotResultMutex);
+        shotResult.push_back(tokenizer.nextUint32());
+      }
       break;
     case GameMessageType::ShipPlacementPassword :
       shipPlacementPassword = tokenizer.nextString();
@@ -99,10 +108,44 @@ void GameClient::sendShipPlacementPassword(const std::string& sp) {
   sendGameMessage(GameMessageType::ShipPlacementPassword, {sp});
 }
 
-std::vector<Vec2ui> GameClient::getShotReceived() const {
-  return shotReceived;
+std::vector<Vec2ui> GameClient::getShotReceived() {
+  const std::scoped_lock<std::mutex> lock(shotReceivedMutex);
+  std::vector<Vec2ui> result = shotReceived;
+  return result;
 }
 
-std::vector<bool> GameClient::getShotResults() const {
-  return shotResult;
+std::vector<bool> GameClient::getShotResults() {
+  const std::scoped_lock<std::mutex> lock(shotResultMutex);
+  std::vector<bool> result = shotResult;
+  return result;
 }
+
+Vec2ui GameClient::getAim() {
+  const std::scoped_lock<std::mutex> lock(aimMutex);
+  Vec2ui result = aim;
+  return result;
+}
+
+void GameClient::fireAt(const Vec2ui& pos) {
+  Encoder e{char(2)};
+  e.add(uint32_t(GameMessageType::Shot));
+  e.add(pos.x());
+  e.add(pos.y());
+  GameMessage m;
+  m.payload = e.getEncodedMessage();
+  sendMessage(m.toString());
+}
+
+void GameClient::aimAt(const Vec2ui& pos) {
+  if (lastAim == pos) return;
+  lastAim = pos;
+  
+  Encoder e{char(2)};
+  e.add(uint32_t(GameMessageType::Aim));
+  e.add(pos.x());
+  e.add(pos.y());
+  GameMessage m;
+  m.payload = e.getEncodedMessage();
+  sendMessage(m.toString());
+}
+

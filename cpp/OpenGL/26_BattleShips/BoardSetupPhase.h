@@ -7,7 +7,7 @@
 
 class BoardSetupPhase : public BoardPhase {
 public:
-  BoardSetupPhase(BattleShips* app, GamePhaseID gamePhaseID, const Vec2ui boardSize);
+  BoardSetupPhase(BattleShips* app, GamePhaseID gamePhaseID, const Vec2ui& boardSize);
 
   virtual void mouseMove(double xPosition, double yPosition) override;
   virtual void mouseButton(int button, int state, int mods,

@@ -6,6 +6,7 @@
 #include <vector>
 #include <array>
 #include <optional>
+#include <mutex>
 
 #include <GLApp.h>
 #include <GLTexture2D.h>
@@ -17,6 +18,7 @@
 #include "TextPhase.h"
 #include "InputPhase.h"
 #include "BoardSetupPhase.h"
+#include "MainPhase.h"
 
 #include "GameGrid.h"
 
@@ -38,6 +40,11 @@ public:
   static FontRenderer fr;
 
   Dimensions getWindowSize() const {return glEnv.getWindowSize();}
+  
+  GameGrid getMyBoard();
+  GameGrid getOtherBoard();
+  
+  std::shared_ptr<GameClient> getClient() {return client;}
   
 private:
   std::shared_ptr<GameClient> client{nullptr};
@@ -62,10 +69,12 @@ private:
   TextPhase pairingPhase;
   BoardSetupPhase boardSetupPhase;
   TextPhase waitingBoardSetupPhase;
-  TextPhase mainPhase;
+  MainPhase mainPhase;
   TextPhase finishedPhase;
 
   void stateTransition();
   void tryToLoadSettings();
   void restartGame();
+  
+  std::mutex boardMutex;
 };

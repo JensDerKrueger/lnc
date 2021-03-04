@@ -9,6 +9,9 @@ static std::vector<std::string> pairingMessages {
 };
 
 static std::vector<std::string> waitingMessages {
-  "Waiting for lame admiral to position his fleet",
-  "Waiting for looser to get startet"
+  "Waiting for slow admiral to position fleet",
+  "Waiting for looser to get startet",
+  "Waiting for other player to finish fleet setup",
+  "Heating up barrels",
+  "Preparing for battle"
 };

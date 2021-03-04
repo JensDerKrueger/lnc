@@ -216,6 +216,7 @@ XCOPY "$(ProjectDir)..\\settings.txt" "$(ProjectDir)*.*" /Y</Command>
     <ClCompile Include="..\GamePhase.cpp" />
     <ClCompile Include="..\InputPhase.cpp" />
     <ClCompile Include="..\main.cpp" />
+    <ClCompile Include="..\MainPhase.cpp" />
     <ClCompile Include="..\ShipPlacement.cpp" />
     <ClCompile Include="..\TextPhase.cpp" />
   </ItemGroup>
@@ -228,6 +229,7 @@ XCOPY "$(ProjectDir)..\\settings.txt" "$(ProjectDir)*.*" /Y</Command>
     <ClInclude Include="..\GameGrid.h" />
     <ClInclude Include="..\GamePhase.h" />
     <ClInclude Include="..\InputPhase.h" />
+    <ClInclude Include="..\MainPhase.h" />
     <ClInclude Include="..\ShipPlacement.h" />
     <ClInclude Include="..\TextPhase.h" />
   </ItemGroup>
