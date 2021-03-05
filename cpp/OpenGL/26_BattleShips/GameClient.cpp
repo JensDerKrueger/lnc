@@ -62,7 +62,7 @@ void GameClient::parseGameMessage(const std::string& m) {
 
 void GameClient::lostConnection() {
   otherShipPlacement = {};
-  receivedPairingInfo = false;
+  receivedPairingInfo = {};
 }
 
 void GameClient::handleServerMessage(const std::string& message) {
@@ -71,7 +71,8 @@ void GameClient::handleServerMessage(const std::string& message) {
   try {
     switch (pt) {
       case MessageType::PairedMessage : {
-        receivedPairingInfo = true;
+        PairedMessage m{message};
+        receivedPairingInfo = std::make_pair(m.name, m.level);
         break;
       }
       case MessageType::GameMessage : {

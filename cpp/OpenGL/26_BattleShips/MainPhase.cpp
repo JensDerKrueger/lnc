@@ -6,16 +6,21 @@
 MainPhase::MainPhase(BattleShips* app, GamePhaseID gamePhaseID, const Vec2ui& b) :
 BoardPhase(app, gamePhaseID, b)
 {
-  homeTitle  = homeTitles[size_t(Rand::rand01() * homeTitles.size())];
-  guestTitle = guestTitles[size_t(Rand::rand01() * guestTitles.size())];
 }
 
 void MainPhase::prepare(const ShipPlacement& myShipPlacement) {
   myBoard = GameGrid{boardSize};
-  otherBoard = GameGrid{boardSize};
   myBoard.setShips(myShipPlacement);
+
+  otherBoard = GameGrid{boardSize};
   otherBoard.clearUnknown();
-  
+
+  homeTitle  = homeTitles[size_t(Rand::rand01() * homeTitles.size())];
+  guestTitle = guestTitles[size_t(Rand::rand01() * guestTitles.size())];
+
+  waitingForOther = false;
+  waitingMessageIndex = 0;
+    
   myRound = 0;
   otherRound = 0;
   shotsFired.clear();
@@ -89,8 +94,6 @@ void MainPhase::draw() {
   BoardPhase::draw();
   
   if (backgroundImage) {
-    app->setDrawTransform(app->computeImageTransform({backgroundImage->getWidth(), backgroundImage->getHeight()}) );
-    app->drawImage(*backgroundImage);
     app->drawRect(Vec4(0,0,0,0.7f));
   }
 
@@ -172,3 +175,4 @@ uint32_t MainPhase::gameOver() const {
     return 1;
   return 0;
 }
+

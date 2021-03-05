@@ -51,6 +51,9 @@ private:
   bool nameComplete{false};
   std::string serverAddress{""};
   std::string userName{""};
+  std::string otherName{""};
+  uint32_t otherLevel{0};
+
   uint32_t level{0};
   
   std::string myPassword;

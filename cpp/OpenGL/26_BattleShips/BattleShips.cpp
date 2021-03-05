@@ -1,11 +1,7 @@
 #include <limits>
-
 #include "BattleShips.h"
-
 #include <Rand.h>
-
 #include "Messages.inc"
-
 
 #ifndef _WIN32
   #include "helvetica_neue.inc"
@@ -48,11 +44,6 @@ void BattleShips::tryToLoadSettings() {
 void BattleShips::init() {
   tryToLoadSettings();
 
-  GL(glEnable(GL_BLEND));
-  GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-  GL(glBlendEquation(GL_FUNC_ADD));
-  GL(glClearColor(0.0f,0.0f,0.0f,0.0f));
-
   adressPhase.init();
   namePhase.init();
   connectingPhase.init();
@@ -75,7 +66,6 @@ void BattleShips::init() {
   } catch (const BMP::BMPException& e)  {
     std::cerr << e.what() << std::endl;
   }
-
 }
 
 void BattleShips::mouseMove(double xPosition, double yPosition) {
@@ -99,21 +89,10 @@ void BattleShips::keyboard(int key, int scancode, int action, int mods) {
 }
 
 void BattleShips::restartGame(bool reconnect) {
-  boardSetupPhase = BoardSetupPhase{this, GamePhaseID::BoardSetup, boardSize};
-  boardSetupPhase.init();
-  mainPhase = MainPhase{this, GamePhaseID::MainPhase, boardSize};
-  mainPhase.init();
-  
-  try {
-    Image background = BMP::load("battleship.bmp");
-    boardSetupPhase.setBackground(background);
-    mainPhase.setBackground(background);
-  } catch (const BMP::BMPException& e)  {
-    std::cerr << e.what() << std::endl;
-  }
-  
   myPassword = "";
   encOtherShipPlacement = "";
+  otherName  = "";
+  otherLevel = 0;
   
   if (reconnect) {
     currentPhase = nullptr;
@@ -129,7 +108,6 @@ void BattleShips::stateTransition() {
   if (gamePhaseID > GamePhaseID::Connecting && client && !client->isOK()) {
     restartGame(true);
   }
-
   if (gamePhaseID > GamePhaseID::Pairing && gamePhaseID < GamePhaseID::Finished && !client->getReceivedPairingInfo()) {
     restartGame(false);
   }
@@ -169,8 +147,14 @@ void BattleShips::stateTransition() {
       }
       break;
     case GamePhaseID::Pairing :
-      if (client->getReceivedPairingInfo()) {
-        currentPhase = &boardSetupPhase;
+      {
+        const auto pi = client->getReceivedPairingInfo();
+        if (pi) {
+          otherName  = pi->first;
+          otherLevel = pi->second;
+          boardSetupPhase.prepare();
+          currentPhase = &boardSetupPhase;
+        }
       }
       break;
     case GamePhaseID::BoardSetup :
@@ -202,9 +186,6 @@ void BattleShips::stateTransition() {
       if (finishedPhase.getTerminate()) {
         restartGame(false);
       }
-      break;
-    default:
-      std::cout << "oops" << std::endl;
       break;
   }
 }

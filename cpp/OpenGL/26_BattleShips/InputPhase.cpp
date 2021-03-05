@@ -33,8 +33,6 @@ void InputPhase::draw() {
   Image textImage = app->fr.render((userInput.size() > 0) ? userInput : prompt);
 
   if (backgroundImage) {
-    app->setDrawTransform(app->computeImageTransform({backgroundImage->getWidth(), backgroundImage->getHeight()}) );
-    app->drawImage(*backgroundImage);
     app->setDrawTransform(Mat4::scaling(1.1f) *
                           app->computeImageTransform({textImage.width, textImage.height}) );
     app->drawRect(Vec4(0,0,0,0.7f));

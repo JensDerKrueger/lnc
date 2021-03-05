@@ -42,6 +42,5 @@ private:
   std::vector<Vec2ui> shotsReceived;
   std::vector<ShotResult> shotResults;
 
-
   void drawBoard(const GameGrid& board, Mat4 boardTrans, Vec2ui aimCoords);
 };

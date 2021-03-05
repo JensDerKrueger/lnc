@@ -35,8 +35,6 @@ void TextPhase::draw() {
   Image textImage = app->fr.render(renderText);
 
   if (backgroundImage) {
-    app->setDrawTransform(app->computeImageTransform({backgroundImage->getWidth(), backgroundImage->getHeight()}) );
-    app->drawImage(*backgroundImage);
     app->setDrawTransform(Mat4::scaling(1.1f*textImage.width / (baseTextWidth * 2.0f)) *
                           app->computeImageTransform({textImage.width, textImage.height}) );
     app->drawRect(Vec4(0,0,0,0.7f));

@@ -64,8 +64,6 @@ void BoardSetupPhase::draw() {
   BoardPhase::draw();
 
   if (backgroundImage) {
-    app->setDrawTransform(app->computeImageTransform({backgroundImage->getWidth(), backgroundImage->getHeight()}) );
-    app->drawImage(*backgroundImage);
     app->drawRect(Vec4(0,0,0,0.7f));
   }
 
@@ -107,3 +105,11 @@ void BoardSetupPhase::draw() {
 void BoardSetupPhase::toggleOrientation() {
   currentOrientation = Orientation(1-uint32_t(currentOrientation));
 }
+
+void BoardSetupPhase::prepare() {
+  myCellPos = Vec2ui{std::numeric_limits<uint32_t>::max(), std::numeric_limits<uint32_t>::max()};
+  currentOrientation = Orientation::Vertical;
+  currentPlacement = 0;
+  myShipPlacement = ShipPlacement{boardSize};
+}
+

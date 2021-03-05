@@ -142,10 +142,12 @@ void GGS::pair(uint32_t a, uint32_t b) {
   clientInfos[a].partnerID = b;
   clientInfos[b].partnerID = a;
 
-  PairedMessage l;
+  PairedMessage l{clientInfos[a].name, clientInfos[a].level};
   l.userID = a;
   sendMessage(l.toString(), b);
 
+  l.name = clientInfos[b].name;
+  l.level = clientInfos[b].level;
   l.userID = b;
   sendMessage(l.toString(), a);
   

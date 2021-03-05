@@ -38,7 +38,7 @@ public:
     return initMessageSend;
   }
   
-  bool getReceivedPairingInfo() const {
+  std::optional<std::pair<std::string, uint32_t>> getReceivedPairingInfo() const {
     return receivedPairingInfo;
   }
   
@@ -73,7 +73,7 @@ private:
   std::vector<Vec2ui> shotsFired;
 
   bool initMessageSend{false};
-  bool receivedPairingInfo{false};
+  std::optional<std::pair<std::string, uint32_t>> receivedPairingInfo{};
   
   void parseGameMessage(const std::string& m);
   void lostConnection();

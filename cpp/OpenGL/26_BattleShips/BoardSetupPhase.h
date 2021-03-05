@@ -16,6 +16,8 @@ public:
   virtual void draw() override;
 
   std::optional<ShipPlacement> getPlacement() const;
+  
+  void prepare();
     
 private:
   Mat4 myBoardTrans;

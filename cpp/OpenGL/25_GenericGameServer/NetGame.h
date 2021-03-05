@@ -75,18 +75,32 @@ struct LostUserMessage : public BasicMessage {
 
 
 struct PairedMessage : public BasicMessage {
-  
+  std::string name;
+  uint32_t level;
+
   PairedMessage(const std::string& message) :
     BasicMessage(message)
+  {
+    name = tokenizer.nextString();
+    level = tokenizer.nextUint32();
+    pt = MessageType::PairedMessage;
+  }
+  
+  PairedMessage(const std::string& name, uint32_t level) :
+    name(name),
+    level(level)
   {
     pt = MessageType::PairedMessage;
   }
   
-  PairedMessage() {
-    pt = MessageType::PairedMessage;
-  }
-  
   virtual ~PairedMessage() {}
+  
+  virtual std::string toString() override {
+    Encoder coder;
+    coder.add(name);
+    coder.add(level);
+    return BasicMessage::toString() + coder.getEncodedMessage();
+  }
 };
 
 

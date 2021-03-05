@@ -10,8 +10,17 @@ void GamePhase::mouseMove(double xPosition, double yPosition) {
 }
 
 void GamePhase::draw() {
-  GL(glClearColor(0.0f,0.0f,0.0f,0.0f));
-  GL(glClear(GL_COLOR_BUFFER_BIT));
+  GL(glEnable(GL_BLEND));
+  GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+  GL(glBlendEquation(GL_FUNC_ADD));
+  
+  if (backgroundImage) {
+    app->setDrawTransform(app->computeImageTransform({backgroundImage->getWidth(), backgroundImage->getHeight()}) );
+    app->drawImage(*backgroundImage);
+  } else {
+    GL(glClearColor(0.0f,0.0f,0.0f,0.0f));
+    GL(glClear(GL_COLOR_BUFFER_BIT));
+  }
 }
 
 void GamePhase::setBackground(const Image& image) {

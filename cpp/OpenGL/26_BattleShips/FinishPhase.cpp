@@ -70,8 +70,6 @@ void FinishPhase::draw() {
   BoardPhase::draw();
   
   if (backgroundImage) {
-    app->setDrawTransform(app->computeImageTransform({backgroundImage->getWidth(), backgroundImage->getHeight()}) );
-    app->drawImage(*backgroundImage);
     app->drawRect(Vec4(0,0,0,0.7f));
   }
 
