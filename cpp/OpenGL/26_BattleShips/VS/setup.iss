@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "BsttleShips"
-#define MyAppVersion "0.04"
+#define MyAppVersion "0.05"
 #define MyAppPublisher "Late Night Coding"
 #define MyAppURL "http://www.twitch.tv/jhkrueger"
 #define MyAppExeName "BattleShips.exe"
