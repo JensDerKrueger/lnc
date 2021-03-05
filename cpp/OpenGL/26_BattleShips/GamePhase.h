@@ -31,11 +31,14 @@ public:
   virtual void animate(double animationTime) {}
   virtual void draw();
 
+  void setBackground(const Image& image);
+
   GamePhaseID getGamePhaseID() const {return gamePhaseID;}
   
 protected:
   BattleShips* app;
   GamePhaseID gamePhaseID;
   Vec2 normPos;
+  std::shared_ptr<GLTexture2D> backgroundImage{nullptr};
 
 };

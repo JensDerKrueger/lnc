@@ -20,5 +20,5 @@ private:
   std::string text;
   size_t animationStep;
   size_t baseTextWidth;
-
+  
 };

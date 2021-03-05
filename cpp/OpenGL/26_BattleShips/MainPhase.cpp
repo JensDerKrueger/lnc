@@ -88,6 +88,12 @@ void MainPhase::drawBoard(const GameGrid& board, Mat4 boardTrans, Vec2ui aimCoor
 void MainPhase::draw() {
   BoardPhase::draw();
   
+  if (backgroundImage) {
+    app->setDrawTransform(app->computeImageTransform({backgroundImage->getWidth(), backgroundImage->getHeight()}) );
+    app->drawImage(*backgroundImage);
+    app->drawRect(Vec4(0,0,0,0.7f));
+  }
+
   Image prompt = app->fr.render(homeTitle);
   app->setDrawTransform(app->computeImageTransform({prompt.width, prompt.height}) * Mat4::scaling(0.2f) * Mat4::translation(-0.5f,0.8f,0.0f));
   app->drawImage(prompt);

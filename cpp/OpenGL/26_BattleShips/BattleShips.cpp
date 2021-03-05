@@ -15,7 +15,7 @@
 #endif
 
 BattleShips::BattleShips() :
-  GLApp(1024, 786, 4, "Online Battleships"),
+  GLApp(1100, 600, 4, "Online Battleships"),
   adressPhase{this, GamePhaseID::AdressSetup, "Enter server address:"},
   namePhase{this, GamePhaseID::NameSetup, "Enter callsign:"},
   connectingPhase{this, GamePhaseID::Connecting},
@@ -61,6 +61,21 @@ void BattleShips::init() {
   waitingBoardSetupPhase.init();
   mainPhase.init();
   finishedPhase.init();
+
+  try {
+    Image background = BMP::load("battleship.bmp");
+    adressPhase.setBackground(background);
+    namePhase.setBackground(background);
+    connectingPhase.setBackground(background);
+    pairingPhase.setBackground(background);
+    boardSetupPhase.setBackground(background);
+    waitingBoardSetupPhase.setBackground(background);
+    mainPhase.setBackground(background);
+    finishedPhase.setBackground(background);
+  } catch (const BMP::BMPException& e)  {
+    std::cerr << e.what() << std::endl;
+  }
+
 }
 
 void BattleShips::mouseMove(double xPosition, double yPosition) {

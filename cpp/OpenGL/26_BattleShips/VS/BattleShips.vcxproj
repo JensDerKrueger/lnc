@@ -114,7 +114,7 @@ XCOPY "$(ProjectDir)..\*.pos" "$(OutDir)*.*" /Y
 XCOPY "$(ProjectDir)..\settings.txt" "$(OutDir)*.*" /Y
 XCOPY "$(ProjectDir)..\*.bmp" "$(ProjectDir)*.*" /Y
 XCOPY "$(ProjectDir)..\*.pos" "$(ProjectDir)*.*" /Y
-XCOPY "$(ProjectDir)..\\settings.txt" "$(ProjectDir)*.*" /Y</Command>
+XCOPY "$(ProjectDir)..\settings.txt" "$(ProjectDir)*.*" /Y</Command>
     </PreBuildEvent>
     <PreBuildEvent>
       <Message>Resources are copied to the build directory</Message>
@@ -144,7 +144,7 @@ XCOPY "$(ProjectDir)..\*.pos" "$(OutDir)*.*" /Y
 XCOPY "$(ProjectDir)..\settings.txt" "$(OutDir)*.*" /Y
 XCOPY "$(ProjectDir)..\*.bmp" "$(ProjectDir)*.*" /Y
 XCOPY "$(ProjectDir)..\*.pos" "$(ProjectDir)*.*" /Y
-XCOPY "$(ProjectDir)..\\settings.txt" "$(ProjectDir)*.*" /Y</Command>
+XCOPY "$(ProjectDir)..\settings.txt" "$(ProjectDir)*.*" /Y</Command>
     </PreBuildEvent>
     <PreBuildEvent>
       <Message>Resources are copied to the build directory</Message>
@@ -170,7 +170,7 @@ XCOPY "$(ProjectDir)..\*.pos" "$(OutDir)*.*" /Y
 XCOPY "$(ProjectDir)..\settings.txt" "$(OutDir)*.*" /Y
 XCOPY "$(ProjectDir)..\*.bmp" "$(ProjectDir)*.*" /Y
 XCOPY "$(ProjectDir)..\*.pos" "$(ProjectDir)*.*" /Y
-XCOPY "$(ProjectDir)..\\settings.txt" "$(ProjectDir)*.*" /Y</Command>
+XCOPY "$(ProjectDir)..\settings.txt" "$(ProjectDir)*.*" /Y</Command>
     </PreBuildEvent>
     <PreBuildEvent>
       <Message>Resources are copied to the build directory</Message>
@@ -200,7 +200,7 @@ XCOPY "$(ProjectDir)..\*.pos" "$(OutDir)*.*" /Y
 XCOPY "$(ProjectDir)..\settings.txt" "$(OutDir)*.*" /Y
 XCOPY "$(ProjectDir)..\*.bmp" "$(ProjectDir)*.*" /Y
 XCOPY "$(ProjectDir)..\*.pos" "$(ProjectDir)*.*" /Y
-XCOPY "$(ProjectDir)..\\settings.txt" "$(ProjectDir)*.*" /Y</Command>
+XCOPY "$(ProjectDir)..\settings.txt" "$(ProjectDir)*.*" /Y</Command>
     </PreBuildEvent>
     <PreBuildEvent>
       <Message>Resources are copied to the build directory</Message>

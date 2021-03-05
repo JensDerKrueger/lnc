@@ -13,3 +13,7 @@ void GamePhase::draw() {
   GL(glClearColor(0.0f,0.0f,0.0f,0.0f));
   GL(glClear(GL_COLOR_BUFFER_BIT));
 }
+
+void GamePhase::setBackground(const Image& image) {
+  backgroundImage = std::make_shared<GLTexture2D>(image);
+}

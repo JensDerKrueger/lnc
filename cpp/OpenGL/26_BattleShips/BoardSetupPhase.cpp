@@ -62,14 +62,19 @@ void BoardSetupPhase::keyboard(int key, int scancode, int action, int mods) {
 
 void BoardSetupPhase::draw() {
   BoardPhase::draw();
-  
+
+  if (backgroundImage) {
+    app->setDrawTransform(app->computeImageTransform({backgroundImage->getWidth(), backgroundImage->getHeight()}) );
+    app->drawImage(*backgroundImage);
+    app->drawRect(Vec4(0,0,0,0.7f));
+  }
+
   if(currentPlacement >= ShipPlacement::completePlacement.size()) return;
-  
-  
+
   Image prompt = app->fr.render("Position Your Fleet");
   app->setDrawTransform(app->computeImageTransform({prompt.width, prompt.height}) * Mat4::scaling(0.3f) * Mat4::translation(0.0f,0.9f,0.0f));
   app->drawImage(prompt);
-
+  
   myBoardTrans = app->computeImageTransform(boardSize) * Mat4::scaling(0.8f);
 
   app->setDrawTransform(myBoardTrans);
