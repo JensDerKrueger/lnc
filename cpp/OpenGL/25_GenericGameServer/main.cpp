@@ -63,11 +63,11 @@ int main(int argc, char ** argv) {
           break;
         }
         case 'w' : {
-          if (s.logFile.empty()) {
-            s.logFile = "server.log";
+          if (s.getLogFile().empty()) {
+            s.setLogFile("server.log");
             std::cout << "Logging is enabled\n";
           } else {
-            s.logFile = "";
+            s.setLogFile("");
             std::cout << "Logging is disabled\n";
           }
           break;

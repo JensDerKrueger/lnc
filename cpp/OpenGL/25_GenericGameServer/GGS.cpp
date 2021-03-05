@@ -43,12 +43,28 @@ GGS::~GGS() {
 }
 
 void GGS::writeLog(const std::string& str) const {
+  const std::scoped_lock<std::mutex> lock(logMutex);
+
   if (logFile.empty()) return;
   
   std::ofstream log(logFile);
   if (log.is_open()) {
-    log << str;
+    log << uptime() << " : " << str << std::endl;
     log.close();
+  }
+}
+
+std::string GGS::getLogFile() const {
+  return logFile;
+}
+
+void GGS::setLogFile(const std::string& filename) {
+  if (!filename.empty()) {
+    logFile = filename;
+    writeLog("Logging Started");
+  } else {
+    writeLog("Logging Terminated");
+    logFile = filename;
   }
 }
 

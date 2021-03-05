@@ -4,6 +4,7 @@
 #include <map>
 #include <vector>
 #include <chrono>
+#include <mutex>
 
 #include <Server.h>
 #include <NetCommon.h>
@@ -35,7 +36,6 @@ private:
 class GGS : public Server {
 public:
   bool showErrors{false};
-  std::string logFile{""};
   
   GGS(short port);
   virtual ~GGS();
@@ -49,10 +49,15 @@ public:
 
   std::vector<ClientInfo> getClientInfo();
   int64_t uptime() const;
+  
+  std::string getLogFile() const;
+  void setLogFile(const std::string& filename);
 
 private:
+  std::string logFile{""};
   std::map<uint32_t, ClientInfo> clientInfos;
   std::mutex ciMutex;
+  mutable std::mutex logMutex;
   
   std::chrono::time_point<Clock> lastime = Clock::now();
   std::chrono::time_point<Clock> startTime = Clock::now();
