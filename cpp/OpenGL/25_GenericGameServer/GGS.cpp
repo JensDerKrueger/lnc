@@ -101,12 +101,12 @@ void GGS::handleClientMessage(uint32_t id, const std::string& message) {
         r.userID = id;
         ClientInfo ci{id, r.name, r.gameID, r.level};
         clientInfos[id] = ci;
-        searchForMatch(id);
 
         std::stringstream ss;
         ss << "Client " << id << " reports: Name=" << r.name << " Game=" << uint32_t(r.gameID) << " Level=" << r.level;
         writeLog(ss.str());
 
+        searchForMatch(id);
         break;
       }
       case MessageType::ReadyForNewMessage : {
@@ -152,7 +152,7 @@ void GGS::pair(uint32_t a, uint32_t b) {
   sendMessage(l.toString(), a);
   
   std::stringstream ss;
-  ss << "Clients " << a << " and " << b << " are now connected, and playing game " << uint32_t(clientInfos[b].gameID);
+  ss << "Clients " << a << " and " << b << " are now connected and are playing game " << uint32_t(clientInfos[b].gameID);
   writeLog(ss.str());
 }
 
