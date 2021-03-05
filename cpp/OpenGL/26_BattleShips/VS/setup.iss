@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "BsttleShips"
-#define MyAppVersion "0.02"
+#define MyAppVersion "0.03"
 #define MyAppPublisher "Late Night Coding"
 #define MyAppURL "http://www.twitch.tv/jhkrueger"
 #define MyAppExeName "BattleShips.exe"
@@ -37,7 +37,7 @@ Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescrip
 Source: "bin\x64-Release\BattleShips.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "bin\x64-Release\helvetica_neue.pos"; DestDir: "{app}"; Flags: ignoreversion
 Source: "bin\x64-Release\helvetica_neue.bmp"; DestDir: "{app}"; Flags: ignoreversion
-Source: "bin\x64-Release\battleships.bmp"; DestDir: "{app}"; Flags: ignoreversion
+Source: "bin\x64-Release\battleship.bmp"; DestDir: "{app}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 Source: "VC_redist.x64.exe"; DestDir: "{tmp}"; Flags: ignoreversion deleteafterinstall
 
