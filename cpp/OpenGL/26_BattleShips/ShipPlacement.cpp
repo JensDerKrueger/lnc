@@ -4,12 +4,12 @@
 #include <NetCommon.h>
 
 std::vector<ShipSize> ShipPlacement::completePlacement{
+  ShipSize::FIVE,
+  ShipSize::FOUR,
+  ShipSize::FOUR,
+  ShipSize::THREE,
+  ShipSize::THREE,
   ShipSize::TWO,
-  ShipSize::THREE,
-  ShipSize::THREE,
-  ShipSize::FOUR,
-  ShipSize::FOUR,
-  ShipSize::FIVE
 };
 
 Ship::Ship(ShipSize shipSize, Orientation orientation, const Vec2ui& pos) :
