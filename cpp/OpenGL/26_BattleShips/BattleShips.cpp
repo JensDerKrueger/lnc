@@ -105,7 +105,7 @@ void BattleShips::restartGame(bool reconnect) {
 void BattleShips::stateTransition() {
   const GamePhaseID gamePhaseID = currentPhase ? currentPhase->getGamePhaseID() : GamePhaseID::Boot;
       
-  if (gamePhaseID > GamePhaseID::Connecting && client && !client->isOK()) {
+  if (gamePhaseID > GamePhaseID::Connecting && client && client->isConnecting()) {
     restartGame(true);
   }
   if (gamePhaseID > GamePhaseID::Pairing && gamePhaseID < GamePhaseID::Finished && !client->getReceivedPairingInfo()) {
