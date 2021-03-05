@@ -56,6 +56,8 @@ public:
   void shootAt(const Vec2ui& pos);
   void aimAt(const Vec2ui& pos);
   
+  void readyForNewPlayer();
+  
 private:
   std::string name{""};
   uint32_t level{0};

@@ -173,3 +173,18 @@ void GameClient::sendShotResult(const ShotResult& r) {
   m.payload = e.getEncodedMessage();
   sendMessage(m.toString());
 }
+
+
+void GameClient::readyForNewPlayer() {
+  receivedPairingInfo = {};
+  otherShipPlacement = {};
+  shipPlacementPassword= {};
+  aim = Vec2ui{std::numeric_limits<uint32_t>::max(), std::numeric_limits<uint32_t>::max()};
+  lastAim = Vec2ui{std::numeric_limits<uint32_t>::max(), std::numeric_limits<uint32_t>::max()};
+  shotsReceived.clear();
+  shotResults.clear();
+  shotsFired.clear();
+
+  ReadyForNewMessage m;
+  sendMessage(m.toString());
+}

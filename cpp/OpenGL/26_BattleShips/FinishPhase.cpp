@@ -11,7 +11,10 @@ terminate{false}
   guestTitle = guestTitles[size_t(Rand::rand01() * guestTitles.size())];
 }
 
-void FinishPhase::prepare(const GameGrid& my, const GameGrid& other, const std::string& enc, size_t status) {
+void FinishPhase::prepare(const GameGrid& my, const GameGrid& other, const std::string& enc, size_t status) {  
+  verification = Verification::Unknown;
+  terminate = false;
+  
   myBoard = my;
   otherBoard = other;
   encOtherBoard = enc;

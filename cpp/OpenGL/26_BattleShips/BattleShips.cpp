@@ -91,39 +91,47 @@ void BattleShips::keyboardChar(unsigned int codepoint) {
 }
   
 void BattleShips::keyboard(int key, int scancode, int action, int mods) {
-  if (action == GLFW_PRESS) {
-    if (key == GLFW_KEY_ESCAPE) {
-      closeWindow();
-      return;
-    }
+  if (action == GLFW_PRESS && key == GLFW_KEY_ESCAPE) {
+    closeWindow();
+    return;
   }
   if (currentPhase) currentPhase->keyboard(key, scancode, action, mods);
 }
 
-void BattleShips::restartGame() {
+void BattleShips::restartGame(bool reconnect) {
   boardSetupPhase = BoardSetupPhase{this, GamePhaseID::BoardSetup, boardSize};
   boardSetupPhase.init();
   mainPhase = MainPhase{this, GamePhaseID::MainPhase, boardSize};
   mainPhase.init();
-  finishedPhase = FinishPhase{this, GamePhaseID::Finished, boardSize};
-  finishedPhase.init();
+  
+  try {
+    Image background = BMP::load("battleship.bmp");
+    boardSetupPhase.setBackground(background);
+    mainPhase.setBackground(background);
+  } catch (const BMP::BMPException& e)  {
+    std::cerr << e.what() << std::endl;
+  }
   
   myPassword = "";
   encOtherShipPlacement = "";
-  currentPhase = &connectingPhase;
-  client = std::make_shared<GameClient>(serverAddress, serverPort, userName, level);
+  
+  if (reconnect) {
+    currentPhase = nullptr;
+  } else {
+    client->readyForNewPlayer();
+    currentPhase = &pairingPhase;
+  }
 }
 
 void BattleShips::stateTransition() {
   const GamePhaseID gamePhaseID = currentPhase ? currentPhase->getGamePhaseID() : GamePhaseID::Boot;
       
   if (gamePhaseID > GamePhaseID::Connecting && client && !client->isOK()) {
-    restartGame();
-    currentPhase = &connectingPhase;
+    restartGame(true);
   }
 
   if (gamePhaseID > GamePhaseID::Pairing && gamePhaseID < GamePhaseID::Finished && !client->getReceivedPairingInfo()) {
-    restartGame();
+    restartGame(false);
   }
   
   switch (gamePhaseID) {
@@ -192,7 +200,7 @@ void BattleShips::stateTransition() {
       break;
     case GamePhaseID::Finished :
       if (finishedPhase.getTerminate()) {
-        restartGame();
+        restartGame(false);
       }
       break;
     default:

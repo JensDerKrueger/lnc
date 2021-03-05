@@ -68,5 +68,5 @@ private:
 
   void stateTransition();
   void tryToLoadSettings();
-  void restartGame();
+  void restartGame(bool reconnect);
 };

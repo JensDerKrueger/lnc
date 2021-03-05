@@ -4,11 +4,11 @@
 #include <NetCommon.h>
 
 std::vector<ShipSize> ShipPlacement::completePlacement{
-  ShipSize::FIVE,
+/*  ShipSize::FIVE,
   ShipSize::FOUR,
   ShipSize::FOUR,
   ShipSize::THREE,
-  ShipSize::THREE,
+  ShipSize::THREE,*/
   ShipSize::TWO,
 };
 
