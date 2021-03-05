@@ -47,7 +47,7 @@ void GGS::writeLog(const std::string& str) const {
 
   if (logFile.empty()) return;
   
-  std::ofstream log(logFile);
+  std::ofstream log(logFile, std::ios_base::app);
   if (log.is_open()) {
     log << uptime() << " : " << str << std::endl;
     log.close();
