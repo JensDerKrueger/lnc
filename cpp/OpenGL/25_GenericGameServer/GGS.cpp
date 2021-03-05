@@ -104,7 +104,7 @@ void GGS::handleClientMessage(uint32_t id, const std::string& message) {
         searchForMatch(id);
 
         std::stringstream ss;
-        ss << "Client " << id << " reports, name " << r.name << " and interest in game " << uint32_t(r.gameID) << " at level " << r.level;
+        ss << "Client " << id << " reports: Name=" << r.name << " Game=" << uint32_t(r.gameID) << " Level=" << r.level;
         writeLog(ss.str());
 
         break;
@@ -114,7 +114,7 @@ void GGS::handleClientMessage(uint32_t id, const std::string& message) {
         clientInfos[id].partnerID = 0;
         
         std::stringstream ss;
-        ss << "Client " << id << " reports, ready for new partner";
+        ss << "Client " << id << " reports: Ready for new partner";
         writeLog(ss.str());
 
         searchForMatch(id);

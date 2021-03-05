@@ -95,11 +95,11 @@ struct ReadyForNewMessage : public BasicMessage {
   ReadyForNewMessage(const std::string& message) :
     BasicMessage(message)
   {
-    pt = MessageType::PairedMessage;
+    pt = MessageType::ReadyForNewMessage;
   }
   
   ReadyForNewMessage() {
-    pt = MessageType::PairedMessage;
+    pt = MessageType::ReadyForNewMessage;
   }
   
   virtual ~ReadyForNewMessage() {}
