@@ -107,7 +107,6 @@ public:
       }
     }
     if (match == 0) return;
-    
     pair(id, match);
   }
   
@@ -126,7 +125,7 @@ public:
         }
         case MessageType::ReadyForNewMessage : {
           ReadyForNewMessage r(message);
-          clientInfos[r.userID].partnerID = 0;
+          clientInfos[id].partnerID = 0;
           break;
         }
         case MessageType::GameMessage : {
