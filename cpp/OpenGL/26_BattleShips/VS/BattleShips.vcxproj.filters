@@ -54,6 +54,9 @@
     <ClCompile Include="..\FinishPhase.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="..\DialogPhase.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\BoardPhase.h">
@@ -90,6 +93,9 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="..\FinishPhase.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DialogPhase.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>
