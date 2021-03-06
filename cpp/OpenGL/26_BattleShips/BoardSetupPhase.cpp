@@ -14,8 +14,8 @@ std::optional<ShipPlacement> BoardSetupPhase::getPlacement() const {
     return {};
 }
 
-void BoardSetupPhase::mouseMove(double xPosition, double yPosition) {
-  BoardPhase::mouseMove(xPosition, yPosition);
+void BoardSetupPhase::mouseMoveInternal(double xPosition, double yPosition) {
+  BoardPhase::mouseMoveInternal(xPosition, yPosition);
     
   const Mat4 invMyBoardTrans = Mat4::inverse(myBoardTrans);
   const Vec2 normMyBoardPos = ((invMyBoardTrans * Vec4(normPos,0,1)).xy() + Vec2{1.0f,1.0f}) / 2.0f;
@@ -28,8 +28,8 @@ void BoardSetupPhase::mouseMove(double xPosition, double yPosition) {
   }
 }
 
-void BoardSetupPhase::mouseButton(int button, int state, int mods, double xPosition, double yPosition) {
-  BoardPhase::mouseButton(button, state, mods, xPosition, yPosition);
+void BoardSetupPhase::mouseButtonInternal(int button, int state, int mods, double xPosition, double yPosition) {
+  BoardPhase::mouseButtonInternal(button, state, mods, xPosition, yPosition);
 
   if (button == GLFW_MOUSE_BUTTON_RIGHT && state == GLFW_PRESS) {
     toggleOrientation();
@@ -42,8 +42,8 @@ void BoardSetupPhase::mouseButton(int button, int state, int mods, double xPosit
   }
 
 }
-void BoardSetupPhase::keyboard(int key, int scancode, int action, int mods) {
-  BoardPhase::keyboard(key, scancode, action, mods);
+void BoardSetupPhase::keyboardInternal(int key, int scancode, int action, int mods) {
+  BoardPhase::keyboardInternal(key, scancode, action, mods);
   
   if (action == GLFW_PRESS) {
     switch (key) {
@@ -60,8 +60,8 @@ void BoardSetupPhase::keyboard(int key, int scancode, int action, int mods) {
   }
 }
 
-void BoardSetupPhase::draw() {
-  BoardPhase::draw();
+void BoardSetupPhase::drawInternal() {
+  BoardPhase::drawInternal();
 
   if (backgroundImage) {
     app->drawRect(Vec4(0,0,0,0.7f));

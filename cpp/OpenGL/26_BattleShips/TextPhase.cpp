@@ -17,13 +17,13 @@ void TextPhase::setText(const std::string& t) {
   baseTextWidth = app->fr.render(text).width;
 }
 
-void TextPhase::animate(double animationTime) {
-  GamePhase::animate(animationTime);
+void TextPhase::animateInternal(double animationTime) {
+  GamePhase::animateInternal(animationTime);
   animationStep = size_t(animationTime*2) % 4;
 }
 
-void TextPhase::draw() {
-  GamePhase::draw();
+void TextPhase::drawInternal() {
+  GamePhase::drawInternal();
   
   std::string renderText{text};
   if (animationStep > 0) {
@@ -42,5 +42,5 @@ void TextPhase::draw() {
   
   app->setDrawTransform(Mat4::scaling(textImage.width / (baseTextWidth * 2.0f)) *
                         app->computeImageTransform({textImage.width, textImage.height}) );
-  app->drawImage(textImage);
+  app->drawImage(textImage);  
 }

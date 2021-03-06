@@ -29,8 +29,8 @@ void MainPhase::prepare(const ShipPlacement& myShipPlacement) {
   shotResults.clear();
 }
 
-void MainPhase::mouseMove(double xPosition, double yPosition) {
-  BoardPhase::mouseMove(xPosition, yPosition);
+void MainPhase::mouseMoveInternal(double xPosition, double yPosition) {
+  BoardPhase::mouseMoveInternal(xPosition, yPosition);
     
   const Mat4 invOtherBoardTrans = Mat4::inverse(otherBoardTrans);
   const Vec2 normOtherBoardPos = ((invOtherBoardTrans * Vec4(normPos,0,1)).xy() + Vec2{1.0f,1.0f}) / 2.0f;
@@ -44,8 +44,8 @@ void MainPhase::mouseMove(double xPosition, double yPosition) {
   app->getClient()->aimAt(otherCellPos);
 }
 
-void MainPhase::mouseButton(int button, int state, int mods, double xPosition, double yPosition) {
-  BoardPhase::mouseButton(button, state, mods, xPosition, yPosition);
+void MainPhase::mouseButtonInternal(int button, int state, int mods, double xPosition, double yPosition) {
+  BoardPhase::mouseButtonInternal(button, state, mods, xPosition, yPosition);
 
   if (button == GLFW_MOUSE_BUTTON_LEFT && state == GLFW_PRESS) {
     if (otherCellPos.x() < boardSize.x() && otherCellPos.y() < boardSize.y() && ! waitingForOther &&
@@ -90,8 +90,8 @@ void MainPhase::drawBoard(const GameGrid& board, Mat4 boardTrans, Vec2ui aimCoor
   }
 }
 
-void MainPhase::draw() {
-  BoardPhase::draw();
+void MainPhase::drawInternal() {
+  BoardPhase::drawInternal();
   
   if (backgroundImage) {
     app->drawRect(Vec4(0,0,0,0.7f));
@@ -126,8 +126,8 @@ void MainPhase::draw() {
   }
 }
 
-void MainPhase::animate(double animationTime) {
-  BoardPhase::animate(animationTime);
+void MainPhase::animateInternal(double animationTime) {
+  BoardPhase::animateInternal(animationTime);
   
   const std::vector<Vec2ui> newShotsReceived = app->getClient()->getShotsReceived();
   const std::vector<ShotResult> newShotResults = app->getClient()->getShotResults();

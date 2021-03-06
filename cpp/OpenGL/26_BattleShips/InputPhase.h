@@ -12,11 +12,7 @@ public:
   void setPrompt(const std::string& p) {
     prompt = p;
   }
-  
-  virtual void keyboard(int key, int scancode, int action, int mods) override;
-  virtual void keyboardChar(unsigned int codepoint) override;
-  virtual void draw() override;
-  
+    
   std::optional<std::string> getInput() const {
     if (complete)
       return userInput;
@@ -28,5 +24,9 @@ private:
   bool complete{false};
   std::string prompt;
   std::string userInput;
+
+  virtual void keyboardInternal(int key, int scancode, int action, int mods) override;
+  virtual void keyboardCharInternal(unsigned int codepoint) override;
+  virtual void drawInternal() override;
 
 };

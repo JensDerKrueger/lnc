@@ -2,6 +2,7 @@
 #include "BattleShips.h"
 #include <Rand.h>
 #include "Messages.inc"
+#include "DialogPhase.h"
 
 #ifndef _WIN32
   #include "helvetica_neue.inc"
@@ -81,10 +82,6 @@ void BattleShips::keyboardChar(unsigned int codepoint) {
 }
   
 void BattleShips::keyboard(int key, int scancode, int action, int mods) {
-  if (action == GLFW_PRESS && key == GLFW_KEY_ESCAPE) {
-    closeWindow();
-    return;
-  }
   if (currentPhase) currentPhase->keyboard(key, scancode, action, mods);
 }
 
@@ -93,7 +90,6 @@ void BattleShips::restartGame(bool reconnect) {
   encOtherShipPlacement = "";
   otherName  = "";
   otherLevel = 0;
-  
   if (reconnect) {
     currentPhase = nullptr;
   } else {
@@ -185,6 +181,15 @@ void BattleShips::stateTransition() {
     case GamePhaseID::Finished :
       if (finishedPhase.getTerminate()) {
         restartGame(false);
+      }
+      break;
+    case GamePhaseID::QuitDialog :
+      std::shared_ptr<DialogPhase> dialog = std::dynamic_pointer_cast<DialogPhase>(currentPhase->getOverlay());
+      if (dialog->getAnswer() == GLFW_KEY_Y || dialog->getAnswer() == GLFW_KEY_Z) {
+        closeWindow();
+      }
+      if (dialog->getAnswer() == GLFW_KEY_N) {
+        currentPhase->setOverlay(nullptr);
       }
       break;
   }

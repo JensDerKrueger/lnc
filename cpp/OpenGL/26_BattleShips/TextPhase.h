@@ -13,12 +13,13 @@ public:
   void setText(const std::string& t);
   
   virtual void init() override;
-  virtual void animate(double animationTime) override;
-  virtual void draw() override;
-  
+
 private:
   std::string text;
   size_t animationStep;
   size_t baseTextWidth;
-  
+
+  virtual void animateInternal(double animationTime) override;
+  virtual void drawInternal() override;
+
 };

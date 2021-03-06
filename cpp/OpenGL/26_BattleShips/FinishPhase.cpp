@@ -26,14 +26,6 @@ void FinishPhase::prepare(const GameGrid& my, const GameGrid& other, const std::
   }
 }
 
-void FinishPhase::mouseButton(int button, int state, int mods, double xPosition, double yPosition) {
-  BoardPhase::mouseButton(button, state, mods, xPosition, yPosition);
-
-  if (button == GLFW_MOUSE_BUTTON_LEFT && state == GLFW_PRESS) {
-    terminate = true;
-  }
-}
-
 void FinishPhase::drawBoard(const GameGrid& board, Mat4 boardTrans) {
   for (uint32_t y = 0; y < boardSize.y(); ++y) {
     for (uint32_t x = 0; x < boardSize.x(); ++x) {
@@ -66,8 +58,8 @@ void FinishPhase::drawBoard(const GameGrid& board, Mat4 boardTrans) {
   }
 }
 
-void FinishPhase::draw() {
-  BoardPhase::draw();
+void FinishPhase::drawInternal() {
+  BoardPhase::drawInternal();
   
   if (backgroundImage) {
     app->drawRect(Vec4(0,0,0,0.7f));
@@ -105,7 +97,9 @@ void FinishPhase::draw() {
   app->drawImage(prompt);
 }
 
-void FinishPhase::animate(double animationTime) {
+void FinishPhase::animateInternal(double animationTime) {
+  BoardPhase::animateInternal(animationTime);
+  
   if (verification != Verification::Unknown) return;
   
   const auto password = app->getClient()->getShipPlacementPassword();
@@ -118,5 +112,13 @@ void FinishPhase::animate(double animationTime) {
       verification = Verification::Invalid;
       title = "You win (the other cheated)";
     }
+  }
+}
+
+void FinishPhase::mouseButtonInternal(int button, int state, int mods, double xPosition, double yPosition) {
+  BoardPhase::mouseButtonInternal(button, state, mods, xPosition, yPosition);
+
+  if (button == GLFW_MOUSE_BUTTON_LEFT && state == GLFW_PRESS) {
+    terminate = true;
   }
 }

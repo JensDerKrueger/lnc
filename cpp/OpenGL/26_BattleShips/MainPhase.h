@@ -11,15 +11,8 @@ public:
   MainPhase(BattleShips* app, GamePhaseID gamePhaseID, const Vec2ui& boardSize);
 
   void prepare(const ShipPlacement& myShipPlacement);
-  
-  virtual void mouseMove(double xPosition, double yPosition) override;
-  virtual void mouseButton(int button, int state, int mods,
-                           double xPosition, double yPosition) override;
-  virtual void animate(double animationTime) override;
-  virtual void draw() override;
 
   uint32_t gameOver() const;
-
   GameGrid getMyBoard() const {return myBoard;}
   GameGrid getOtherBoard() const {return otherBoard;}
   
@@ -43,4 +36,10 @@ private:
   std::vector<ShotResult> shotResults;
 
   void drawBoard(const GameGrid& board, Mat4 boardTrans, Vec2ui aimCoords);
+  
+  virtual void mouseMoveInternal(double xPosition, double yPosition) override;
+  virtual void mouseButtonInternal(int button, int state, int mods,
+                           double xPosition, double yPosition) override;
+  virtual void animateInternal(double animationTime) override;
+  virtual void drawInternal() override;
 };

@@ -7,8 +7,8 @@ GamePhase(app,gamePhaseID),
 prompt{prompt}
 {}
 
-void InputPhase::keyboard(int key, int scancode, int action, int mods) {
-  GamePhase::keyboard(key, scancode, action, mods);
+void InputPhase::keyboardInternal(int key, int scancode, int action, int mods) {
+  GamePhase::keyboardInternal(key, scancode, action, mods);
   
   if (action == GLFW_PRESS) {
     switch (key) {
@@ -22,14 +22,13 @@ void InputPhase::keyboard(int key, int scancode, int action, int mods) {
   }
 }
 
-void InputPhase::keyboardChar(unsigned int codepoint) {
-  GamePhase::keyboardChar(codepoint);
-  
+void InputPhase::keyboardCharInternal(unsigned int codepoint) {
+  GamePhase::keyboardCharInternal(codepoint);
   userInput += char(codepoint);
 }
 
-void InputPhase::draw() {
-  GamePhase::draw();
+void InputPhase::drawInternal() {
+  GamePhase::drawInternal();
   Image textImage = app->fr.render((userInput.size() > 0) ? userInput : prompt);
 
   if (backgroundImage) {

@@ -17,12 +17,8 @@ public:
   FinishPhase(BattleShips* app, GamePhaseID gamePhaseID, const Vec2ui& boardSize);
 
   void prepare(const GameGrid& myBoard, const GameGrid& otherBoard, const std::string& encOtherBoard, size_t status);
-  
-  virtual void mouseButton(int button, int state, int mods, double xPosition, double yPosition) override;
-  virtual void draw() override;
-  virtual void animate(double animationTime) override;
-
   bool getTerminate() const {return terminate;}
+  
 private:
   GameGrid myBoard{boardSize};
   GameGrid otherBoard{boardSize};
@@ -36,4 +32,8 @@ private:
   std::string title;
   
   void drawBoard(const GameGrid& board, Mat4 boardTrans);
+  
+  virtual void mouseButtonInternal(int button, int state, int mods, double xPosition, double yPosition) override;
+  virtual void drawInternal() override;
+  virtual void animateInternal(double animationTime) override;
 };
