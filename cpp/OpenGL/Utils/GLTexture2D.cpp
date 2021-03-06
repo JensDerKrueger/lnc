@@ -50,9 +50,9 @@ GLTexture2D::GLTexture2D(const GLTexture2D& other) :
 {
   if (other.height > 0 && other.width > 0) {
     switch (dataType) {
-      case GLDataType::BYTE  : setData(other.data, other.height, other.width, other.componentCount); break;
-      case GLDataType::HALF  : setData(other.hdata, other.height, other.width, other.componentCount); break;
-      case GLDataType::FLOAT : setData(other.fdata, other.height, other.width, other.componentCount); break;
+      case GLDataType::BYTE  : setData(other.data, other.width, other.height, other.componentCount); break;
+      case GLDataType::HALF  : setData(other.hdata, other.width, other.height, other.componentCount); break;
+      case GLDataType::FLOAT : setData(other.fdata, other.width, other.height, other.componentCount); break;
     }
   }
 }
@@ -71,9 +71,9 @@ GLTexture2D& GLTexture2D::operator=(const GLTexture2D& other) {
   
   if (other.height > 0 && other.width > 0) {
     switch (dataType) {
-      case GLDataType::BYTE  : setData(other.data, other.height, other.width, other.componentCount); break;
-      case GLDataType::HALF  : setData(other.hdata, other.height, other.width, other.componentCount); break;
-      case GLDataType::FLOAT : setData(other.fdata, other.height, other.width, other.componentCount); break;
+      case GLDataType::BYTE  : setData(other.data, other.width, other.height, other.componentCount); break;
+      case GLDataType::HALF  : setData(other.hdata, other.width, other.height, other.componentCount); break;
+      case GLDataType::FLOAT : setData(other.fdata, other.width, other.height, other.componentCount); break;
     }
   }
   return *this;
