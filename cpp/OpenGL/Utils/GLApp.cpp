@@ -504,15 +504,7 @@ void GLApp::drawRect(const Vec4& color, const Vec2& bl, const Vec2& tr) {
 
 void GLApp::drawRect(const Vec4& color, const Vec3& bl, const Vec3& br,
                      const Vec3& tl, const Vec3& tr) {
-  
-  std::vector<GLubyte> data{
-    GLubyte(color.x()*255),
-    GLubyte(color.y()*255),
-    GLubyte(color.z()*255),
-    GLubyte(color.w()*255)
-  };
-  raster.setData(data, 1, 1, 4);
-  drawImage(raster, bl, br, tl, tr);
+  drawImage(Image{color}, bl, br, tl, tr);
 }
 
 

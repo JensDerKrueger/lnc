@@ -4,6 +4,8 @@
 #include <vector>
 #include <string>
 
+#include "Vec4.h"
+
 class Image {
 public:
   uint32_t width;
@@ -11,6 +13,8 @@ public:
   uint32_t componentCount;
   std::vector<uint8_t> data;
 
+  Image(const Vec4& color);
+  
   Image(uint32_t width = 100,
         uint32_t height = 100,
         uint32_t componentCount = 4);

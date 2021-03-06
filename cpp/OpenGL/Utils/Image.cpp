@@ -3,9 +3,17 @@
 
 #include "Image.h"
 
+Image::Image(const Vec4& color) :
+  Image(1,1,4,{uint8_t(color.x()*255),
+               uint8_t(color.y()*255),
+               uint8_t(color.z()*255),
+               uint8_t(color.w()*255)})
+{
+}
+
 Image::Image(uint32_t width,
-      uint32_t height,
-      uint32_t componentCount) :
+             uint32_t height,
+             uint32_t componentCount) :
   width{width},
   height{height},
   componentCount{componentCount},
