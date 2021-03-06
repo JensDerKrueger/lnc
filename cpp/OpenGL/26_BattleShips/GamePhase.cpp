@@ -14,16 +14,15 @@ void GamePhase::drawInternal() {
   GL(glEnable(GL_BLEND));
   GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
   GL(glBlendEquation(GL_FUNC_ADD));
-  
+  GL(glClearColor(0.0f,0.0f,0.0f,0.0f));
+  GL(glClear(GL_COLOR_BUFFER_BIT));
+
   if (backgroundImage) {
     if (keepBackgroundAspect)
       app->setDrawTransform(app->computeImageTransform({backgroundImage->getWidth(), backgroundImage->getHeight()}) );
     else
       app->setDrawTransform({});
     app->drawImage(*backgroundImage);
-  } else {
-    GL(glClearColor(0.0f,0.0f,0.0f,0.0f));
-    GL(glClear(GL_COLOR_BUFFER_BIT));
   }
 }
 

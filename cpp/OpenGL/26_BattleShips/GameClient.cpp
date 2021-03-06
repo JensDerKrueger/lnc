@@ -37,18 +37,14 @@ void GameClient::parseGameMessage(const std::string& m) {
       break;
     case GameMessageType::ShotResult : {
       const std::scoped_lock<std::mutex> lock(shotsMutex);
-      uint32_t x = tokenizer.nextUint32();
-      uint32_t y = tokenizer.nextUint32();
-      bool hit = tokenizer.nextBool();
+      ShotResult result = ShotResult(tokenizer.nextUint8());
     
-      if (shotResults.size() >= shotsFired.size() ||
-          shotsFired[shotResults.size()].x() != x ||
-          shotsFired[shotResults.size()].y() != y) {
+      if (shotResults.size() >= shotsFired.size()) {
         std::cerr << "Invalid shot response" << std::endl;
         return;
       }
       
-      shotResults.push_back(ShotResult{x,y,hit});
+      shotResults.push_back(result);
     }
     break;
     case GameMessageType::ShipPlacementPassword :
@@ -167,9 +163,7 @@ void GameClient::aimAt(const Vec2ui& pos) {
 void GameClient::sendShotResult(const ShotResult& r) {
   Encoder e{char(2)};
   e.add(uint32_t(GameMessageType::ShotResult));
-  e.add(r.x);
-  e.add(r.y);
-  e.add(r.hit);
+  e.add(uint8_t(r));
   GameMessage m;
   m.payload = e.getEncodedMessage();
   sendMessage(m.toString());

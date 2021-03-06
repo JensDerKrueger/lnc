@@ -94,16 +94,33 @@ void MainPhase::drawInternal() {
   BoardPhase::drawInternal();
   
   if (backgroundImage) {
-    app->drawRect(Vec4(0,0,0,0.7f));
+    if (sunkShipWithLastShot)
+      app->drawRect(Vec4(colorToggle/2.0f,0,0,0.7f));
+    else
+      app->drawRect(Vec4(0,0,0,0.7f));
   }
+  
+  Image name;
+  if (sunkShipWithLastShot)
+    name = app->fr.render("You just sunk a ship");
+  else
+    name = app->fr.render("You are battling " + app->getOtherName());
+  
+  Mat4 imageTrans = app->computeImageTransform({name.width, name.height});
+  Vec2 realImageSize = (imageTrans * Vec4(name.width, name.height, 0, 1)).xy();
+  app->setDrawTransform(imageTrans * Mat4::scaling(5.0f/realImageSize.y()) * Mat4::translation(0.0f,-0.85f,0.0f));
+  app->drawImage(name);
+  
+  Image name1 = app->fr.render(homeTitle);
+  Image name2 = app->fr.render(guestTitle);
+  
+  uint32_t maxWidth = std::max(name1.width, name2.width);
 
-  Image prompt = app->fr.render(homeTitle);
-  app->setDrawTransform(app->computeImageTransform({prompt.width, prompt.height}) * Mat4::scaling(0.2f) * Mat4::translation(-0.5f,0.8f,0.0f));
-  app->drawImage(prompt);
+  app->setDrawTransform(app->computeImageTransform({name1.width, name1.height}) * Mat4::scaling((0.3f*name1.width)/maxWidth) * Mat4::translation(-0.5f,0.8f,0.0f));
+  app->drawImage(name1);
 
-  prompt = app->fr.render(guestTitle);
-  app->setDrawTransform(app->computeImageTransform({prompt.width, prompt.height}) * Mat4::scaling(0.2f) * Mat4::translation( 0.5f,0.8f,0.0f));
-  app->drawImage(prompt);
+  app->setDrawTransform(app->computeImageTransform({name2.width, name2.height}) * Mat4::scaling((0.3f*name2.width)/maxWidth) * Mat4::translation( 0.5f,0.8f,0.0f));
+  app->drawImage(name2);
 
   Mat4 myBoardTrans = app->computeImageTransform(boardSize) * Mat4::scaling(0.6f) * Mat4::translation(-0.5f,0.0f,0.0f);
   app->setDrawTransform(myBoardTrans);
@@ -118,7 +135,7 @@ void MainPhase::drawInternal() {
   drawBoard(otherBoard, otherBoardTrans, otherCellPos);
   
   if (waitingForOther) {
-    prompt = app->fr.render(waitingShotMessages[waitingMessageIndex]);
+    Image prompt = app->fr.render(waitingShotMessages[waitingMessageIndex]);
     app->setDrawTransform(app->computeImageTransform({prompt.width, prompt.height}) * Mat4::scaling(0.9f));
     app->drawRect(Vec4(0,0,0,0.7f));
     app->setDrawTransform(app->computeImageTransform({prompt.width, prompt.height}) * Mat4::scaling(0.8f));
@@ -129,32 +146,47 @@ void MainPhase::drawInternal() {
 void MainPhase::animateInternal(double animationTime) {
   BoardPhase::animateInternal(animationTime);
   
+  colorToggle = uint32_t(animationTime*20) % 2;
+  
   const std::vector<Vec2ui> newShotsReceived = app->getClient()->getShotsReceived();
   const std::vector<ShotResult> newShotResults = app->getClient()->getShotResults();
   
   if (newShotsReceived.size() > shotsReceived.size() && otherRound <= myRound) {
     Vec2ui newShot = newShotsReceived[shotsReceived.size()];
-    const bool hit = Cell::Ship == myBoard.getCell(newShot.x(), newShot.y()) || Cell::ShipShot == myBoard.getCell(newShot.x(), newShot.y());
-    if (!hit) {
+    
+    
+    const bool hit = Cell::Ship == myBoard.getCell(newShot.x(), newShot.y()) ||
+                     Cell::ShipShot == myBoard.getCell(newShot.x(), newShot.y());
+    
+    ShotResult result = ShotResult::MISS;
+    if (hit) {
+      if (myBoard.shipSunk(newShot))
+        result = ShotResult::SUNK;
+      else
+        result = ShotResult::HIT;
+    }
+    
+    if (result == ShotResult::MISS) {
       otherRound++;
     }
-    app->getClient()->sendShotResult({newShot.x(), newShot.y(),hit});
-    
+    app->getClient()->sendShotResult(result);
     myBoard.addShot({newShot.x(), newShot.y()});
-    
     shotsReceived.push_back(newShot);
   }
-
   
   if (newShotResults.size() > shotResults.size()) {
-    ShotResult newResult = newShotResults[shotResults.size()];
-    if (!newResult.hit) {
+    const ShotResult newResult = newShotResults[shotResults.size()];
+    const Vec2ui pos = shotsFired[shotResults.size()];
+    
+    if (newResult == ShotResult::MISS) {
       myRound++;
-      otherBoard.addMiss({newResult.x, newResult.y});
+      otherBoard.addMiss({pos.x(), pos.y()});
     } else {
-      otherBoard.addHit({newResult.x, newResult.y});
+      otherBoard.addHit({pos.x(), pos.y()});
     }
 
+    sunkShipWithLastShot = (newResult == ShotResult::SUNK);
+    
     shotResults.push_back(newResult);
   }
 
@@ -175,4 +207,3 @@ uint32_t MainPhase::gameOver() const {
     return 1;
   return 0;
 }
-

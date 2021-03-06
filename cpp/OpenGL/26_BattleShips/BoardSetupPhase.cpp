@@ -66,6 +66,12 @@ void BoardSetupPhase::drawInternal() {
   if (backgroundImage) {
     app->drawRect(Vec4(0,0,0,0.7f));
   }
+  
+  Image name = app->fr.render("You are battling " + app->getOtherName());
+  Mat4 imageTrans = app->computeImageTransform({name.width, name.height});
+  Vec2 realImageSize = (imageTrans * Vec4(name.width, name.height, 0, 1)).xy();
+  app->setDrawTransform(imageTrans * Mat4::scaling(5.0f/realImageSize.y()) * Mat4::translation(0.0f,-0.9f,0.0f));
+  app->drawImage(name);  
 
   if(currentPlacement >= ShipPlacement::completePlacement.size()) return;
 
@@ -91,7 +97,8 @@ void BoardSetupPhase::drawInternal() {
         float tX = (x+0.5f)/boardSize.x()*2.0f-1.0f;
         float tY = (y+0.5f)/boardSize.y()*2.0f-1.0f;
 
-        app->setDrawTransform( Mat4::scaling(1.0f/boardSize.x(),1.0f/boardSize.y(),1.0f) * Mat4::translation(tX,tY,0.0f) * myBoardTrans);
+        app->setDrawTransform(Mat4::scaling(1.0f/boardSize.x(),1.0f/boardSize.y(),1.0f) *
+                              Mat4::translation(tX,tY,0.0f) * myBoardTrans);
         app->drawImage(shipCell);
       }
     }
@@ -99,7 +106,6 @@ void BoardSetupPhase::drawInternal() {
   
   if (shipAdded)
     myShipPlacement.deleteLastShip();
-  
 }
 
 void BoardSetupPhase::toggleOrientation() {
@@ -112,4 +118,3 @@ void BoardSetupPhase::prepare() {
   currentPlacement = 0;
   myShipPlacement = ShipPlacement{boardSize};
 }
-

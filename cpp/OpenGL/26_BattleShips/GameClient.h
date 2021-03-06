@@ -21,10 +21,10 @@ enum class GameMessageType {
   ShipPlacementPassword = 5
 };
 
-struct ShotResult {
-  uint32_t x;
-  uint32_t y;
-  bool hit;
+enum class ShotResult {
+  HIT = 0,
+  MISS = 1,
+  SUNK = 2
 };
 
 class GameClient : public Client {

@@ -44,6 +44,9 @@ public:
     
   std::shared_ptr<GameClient> getClient() {return client;}
   
+  std::string getOtherName() const {return otherName;}
+  uint32_t getOtherLevel() const {return otherLevel;}
+  
 private:
   std::shared_ptr<GameClient> client{nullptr};
 

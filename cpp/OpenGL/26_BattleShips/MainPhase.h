@@ -25,7 +25,10 @@ private:
   
   std::string guestTitle;
   std::string homeTitle;
+  
+  uint32_t colorToggle{0};
   bool waitingForOther{false};
+  bool sunkShipWithLastShot{false};
   size_t waitingMessageIndex{0};
   
   size_t myRound{0};

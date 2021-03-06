@@ -26,6 +26,8 @@ public:
   void addMiss(const Vec2ui& pos);
   void addShot(const Vec2ui& pos);
 
+  bool shipSunk(const Vec2ui& pos) const;
+  
   bool validate(const std::string& encryptedString, const std::string& password);
   
   Vec2ui getSize() const {return gridSize;}

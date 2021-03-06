@@ -117,8 +117,8 @@ void BattleShips::stateTransition() {
           currentPhase = &namePhase;
         } else {
           connectingPhase.setText(std::string("Connecting to ") + serverAddress);
-          currentPhase = &connectingPhase;
           client = std::make_shared<GameClient>(serverAddress, serverPort, userName, level);
+          currentPhase = &connectingPhase;
         }
       }
       break;
@@ -132,8 +132,8 @@ void BattleShips::stateTransition() {
       if (namePhase.getInput()) {
         userName = *(namePhase.getInput());
         connectingPhase.setText(std::string("Connecting to ") + serverAddress);
-        currentPhase = &connectingPhase;
         client = std::make_shared<GameClient>(serverAddress, serverPort, userName, level);
+        currentPhase = &connectingPhase;
       }
       break;
     case GamePhaseID::Connecting :

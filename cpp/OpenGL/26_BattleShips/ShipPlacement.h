@@ -5,10 +5,10 @@
 #include <Vec2.h>
 
 enum class ShipSize {
-  TWO = 2,
+  TWO   = 2,
   THREE = 3,
-  FOUR = 4,
-  FIVE = 5
+  FOUR  = 4,
+  FIVE  = 5
 };
 
 enum class Orientation {
