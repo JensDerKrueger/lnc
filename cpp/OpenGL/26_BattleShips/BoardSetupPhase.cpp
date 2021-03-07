@@ -74,7 +74,7 @@ void BoardSetupPhase::drawInternal() {
  
   Image name = app->fr.render("You are battling " + app->getOtherName());
   Mat4 imageTrans = app->computeImageTransform({name.width, name.height});
-  Vec2 realImageSize = (imageTrans * Vec4(name.width, name.height, 0, 1)).xy();
+  Vec2 realImageSize = (imageTrans * Vec4(float(name.width), float(name.height), 0, 1)).xy();
   app->setDrawTransform(imageTrans * Mat4::scaling(5.0f/realImageSize.y()) * Mat4::translation(0.0f,-0.9f,0.0f));
   app->drawImage(name);  
 
