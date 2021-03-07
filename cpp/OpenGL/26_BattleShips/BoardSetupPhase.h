@@ -11,11 +11,13 @@ public:
 
   std::optional<ShipPlacement> getPlacement() const;  
   void prepare();
+  void init() override;
     
 private:
   Mat4 myBoardTrans;
   Vec2ui myCellPos{std::numeric_limits<uint32_t>::max(), std::numeric_limits<uint32_t>::max()};
 
+  GLTexture2D titleTexture;
   Orientation currentOrientation{Orientation::Vertical};
   size_t currentPlacement{0};
   ShipPlacement myShipPlacement;

@@ -75,4 +75,5 @@ private:
   void stateTransition();
   void tryToLoadSettings();
   void restartGame(bool reconnect);
+  std::string limitString(const std::string& str, size_t maxSize) const;
 };

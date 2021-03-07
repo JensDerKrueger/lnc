@@ -60,13 +60,18 @@ void BoardSetupPhase::keyboardInternal(int key, int scancode, int action, int mo
   }
 }
 
+void BoardSetupPhase::init() {
+  BoardPhase::init();
+  titleTexture = GLTexture2D(app->fr.render("Position Your Fleet (Hit R to rotate / hit U to undo placement)"));
+}
+
 void BoardSetupPhase::drawInternal() {
   BoardPhase::drawInternal();
 
   if (backgroundImage) {
     app->drawRect(Vec4(0,0,0,0.7f));
   }
-  
+ 
   Image name = app->fr.render("You are battling " + app->getOtherName());
   Mat4 imageTrans = app->computeImageTransform({name.width, name.height});
   Vec2 realImageSize = (imageTrans * Vec4(name.width, name.height, 0, 1)).xy();
@@ -75,9 +80,9 @@ void BoardSetupPhase::drawInternal() {
 
   if(currentPlacement >= ShipPlacement::completePlacement.size()) return;
 
-  Image prompt = app->fr.render("Position Your Fleet");
-  app->setDrawTransform(app->computeImageTransform({prompt.width, prompt.height}) * Mat4::scaling(0.3f) * Mat4::translation(0.0f,0.9f,0.0f));
-  app->drawImage(prompt);
+  
+  app->setDrawTransform(app->computeImageTransform({titleTexture.getWidth(), titleTexture.getHeight()}) * Mat4::scaling(0.6f) * Mat4::translation(0.0f,0.9f,0.0f));
+  app->drawImage(titleTexture);
   
   myBoardTrans = app->computeImageTransform(boardSize) * Mat4::scaling(0.8f);
 

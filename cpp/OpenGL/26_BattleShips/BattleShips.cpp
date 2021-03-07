@@ -146,7 +146,7 @@ void BattleShips::stateTransition() {
       {
         const auto pi = client->getReceivedPairingInfo();
         if (pi) {
-          otherName  = pi->first;
+          otherName  = limitString(pi->first, 15);
           otherLevel = pi->second;
           boardSetupPhase.prepare();
           currentPhase = &boardSetupPhase;
@@ -202,4 +202,9 @@ void BattleShips::animate(double animationTime) {
 
 void BattleShips::draw() {
   if (currentPhase) currentPhase->draw();
+}
+
+std::string BattleShips::limitString(const std::string& str, size_t maxSize) const {
+  if (str.length() <= maxSize) return str;
+  return str.substr(0, maxSize-3) + std::string("...");
 }
