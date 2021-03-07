@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "BsttleShips"
-#define MyAppVersion "0.07"
+#define MyAppVersion "0.08"
 #define MyAppPublisher "Late Night Coding"
 #define MyAppURL "http://www.twitch.tv/jhkrueger"
 #define MyAppExeName "BattleShips.exe"
@@ -38,6 +38,9 @@ Source: "bin\x64-Release\BattleShips.exe"; DestDir: "{app}"; Flags: ignoreversio
 Source: "bin\x64-Release\helvetica_neue.pos"; DestDir: "{app}"; Flags: ignoreversion
 Source: "bin\x64-Release\helvetica_neue.bmp"; DestDir: "{app}"; Flags: ignoreversion
 Source: "bin\x64-Release\battleship.bmp"; DestDir: "{app}"; Flags: ignoreversion
+Source: "bin\x64-Release\crosshair.bmp"; DestDir: "{app}"; Flags: ignoreversion
+Source: "bin\x64-Release\hit.bmp"; DestDir: "{app}"; Flags: ignoreversion
+Source: "bin\x64-Release\water.bmp"; DestDir: "{app}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 Source: "VC_redist.x64.exe"; DestDir: "{tmp}"; Flags: ignoreversion deleteafterinstall
 
