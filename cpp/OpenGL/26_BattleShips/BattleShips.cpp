@@ -64,7 +64,7 @@ void BattleShips::init() {
     waitingBoardSetupPhase.setBackground(background);
     mainPhase.setBackground(background);
     finishedPhase.setBackground(background);
-  } catch (const BMP::BMPException& e)  {
+  } catch (const BMP::BMPException& e) {
     std::cerr << e.what() << std::endl;
   }
 }

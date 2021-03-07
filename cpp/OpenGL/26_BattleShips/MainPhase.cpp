@@ -94,15 +94,12 @@ void MainPhase::drawInternal() {
   BoardPhase::drawInternal();
   
   if (backgroundImage) {
-    if (sunkShipWithLastShot)
-      app->drawRect(Vec4(colorToggle/2.0f,0,0,0.7f));
-    else
-      app->drawRect(Vec4(0,0,0,0.7f));
+    app->drawRect(Vec4(0,0,0,0.7f));
   }
   
   Image name;
   if (sunkShipWithLastShot)
-    name = app->fr.render("You just sunk a ship");
+    name = app->fr.render("You sunk one of the ships from " + app->getOtherName());
   else
     name = app->fr.render("You are battling " + app->getOtherName());
   
@@ -182,9 +179,9 @@ void MainPhase::animateInternal(double animationTime) {
       myRound++;
       otherBoard.addMiss({pos.x(), pos.y()});
     } else {
-      otherBoard.addHit({pos.x(), pos.y()});
+      otherBoard.addHit({pos.x(), pos.y()}, newResult == ShotResult::SUNK);
     }
-
+    
     sunkShipWithLastShot = (newResult == ShotResult::SUNK);
     
     shotResults.push_back(newResult);

@@ -22,7 +22,7 @@ public:
   void setShips(const ShipPlacement& sp);
   void setEnemyShips(const ShipPlacement& sp);
   
-  void addHit(const Vec2ui& pos);
+  void addHit(const Vec2ui& pos, bool sunk);
   void addMiss(const Vec2ui& pos);
   void addShot(const Vec2ui& pos);
 
@@ -47,5 +47,5 @@ private:
   
   void addShip(const Vec2ui& pos);
   void setCell(uint32_t x, uint32_t y, Cell c);
-
+  void markAsSunk(const Vec2ui& pos);
 };

@@ -92,7 +92,20 @@ void BoardSetupPhase::drawInternal() {
   const std::vector<Ship>& ships = myShipPlacement.getShips();
   
   bool shipAdded = myShipPlacement.addShip({ShipPlacement::completePlacement[currentPlacement], currentOrientation, myCellPos});
-     
+
+  for (size_t y = 0; y < boardSize.y(); ++y) {
+    for (size_t x = 0; x < boardSize.x(); ++x) {
+      
+      float tX = (x+0.5f)/boardSize.x()*2.0f-1.0f;
+      float tY = (y+0.5f)/boardSize.y()*2.0f-1.0f;
+
+      app->setDrawTransform(Mat4::scaling(0.9f/boardSize.x(),0.9f/boardSize.y(),1.0f) *
+                            Mat4::translation(tX,tY,0.0f) * myBoardTrans);
+      app->drawImage(emptyCell);
+    }
+  }
+
+  
   for (const Ship& ship : ships) {
     const Vec2ui start = ship.pos;
     const Vec2ui end   = ship.computeEnd();

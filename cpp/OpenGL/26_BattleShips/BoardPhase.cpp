@@ -10,56 +10,26 @@ boardSize(boardSize)
 void BoardPhase::init() {
   GamePhase::init();
   
-  Image cellImage{5,5};
-  for (uint32_t y = 0;y<cellImage.width;++y) {
-    for (uint32_t x = 0;x<cellImage.height;++x) {
-      cellImage.setNormalizedValue(x, y, 0, 0.0f);
-      cellImage.setNormalizedValue(x, y, 1, 0.0f);
-      cellImage.setNormalizedValue(x, y, 2, 1.0f);
-      cellImage.setNormalizedValue(x, y, 3, 1.0f);
-    }
+  try {
+    emptyCell = GLTexture2D{BMP::load("water.bmp")};
+  } catch (const BMP::BMPException& ) {
+    emptyCell = GLTexture2D{Image{{0.0f,0.0f,1.0f,1.0f}}};
   }
-  emptyCell = GLTexture2D{cellImage};
-  for (uint32_t y = 0;y<cellImage.width;++y) {
-    for (uint32_t x = 0;x<cellImage.height;++x) {
-      cellImage.setNormalizedValue(x, y, 0, 0.3f);
-      cellImage.setNormalizedValue(x, y, 1, 0.3f);
-      cellImage.setNormalizedValue(x, y, 2, 0.3f);
-      cellImage.setNormalizedValue(x, y, 3, 1.0f);
-    }
-  }
-  unknownCell = GLTexture2D{cellImage};
   
-  for (uint32_t y = 0;y<cellImage.width;++y) {
-    for (uint32_t x = 0;x<cellImage.height;++x) {
-      cellImage.setNormalizedValue(x, y, 0, 1.0f);
-      cellImage.setNormalizedValue(x, y, 1, 0.0f);
-      cellImage.setNormalizedValue(x, y, 2, 0.0f);
-      cellImage.setNormalizedValue(x, y, 3, 1.0f);
-    }
+  unknownCell = GLTexture2D{Image{{0.3f,0.3f,0.3f,1.0f}}};
+  shipCell = GLTexture2D{Image{{1.0f,0.0f,0.0f,1.0f}}};
+  try {
+    shotCell = GLTexture2D{BMP::load("hit.bmp")};
+  } catch (const BMP::BMPException& ) {
+    shotCell = GLTexture2D{Image{{1.0f,1.0f,1.0f,0.5f}}};
   }
-  shipCell = GLTexture2D{cellImage};
-
-  for (uint32_t y = 0;y<cellImage.width;++y) {
-    for (uint32_t x = 0;x<cellImage.height;++x) {
-      cellImage.setNormalizedValue(x, y, 0, 1.0f);
-      cellImage.setNormalizedValue(x, y, 1, 1.0f);
-      cellImage.setNormalizedValue(x, y, 2, 1.0f);
-      cellImage.setNormalizedValue(x, y, 3, 0.5f);
-    }
+    
+  try {
+    aimCell = GLTexture2D{BMP::load("crosshair.bmp")};
+  } catch (const BMP::BMPException& ) {
+    aimCell = GLTexture2D{Image{{1.0f,1.0f,0.0f,0.5f}}};
   }
-  shotCell = GLTexture2D{cellImage};
   
-  for (uint32_t y = 0;y<cellImage.width;++y) {
-    for (uint32_t x = 0;x<cellImage.height;++x) {
-      cellImage.setNormalizedValue(x, y, 0, 1.0f);
-      cellImage.setNormalizedValue(x, y, 1, 1.0f);
-      cellImage.setNormalizedValue(x, y, 2, 0.0f);
-      cellImage.setNormalizedValue(x, y, 3, 0.5f);
-    }
-  }
-  aimCell = GLTexture2D{cellImage};
-
   gridLines = gridToLines();
 }
 

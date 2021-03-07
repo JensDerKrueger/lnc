@@ -18,8 +18,9 @@ void GameGrid::setCell(uint32_t x, uint32_t y, Cell c) {
   grid[x+y*gridSize.x()] = c;
 }
 
-void GameGrid::addHit(const Vec2ui& pos) {
+void GameGrid::addHit(const Vec2ui& pos, bool sunk) {
   setCell(pos.x(), pos.y(), Cell::Ship);
+  if (sunk) markAsSunk(pos);
   hits.push_back(pos);
 }
 
@@ -47,7 +48,11 @@ void GameGrid::addShot(const Vec2ui& pos) {
 }
 
 void GameGrid::addShip(const Vec2ui& pos) {
-  setCell(pos.x(), pos.y(), Cell::Ship);
+  const Cell c = getCell(pos.x(), pos.y());
+  if (c == Cell::Ship || c == Cell::ShipShot)
+    setCell(pos.x(), pos.y(), Cell::ShipShot);
+  else
+    setCell(pos.x(), pos.y(), Cell::Ship);
 }
 
 bool GameGrid::validate(const std::string& encryptedString, const std::string& password) {
@@ -92,8 +97,7 @@ void GameGrid::setEnemyShips(const ShipPlacement& sp) {
     
     for (uint32_t y = start.y();y<=end.y();y++) {
       for (uint32_t x = start.x();x<=end.x();x++) {
-        if (getCell(x, y) == Cell::Unknown )
-          addShip({x,y});
+        addShip({x,y});
       }
     }
   }
@@ -128,7 +132,7 @@ bool GameGrid::shipSunk(const Vec2ui& pos) const {
     if (getCell(x, pos.y()) == Cell::Empty || getCell(x, pos.y()) == Cell::EmptyShot) break;
   }
   
-  for (int64_t x = int64_t(pos.x())-1;x>0;x--) {
+  for (int64_t x = int64_t(pos.x())-1;x>=0;x--) {
     if (getCell(uint32_t(x), pos.y()) == Cell::Ship) return false;
     if (getCell(uint32_t(x), pos.y()) == Cell::Empty || getCell(uint32_t(x), pos.y()) == Cell::EmptyShot) break;
   }
@@ -138,10 +142,36 @@ bool GameGrid::shipSunk(const Vec2ui& pos) const {
     if (getCell(pos.x(), y) == Cell::Empty || getCell(pos.x(), y) == Cell::EmptyShot) break;
   }
   
-  for (int64_t y = int64_t(pos.y())-1;y>0;y--) {
+  for (int64_t y = int64_t(pos.y())-1;y>=0;y--) {
     if (getCell(pos.x(), uint32_t(y)) == Cell::Ship) return false;
     if (getCell(pos.x(), uint32_t(y)) == Cell::Empty || getCell(pos.x(), uint32_t(y)) == Cell::EmptyShot) break;
   }
   
   return true;
+}
+
+
+void GameGrid::markAsSunk(const Vec2ui& pos) {
+  setCell(pos.x(), pos.y(), Cell::ShipShot);
+  
+  for (uint32_t x = pos.x()+1;x<gridSize.x();x++) {
+    if (getCell(x, pos.y()) == Cell::Ship) setCell(x, pos.y(), Cell::ShipShot);
+    if (getCell(x, pos.y()) == Cell::Empty || getCell(x, pos.y()) == Cell::EmptyShot) break;
+  }
+  
+  for (int64_t x = int64_t(pos.x())-1;x>=0;x--) {
+    if (getCell(uint32_t(x), pos.y()) == Cell::Ship) setCell(uint32_t(x), pos.y(), Cell::ShipShot);
+    if (getCell(uint32_t(x), pos.y()) == Cell::Empty || getCell(uint32_t(x), pos.y()) == Cell::EmptyShot) break;
+  }
+
+  for (uint32_t y = pos.y()+1;y<gridSize.y();y++) {
+    if (getCell(pos.x(), y) == Cell::Ship) setCell(pos.x(), y, Cell::ShipShot);
+    if (getCell(pos.x(), y) == Cell::Empty || getCell(pos.x(), y) == Cell::EmptyShot) break;
+  }
+  
+  for (int64_t y = int64_t(pos.y())-1;y>=0;y--) {
+    if (getCell(pos.x(), uint32_t(y)) == Cell::Ship) setCell(pos.x(), uint32_t(y), Cell::ShipShot);
+    if (getCell(pos.x(), uint32_t(y)) == Cell::Empty || getCell(pos.x(), uint32_t(y)) == Cell::EmptyShot) break;
+  }
+
 }
