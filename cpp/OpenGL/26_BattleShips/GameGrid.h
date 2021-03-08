@@ -17,7 +17,7 @@ enum class Cell {
 
 class GameGrid {
 public:
-  GameGrid(const Vec2ui& gridSize=Vec2ui{10,10});
+  GameGrid(const Vec2ui& gridSize);
 
   void setShips(const ShipPlacement& sp);
   void setEnemyShips(const ShipPlacement& sp);
