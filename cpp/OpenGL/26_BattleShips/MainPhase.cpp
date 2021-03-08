@@ -48,7 +48,8 @@ void MainPhase::mouseButtonInternal(int button, int state, int mods, double xPos
   BoardPhase::mouseButtonInternal(button, state, mods, xPosition, yPosition);
 
   if (button == GLFW_MOUSE_BUTTON_LEFT && state == GLFW_PRESS) {
-    if (otherCellPos.x() < boardSize.x() && otherCellPos.y() < boardSize.y() && ! waitingForOther &&
+    if (shotResults.size() == shotsFired.size() &&
+        otherCellPos.x() < boardSize.x() && otherCellPos.y() < boardSize.y() && ! waitingForOther &&
         Cell::Unknown == otherBoard.getCell(otherCellPos.x(), otherCellPos.y())) {
       shotsFired.push_back(otherCellPos);
       app->getClient()->shootAt(otherCellPos);
@@ -142,8 +143,6 @@ void MainPhase::drawInternal() {
 
 void MainPhase::animateInternal(double animationTime) {
   BoardPhase::animateInternal(animationTime);
-  
-  colorToggle = uint32_t(animationTime*20) % 2;
   
   const std::vector<Vec2ui> newShotsReceived = app->getClient()->getShotsReceived();
   const std::vector<ShotResult> newShotResults = app->getClient()->getShotResults();

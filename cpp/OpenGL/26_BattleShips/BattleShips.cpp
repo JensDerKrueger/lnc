@@ -171,6 +171,7 @@ void BattleShips::stateTransition() {
           currentPhase = &mainPhase;
         }
       }
+      break;
     case GamePhaseID::MainPhase :
       if (mainPhase.gameOver()) {
         client->sendShipPlacementPassword(myPassword);

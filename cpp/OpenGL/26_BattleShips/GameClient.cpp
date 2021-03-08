@@ -21,6 +21,12 @@ void GameClient::parseGameMessage(const std::string& m) {
     case GameMessageType::EncryptedShipPlacement :
       otherShipPlacement = tokenizer.nextString();
       break;
+    case GameMessageType::ChatMessage :
+      {
+        const std::scoped_lock<std::mutex> lock(chatMessageMutex);
+        chatMessages.push_back(tokenizer.nextString());
+      }
+      break;
     case GameMessageType::Aim : {
         uint32_t x = tokenizer.nextUint32();
         uint32_t y = tokenizer.nextUint32();
@@ -38,12 +44,10 @@ void GameClient::parseGameMessage(const std::string& m) {
     case GameMessageType::ShotResult : {
       const std::scoped_lock<std::mutex> lock(shotsMutex);
       ShotResult result = ShotResult(tokenizer.nextUint8());
-    
       if (shotResults.size() >= shotsFired.size()) {
         std::cerr << "Invalid shot response" << std::endl;
         return;
       }
-      
       shotResults.push_back(result);
     }
     break;
@@ -169,7 +173,6 @@ void GameClient::sendShotResult(const ShotResult& r) {
   sendMessage(m.toString());
 }
 
-
 void GameClient::readyForNewPlayer() {
   receivedPairingInfo = {};
   otherShipPlacement = {};
@@ -182,4 +185,20 @@ void GameClient::readyForNewPlayer() {
 
   ReadyForNewMessage m;
   sendMessage(m.toString());
+}
+
+void GameClient::sendChatMessage(const std::string& msg) {
+  Encoder e{char(2)};
+  e.add(uint32_t(GameMessageType::ChatMessage));
+  e.add(msg);
+  GameMessage m;
+  m.payload = e.getEncodedMessage();
+  sendMessage(m.toString());
+}
+
+std::vector<std::string> GameClient::getChatMessages() {
+  const std::scoped_lock<std::mutex> lock(chatMessageMutex);
+  std::vector<std::string> v = chatMessages;
+  chatMessages.clear();
+  return v;
 }

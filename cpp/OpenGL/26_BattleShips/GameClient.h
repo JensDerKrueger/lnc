@@ -18,7 +18,8 @@ enum class GameMessageType {
   Aim = 2,
   Shot = 3,
   ShotResult = 4,
-  ShipPlacementPassword = 5
+  ShipPlacementPassword = 5,
+  ChatMessage = 6,
 };
 
 enum class ShotResult {
@@ -58,6 +59,9 @@ public:
   
   void readyForNewPlayer();
   
+  void sendChatMessage(const std::string& msg);
+  std::vector<std::string> getChatMessages();
+  
 private:
   std::string name{""};
   uint32_t level{0};
@@ -66,6 +70,9 @@ private:
   
   std::mutex aimMutex;
   std::mutex shotsMutex;
+  std::mutex chatMessageMutex;
+  
+  std::vector<std::string> chatMessages;
   Vec2ui aim{std::numeric_limits<uint32_t>::max(), std::numeric_limits<uint32_t>::max()};
   Vec2ui lastAim{std::numeric_limits<uint32_t>::max(), std::numeric_limits<uint32_t>::max()};
   std::vector<Vec2ui> shotsReceived;
