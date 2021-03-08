@@ -1,0 +1,419 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		5601A4EB25EEBAFB00077919 /* TextPhase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5601A4E925EEBAFB00077919 /* TextPhase.cpp */; };
+		5601A4F425EEE99B00077919 /* InputPhase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5601A4F325EEE99B00077919 /* InputPhase.cpp */; };
+		5601A4F825EEFB6200077919 /* BoardPhase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5601A4F725EEFB6200077919 /* BoardPhase.cpp */; };
+		5601A50125EEFF4300077919 /* BoardSetupPhase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5601A4FF25EEFF4300077919 /* BoardSetupPhase.cpp */; };
+		5601A50E25EFE09C00077919 /* GameGrid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5601A50D25EFE09C00077919 /* GameGrid.cpp */; };
+		5601A51325F043A500077919 /* MainPhase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5601A51225F043A400077919 /* MainPhase.cpp */; };
+		5601A51825F142D800077919 /* FinishPhase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5601A51725F142D800077919 /* FinishPhase.cpp */; };
+		564194E925EB29FF00A6B8A8 /* NetGame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 564194E825EB29FF00A6B8A8 /* NetGame.cpp */; };
+		56A7B0FC25EBFF99001B324D /* settings.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = 56A7B0F725EBFE1D001B324D /* settings.txt */; };
+		A231F11325EAF65400CBFC23 /* BattleShips.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A231F10C25EAF65400CBFC23 /* BattleShips.cpp */; };
+		A231F11425EAF65400CBFC23 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A231F10D25EAF65400CBFC23 /* main.cpp */; };
+		A231F11625EAF65400CBFC23 /* GameClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A231F11225EAF65400CBFC23 /* GameClient.cpp */; };
+		A231F11B25EB1AA000CBFC23 /* ShipPlacement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A231F11925EB1AA000CBFC23 /* ShipPlacement.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		A231F0FD25EAF61A00CBFC23 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 12;
+			dstPath = "";
+			dstSubfolderSpec = 7;
+			files = (
+				56A7B0FC25EBFF99001B324D /* settings.txt in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		5601A4E925EEBAFB00077919 /* TextPhase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TextPhase.cpp; sourceTree = "<group>"; };
+		5601A4EA25EEBAFB00077919 /* GamePhase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GamePhase.h; sourceTree = "<group>"; };
+		5601A4ED25EEBBB200077919 /* TextPhase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TextPhase.h; sourceTree = "<group>"; };
+		5601A4F225EEE99B00077919 /* InputPhase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InputPhase.h; sourceTree = "<group>"; };
+		5601A4F325EEE99B00077919 /* InputPhase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InputPhase.cpp; sourceTree = "<group>"; };
+		5601A4F625EEFB6100077919 /* BoardPhase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BoardPhase.h; sourceTree = "<group>"; };
+		5601A4F725EEFB6200077919 /* BoardPhase.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = BoardPhase.cpp; sourceTree = "<group>"; };
+		5601A4FF25EEFF4300077919 /* BoardSetupPhase.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = BoardSetupPhase.cpp; sourceTree = "<group>"; };
+		5601A50025EEFF4300077919 /* BoardSetupPhase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BoardSetupPhase.h; sourceTree = "<group>"; };
+		5601A50C25EFE09C00077919 /* GameGrid.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GameGrid.h; sourceTree = "<group>"; };
+		5601A50D25EFE09C00077919 /* GameGrid.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GameGrid.cpp; sourceTree = "<group>"; };
+		5601A51125F043A400077919 /* MainPhase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MainPhase.h; sourceTree = "<group>"; };
+		5601A51225F043A400077919 /* MainPhase.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MainPhase.cpp; sourceTree = "<group>"; };
+		5601A51625F142D800077919 /* FinishPhase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FinishPhase.h; sourceTree = "<group>"; };
+		5601A51725F142D800077919 /* FinishPhase.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = FinishPhase.cpp; sourceTree = "<group>"; };
+		564194E725EB29FF00A6B8A8 /* NetGame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NetGame.h; path = ../25_GenericGameServer/NetGame.h; sourceTree = "<group>"; };
+		564194E825EB29FF00A6B8A8 /* NetGame.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NetGame.cpp; path = ../25_GenericGameServer/NetGame.cpp; sourceTree = "<group>"; };
+		56A7B0F725EBFE1D001B324D /* settings.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = settings.txt; sourceTree = "<group>"; };
+		A231F0FF25EAF61A00CBFC23 /* Battleships */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Battleships; sourceTree = BUILT_PRODUCTS_DIR; };
+		A231F10C25EAF65400CBFC23 /* BattleShips.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BattleShips.cpp; sourceTree = "<group>"; };
+		A231F10D25EAF65400CBFC23 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		A231F10E25EAF65400CBFC23 /* GameClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GameClient.h; sourceTree = "<group>"; };
+		A231F11025EAF65400CBFC23 /* BattleShips.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BattleShips.h; sourceTree = "<group>"; };
+		A231F11225EAF65400CBFC23 /* GameClient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GameClient.cpp; sourceTree = "<group>"; };
+		A231F11925EB1AA000CBFC23 /* ShipPlacement.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ShipPlacement.cpp; sourceTree = "<group>"; };
+		A231F11A25EB1AA000CBFC23 /* ShipPlacement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShipPlacement.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A231F0FC25EAF61A00CBFC23 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A231F0F625EAF61A00CBFC23 = {
+			isa = PBXGroup;
+			children = (
+				A231F11A25EB1AA000CBFC23 /* ShipPlacement.h */,
+				A231F11925EB1AA000CBFC23 /* ShipPlacement.cpp */,
+				5601A50C25EFE09C00077919 /* GameGrid.h */,
+				5601A50D25EFE09C00077919 /* GameGrid.cpp */,
+				A231F11025EAF65400CBFC23 /* BattleShips.h */,
+				A231F10C25EAF65400CBFC23 /* BattleShips.cpp */,
+				A231F10E25EAF65400CBFC23 /* GameClient.h */,
+				A231F11225EAF65400CBFC23 /* GameClient.cpp */,
+				A231F10D25EAF65400CBFC23 /* main.cpp */,
+				564194E725EB29FF00A6B8A8 /* NetGame.h */,
+				564194E825EB29FF00A6B8A8 /* NetGame.cpp */,
+				5601A4EA25EEBAFB00077919 /* GamePhase.h */,
+				5601A4ED25EEBBB200077919 /* TextPhase.h */,
+				5601A4E925EEBAFB00077919 /* TextPhase.cpp */,
+				5601A4F225EEE99B00077919 /* InputPhase.h */,
+				5601A4F325EEE99B00077919 /* InputPhase.cpp */,
+				5601A4F625EEFB6100077919 /* BoardPhase.h */,
+				5601A4F725EEFB6200077919 /* BoardPhase.cpp */,
+				5601A50025EEFF4300077919 /* BoardSetupPhase.h */,
+				5601A4FF25EEFF4300077919 /* BoardSetupPhase.cpp */,
+				5601A51125F043A400077919 /* MainPhase.h */,
+				5601A51225F043A400077919 /* MainPhase.cpp */,
+				5601A51625F142D800077919 /* FinishPhase.h */,
+				5601A51725F142D800077919 /* FinishPhase.cpp */,
+				56A7B0F725EBFE1D001B324D /* settings.txt */,
+				A231F10025EAF61A00CBFC23 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A231F10025EAF61A00CBFC23 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A231F0FF25EAF61A00CBFC23 /* Battleships */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A231F0FE25EAF61A00CBFC23 /* Battleships */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A231F10625EAF61A00CBFC23 /* Build configuration list for PBXNativeTarget "Battleships" */;
+			buildPhases = (
+				A231F0FB25EAF61A00CBFC23 /* Sources */,
+				A231F0FC25EAF61A00CBFC23 /* Frameworks */,
+				A231F0FD25EAF61A00CBFC23 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Battleships;
+			productName = Battleships;
+			productReference = A231F0FF25EAF61A00CBFC23 /* Battleships */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A231F0F725EAF61A00CBFC23 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 1240;
+				TargetAttributes = {
+					A231F0FE25EAF61A00CBFC23 = {
+						CreatedOnToolsVersion = 12.4;
+					};
+				};
+			};
+			buildConfigurationList = A231F0FA25EAF61A00CBFC23 /* Build configuration list for PBXProject "BattleShipBot" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = A231F0F625EAF61A00CBFC23;
+			productRefGroup = A231F10025EAF61A00CBFC23 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A231F0FE25EAF61A00CBFC23 /* Battleships */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A231F0FB25EAF61A00CBFC23 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5601A4F825EEFB6200077919 /* BoardPhase.cpp in Sources */,
+				5601A50125EEFF4300077919 /* BoardSetupPhase.cpp in Sources */,
+				5601A51825F142D800077919 /* FinishPhase.cpp in Sources */,
+				A231F11625EAF65400CBFC23 /* GameClient.cpp in Sources */,
+				5601A4EB25EEBAFB00077919 /* TextPhase.cpp in Sources */,
+				A231F11B25EB1AA000CBFC23 /* ShipPlacement.cpp in Sources */,
+				5601A51325F043A500077919 /* MainPhase.cpp in Sources */,
+				A231F11425EAF65400CBFC23 /* main.cpp in Sources */,
+				5601A50E25EFE09C00077919 /* GameGrid.cpp in Sources */,
+				A231F11325EAF65400CBFC23 /* BattleShips.cpp in Sources */,
+				564194E925EB29FF00A6B8A8 /* NetGame.cpp in Sources */,
+				5601A4F425EEE99B00077919 /* InputPhase.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		A231F10425EAF61A00CBFC23 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_ASSIGN_ENUM = YES;
+				CLANG_WARN_ATOMIC_IMPLICIT_SEQ_CST = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_CXX0X_EXTENSIONS = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_SEMICOLON_BEFORE_METHOD_BODY = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
+				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
+				GCC_WARN_SHADOW = YES;
+				GCC_WARN_SIGN_COMPARE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNKNOWN_PRAGMAS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_LABEL = YES;
+				GCC_WARN_UNUSED_PARAMETER = NO;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					../Network,
+					../Utils,
+					/usr/local/Cellar/glew/2.1.0_1/include,
+					/usr/local/Cellar/glfw/3.3.2/include,
+				);
+				LIBRARY_SEARCH_PATHS = (
+					../Network,
+					../Utils,
+					/usr/local/Cellar/glfw/3.3.2/lib/,
+					/usr/local/Cellar/glew/2.1.0_1/lib/,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 11.1;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = (
+					"-lglfw",
+					"-lGLEW",
+					"-framework",
+					OpenGL,
+					"-L../Utils",
+					"-lutils",
+					"-L../Network",
+					"-lnetwork",
+				);
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		A231F10525EAF61A00CBFC23 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_ASSIGN_ENUM = YES;
+				CLANG_WARN_ATOMIC_IMPLICIT_SEQ_CST = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_CXX0X_EXTENSIONS = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_SEMICOLON_BEFORE_METHOD_BODY = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
+				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
+				GCC_WARN_SHADOW = YES;
+				GCC_WARN_SIGN_COMPARE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNKNOWN_PRAGMAS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_LABEL = YES;
+				GCC_WARN_UNUSED_PARAMETER = NO;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					../Network,
+					../Utils,
+					/usr/local/Cellar/glew/2.1.0_1/include,
+					/usr/local/Cellar/glfw/3.3.2/include,
+				);
+				LIBRARY_SEARCH_PATHS = (
+					../Network,
+					../Utils,
+					/usr/local/Cellar/glfw/3.3.2/lib/,
+					/usr/local/Cellar/glew/2.1.0_1/lib/,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 11.1;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				OTHER_LDFLAGS = (
+					"-lglfw",
+					"-lGLEW",
+					"-framework",
+					OpenGL,
+					"-L../Utils",
+					"-lutils",
+					"-L../Network",
+					"-lnetwork",
+				);
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		A231F10725EAF61A00CBFC23 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		A231F10825EAF61A00CBFC23 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A231F0FA25EAF61A00CBFC23 /* Build configuration list for PBXProject "BattleShipBot" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A231F10425EAF61A00CBFC23 /* Debug */,
+				A231F10525EAF61A00CBFC23 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A231F10625EAF61A00CBFC23 /* Build configuration list for PBXNativeTarget "Battleships" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A231F10725EAF61A00CBFC23 /* Debug */,
+				A231F10825EAF61A00CBFC23 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A231F0F725EAF61A00CBFC23 /* Project object */;
+}
