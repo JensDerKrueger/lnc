@@ -150,28 +150,30 @@ bool GameGrid::shipSunk(const Vec2ui& pos) const {
   return true;
 }
 
-
 void GameGrid::markAsSunk(const Vec2ui& pos) {
   setCell(pos.x(), pos.y(), Cell::ShipShot);
   
   for (uint32_t x = pos.x()+1;x<gridSize.x();x++) {
-    if (getCell(x, pos.y()) == Cell::Ship) setCell(x, pos.y(), Cell::ShipShot);
-    if (getCell(x, pos.y()) == Cell::Empty || getCell(x, pos.y()) == Cell::EmptyShot) break;
+    const Cell c = getCell(x, pos.y());
+    if (c == Cell::Ship) setCell(x, pos.y(), Cell::ShipShot);
+    if (c == Cell::Unknown || c == Cell::Empty || c == Cell::EmptyShot) break;
   }
   
   for (int64_t x = int64_t(pos.x())-1;x>=0;x--) {
-    if (getCell(uint32_t(x), pos.y()) == Cell::Ship) setCell(uint32_t(x), pos.y(), Cell::ShipShot);
-    if (getCell(uint32_t(x), pos.y()) == Cell::Empty || getCell(uint32_t(x), pos.y()) == Cell::EmptyShot) break;
+    const Cell c = getCell(uint32_t(x), pos.y());
+    if (c == Cell::Ship) setCell(uint32_t(x), pos.y(), Cell::ShipShot);
+    if (c == Cell::Unknown || c == Cell::Empty || c == Cell::EmptyShot) break;
   }
 
   for (uint32_t y = pos.y()+1;y<gridSize.y();y++) {
-    if (getCell(pos.x(), y) == Cell::Ship) setCell(pos.x(), y, Cell::ShipShot);
-    if (getCell(pos.x(), y) == Cell::Empty || getCell(pos.x(), y) == Cell::EmptyShot) break;
+    const Cell c = getCell(pos.x(), y);
+    if (c == Cell::Ship) setCell(pos.x(), y, Cell::ShipShot);
+    if (c == Cell::Unknown || c == Cell::Empty || c == Cell::EmptyShot) break;
   }
   
   for (int64_t y = int64_t(pos.y())-1;y>=0;y--) {
-    if (getCell(pos.x(), uint32_t(y)) == Cell::Ship) setCell(pos.x(), uint32_t(y), Cell::ShipShot);
-    if (getCell(pos.x(), uint32_t(y)) == Cell::Empty || getCell(pos.x(), uint32_t(y)) == Cell::EmptyShot) break;
+    const Cell c = getCell(pos.x(), uint32_t(y));
+    if (c == Cell::Ship) setCell(pos.x(), uint32_t(y), Cell::ShipShot);
+    if (c == Cell::Unknown || c == Cell::Empty || c == Cell::EmptyShot) break;
   }
-
 }
