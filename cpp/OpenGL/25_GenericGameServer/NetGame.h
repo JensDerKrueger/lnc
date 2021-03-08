@@ -12,7 +12,8 @@ constexpr uint16_t serverPort = 11003;
 
 enum class GameIDs {
   InvalidID = 0,
-  BattleShips = 1
+  BattleShips = 1,
+  BattleShips2 = 2
 };
 
 enum class MessageType {
@@ -119,8 +120,6 @@ struct ReadyForNewMessage : public BasicMessage {
   virtual ~ReadyForNewMessage() {}
 };
 
-
-
 struct ConnectMessage : public BasicMessage {
   std::string name;
   GameIDs gameID;
@@ -153,7 +152,6 @@ struct ConnectMessage : public BasicMessage {
     return BasicMessage::toString() + coder.getEncodedMessage();
   }
 };
-
 
 struct GameMessage : public BasicMessage {
   std::string payload;
