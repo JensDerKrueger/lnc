@@ -28,7 +28,20 @@ void MainPhase::prepare(const ShipPlacement& myShipPlacement) {
   shotsResponded.clear();
   shotsReceived.clear();
   shotResults.clear();
+  
+  remainingShips = ShipPlacement::completePlacement;
 }
+
+
+void MainPhase::updateRemainingShips(uint32_t lastLength) {
+  for (size_t i = 0;i<remainingShips.size();++i) {
+    if (uint32_t(remainingShips[i]) == lastLength) {
+      remainingShips.erase(remainingShips.begin()+int64_t(i));
+      break;
+    }
+  }
+}
+
 
 void MainPhase::mouseMoveInternal(double xPosition, double yPosition) {
   BoardPhase::mouseMoveInternal(xPosition, yPosition);
@@ -154,7 +167,7 @@ void MainPhase::animateInternal(double animationTime) {
       otherRound++;
     }
     app->getClient()->sendShotResult(result);
-    myBoard.addShot({newShot.x(), newShot.y()});
+    myBoard.addShot(newShot);
     shotsReceived.push_back(newShot);
   }
   
@@ -164,12 +177,16 @@ void MainPhase::animateInternal(double animationTime) {
     
     if (newResult == ShotResult::MISS) {
       myRound++;
-      otherBoard.addMiss({pos.x(), pos.y()});
+      otherBoard.addMiss(pos);
     } else {
-      otherBoard.addHit({pos.x(), pos.y()}, newResult == ShotResult::SUNK);
+      otherBoard.addHit(pos);
+      if (newResult == ShotResult::SUNK) {
+        updateRemainingShips(otherBoard.markAsSunk(pos));
+      }
     }
     
     sunkShipWithLastShot = (newResult == ShotResult::SUNK);
+    
     shotResults.push_back(newResult);
   }
 

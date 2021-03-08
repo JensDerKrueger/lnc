@@ -37,6 +37,8 @@ private:
   std::vector<Vec2ui> shotsResponded;
   std::vector<Vec2ui> shotsReceived;
   std::vector<ShotResult> shotResults;
+  
+  std::vector<ShipSize> remainingShips;
 
   void drawBoard(const GameGrid& board, Mat4 boardTrans, Vec2ui aimCoords);
   
@@ -45,4 +47,6 @@ private:
                            double xPosition, double yPosition) override;
   virtual void animateInternal(double animationTime) override;
   virtual void drawInternal() override;
+  
+  void updateRemainingShips(uint32_t lastLength);
 };

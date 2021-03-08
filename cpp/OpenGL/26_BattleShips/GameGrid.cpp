@@ -18,9 +18,8 @@ void GameGrid::setCell(uint32_t x, uint32_t y, Cell c) {
   grid[x+y*gridSize.x()] = c;
 }
 
-void GameGrid::addHit(const Vec2ui& pos, bool sunk) {
+void GameGrid::addHit(const Vec2ui& pos) {
   setCell(pos.x(), pos.y(), Cell::Ship);
-  if (sunk) markAsSunk(pos);
   hits.push_back(pos);
 }
 
@@ -77,11 +76,9 @@ bool GameGrid::validate(const std::string& encryptedString, const std::string& p
 
 void GameGrid::setShips(const ShipPlacement& sp) {
   clearEmpty();
-  
   for (const Ship& s : sp.getShips()) {
     const Vec2ui start = s.pos;
     const Vec2ui end   = s.computeEnd();
-    
     for (uint32_t y = start.y();y<=end.y();y++) {
       for (uint32_t x = start.x();x<=end.x();x++) {
         addShip({x,y});
@@ -94,7 +91,6 @@ void GameGrid::setEnemyShips(const ShipPlacement& sp) {
   for (const Ship& s : sp.getShips()) {
     const Vec2ui start = s.pos;
     const Vec2ui end   = s.computeEnd();
-    
     for (uint32_t y = start.y();y<=end.y();y++) {
       for (uint32_t x = start.x();x<=end.x();x++) {
         addShip({x,y});
@@ -126,54 +122,74 @@ size_t GameGrid::getRemainingHits() const {
 }
 
 bool GameGrid::shipSunk(const Vec2ui& pos) const {
-  
-  for (uint32_t x = pos.x()+1;x<gridSize.x();x++) {
-    if (getCell(x, pos.y()) == Cell::Ship) return false;
-    if (getCell(x, pos.y()) == Cell::Empty || getCell(x, pos.y()) == Cell::EmptyShot) break;
-  }
-  
-  for (int64_t x = int64_t(pos.x())-1;x>=0;x--) {
-    if (getCell(uint32_t(x), pos.y()) == Cell::Ship) return false;
-    if (getCell(uint32_t(x), pos.y()) == Cell::Empty || getCell(uint32_t(x), pos.y()) == Cell::EmptyShot) break;
-  }
-
-  for (uint32_t y = pos.y()+1;y<gridSize.y();y++) {
-    if (getCell(pos.x(), y) == Cell::Ship) return false;
-    if (getCell(pos.x(), y) == Cell::Empty || getCell(pos.x(), y) == Cell::EmptyShot) break;
-  }
-  
-  for (int64_t y = int64_t(pos.y())-1;y>=0;y--) {
-    if (getCell(pos.x(), uint32_t(y)) == Cell::Ship) return false;
-    if (getCell(pos.x(), uint32_t(y)) == Cell::Empty || getCell(pos.x(), uint32_t(y)) == Cell::EmptyShot) break;
-  }
-  
-  return true;
-}
-
-void GameGrid::markAsSunk(const Vec2ui& pos) {
-  setCell(pos.x(), pos.y(), Cell::ShipShot);
-  
   for (uint32_t x = pos.x()+1;x<gridSize.x();x++) {
     const Cell c = getCell(x, pos.y());
-    if (c == Cell::Ship) setCell(x, pos.y(), Cell::ShipShot);
-    if (c == Cell::Unknown || c == Cell::Empty || c == Cell::EmptyShot) break;
+    if (c == Cell::Ship) return false;
+    if (c == Cell::Empty || c == Cell::EmptyShot) break;
   }
   
   for (int64_t x = int64_t(pos.x())-1;x>=0;x--) {
     const Cell c = getCell(uint32_t(x), pos.y());
-    if (c == Cell::Ship) setCell(uint32_t(x), pos.y(), Cell::ShipShot);
-    if (c == Cell::Unknown || c == Cell::Empty || c == Cell::EmptyShot) break;
+    if (c == Cell::Ship) return false;
+    if (c == Cell::Empty || c == Cell::EmptyShot) break;
   }
 
   for (uint32_t y = pos.y()+1;y<gridSize.y();y++) {
     const Cell c = getCell(pos.x(), y);
-    if (c == Cell::Ship) setCell(pos.x(), y, Cell::ShipShot);
-    if (c == Cell::Unknown || c == Cell::Empty || c == Cell::EmptyShot) break;
+    if (c == Cell::Ship) return false;
+    if (c == Cell::Empty || c == Cell::EmptyShot) break;
   }
   
   for (int64_t y = int64_t(pos.y())-1;y>=0;y--) {
     const Cell c = getCell(pos.x(), uint32_t(y));
-    if (c == Cell::Ship) setCell(pos.x(), uint32_t(y), Cell::ShipShot);
-    if (c == Cell::Unknown || c == Cell::Empty || c == Cell::EmptyShot) break;
+    if (c == Cell::Ship) return false;
+    if (c == Cell::Empty || c == Cell::EmptyShot) break;
   }
+  return true;
+}
+
+uint32_t GameGrid::markAsSunk(const Vec2ui& pos) {
+  const std::pair<Vec2ui,Vec2ui> ship = findSunkenShip(pos);
+  for (uint32_t y = ship.first.y();y<=ship.second.y();y++) {
+    for (uint32_t x = ship.first.x();x<=ship.second.x();x++) {
+      setCell(x, y, Cell::ShipShot);
+    }
+  }
+  return std::max(ship.second.x() - ship.first.x(), ship.second.y() - ship.first.y())+1;
+}
+
+std::pair<Vec2ui,Vec2ui> GameGrid::findSunkenShip(const Vec2ui& pos) const {
+  bool horizontal{true};
+  if (pos.y() > 0 && (getCell(pos.x(), pos.y()-1) == Cell::Ship || getCell(pos.x(), pos.y()-1) == Cell::ShipShot)) horizontal = false;
+  if (pos.y() < gridSize.y() && (getCell(pos.x(), pos.y()+1) == Cell::Ship || getCell(pos.x(), pos.y()+1) == Cell::ShipShot)) horizontal = false;
+
+  uint32_t startX = pos.x();
+  uint32_t endX   = pos.x();
+  uint32_t startY = pos.y();
+  uint32_t endY   = pos.y();
+
+  if (horizontal) {
+    for (int64_t x = int64_t(pos.x())-1;x>=0;x--) {
+      const Cell c = getCell(uint32_t(x), pos.y());
+      if (c != Cell::Ship && c != Cell::ShipShot) break;
+      startX = uint32_t(x);
+    }
+    for (uint32_t x = pos.x();x<gridSize.x();x++) {
+      const Cell c = getCell(x, pos.y());
+      if (c != Cell::Ship && c != Cell::ShipShot) break;
+      endX = x;
+    }
+  } else {
+    for (int64_t y = int64_t(pos.y())-1;y>=0;y--) {
+      const Cell c = getCell(pos.x(), uint32_t(y));
+      if (c != Cell::Ship && c != Cell::ShipShot) break;
+      startY = uint32_t(y);
+    }
+    for (uint32_t y = pos.y();y<gridSize.y();y++) {
+      const Cell c = getCell(pos.x(), y);
+      if (c != Cell::Ship && c != Cell::ShipShot) break;
+      endY = y;
+    }
+  }
+  return std::make_pair(Vec2ui{startX,startY}, Vec2ui{endX,endY});
 }

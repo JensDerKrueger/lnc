@@ -22,7 +22,7 @@ public:
   void setShips(const ShipPlacement& sp);
   void setEnemyShips(const ShipPlacement& sp);
   
-  void addHit(const Vec2ui& pos, bool sunk);
+  void addHit(const Vec2ui& pos);
   void addMiss(const Vec2ui& pos);
   void addShot(const Vec2ui& pos);
 
@@ -37,6 +37,9 @@ public:
 
   size_t getRemainingHits() const;
   
+  std::pair<Vec2ui,Vec2ui> findSunkenShip(const Vec2ui& pos) const;
+  uint32_t markAsSunk(const Vec2ui& pos);
+
 private:
   Vec2ui gridSize;
   std::vector<Cell> grid;
@@ -47,5 +50,4 @@ private:
   
   void addShip(const Vec2ui& pos);
   void setCell(uint32_t x, uint32_t y, Cell c);
-  void markAsSunk(const Vec2ui& pos);
 };
