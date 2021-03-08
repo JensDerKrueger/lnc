@@ -69,7 +69,13 @@ public:
   void redrawTriangles(bool wireframe);
 
   Mat4 computeImageTransform(const Vec2ui& imageSize) const;
-  
+  Mat4 computeImageTransformFixedHeight(const Vec2ui& imageSize,
+                                        float height=1.0f,
+                                        const Vec3& center=Vec3{0.0f,0.0f,0.0f}) const;
+  Mat4 computeImageTransformFixedWidth(const Vec2ui& imageSize,
+                                       float width=1.0f,
+                                       const Vec3& center=Vec3{0.0f,0.0f,0.0f}) const;
+
   void drawLines(const std::vector<float>& data, LineDrawType t, float lineThickness=1.0f);
   void drawPoints(const std::vector<float>& data, float pointSize=1.0f, bool useTex=false);
   void setDrawProjection(const Mat4& mat);

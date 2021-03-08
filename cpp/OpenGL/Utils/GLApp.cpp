@@ -507,12 +507,30 @@ void GLApp::drawRect(const Vec4& color, const Vec3& bl, const Vec3& br,
   drawImage(Image{color}, bl, br, tl, tr);
 }
 
-
-
 Mat4 GLApp::computeImageTransform(const Vec2ui& imageSize) const {
   const Dimensions s = glEnv.getWindowSize();
   const float ax = imageSize.x()/float(s.width);
   const float ay = imageSize.y()/float(s.height);
   const float m = std::max(ax,ay);
   return Mat4::scaling({ax/m, ay/m, 1.0f});
+}
+
+Mat4 GLApp::computeImageTransformFixedHeight(const Vec2ui& imageSize,
+                                             float height,
+                                             const Vec3& center) const {
+  const Dimensions s = glEnv.getWindowSize();
+  const float ax = imageSize.x()/float(s.width);
+  const float ay = imageSize.y()/float(s.height);
+  return Mat4::scaling({height*ax/ay, height, 1.0f}) *
+         Mat4::translation(center);
+}
+
+Mat4 GLApp::computeImageTransformFixedWidth(const Vec2ui& imageSize,
+                                            float width,
+                                            const Vec3& center) const {
+  const Dimensions s = glEnv.getWindowSize();
+  const float ax = imageSize.x()/float(s.width);
+  const float ay = imageSize.y()/float(s.height);
+  return Mat4::scaling({width, width*ay/ax, 1.0f}) *
+         Mat4::translation(center);
 }
