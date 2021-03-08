@@ -7,23 +7,19 @@ FinishPhase::FinishPhase(BattleShips* app, GamePhaseID gamePhaseID, const Vec2ui
 BoardPhase(app, gamePhaseID, b),
 terminate{false}
 {
-  homeTitle  = homeTitles[size_t(Rand::rand01() * homeTitles.size())];
-  guestTitle = guestTitles[size_t(Rand::rand01() * guestTitles.size())];
 }
 
 void FinishPhase::prepare(const GameGrid& my, const GameGrid& other, const std::string& enc, size_t status) {  
   verification = Verification::Unknown;
-  terminate = false;
-  
+  terminate = false;  
   myBoard = my;
   otherBoard = other;
   encOtherBoard = enc;
   
-  if (status == 1) {
-    title = "You win";
-  } else {
-    title = "You loose";
-  }
+  const std::string title = (status == 1) ? "You win" : "You loose";
+  titleTex = GLTexture2D(app->fr.render(title));
+  homeTitleTex = GLTexture2D(app->fr.render(homeTitles[size_t(Rand::rand01() * homeTitles.size())]));
+  guestTitleTex = GLTexture2D(app->fr.render(guestTitles[size_t(Rand::rand01() * guestTitles.size())]));
 }
 
 void FinishPhase::drawBoard(const GameGrid& board, Mat4 boardTrans) {
@@ -53,55 +49,43 @@ void FinishPhase::drawBoard(const GameGrid& board, Mat4 boardTrans) {
           app->drawImage(shotCell);
           break;
       }
-      
     }
   }
 }
 
 void FinishPhase::drawInternal() {
   BoardPhase::drawInternal();
+  if (backgroundImage) app->drawRect(Vec4(0,0,0,0.7f));
   
-  if (backgroundImage) {
-    app->drawRect(Vec4(0,0,0,0.7f));
-  }
-
+  const Mat4 transGuest = app->computeImageTransformFixedHeight({guestTitleTex.getWidth(), guestTitleTex.getHeight()}, 0.07f, Vec3{-0.5f,0.7f,0.0f});
+  const Mat4 transHome = app->computeImageTransformFixedHeight({homeTitleTex.getWidth(), homeTitleTex.getHeight()}, 0.07f, Vec3{0.5f,0.7f,0.0f});
   
-  Image prompt = app->fr.render(homeTitle);
-  app->setDrawTransform(app->computeImageTransform({prompt.width, prompt.height}) * Mat4::scaling(0.2f) * Mat4::translation(-0.5f,0.8f,0.0f));
-  app->drawImage(prompt);
+  app->setDrawTransform(transGuest);
+  app->drawImage(guestTitleTex);
 
-  prompt = app->fr.render(guestTitle);
-  app->setDrawTransform(app->computeImageTransform({prompt.width, prompt.height}) * Mat4::scaling(0.2f) * Mat4::translation( 0.5f,0.8f,0.0f));
-  app->drawImage(prompt);
+  app->setDrawTransform(transHome);
+  app->drawImage(homeTitleTex);
 
   Mat4 myBoardTrans = app->computeImageTransform(boardSize) * Mat4::scaling(0.6f) * Mat4::translation(-0.5f,0.0f,0.0f);
   app->setDrawTransform(myBoardTrans);
   app->drawLines(gridLines, LineDrawType::LIST, 3);
-  
   drawBoard(myBoard, myBoardTrans);
 
   Mat4 otherBoardTrans = app->computeImageTransform(boardSize) * Mat4::scaling(0.6f) * Mat4::translation(0.5f,0.0f,0.0f);
   app->setDrawTransform(otherBoardTrans);
   app->drawLines(gridLines, LineDrawType::LIST, 3);
-
-  if (verification == Verification::Ok) {
-    drawBoard(otherBoard, otherBoardTrans);
-  } else {
-    drawBoard(otherBoard, otherBoardTrans);
-  }
+  drawBoard(otherBoard, otherBoardTrans);
   
-  prompt = app->fr.render(title);
-  app->setDrawTransform(app->computeImageTransform({prompt.width, prompt.height}) * Mat4::scaling(0.9f));
+  app->setDrawTransform(app->computeImageTransform({titleTex.getWidth(), titleTex.getHeight()}) * Mat4::scaling(0.9f));
   app->drawRect(Vec4(0,0,0,0.7f));
-  app->setDrawTransform(app->computeImageTransform({prompt.width, prompt.height}) * Mat4::scaling(0.8f));
-  app->drawImage(prompt);
+  app->setDrawTransform(app->computeImageTransform({titleTex.getWidth(), titleTex.getHeight()}) * Mat4::scaling(0.8f));
+  app->drawImage(titleTex);
 }
 
 void FinishPhase::animateInternal(double animationTime) {
   BoardPhase::animateInternal(animationTime);
   
   if (verification != Verification::Unknown) return;
-  
   const auto password = app->getClient()->getShipPlacementPassword();
   if (password) {
     if (otherBoard.validate(encOtherBoard, *password)) {
@@ -110,14 +94,13 @@ void FinishPhase::animateInternal(double animationTime) {
       otherBoard.setEnemyShips(sp);
     } else {
       verification = Verification::Invalid;
-      title = "You win (the other cheated)";
+      titleTex = GLTexture2D(app->fr.render("You win (the other cheated)"));
     }
   }
 }
 
 void FinishPhase::mouseButtonInternal(int button, int state, int mods, double xPosition, double yPosition) {
   BoardPhase::mouseButtonInternal(button, state, mods, xPosition, yPosition);
-
   if (button == GLFW_MOUSE_BUTTON_LEFT && state == GLFW_PRESS) {
     terminate = true;
   }

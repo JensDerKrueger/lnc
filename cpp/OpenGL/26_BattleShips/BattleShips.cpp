@@ -12,13 +12,13 @@
 #endif
 
 BattleShips::BattleShips() :
-  GLApp(1100, 600, 4, "Online Battleships"),
-  adressPhase{this, GamePhaseID::AdressSetup, "Enter server address:"},
-  namePhase{this, GamePhaseID::NameSetup, "Enter callsign:"},
-  connectingPhase{this, GamePhaseID::Connecting},
-  pairingPhase{this, GamePhaseID::Pairing},
+  GLApp(1100, 600, 4, gameTitle, false),
+  adressPhase{this, GamePhaseID::AdressSetup, "Enter server address:", gameTitle},
+  namePhase{this, GamePhaseID::NameSetup, "Enter callsign:", gameTitle},
+  connectingPhase{this, GamePhaseID::Connecting, gameTitle},
+  pairingPhase{this, GamePhaseID::Pairing, gameTitle},
   boardSetupPhase{this, GamePhaseID::BoardSetup, boardSize},
-  waitingBoardSetupPhase{this, GamePhaseID::WaitingBoardSetup, "Waiting for other Captain"},
+  waitingBoardSetupPhase{this, GamePhaseID::WaitingBoardSetup, gameTitle},
   mainPhase{this, GamePhaseID::MainPhase, boardSize},
   finishedPhase{this, GamePhaseID::Finished, boardSize}
 {}
@@ -116,7 +116,7 @@ void BattleShips::stateTransition() {
         if (!nameComplete) {
           currentPhase = &namePhase;
         } else {
-          connectingPhase.setText(std::string("Connecting to ") + serverAddress);
+          connectingPhase.setSubtitle(std::string("Connecting to ") + serverAddress);
           client = std::make_shared<GameClient>(serverAddress, serverPort, userName, level);
           currentPhase = &connectingPhase;
         }
@@ -131,14 +131,14 @@ void BattleShips::stateTransition() {
     case GamePhaseID::NameSetup :
       if (namePhase.getInput()) {
         userName = *(namePhase.getInput());
-        connectingPhase.setText(std::string("Connecting to ") + serverAddress);
+        connectingPhase.setSubtitle(std::string("Connecting to ") + serverAddress);
         client = std::make_shared<GameClient>(serverAddress, serverPort, userName, level);
         currentPhase = &connectingPhase;
       }
       break;
     case GamePhaseID::Connecting :
       if (client->getInitMessageSend()) {
-        pairingPhase.setText(pairingMessages[size_t(Rand::rand01() * pairingMessages.size())]);
+        pairingPhase.setSubtitle(pairingMessages[size_t(Rand::rand01() * pairingMessages.size())]);
         currentPhase = &pairingPhase;
       }
       break;
@@ -159,7 +159,7 @@ void BattleShips::stateTransition() {
         mainPhase.prepare(myShipPlacement);
         myPassword = AESCrypt::genIVString();
         client->sendEncryptedShipPlacement(myShipPlacement.toEncryptedString(myPassword));
-        waitingBoardSetupPhase.setText(waitingBoardMessages[size_t(Rand::rand01() * waitingBoardMessages.size())]);
+        waitingBoardSetupPhase.setSubtitle(waitingBoardMessages[size_t(Rand::rand01() * waitingBoardMessages.size())]);
         currentPhase = &waitingBoardSetupPhase;
       }
       break;

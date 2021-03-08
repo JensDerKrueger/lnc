@@ -7,23 +7,20 @@
 
 class InputPhase : public GamePhase {
 public:
-  InputPhase(BattleShips* app, GamePhaseID gamePhaseID, const std::string& prompt="");
+  InputPhase(BattleShips* app, GamePhaseID gamePhaseID, const std::string& prompt="", const std::string& title="");
   
-  void setPrompt(const std::string& p) {
-    prompt = p;
-  }
-    
-  std::optional<std::string> getInput() const {
-    if (complete)
-      return userInput;
-    else
-      return {};
-  }
+  virtual void init() override;
+
+  void setPrompt(const std::string& p);
+  std::optional<std::string> getInput() const;
   
 private:
   bool complete{false};
   std::string prompt;
   std::string userInput;
+  std::string title;
+  
+  GLTexture2D titleTex;
 
   virtual void keyboardInternal(int key, int scancode, int action, int mods) override;
   virtual void keyboardCharInternal(unsigned int codepoint) override;

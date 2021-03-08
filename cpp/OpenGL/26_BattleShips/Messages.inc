@@ -1,3 +1,5 @@
+static const std::string gameTitle = "LNC Battleships";
+
 static std::vector<std::string> pairingMessages {
   "Searching for victim",
   "Search boat's cook",

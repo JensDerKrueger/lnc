@@ -2,19 +2,24 @@
 
 #include "TextPhase.h"
 
-TextPhase::TextPhase(BattleShips* app, GamePhaseID gamePhaseID, const std::string& text) :
+TextPhase::TextPhase(BattleShips* app, GamePhaseID gamePhaseID, const std::string& title, const std::string& subtitle) :
 GamePhase(app,gamePhaseID),
-text{text}
+title{title},
+subtitle{subtitle}
 {}
 
 void TextPhase::init() {
   GamePhase::init();
-  setText(text);
+  setTitle(title);
 }
 
-void TextPhase::setText(const std::string& t) {
-  text = t;
-  baseTextWidth = app->fr.render(text).width;
+void TextPhase::setTitle(const std::string& text) {
+  title = text;
+  titleTex = GLTexture2D(app->fr.render(title));
+}
+
+void TextPhase::setSubtitle(const std::string& text) {
+  subtitle = text;
 }
 
 void TextPhase::animateInternal(double animationTime) {
@@ -25,22 +30,34 @@ void TextPhase::animateInternal(double animationTime) {
 void TextPhase::drawInternal() {
   GamePhase::drawInternal();
   
-  std::string renderText{text};
+  Vec3 shift;
+  if (!title.empty()) {
+    Mat4 titleTrans = app->computeImageTransformFixedWidth({titleTex.getWidth(), titleTex.getHeight()}, 0.8f, Vec3{0.0f, 0.2f, 0.0f});
+    if (backgroundImage) {
+      app->setDrawTransform(Mat4::scaling(1.1f, 1.1f, 1.0f) * titleTrans);
+      app->drawRect(Vec4(0,0,0,0.7f));
+    }
+    app->setDrawTransform(titleTrans);
+    app->drawImage(titleTex);
+    shift = Vec3{0.0f, -0.2f, 0.0f};
+  }
+  
+  std::string renderText{subtitle};
   if (animationStep > 0) {
     renderText += " ";
     for (size_t i = 0;i<animationStep;++i) {
       renderText += ".";
     }
   }
-  Image textImage = app->fr.render(renderText);
 
+  Image subtitleImage = app->fr.render(renderText);
+  Mat4 subtitleTrans = app->computeImageTransformFixedHeight({subtitleImage.width, subtitleImage.height}, 0.1f, shift);
+  
   if (backgroundImage) {
-    app->setDrawTransform(Mat4::scaling(1.1f*textImage.width / (baseTextWidth * 2.0f)) *
-                          app->computeImageTransform({textImage.width, textImage.height}) );
+    app->setDrawTransform(Mat4::scaling(1.1f, 1.1f, 1.0f) * subtitleTrans);
     app->drawRect(Vec4(0,0,0,0.7f));
   }
   
-  app->setDrawTransform(Mat4::scaling(textImage.width / (baseTextWidth * 2.0f)) *
-                        app->computeImageTransform({textImage.width, textImage.height}) );
-  app->drawImage(textImage);  
+  app->setDrawTransform(subtitleTrans);
+  app->drawImage(subtitleImage);
 }

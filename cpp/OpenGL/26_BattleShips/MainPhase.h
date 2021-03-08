@@ -23,9 +23,10 @@ private:
   GameGrid myBoard{boardSize};
   GameGrid otherBoard{boardSize};
   
-  std::string guestTitle;
-  std::string homeTitle;
-  
+  GLTexture2D titleTex;
+  GLTexture2D guestTitleTex;
+  GLTexture2D homeTitleTex;
+
   bool waitingForOther{false};
   bool sunkShipWithLastShot{false};
   size_t waitingMessageIndex{0};

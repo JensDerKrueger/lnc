@@ -15,9 +15,10 @@ void MainPhase::prepare(const ShipPlacement& myShipPlacement) {
   otherBoard = GameGrid{boardSize};
   otherBoard.clearUnknown();
 
-  homeTitle  = homeTitles[size_t(Rand::rand01() * homeTitles.size())];
-  guestTitle = guestTitles[size_t(Rand::rand01() * guestTitles.size())];
-
+  titleTex = GLTexture2D(app->fr.render(gameTitle));
+  homeTitleTex = GLTexture2D(app->fr.render(homeTitles[size_t(Rand::rand01() * homeTitles.size())]));
+  guestTitleTex = GLTexture2D(app->fr.render(guestTitles[size_t(Rand::rand01() * guestTitles.size())]));
+  
   waitingForOther = false;
   waitingMessageIndex = 0;
     
@@ -61,8 +62,8 @@ void MainPhase::drawBoard(const GameGrid& board, Mat4 boardTrans, Vec2ui aimCoor
   for (uint32_t y = 0; y < boardSize.y(); ++y) {
     for (uint32_t x = 0; x < boardSize.x(); ++x) {
       
-      float tX = (x+0.5f)/boardSize.x()*2.0f-1.0f;
-      float tY = (y+0.5f)/boardSize.y()*2.0f-1.0f;
+      const float tX = (x+0.5f)/boardSize.x()*2.0f-1.0f;
+      const float tY = (y+0.5f)/boardSize.y()*2.0f-1.0f;
       app->setDrawTransform(Mat4::scaling(0.9f/boardSize.x(),0.9f/boardSize.y(),1.0f) * Mat4::translation(tX,tY,0.0f) * boardTrans);
       
       switch (board.getCell(x,y)) {
@@ -94,49 +95,42 @@ void MainPhase::drawBoard(const GameGrid& board, Mat4 boardTrans, Vec2ui aimCoor
 void MainPhase::drawInternal() {
   BoardPhase::drawInternal();
   
-  if (backgroundImage) {
-    app->drawRect(Vec4(0,0,0,0.7f));
-  }
+  if (backgroundImage) app->drawRect(Vec4(0,0,0,0.7f));
   
-  Image name;
-  if (sunkShipWithLastShot)
-    name = app->fr.render("You sunk one of the ships from " + app->getOtherName());
-  else
-    name = app->fr.render("You are battling " + app->getOtherName());
+  const Mat4 titleTrans = app->computeImageTransformFixedHeight({titleTex.getWidth(), titleTex.getHeight()}, 0.1f, Vec3{0.f,0.9f,0.0f});
+  app->setDrawTransform(titleTrans);
+  app->drawImage(titleTex);
   
-  Mat4 imageTrans = app->computeImageTransform({name.width, name.height});
-  Vec2 realImageSize = (imageTrans * Vec4(float(name.width), float(name.height), 0, 1)).xy();
-  app->setDrawTransform(imageTrans * Mat4::scaling(5.0f/realImageSize.y()) * Mat4::translation(0.0f,-0.85f,0.0f));
-  app->drawImage(name);
+  const Image subTitle = app->fr.render((sunkShipWithLastShot ? "You sunk one of the ships from " : "You are battling ") + app->getOtherName());
+  const Mat4 subTitleTrans = app->computeImageTransformFixedHeight({subTitle.width, subTitle.height}, 0.05f, Vec3{0.0f,-0.85f,0.0f});
+  app->setDrawTransform(subTitleTrans);
+  app->drawImage(subTitle);
   
-  Image name1 = app->fr.render(homeTitle);
-  Image name2 = app->fr.render(guestTitle);
+  const Mat4 transGuest = app->computeImageTransformFixedHeight({guestTitleTex.getWidth(), guestTitleTex.getHeight()}, 0.07f, Vec3{-0.5f,0.7f,0.0f});
+  const Mat4 transHome = app->computeImageTransformFixedHeight({homeTitleTex.getWidth(), homeTitleTex.getHeight()}, 0.07f, Vec3{0.5f,0.7f,0.0f});
   
-  uint32_t maxWidth = std::max(name1.width, name2.width);
+  app->setDrawTransform(transGuest);
+  app->drawImage(guestTitleTex);
 
-  app->setDrawTransform(app->computeImageTransform({name1.width, name1.height}) * Mat4::scaling((0.3f*name1.width)/maxWidth) * Mat4::translation(-0.5f,0.8f,0.0f));
-  app->drawImage(name1);
+  app->setDrawTransform(transHome);
+  app->drawImage(homeTitleTex);
 
-  app->setDrawTransform(app->computeImageTransform({name2.width, name2.height}) * Mat4::scaling((0.3f*name2.width)/maxWidth) * Mat4::translation( 0.5f,0.8f,0.0f));
-  app->drawImage(name2);
-
-  Mat4 myBoardTrans = app->computeImageTransform(boardSize) * Mat4::scaling(0.6f) * Mat4::translation(-0.5f,0.0f,0.0f);
+  const Mat4 myBoardTrans = app->computeImageTransform(boardSize) * Mat4::scaling(0.6f) * Mat4::translation(-0.5f,0.0f,0.0f);
   app->setDrawTransform(myBoardTrans);
   app->drawLines(gridLines, LineDrawType::LIST, 3);
-  
   drawBoard(myBoard, myBoardTrans, app->getClient()->getAim());
 
   otherBoardTrans = app->computeImageTransform(boardSize) * Mat4::scaling(0.6f) * Mat4::translation(0.5f,0.0f,0.0f);
   app->setDrawTransform(otherBoardTrans);
   app->drawLines(gridLines, LineDrawType::LIST, 3);
-
   drawBoard(otherBoard, otherBoardTrans, otherCellPos);
   
   if (waitingForOther) {
-    Image prompt = app->fr.render(waitingShotMessages[waitingMessageIndex]);
-    app->setDrawTransform(app->computeImageTransform({prompt.width, prompt.height}) * Mat4::scaling(0.9f));
+    const Image prompt = app->fr.render(waitingShotMessages[waitingMessageIndex]);
+    const Mat4 transPrompt = app->computeImageTransformFixedWidth({prompt.width, prompt.height}, 0.4f);
+    app->setDrawTransform(Mat4{});
     app->drawRect(Vec4(0,0,0,0.7f));
-    app->setDrawTransform(app->computeImageTransform({prompt.width, prompt.height}) * Mat4::scaling(0.8f));
+    app->setDrawTransform(transPrompt);
     app->drawImage(prompt);
   }
 }
@@ -150,19 +144,13 @@ void MainPhase::animateInternal(double animationTime) {
   if (newShotsReceived.size() > shotsReceived.size() && otherRound <= myRound) {
     Vec2ui newShot = newShotsReceived[shotsReceived.size()];
     
-    
     const bool hit = Cell::Ship == myBoard.getCell(newShot.x(), newShot.y()) ||
                      Cell::ShipShot == myBoard.getCell(newShot.x(), newShot.y());
     
     ShotResult result = ShotResult::MISS;
     if (hit) {
-      if (myBoard.shipSunk(newShot))
-        result = ShotResult::SUNK;
-      else
-        result = ShotResult::HIT;
-    }
-    
-    if (result == ShotResult::MISS) {
+      result = myBoard.shipSunk(newShot) ? ShotResult::SUNK : ShotResult::HIT;
+    } else {
       otherRound++;
     }
     app->getClient()->sendShotResult(result);
@@ -182,7 +170,6 @@ void MainPhase::animateInternal(double animationTime) {
     }
     
     sunkShipWithLastShot = (newResult == ShotResult::SUNK);
-    
     shotResults.push_back(newResult);
   }
 
@@ -191,9 +178,7 @@ void MainPhase::animateInternal(double animationTime) {
     waitingMessageIndex = size_t(Rand::rand01() * waitingShotMessages.size());
   }
   
-  if (myRound <= otherRound) {
-    waitingForOther = false;
-  }
+  if (myRound <= otherRound) waitingForOther = false;
 }
 
 uint32_t MainPhase::gameOver() const {

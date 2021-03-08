@@ -23,13 +23,14 @@ private:
   GameGrid myBoard{boardSize};
   GameGrid otherBoard{boardSize};
   
+  GLTexture2D titleTex;
+  GLTexture2D guestTitleTex;
+  GLTexture2D homeTitleTex;
+  
   std::string encOtherBoard;
   
   Verification verification{Verification::Unknown};
   bool terminate;
-  std::string guestTitle;
-  std::string homeTitle;
-  std::string title;
   
   void drawBoard(const GameGrid& board, Mat4 boardTrans);
   
