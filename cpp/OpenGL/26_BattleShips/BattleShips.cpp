@@ -146,7 +146,7 @@ void BattleShips::stateTransition() {
       {
         const auto pi = client->getReceivedPairingInfo();
         if (pi) {
-          otherName  = limitString(pi->first, 15);
+          otherName  = limitString(pi->first, 30);
           otherLevel = pi->second;
           boardSetupPhase.prepare();
           currentPhase = &boardSetupPhase;
