@@ -167,3 +167,11 @@ size_t ShipPlacement::getHitsToWin() {
   }
   return total;
 }
+
+uint32_t ShipPlacement::getLongestShipLength() {
+  uint32_t maxLength{0};
+  for (const ShipSize& s : completePlacement) {
+    maxLength = std::max(maxLength, uint32_t(s));
+  }
+  return maxLength;
+}

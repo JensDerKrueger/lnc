@@ -68,6 +68,8 @@ bool GameGrid::validate(const std::string& encryptedString, const std::string& p
       if (sp.incomming(miss)) return false;
     }
 
+    // TODO: check sunk cells
+    
   } catch (const MessageException& ) {
     return false;
   }

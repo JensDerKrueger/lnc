@@ -14,8 +14,9 @@ void MainPhase::prepare(const ShipPlacement& myShipPlacement) {
 
   otherBoard = GameGrid{boardSize};
   otherBoard.clearUnknown();
-
+  
   titleTex = GLTexture2D(app->fr.render(gameTitle));
+  remainingShipsTex = GLTexture2D(app->fr.render("Remaining Ships"));
   homeTitleTex = GLTexture2D(app->fr.render(homeTitles[size_t(Rand::rand01() * homeTitles.size())]));
   guestTitleTex = GLTexture2D(app->fr.render(guestTitles[size_t(Rand::rand01() * guestTitles.size())]));
   
@@ -32,7 +33,6 @@ void MainPhase::prepare(const ShipPlacement& myShipPlacement) {
   remainingShips = ShipPlacement::completePlacement;
 }
 
-
 void MainPhase::updateRemainingShips(uint32_t lastLength) {
   for (size_t i = 0;i<remainingShips.size();++i) {
     if (uint32_t(remainingShips[i]) == lastLength) {
@@ -41,7 +41,6 @@ void MainPhase::updateRemainingShips(uint32_t lastLength) {
     }
   }
 }
-
 
 void MainPhase::mouseMoveInternal(double xPosition, double yPosition) {
   BoardPhase::mouseMoveInternal(xPosition, yPosition);
@@ -119,8 +118,8 @@ void MainPhase::drawInternal() {
   app->setDrawTransform(subTitleTrans);
   app->drawImage(subTitle);
   
-  const Mat4 transGuest = app->computeImageTransformFixedHeight({guestTitleTex.getWidth(), guestTitleTex.getHeight()}, 0.07f, Vec3{-0.5f,0.7f,0.0f});
-  const Mat4 transHome = app->computeImageTransformFixedHeight({homeTitleTex.getWidth(), homeTitleTex.getHeight()}, 0.07f, Vec3{0.5f,0.7f,0.0f});
+  const Mat4 transGuest = app->computeImageTransformFixedHeight({guestTitleTex.getWidth(), guestTitleTex.getHeight()}, 0.07f, Vec3{0.5f,0.7f,0.0f});
+  const Mat4 transHome = app->computeImageTransformFixedHeight({homeTitleTex.getWidth(), homeTitleTex.getHeight()}, 0.07f, Vec3{-0.5f,0.7f,0.0f});
   
   app->setDrawTransform(transGuest);
   app->drawImage(guestTitleTex);
@@ -137,6 +136,20 @@ void MainPhase::drawInternal() {
   app->setDrawTransform(otherBoardTrans);
   app->drawLines(gridLines, LineDrawType::LIST, 3);
   drawBoard(otherBoard, otherBoardTrans, otherCellPos);
+    
+  app->setDrawTransform(app->computeImageTransformFixedWidth({remainingShipsTex.getWidth(), remainingShipsTex.getHeight()}, 0.1f, Vec3{0.0f,0.5f,0.0f}));
+  app->drawImage(remainingShipsTex);
+
+  Mat4 trans = Mat4::translation({0.85f/boardSize.x()*ShipPlacement::getLongestShipLength()/2.0f,0.4f,0.0f});
+  const Mat4 blockScale = Mat4::scaling(0.4f/boardSize.x(),0.4f/boardSize.y(),1.0f);
+  for (const ShipSize& s : remainingShips) {
+    const uint32_t blockCount{uint32_t(s)};
+    for (uint32_t i = 0;i<blockCount;++i) {
+      app->setDrawTransform(blockScale * trans * Mat4::translation({-0.85f/boardSize.x()*i,0.0f,0.0f}) * app->computeImageTransform({1,1}) );
+      app->drawImage(shipCell);
+    }
+    trans = trans * Mat4::translation({0.0f,-1.5f/boardSize.y(),0.0f});
+  }
   
   if (waitingForOther) {
     const Image prompt = app->fr.render(waitingShotMessages[waitingMessageIndex]);

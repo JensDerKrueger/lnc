@@ -55,10 +55,10 @@ void FinishPhase::drawBoard(const GameGrid& board, Mat4 boardTrans) {
 
 void FinishPhase::drawInternal() {
   BoardPhase::drawInternal();
-  if (backgroundImage) app->drawRect(Vec4(0,0,0,0.7f));
+  if (backgroundImage) app->drawRect(Vec4{0,0,0,0.7f});
   
-  const Mat4 transGuest = app->computeImageTransformFixedHeight({guestTitleTex.getWidth(), guestTitleTex.getHeight()}, 0.07f, Vec3{-0.5f,0.7f,0.0f});
-  const Mat4 transHome = app->computeImageTransformFixedHeight({homeTitleTex.getWidth(), homeTitleTex.getHeight()}, 0.07f, Vec3{0.5f,0.7f,0.0f});
+  const Mat4 transGuest = app->computeImageTransformFixedHeight({guestTitleTex.getWidth(), guestTitleTex.getHeight()}, 0.07f, Vec3{0.5f,0.7f,0.0f});
+  const Mat4 transHome = app->computeImageTransformFixedHeight({homeTitleTex.getWidth(), homeTitleTex.getHeight()}, 0.07f, Vec3{-0.5f,0.7f,0.0f});
   
   app->setDrawTransform(transGuest);
   app->drawImage(guestTitleTex);

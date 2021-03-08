@@ -20,8 +20,8 @@ static std::vector<std::string> waitingBoardMessages {
 
 static std::vector<std::string> waitingShotMessages {
   "Preparing for other player",
-  "Waiting for other Admiral",
-  "Incomming"
+  "Waiting for other admiral",
+  "Incoming"
 };
 
 static std::vector<std::string> homeTitles {

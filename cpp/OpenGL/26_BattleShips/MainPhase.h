@@ -26,6 +26,7 @@ private:
   GLTexture2D titleTex;
   GLTexture2D guestTitleTex;
   GLTexture2D homeTitleTex;
+  GLTexture2D remainingShipsTex;
 
   bool waitingForOther{false};
   bool sunkShipWithLastShot{false};

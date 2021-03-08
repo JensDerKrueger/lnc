@@ -50,8 +50,9 @@ public:
   Vec2ui getGridSize() const {return gridSize;}
 
   static std::vector<ShipSize> completePlacement;
-  
   static size_t getHitsToWin();
+  static uint32_t getLongestShipLength();
+  
 
 private:
   Vec2ui gridSize;
