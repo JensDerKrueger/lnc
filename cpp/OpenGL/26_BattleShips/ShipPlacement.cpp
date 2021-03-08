@@ -6,7 +6,6 @@
 std::vector<ShipSize> ShipPlacement::completePlacement{
   ShipSize::FIVE,
   ShipSize::FOUR,
-  ShipSize::FOUR,
   ShipSize::THREE,
   ShipSize::THREE,
   ShipSize::TWO,

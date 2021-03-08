@@ -8,7 +8,7 @@ GameClient::GameClient(const std::string& address, short port, const std::string
 }
 
 void GameClient::handleNewConnection() {
-  ConnectMessage m{name, GameIDs::BattleShips, level};
+  ConnectMessage m{name, GameIDs::BattleShips2, level};
   sendMessage(m.toString());
   initMessageSend = true;
 }

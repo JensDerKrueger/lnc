@@ -23,7 +23,7 @@
 
 #include "GameGrid.h"
 
-const Vec2ui boardSize{10,10};
+const Vec2ui boardSize{15,15};
 
 class BattleShips : public GLApp {
 public:
