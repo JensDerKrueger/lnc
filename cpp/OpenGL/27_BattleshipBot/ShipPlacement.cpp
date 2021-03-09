@@ -18,6 +18,10 @@ Ship::Ship(ShipSize shipSize, Orientation orientation, const Vec2ui& pos) :
 {
 }
 
+bool Ship::check(const ShipLocation& loc) const{
+  return loc.start == pos && loc.end == computeEnd();
+}
+
 Vec2ui Ship::computeEnd() const {
   return (Orientation::Vertical == orientation)
                               ? Vec2ui(pos.x(), pos.y()+uint32_t(shipSize)-1)
@@ -166,4 +170,13 @@ size_t ShipPlacement::getHitsToWin() {
     total += size_t(s);
   }
   return total;
+}
+
+size_t ShipPlacement::findShip(const ShipLocation& loc) const {
+  for (size_t i = 0;i<ships.size();++i) {
+    if (ships[i].check(loc)) {
+      return i;
+    }
+  }
+  return ShipPlacement::completePlacement.size();
 }

@@ -42,19 +42,20 @@ public:
   Vec2ui guessNextShipCell(const Vec2ui& pos) const;
   
   void markAroundSunk(const Vec2ui& pos);
-  std::pair<Vec2ui,Vec2ui> findSunkenShip(const Vec2ui& pos) const;
+  ShipLocation findSunkenShip(const Vec2ui& pos) const;
   
 private:
   Vec2ui gridSize;
   std::vector<Cell> grid;
   std::vector<Vec2ui> hits;
   std::vector<Vec2ui> misses;
+  std::vector<ShipLocation> sunken;
 
   void clearEmpty();
   
   void addShip(const Vec2ui& pos);
   void setCell(uint32_t x, uint32_t y, Cell c);
-  void markAsSunk(const Vec2ui& pos);
+  uint32_t markAsSunk(const Vec2ui& pos);
   uint32_t distSum(const Vec2ui& pos) const;
   
   std::optional<Vec2ui> guessNextShipCellH(const Vec2ui& pos) const;

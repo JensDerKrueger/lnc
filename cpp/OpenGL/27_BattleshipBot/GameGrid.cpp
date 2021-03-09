@@ -69,6 +69,10 @@ bool GameGrid::validate(const std::string& encryptedString, const std::string& p
       if (sp.incomming(miss)) return false;
     }
 
+    for (const ShipLocation& sunkenShip : sunken) {
+      if (sp.findShip(sunkenShip) == ShipPlacement::completePlacement.size()) return false;
+    }
+
   } catch (const MessageException& ) {
     return false;
   }
@@ -110,6 +114,7 @@ void GameGrid::clearEmpty() {
   }
   hits.clear();
   misses.clear();
+  sunken.clear();
 }
 
 void GameGrid::clearUnknown() {
@@ -119,6 +124,7 @@ void GameGrid::clearUnknown() {
   }
   hits.clear();
   misses.clear();
+  sunken.clear();
 }
 
 size_t GameGrid::getRemainingHits() const {
@@ -152,33 +158,16 @@ bool GameGrid::shipSunk(const Vec2ui& pos) const {
   return true;
 }
 
-
-void GameGrid::markAsSunk(const Vec2ui& pos) {
-  setCell(pos.x(), pos.y(), Cell::ShipShot);
-  
-  for (uint32_t x = pos.x()+1;x<gridSize.x();x++) {
-    const Cell c = getCell(x, pos.y());
-    if (c == Cell::Ship) setCell(x, pos.y(), Cell::ShipShot);
-    if (c == Cell::Unknown || c == Cell::Empty || c == Cell::EmptyShot) break;
+uint32_t GameGrid::markAsSunk(const Vec2ui& pos) {
+  const ShipLocation ship = findSunkenShip(pos);
+  for (uint32_t y = ship.start.y();y<=ship.end.y();y++) {
+    for (uint32_t x = ship.start.x();x<=ship.end.x();x++) {
+      setCell(x, y, Cell::ShipShot);
+    }
   }
   
-  for (int64_t x = int64_t(pos.x())-1;x>=0;x--) {
-    const Cell c = getCell(uint32_t(x), pos.y());
-    if (c == Cell::Ship) setCell(uint32_t(x), pos.y(), Cell::ShipShot);
-    if (c == Cell::Unknown || c == Cell::Empty || c == Cell::EmptyShot) break;
-  }
-
-  for (uint32_t y = pos.y()+1;y<gridSize.y();y++) {
-    const Cell c = getCell(pos.x(), y);
-    if (c == Cell::Ship) setCell(pos.x(), y, Cell::ShipShot);
-    if (c == Cell::Unknown || c == Cell::Empty || c == Cell::EmptyShot) break;
-  }
-  
-  for (int64_t y = int64_t(pos.y())-1;y>=0;y--) {
-    const Cell c = getCell(pos.x(), uint32_t(y));
-    if (c == Cell::Ship) setCell(pos.x(), uint32_t(y), Cell::ShipShot);
-    if (c == Cell::Unknown || c == Cell::Empty || c == Cell::EmptyShot) break;
-  }
+  sunken.push_back(ship);
+  return std::max(ship.end.x() - ship.start.x(), ship.end.y() - ship.start.y())+1;
 }
 
 uint32_t GameGrid::distSum(const Vec2ui& pos) const {
@@ -292,7 +281,7 @@ Vec2ui GameGrid::guessNextShipCell(const Vec2ui& pos) const {
 }
 
 
-std::pair<Vec2ui,Vec2ui> GameGrid::findSunkenShip(const Vec2ui& pos) const {
+ShipLocation GameGrid::findSunkenShip(const Vec2ui& pos) const {
   bool horizontal{true};
   if (pos.y() > 0 && (getCell(pos.x(), pos.y()-1) == Cell::Ship || getCell(pos.x(), pos.y()-1) == Cell::ShipShot)) horizontal = false;
   if (pos.y() < gridSize.y() && (getCell(pos.x(), pos.y()+1) == Cell::Ship || getCell(pos.x(), pos.y()+1) == Cell::ShipShot)) horizontal = false;
@@ -325,17 +314,17 @@ std::pair<Vec2ui,Vec2ui> GameGrid::findSunkenShip(const Vec2ui& pos) const {
       endY = y;
     }
   }
-  return std::make_pair(Vec2ui{startX,startY}, Vec2ui{endX,endY});
+  return ShipLocation{Vec2ui{startX,startY}, Vec2ui{endX,endY}};
 }
 
 
 void GameGrid::markAroundSunk(const Vec2ui& pos) {
-  const std::pair<Vec2ui,Vec2ui> ship = findSunkenShip(pos);
+  ShipLocation ship = findSunkenShip(pos);
       
-  const Vec2ui start( (ship.first.x() > 0) ? ship.first.x()-1 : ship.first.x(),
-                      (ship.first.y() > 0) ? ship.first.y()-1 : ship.first.y());
-  const Vec2ui   end( (ship.second.x() < gridSize.x()) ? ship.second.x()+1 : ship.second.x(),
-                      (ship.second.y() < gridSize.y()) ? ship.second.y()+1 : ship.second.y());
+  const Vec2ui start( (ship.start.x() > 0) ? ship.start.x()-1 : ship.start.x(),
+                      (ship.start.y() > 0) ? ship.start.y()-1 : ship.start.y());
+  const Vec2ui   end( (ship.end.x() < gridSize.x()) ? ship.end.x()+1 : ship.end.x(),
+                      (ship.end.y() < gridSize.y()) ? ship.end.y()+1 : ship.end.y());
   
   for (uint32_t y = start.y();y<=end.y();y++) {
     for (uint32_t x = start.x();x<=end.x();x++) {
