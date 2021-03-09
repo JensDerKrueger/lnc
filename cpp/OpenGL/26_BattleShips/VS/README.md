@@ -1,5 +1,7 @@
 ## Battleships
 
+![Ship Placenent](screenshot1.jpg)  ![Game](screenshot2.jpg)
+
 A simple multiplayer sink my battleships app.
 
 ## Getting the Client-Software
