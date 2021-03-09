@@ -37,14 +37,16 @@ public:
 
   size_t getRemainingHits() const;
   
-  std::pair<Vec2ui,Vec2ui> findSunkenShip(const Vec2ui& pos) const;
+  ShipLocation findSunkenShip(const Vec2ui& pos) const;
   uint32_t markAsSunk(const Vec2ui& pos);
+  uint32_t shipLength(const Vec2ui& pos) const;
 
 private:
   Vec2ui gridSize;
   std::vector<Cell> grid;
   std::vector<Vec2ui> hits;
   std::vector<Vec2ui> misses;
+  std::vector<ShipLocation> sunken;
 
   void clearEmpty();
   

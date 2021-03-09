@@ -68,7 +68,9 @@ bool GameGrid::validate(const std::string& encryptedString, const std::string& p
       if (sp.incomming(miss)) return false;
     }
 
-    // TODO: check sunk cells
+    for (const ShipLocation& sunkenShip : sunken) {
+      if (sp.findShip(sunkenShip) == ShipPlacement::completePlacement.size()) return false;
+    }
     
   } catch (const MessageException& ) {
     return false;
@@ -108,6 +110,7 @@ void GameGrid::clearEmpty() {
   }
   hits.clear();
   misses.clear();
+  sunken.clear();
 }
 
 void GameGrid::clearUnknown() {
@@ -117,6 +120,7 @@ void GameGrid::clearUnknown() {
   }
   hits.clear();
   misses.clear();
+  sunken.clear();
 }
 
 size_t GameGrid::getRemainingHits() const {
@@ -151,16 +155,23 @@ bool GameGrid::shipSunk(const Vec2ui& pos) const {
 }
 
 uint32_t GameGrid::markAsSunk(const Vec2ui& pos) {
-  const std::pair<Vec2ui,Vec2ui> ship = findSunkenShip(pos);
-  for (uint32_t y = ship.first.y();y<=ship.second.y();y++) {
-    for (uint32_t x = ship.first.x();x<=ship.second.x();x++) {
+  const ShipLocation ship = findSunkenShip(pos);
+  for (uint32_t y = ship.start.y();y<=ship.end.y();y++) {
+    for (uint32_t x = ship.start.x();x<=ship.end.x();x++) {
       setCell(x, y, Cell::ShipShot);
     }
   }
-  return std::max(ship.second.x() - ship.first.x(), ship.second.y() - ship.first.y())+1;
+  
+  sunken.push_back(ship);
+  return std::max(ship.end.x() - ship.start.x(), ship.end.y() - ship.start.y())+1;
 }
 
-std::pair<Vec2ui,Vec2ui> GameGrid::findSunkenShip(const Vec2ui& pos) const {
+uint32_t GameGrid::shipLength(const Vec2ui& pos) const {
+  ShipLocation ship = findSunkenShip(pos);
+  return std::max(ship.end.x() - ship.start.x(), ship.end.y() - ship.start.y())+1;
+}
+
+ShipLocation GameGrid::findSunkenShip(const Vec2ui& pos) const {
   bool horizontal{true};
   if (pos.y() > 0 && (getCell(pos.x(), pos.y()-1) == Cell::Ship || getCell(pos.x(), pos.y()-1) == Cell::ShipShot)) horizontal = false;
   if (pos.y() < gridSize.y() && (getCell(pos.x(), pos.y()+1) == Cell::Ship || getCell(pos.x(), pos.y()+1) == Cell::ShipShot)) horizontal = false;
@@ -193,5 +204,5 @@ std::pair<Vec2ui,Vec2ui> GameGrid::findSunkenShip(const Vec2ui& pos) const {
       endY = y;
     }
   }
-  return std::make_pair(Vec2ui{startX,startY}, Vec2ui{endX,endY});
+  return ShipLocation{Vec2ui{startX,startY}, Vec2ui{endX,endY}};
 }

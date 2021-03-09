@@ -16,6 +16,11 @@ enum class Orientation {
   Vertical = 1,
 };
 
+struct ShipLocation {
+  Vec2ui start;
+  Vec2ui end;
+};
+
 class Ship {
 public:
   Ship(ShipSize shipSize, Orientation orientation, const Vec2ui& pos);
@@ -26,6 +31,7 @@ public:
   
   Vec2ui computeEnd() const;
   
+  bool check(const ShipLocation& loc) const;
 };
 
 
@@ -53,6 +59,7 @@ public:
   static size_t getHitsToWin();
   static uint32_t getLongestShipLength();
   
+  size_t findShip(const ShipLocation& loc) const;
 
 private:
   Vec2ui gridSize;

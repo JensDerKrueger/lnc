@@ -24,6 +24,9 @@ Vec2ui Ship::computeEnd() const {
                               : Vec2ui(pos.x()+uint32_t(shipSize)-1, pos.y());
 }
 
+bool Ship::check(const ShipLocation& loc) const{
+  return loc.start == pos && loc.end == computeEnd();
+}
 
 ShipPlacement::ShipPlacement(const Vec2ui& gridSize) :
   gridSize(gridSize)
@@ -174,4 +177,13 @@ uint32_t ShipPlacement::getLongestShipLength() {
     maxLength = std::max(maxLength, uint32_t(s));
   }
   return maxLength;
+}
+
+size_t ShipPlacement::findShip(const ShipLocation& loc) const {
+  for (size_t i = 0;i<ships.size();++i) {
+    if (ships[i].check(loc)) {
+      return i;
+    }
+  }
+  return ShipPlacement::completePlacement.size();
 }
