@@ -1,6 +1,6 @@
 ## Battleships
 
-![Ship Placenent](screenshot1.jpg)  ![Game](screenshot2.jpg)
+![Ship Placement](screenshot1.jpg)  ![Game](screenshot2.jpg)
 
 A simple multiplayer sink my battleships app.
 
@@ -25,7 +25,10 @@ You can download the source-code of the demo server [here](https://github.com/Je
 
 Simply start the executable. The server features a minimalistic console to set a few parameters and output a few metrics. Hit `?` followed return to see a complete list of available commands. Hitting `q` will terminate all active connections and shut the game server down.
 
+## Bot Usage
+
+Just in case you don't see hundreds of users connect to you game server in a matter of seconds after you announce its existence, you may want to run a bot to battle that one lonely player (which will be most likely you). To do so you can compile the Battleship-Bot from [here](https://github.com/JensDerKrueger/lnc/tree/master/cpp/OpenGL/27_BattleShipBot), put your server URL in the  `settings.txt`-file and simply start it.
+
 ## Demo Server
 
-If you don't want to run your own server, feel free to use our public demo server. The server is availabe at `lnc.myfirewall.org` 
-
+If you don't want to run your own server, feel free to use our public demo server. The server is available at `lnc.myfirewall.org` 
