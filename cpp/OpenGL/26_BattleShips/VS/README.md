@@ -27,7 +27,7 @@ Simply start the executable. The server features a minimalistic console to set a
 
 ## Bot Usage
 
-Just in case you don't see hundreds of users connect to you game server in a matter of seconds after you announce its existence, you may want to run a bot to battle that one lonely player (which will be most likely you). To do so you can compile the Battleship-Bot from [here](https://github.com/JensDerKrueger/lnc/tree/master/cpp/OpenGL/27_BattleShipBot), put your server URL in the  `settings.txt`-file and simply start it.
+Just in case you don't see hundreds of users connect to you game server in a matter of seconds after you announce its existence, you may want to run a bot to battle that one lonely player (which will be most likely you). To do so you can compile the Battleship-Bot from [here](https://github.com/JensDerKrueger/lnc/tree/master/cpp/OpenGL/27_BattleshipBot), put your server URL in the  `settings.txt`-file and simply start it.
 
 ## Demo Server
 
