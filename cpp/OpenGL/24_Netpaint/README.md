@@ -1,6 +1,6 @@
 ## NetPaint
 
-![Screenshot](screenshot.jpg)
+![Main Paint Canavs](screenshot1.png) ![Color Picker](screenshot2.png)
 
 A simple network painting app.
 
