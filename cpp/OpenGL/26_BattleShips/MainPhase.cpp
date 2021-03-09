@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "BattleShips.h"
 
 #include "MainPhase.h"
@@ -16,7 +17,8 @@ void MainPhase::prepare(const ShipPlacement& myShipPlacement) {
   otherBoard.clearUnknown();
   
   titleTex = GLTexture2D(app->fr.render(gameTitle));
-  remainingShipsTex = GLTexture2D(app->fr.render("Remaining Ships"));
+  myRemainingShipsTex = GLTexture2D(app->fr.render("My Armada"));
+  otherRemainingShipsTex = GLTexture2D(app->fr.render("Other Armada"));
   homeTitleTex = GLTexture2D(app->fr.render(homeTitles[size_t(Rand::rand01() * homeTitles.size())]));
   guestTitleTex = GLTexture2D(app->fr.render(guestTitles[size_t(Rand::rand01() * guestTitles.size())]));
   
@@ -30,13 +32,16 @@ void MainPhase::prepare(const ShipPlacement& myShipPlacement) {
   shotsReceived.clear();
   shotResults.clear();
   
-  remainingShips = ShipPlacement::completePlacement;
+  myRemainingShips.resize(ShipPlacement::completePlacement.size());
+  std::fill(myRemainingShips.begin(), myRemainingShips.end(), true);
+  otherRemainingShips.resize(ShipPlacement::completePlacement.size());
+  std::fill(otherRemainingShips.begin(), otherRemainingShips.end(), true);
 }
 
-void MainPhase::updateRemainingShips(uint32_t lastLength) {
+void MainPhase::updateRemainingShips(uint32_t lastLength, std::vector<bool>& remainingShips) {
   for (size_t i = 0;i<remainingShips.size();++i) {
-    if (uint32_t(remainingShips[i]) == lastLength) {
-      remainingShips.erase(remainingShips.begin()+int64_t(i));
+    if (uint32_t(ShipPlacement::completePlacement[i]) == lastLength && remainingShips[i]) {
+      remainingShips[i] = false;
       break;
     }
   }
@@ -104,12 +109,9 @@ void MainPhase::drawBoard(const GameGrid& board, Mat4 boardTrans, Vec2ui aimCoor
   }
 }
 
-void MainPhase::drawInternal() {
-  BoardPhase::drawInternal();
-  
-  if (backgroundImage) app->drawRect(Vec4(0,0,0,0.7f));
-  
-  const Mat4 titleTrans = app->computeImageTransformFixedHeight({titleTex.getWidth(), titleTex.getHeight()}, 0.1f, Vec3{0.f,0.9f,0.0f});
+
+void MainPhase::drawTitles() {
+  const Mat4 titleTrans = app->computeImageTransformFixedHeight({titleTex.getWidth(), titleTex.getHeight()}, 0.1f, Vec3{0.f,0.88f,0.0f});
   app->setDrawTransform(titleTrans);
   app->drawImage(titleTex);
   
@@ -117,40 +119,50 @@ void MainPhase::drawInternal() {
   const Mat4 subTitleTrans = app->computeImageTransformFixedHeight({subTitle.width, subTitle.height}, 0.05f, Vec3{0.0f,-0.85f,0.0f});
   app->setDrawTransform(subTitleTrans);
   app->drawImage(subTitle);
-  
-  const Mat4 transGuest = app->computeImageTransformFixedHeight({guestTitleTex.getWidth(), guestTitleTex.getHeight()}, 0.07f, Vec3{0.5f,0.7f,0.0f});
-  const Mat4 transHome = app->computeImageTransformFixedHeight({homeTitleTex.getWidth(), homeTitleTex.getHeight()}, 0.07f, Vec3{-0.5f,0.7f,0.0f});
-  
-  app->setDrawTransform(transGuest);
-  app->drawImage(guestTitleTex);
+}
 
+void MainPhase::drawBoards() {
+  const Mat4 transHome = app->computeImageTransformFixedHeight({homeTitleTex.getWidth(), homeTitleTex.getHeight()}, 0.07f, Vec3{-0.5f,0.7f,0.0f});
   app->setDrawTransform(transHome);
   app->drawImage(homeTitleTex);
-
   const Mat4 myBoardTrans = app->computeImageTransform(boardSize) * Mat4::scaling(0.6f) * Mat4::translation(-0.5f,0.0f,0.0f);
   app->setDrawTransform(myBoardTrans);
   app->drawLines(gridLines, LineDrawType::LIST, 3);
   drawBoard(myBoard, myBoardTrans, app->getClient()->getAim());
-
+  
+  const Mat4 transGuest = app->computeImageTransformFixedHeight({guestTitleTex.getWidth(), guestTitleTex.getHeight()}, 0.07f, Vec3{0.5f,0.7f,0.0f});
+  app->setDrawTransform(transGuest);
+  app->drawImage(guestTitleTex);
   otherBoardTrans = app->computeImageTransform(boardSize) * Mat4::scaling(0.6f) * Mat4::translation(0.5f,0.0f,0.0f);
   app->setDrawTransform(otherBoardTrans);
   app->drawLines(gridLines, LineDrawType::LIST, 3);
   drawBoard(otherBoard, otherBoardTrans, otherCellPos);
-    
-  app->setDrawTransform(app->computeImageTransformFixedWidth({remainingShipsTex.getWidth(), remainingShipsTex.getHeight()}, 0.1f, Vec3{0.0f,0.5f,0.0f}));
-  app->drawImage(remainingShipsTex);
+}
 
-  Mat4 trans = Mat4::translation({0.85f/boardSize.x()*ShipPlacement::getLongestShipLength()/2.0f,0.4f,0.0f});
-  const Mat4 blockScale = Mat4::scaling(0.4f/boardSize.x(),0.4f/boardSize.y(),1.0f);
-  for (const ShipSize& s : remainingShips) {
-    const uint32_t blockCount{uint32_t(s)};
-    for (uint32_t i = 0;i<blockCount;++i) {
-      app->setDrawTransform(blockScale * trans * Mat4::translation({-0.85f/boardSize.x()*i,0.0f,0.0f}) * app->computeImageTransform({1,1}) );
-      app->drawImage(shipCell);
-    }
-    trans = trans * Mat4::translation({0.0f,-1.5f/boardSize.y(),0.0f});
-  }
+void MainPhase::drawRemainingShips(const Vec3& baseTranslation, const GLTexture2D& title, const std::vector<bool>& ships) {
+  const Vec2 spacing{0.85f/boardSize.x(), 1.2f/boardSize.y()};
   
+  const float maxBlockX = float(ShipPlacement::getLongestShipLength());
+  const float maxBlockY = float(ShipPlacement::completePlacement.size());
+    
+  app->setDrawTransform(app->computeImageTransformFixedHeight({title.getWidth(), title.getHeight()}, 0.025f, baseTranslation));
+  app->drawImage(title);
+  
+  Mat4  trans = Mat4::translation(baseTranslation + Vec3{-(spacing.x()*maxBlockX)/2.0f,-0.07f,0.0f});
+  const Mat4 blockScale = Mat4::scaling(2.0f/(maxBlockY*boardSize.x()),2.0f/(maxBlockY*boardSize.y()),1.0f);
+  for (size_t i = 0;i<ShipPlacement::completePlacement.size();++i ) {
+    const ShipSize s = ShipPlacement::completePlacement[i];
+    const uint32_t blockCount{uint32_t(s)};
+    for (uint32_t j = 0;j<blockCount;++j) {
+      app->setDrawTransform(blockScale * trans * Mat4::translation({ ((maxBlockX-blockCount)/2.0f + j+0.5f)*spacing.x(),0.0f,0.0f}) * app->computeImageTransform({1,1}) );
+      app->drawImage(shipCell);
+      if (!ships[i]) app->drawImage(shotCell);
+    }
+    trans = trans * Mat4::translation({0.0f,-spacing.y(),0.0f});
+  }
+}
+
+void MainPhase::drawPleaseWaitOverlay() {
   if (waitingForOther) {
     const Image prompt = app->fr.render(waitingShotMessages[waitingMessageIndex]);
     const Mat4 transPrompt = app->computeImageTransformFixedWidth({prompt.width, prompt.height}, 0.4f);
@@ -159,6 +171,17 @@ void MainPhase::drawInternal() {
     app->setDrawTransform(transPrompt);
     app->drawImage(prompt);
   }
+}
+
+void MainPhase::drawInternal() {
+  BoardPhase::drawInternal();
+  if (backgroundImage) app->drawRect(Vec4(0,0,0,0.7f));
+  
+  drawTitles();
+  drawBoards();
+  drawRemainingShips(Vec3{0.0f,0.55f,0.0f}, otherRemainingShipsTex, otherRemainingShips);
+  drawRemainingShips(Vec3{0.0f,-0.10f,0.0f}, myRemainingShipsTex, myRemainingShips);
+  drawPleaseWaitOverlay();
 }
 
 void MainPhase::animateInternal(double animationTime) {
@@ -179,6 +202,11 @@ void MainPhase::animateInternal(double animationTime) {
     } else {
       otherRound++;
     }
+    
+    if (result == ShotResult::SUNK) {
+      updateRemainingShips(myBoard.shipLength(newShot), myRemainingShips);
+    }
+
     app->getClient()->sendShotResult(result);
     myBoard.addShot(newShot);
     shotsReceived.push_back(newShot);
@@ -194,7 +222,7 @@ void MainPhase::animateInternal(double animationTime) {
     } else {
       otherBoard.addHit(pos);
       if (newResult == ShotResult::SUNK) {
-        updateRemainingShips(otherBoard.markAsSunk(pos));
+        updateRemainingShips(otherBoard.markAsSunk(pos), otherRemainingShips);
       }
     }
     

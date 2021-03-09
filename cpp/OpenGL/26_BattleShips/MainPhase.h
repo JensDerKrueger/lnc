@@ -26,7 +26,8 @@ private:
   GLTexture2D titleTex;
   GLTexture2D guestTitleTex;
   GLTexture2D homeTitleTex;
-  GLTexture2D remainingShipsTex;
+  GLTexture2D myRemainingShipsTex;
+  GLTexture2D otherRemainingShipsTex;
 
   bool waitingForOther{false};
   bool sunkShipWithLastShot{false};
@@ -39,7 +40,8 @@ private:
   std::vector<Vec2ui> shotsReceived;
   std::vector<ShotResult> shotResults;
   
-  std::vector<ShipSize> remainingShips;
+  std::vector<bool> myRemainingShips;
+  std::vector<bool> otherRemainingShips;
 
   void drawBoard(const GameGrid& board, Mat4 boardTrans, Vec2ui aimCoords);
   
@@ -48,6 +50,10 @@ private:
                            double xPosition, double yPosition) override;
   virtual void animateInternal(double animationTime) override;
   virtual void drawInternal() override;
+  void drawTitles();
+  void drawBoards();
+  void drawRemainingShips(const Vec3& translation, const GLTexture2D& title, const std::vector<bool>& ships);
+  void drawPleaseWaitOverlay();
   
-  void updateRemainingShips(uint32_t lastLength);
+  void updateRemainingShips(uint32_t lastLength, std::vector<bool>& remainingShips);
 };
