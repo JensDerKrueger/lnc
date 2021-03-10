@@ -231,7 +231,7 @@ void HttpClientConnection::sendMessage(std::string message) {
 
   try {
     do {
-      currentBytes = connectionSocket->SendData((int8_t*)(message.c_str()) + totalBytes, message.length()-totalBytes, timeout);
+      currentBytes = connectionSocket->SendData((int8_t*)(message.c_str()) + totalBytes, uint32_t(message.length())-totalBytes, timeout);
       totalBytes += currentBytes;
     } while (currentBytes > 0 && totalBytes < message.length());
 
