@@ -24,6 +24,7 @@ public:
         uint32_t componentCount,
         std::vector<uint8_t> data);
 
+  void multiply(const Vec4& color);
   void generateAlphaFromLuminance();
   size_t computeIndex(uint32_t x, uint32_t y, uint32_t component) const;
   uint8_t getValue(uint32_t x, uint32_t y, uint32_t component) const;

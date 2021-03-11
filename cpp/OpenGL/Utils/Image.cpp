@@ -32,6 +32,30 @@ Image::Image(uint32_t width,
 {
 }
 
+void Image::multiply(const Vec4& color) {
+  if (componentCount == 4) {
+    for (size_t i = 0; i<data.size()/4;i++) {
+      data[i*4+0] = uint8_t(data[i*4+0] * color.x());
+      data[i*4+1] = uint8_t(data[i*4+1] * color.y());
+      data[i*4+2] = uint8_t(data[i*4+2] * color.z());
+      data[i*4+3] = uint8_t(data[i*4+3] * color.w());
+    }
+  } else if (componentCount == 3) {
+    std::vector<uint8_t> newData((data.size() / 3) * 4);
+    
+    for (size_t i = 0; i<data.size()/3;i++) {
+      newData[i*4+0] = uint8_t(data[i*3+0] * color.x());
+      newData[i*4+1] = uint8_t(data[i*3+1] * color.y());
+      newData[i*4+2] = uint8_t(data[i*3+2] * color.z());
+      newData[i*4+3] = uint8_t(255 * color.w());
+    }
+    
+    data = newData;
+    componentCount = 4;
+  }
+
+}
+
 void Image::generateAlphaFromLuminance() {
   if (componentCount == 4) {
     for (size_t i = 0; i<data.size()/4;i++) {
