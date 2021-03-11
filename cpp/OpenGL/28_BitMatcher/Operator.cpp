@@ -80,6 +80,8 @@ uint32_t Operator::stringToNumber(uint32_t opID, const std::string& parameter) c
         return uint32_t(std::stoi(parameter));
       } catch (const std::invalid_argument&) {
         return 0;
+      } catch (const std::out_of_range&) {
+        return 0;
       }
     default : return 0;
   }
