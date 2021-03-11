@@ -18,9 +18,9 @@ std::string Operator::genOpText(uint32_t opID) {
   
   std::string operant;
   switch (opIDs.first) {
-    case 0: operant = "length"; break;
+    case 0: operant = "length mod 8"; break;
     case 1: operant = "first ascii"; break;
-    case 2: operant = "first digit"; break;
+    case 2: operant = "first digit mod 8"; break;
   }
   
   std::stringstream ss;
@@ -42,15 +42,15 @@ std::string Operator::genOpText(uint32_t opID) {
       result = ss.str();
       break;
     case 4:
-      ss << "xor( current, " << operant << " )";
+      ss << "xor( current " << operant << " )";
       result = ss.str();
       break;
     case 5:
-      ss << "and( current, " << operant << " )";
+      ss << "and( current " << operant << " )";
       result = ss.str();
       break;
     case 6:
-      ss << "or( current, " << operant << " )";
+      ss << "or( current " << operant << " )";
       result = ss.str();
       break;
   }
