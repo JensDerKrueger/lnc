@@ -47,10 +47,10 @@
 		A231F0F625EAF61A00CBFC23 = {
 			isa = PBXGroup;
 			children = (
-				56C42E9A25F946E800143B99 /* Operator.cpp */,
 				56C42E9B25F946E800143B99 /* Operator.h */,
-				56C42E9525F8191200143B99 /* BitMatcher.cpp */,
+				56C42E9A25F946E800143B99 /* Operator.cpp */,
 				56C42E9625F8191200143B99 /* BitMatcher.h */,
+				56C42E9525F8191200143B99 /* BitMatcher.cpp */,
 				A231F10D25EAF65400CBFC23 /* main.cpp */,
 				A231F10025EAF61A00CBFC23 /* Products */,
 			);

@@ -2,6 +2,10 @@
 
 #include <Base64.h>
 
+#include <bitset>
+
+
+
 #ifdef _WIN32
 INT WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow) {
 #else

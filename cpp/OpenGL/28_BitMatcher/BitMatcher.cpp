@@ -25,9 +25,11 @@ BitMatcher::~BitMatcher() {
 }
 
 void BitMatcher::init() {
-  currentTitle = fr.render("Current");
-  targetTitle = fr.render("Target");
-
+  currentTitle = GLTexture2D{fr.render("Current")};
+  targetTitle = GLTexture2D{fr.render("Target")};
+  remainTitle = GLTexture2D{fr.render("Time Remaining")};
+  highscoreTitle = GLTexture2D{fr.render("Highscore")};
+  
   shuffleNumbers();
   start();
 }
@@ -81,6 +83,12 @@ void BitMatcher::animate(double animationTime) {
   if (challangeSolved || countdown == 0 ) {
     startNewChallange();
   }
+  
+  for (OverlayImage& o : overlays) {
+    o.animate(animationTime);
+  }
+
+  if (!overlays.empty() && overlays.front().getAlpha() == 0) overlays.pop_front();
 }
 
 void BitMatcher::drawCountdown(const Vec2& offset) {
@@ -90,9 +98,8 @@ void BitMatcher::drawCountdown(const Vec2& offset) {
   setDrawTransform(Mat4::scaling(0.3f,0.35f,1.0f) * Mat4::translation(offset.x(), offset.y()+0.05f, 0.0f));
   drawRect(color);
 
-  Image lineImage = fr.render("Time Remaining");
-  setDrawTransform(computeImageTransformFixedHeight({lineImage.width, lineImage.height},0.05f,{0,0,0}) * Mat4::translation({offset.x(),offset.y()+0.25f,0}));
-  drawImage(lineImage);
+  setDrawTransform(computeImageTransformFixedHeight({remainTitle.getWidth(), remainTitle.getHeight()},0.05f,{0,0,0}) * Mat4::translation({offset.x(),offset.y()+0.25f,0}));
+  drawImage(remainTitle);
 
   Image numberImage = fr.render(countdown);
   setDrawTransform(computeImageTransformFixedHeight({numberImage.width, numberImage.height},
@@ -105,9 +112,8 @@ void BitMatcher::drawHighscore(const Vec2& offset) {
   setDrawTransform(Mat4::scaling(0.5f,0.35f,1.0f) * Mat4::translation(offset.x(), offset.y()+0.05f, 0.0f));
   drawRect({0.0f,0.2f,0.0f,1.0f});
 
-  Image lineImage = fr.render("Highscore");
-  setDrawTransform(computeImageTransformFixedHeight({lineImage.width, lineImage.height},0.05f,{0,0,0}) * Mat4::translation({offset.x(),offset.y()+0.25f,0}));
-  drawImage(lineImage);
+  setDrawTransform(computeImageTransformFixedHeight({highscoreTitle.getWidth(), highscoreTitle.getHeight()},0.05f,{0,0,0}) * Mat4::translation({offset.x(),offset.y()+0.25f,0}));
+  drawImage(highscoreTitle);
 
   for (size_t i=0;i<5;++i) {
     HighScoreEntry e = (i >= highscore.size()) ? HighScoreEntry{"----",0,0} : highscore[i];
@@ -130,6 +136,10 @@ void BitMatcher::draw() {
   drawNumber(targetTitle, target, {0.45f, 0.4f});
   drawHighscore({-0.45f,-0.6f});
   drawCountdown({0.45f, -0.6f});
+    
+  for (OverlayImage& o : overlays) {
+    o.draw();
+  }
 }
 
 std::pair<std::string,std::string> BitMatcher::parseParameter(const std::string& param) const {
@@ -226,7 +236,10 @@ size_t BitMatcher::getPlayerIndex(const std::string& name) {
 void BitMatcher::processInput(const std::string& name, const std::string& text) {
   const std::scoped_lock<std::mutex> lock(gameStateMutex);
   const size_t index = getPlayerIndex(name);
-  target = op.execute(current, highscore[index].opID, text);
+  
+  uint8_t next = op.execute(current, highscore[index].opID, text);
+  overlays.push_back({name, current, next, this});
+  current = next;
   
   if (current == target) {
     challangeSolved = true;
@@ -244,4 +257,40 @@ void BitMatcher::startNewChallange() {
   challangeStartTime = 0;
   challangeSolved = false;
   shuffleNumbers();
+}
+
+
+OverlayImage::OverlayImage(const std::string& name, uint8_t current, uint8_t next, BitMatcher* app) :
+position{Rand::rand<float>(-0.5,0.5),Rand::rand<float>(-0.9f,-0.1f)},
+alpha{1.0f},
+startTime{0.0},
+app(app)
+{
+  std::stringstream ss;
+  ss << name << ": " << int(current) << " > " << int(next);
+  text = app->fr.render(ss.str());
+
+  float r = Rand::rand01();
+  float g = Rand::rand01();
+  float b = 2.0f-(r*g);
+  color = Vec3(r,g,b);
+}
+
+void OverlayImage::animate(double animationTime) {
+  if (startTime == 0) startTime = animationTime;
+  alpha = float(1.0-std::min((animationTime-startTime)/2.0, 1.0));
+}
+
+void OverlayImage::draw() {
+  Image i = text;
+  i.multiply(Vec4(1,1,1,alpha));
+  
+  const uint32_t w = i.width;
+  const uint32_t h = i.height;
+    
+  Mat4 textTrans = app->computeImageTransformFixedHeight({w,h},0.05f,{position.x(),position.y(),0});
+  app->setDrawTransform(Mat4::scaling(1.1f,1.1f,1.0f) * textTrans);
+  app->drawRect(Vec4(color, alpha));
+  app->setDrawTransform(textTrans);
+  app->drawImage(i);
 }

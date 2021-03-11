@@ -3,6 +3,7 @@
 #include <array>
 #include <vector>
 #include <map>
+#include <deque>
 
 #include <GLApp.h>
 #include <Server.h>
@@ -10,6 +11,24 @@
 #include <FontRenderer.h>
 
 #include "Operator.h"
+
+class BitMatcher;
+
+class OverlayImage {
+public:
+  OverlayImage(const std::string& name, uint8_t current, uint8_t next, BitMatcher* app);
+  void animate(double animationTime);
+  void draw();
+  float getAlpha() const {return alpha;}
+
+private:
+  Vec3 color;
+  Vec2 position;
+  float alpha;
+  double startTime;
+  Image text;
+  BitMatcher* app;
+};
 
 struct HighScoreEntry {
   HighScoreEntry(const std::string& name, uint32_t score, uint32_t opID) :
@@ -38,6 +57,7 @@ public:
 
   virtual void handleClientMessage(uint32_t id, const std::string& message) override;
 
+  static FontRenderer fr;
 
 private:
   uint8_t current{0};
@@ -53,11 +73,17 @@ private:
   
   std::vector<HighScoreEntry> highscore;
   
+  std::deque<OverlayImage> overlays;
+  
   GLTexture2D currentTitle;
   GLTexture2D targetTitle;
-  
-  static FontRenderer fr;
-  
+  GLTexture2D remainTitle;
+  GLTexture2D highscoreTitle;
+  GLTexture2D currentNumber;
+  GLTexture2D targetNumber;
+  GLTexture2D currentNumberBin;
+  GLTexture2D targetNumberBin;
+
   void shuffleNumbers();
   void drawNumber(const GLTexture2D& title, uint8_t number, const Vec2& offset);
   std::string intToBin(uint8_t number) const;
