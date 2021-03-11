@@ -7,9 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		56C42E9725F8191200143B99 /* BitMatcher.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 56C42E9525F8191200143B99 /* BitMatcher.cpp */; };
 		56C42E9C25F946E800143B99 /* Operator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 56C42E9A25F946E800143B99 /* Operator.cpp */; };
-		A231F11425EAF65400CBFC23 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A231F10D25EAF65400CBFC23 /* main.cpp */; };
+		56C42EA825FA599E00143B99 /* BitMatcherServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 56C42EA625FA599E00143B99 /* BitMatcherServer.cpp */; };
+		56C42EA925FA599E00143B99 /* mainServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 56C42EA725FA599E00143B99 /* mainServer.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,12 +25,12 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		56C42E9525F8191200143B99 /* BitMatcher.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BitMatcher.cpp; sourceTree = "<group>"; };
-		56C42E9625F8191200143B99 /* BitMatcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BitMatcher.h; sourceTree = "<group>"; };
 		56C42E9A25F946E800143B99 /* Operator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Operator.cpp; sourceTree = "<group>"; };
 		56C42E9B25F946E800143B99 /* Operator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Operator.h; sourceTree = "<group>"; };
+		56C42EA525FA599E00143B99 /* BitMatcherServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BitMatcherServer.h; sourceTree = "<group>"; };
+		56C42EA625FA599E00143B99 /* BitMatcherServer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BitMatcherServer.cpp; sourceTree = "<group>"; };
+		56C42EA725FA599E00143B99 /* mainServer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = mainServer.cpp; sourceTree = "<group>"; };
 		A231F0FF25EAF61A00CBFC23 /* BitMatcher */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = BitMatcher; sourceTree = BUILT_PRODUCTS_DIR; };
-		A231F10D25EAF65400CBFC23 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -49,9 +49,9 @@
 			children = (
 				56C42E9B25F946E800143B99 /* Operator.h */,
 				56C42E9A25F946E800143B99 /* Operator.cpp */,
-				56C42E9625F8191200143B99 /* BitMatcher.h */,
-				56C42E9525F8191200143B99 /* BitMatcher.cpp */,
-				A231F10D25EAF65400CBFC23 /* main.cpp */,
+				56C42EA625FA599E00143B99 /* BitMatcherServer.cpp */,
+				56C42EA525FA599E00143B99 /* BitMatcherServer.h */,
+				56C42EA725FA599E00143B99 /* mainServer.cpp */,
 				A231F10025EAF61A00CBFC23 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -97,7 +97,7 @@
 					};
 				};
 			};
-			buildConfigurationList = A231F0FA25EAF61A00CBFC23 /* Build configuration list for PBXProject "BitMatcher" */;
+			buildConfigurationList = A231F0FA25EAF61A00CBFC23 /* Build configuration list for PBXProject "BitMatcherRelayserver" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -120,9 +120,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				56C42EA925FA599E00143B99 /* mainServer.cpp in Sources */,
 				56C42E9C25F946E800143B99 /* Operator.cpp in Sources */,
-				56C42E9725F8191200143B99 /* BitMatcher.cpp in Sources */,
-				A231F11425EAF65400CBFC23 /* main.cpp in Sources */,
+				56C42EA825FA599E00143B99 /* BitMatcherServer.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -337,7 +337,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		A231F0FA25EAF61A00CBFC23 /* Build configuration list for PBXProject "BitMatcher" */ = {
+		A231F0FA25EAF61A00CBFC23 /* Build configuration list for PBXProject "BitMatcherRelayserver" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A231F10425EAF61A00CBFC23 /* Debug */,

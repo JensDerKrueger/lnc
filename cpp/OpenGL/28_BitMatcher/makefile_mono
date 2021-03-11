@@ -8,15 +8,14 @@ ifeq ($(OSTYPE),Linux)
 	INCLUDES=-I. -I../Utils -I../Network -I ../../openmp/include
 else
 	CFLAGS=-c -Wall -std=c++17 -Wunreachable-code -Xclang -fopenmp
-	LFLAGS=-L../Network -lnetwork
+	LFLAGS=-lglfw -lGLEW -framework OpenGL -L../Utils -lutils -L../Network -lnetwork
 	LIBS=-lomp -L ../../openmp/lib -L /opt/homebrew/lib
-	INCLUDES=-I. -I ../../openmp/include -I /opt/homebrew/include -I../Network -I../Utils
+	INCLUDES=-I. -I../Utils -I ../../openmp/include -I /opt/homebrew/include -I../Network
 endif
 
-SRC = mainServer.cpp Operator.cpp BitMatcherServer.cpp
-
+SRC = mainMono.cpp BitMatcherMono.cpp Operator.cpp
 OBJ = $(SRC:.cpp=.o)
-TARGET = bitMatcherServer
+TARGET = bitMatcherMono
 
 all: $(TARGET)
 
@@ -24,21 +23,21 @@ release: CFLAGS += -O3 -Os -flto -DNDEBUG
 release: LFLAGS += -flto
 release: $(TARGET)
 
-../Network/libnetwork.a:
-	cd ../Network && make
-
 ../Utils/libutils.a:
 	cd ../Utils && make
-
+	
+../Network/libnetwork.a:
+	cd ../Network && make
+	
 $(TARGET): $(OBJ) ../Network/libnetwork.a ../Utils/libutils.a
 	$(CC) $(INCLUDES) $^ $(LFLAGS) $(LIBS) -o $@
-
+	
 %.o: %.cpp
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@
-
+	
 clean:
 	-rm -rf $(OBJ) $(TARGET) core
-
+	
 mrproper: clean
 	cd ../Network && make clean
 	cd ../Utils && make clean

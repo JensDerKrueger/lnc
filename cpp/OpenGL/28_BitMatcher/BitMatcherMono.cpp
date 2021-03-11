@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <bitset>
 
-#include "BitMatcher.h"
+#include "BitMatcherMono.h"
 
 #include <Rand.h>
 #include <Base64.h>
