@@ -178,9 +178,12 @@ void Server<T>::clientFunc() {
     for (size_t i = 0;i<clientConnections.size();++i) {
       
       // remove clients that have disconnected
-      if (!clientConnections[i]->isConnected()) {
-        removeClient(i);
-        continue;
+      try {
+        if (!clientConnections[i]->isConnected()) {
+          removeClient(i);
+          continue;
+        }
+      } catch (const SocketException&) {
       }
       
       try {
