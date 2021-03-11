@@ -119,19 +119,19 @@ void BitMatcher::draw() {
   overlayMutex.unlock();
 }
 
-void BitMatcher::addOverlay(const std::string& name, uint8_t current, uint8_t next) {
+void BitMatcher::addOverlay(const std::string& name, uint8_t current, uint8_t next, const std::string& opText) {
   const std::scoped_lock<std::mutex> lock(overlayMutex);
-  overlays.push_back({name, current, next, this});
+  overlays.push_back({name, current, next, opText, this});
 }
 
-OverlayImage::OverlayImage(const std::string& name, uint8_t current, uint8_t next, BitMatcher* app) :
+OverlayImage::OverlayImage(const std::string& name, uint8_t current, uint8_t next, const std::string& opText, BitMatcher* app) :
 position{Rand::rand<float>(-0.5,0.5),Rand::rand<float>(-0.9f,-0.1f)},
 alpha{1.0f},
 startTime{0.0},
 app(app)
 {
   std::stringstream ss;
-  ss << name << ": " << int(current) << " > " << int(next);
+  ss << name << ": " << opText; //int(current) << " > " << int(next);
   text = app->fr.render(ss.str());
 
   float r = Rand::rand01();
@@ -142,7 +142,7 @@ app(app)
 
 void OverlayImage::animate(double animationTime) {
   if (startTime == 0) startTime = animationTime;
-  alpha = float(1.0-std::min((animationTime-startTime)/2.0, 1.0));
+  alpha = float(1.0-std::min((animationTime-startTime)/12.0, 1.0));
 }
 
 void OverlayImage::draw() {
@@ -184,10 +184,11 @@ void GameClient::handleServerMessage(const std::string& message) {
       }
       break;
       case 1 : {
-        const std::string name = t.nextString();
-        const uint8_t current  = t.nextUint8();
-        const uint8_t next     = t.nextUint8();
-        app->addOverlay(name, current, next);
+        const std::string name   = t.nextString();
+        const uint8_t current    = t.nextUint8();
+        const uint8_t next       = t.nextUint8();
+        const std::string opText = t.nextString();
+        app->addOverlay(name, current, next, opText);
       }
       break;
       case 2 : {

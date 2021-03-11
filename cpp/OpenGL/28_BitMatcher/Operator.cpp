@@ -1,5 +1,6 @@
 #include <string>
 #include <iostream>
+#include <sstream>
 
 #include "Operator.h"
 
@@ -7,11 +8,54 @@ Operator::Operator() :
 convCount{3},
 operationCount{7}
 {
-  
 }
 
 Operator::~Operator() {
+}
+
+std::string Operator::genOpText(uint32_t opID) {
+  std::pair<uint32_t, uint32_t> opIDs = splitID(opID);
   
+  std::string operant;
+  switch (opIDs.first) {
+    case 0: operant = "length"; break;
+    case 1: operant = "first ascii"; break;
+    case 2: operant = "first digit"; break;
+  }
+  
+  std::stringstream ss;
+  std::string result;
+  switch (opIDs.second) {
+    case 0:
+      result = "not";
+      break;
+    case 1:
+      ss << "rotl( " << operant << " )";
+      result = ss.str();
+      break;
+    case 2:
+      ss << "rotr( " << operant << " )";
+      result = ss.str();
+      break;
+    case 3:
+      ss << "toggleBit( " << operant << " )";
+      result = ss.str();
+      break;
+    case 4:
+      ss << "xor( current, " << operant << " )";
+      result = ss.str();
+      break;
+    case 5:
+      ss << "and( current, " << operant << " )";
+      result = ss.str();
+      break;
+    case 6:
+      ss << "or( current, " << operant << " )";
+      result = ss.str();
+      break;
+  }
+  
+  return result;
 }
 
 uint8_t Operator::execute(uint8_t sourceValue, uint32_t opID, const std::string& parameter) const {
@@ -21,7 +65,6 @@ uint8_t Operator::execute(uint8_t sourceValue, uint32_t opID, const std::string&
 
 uint32_t Operator::getOperatorCount() const {
   return convCount * operationCount;
-;
 }
 
 std::pair<uint32_t, uint32_t> Operator::splitID(uint32_t combinedOpID) const {

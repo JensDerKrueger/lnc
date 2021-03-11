@@ -13,7 +13,7 @@ class BitMatcher;
 
 class OverlayImage {
 public:
-  OverlayImage(const std::string& name, uint8_t current, uint8_t next, BitMatcher* app);
+  OverlayImage(const std::string& name, uint8_t current, uint8_t next, const std::string& opText, BitMatcher* app);
   void animate(double animationTime);
   void draw();
   float getAlpha() const {return alpha;}
@@ -53,7 +53,7 @@ public:
 
   static FontRenderer fr;
 
-  void addOverlay(const std::string& name, uint8_t current, uint8_t next);
+  void addOverlay(const std::string& name, uint8_t current, uint8_t next, const std::string& opText);
   
 private:
   std::mutex overlayMutex;

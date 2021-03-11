@@ -10,6 +10,7 @@ public:
   uint32_t getOperatorCount() const;
   uint8_t execute(uint8_t sourceValue, uint32_t opID, const std::string& parameter) const;
   
+  std::string genOpText(uint32_t opID);
 private:
   uint32_t convCount;
   uint32_t operationCount;

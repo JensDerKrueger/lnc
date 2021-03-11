@@ -32,7 +32,7 @@ public:
   virtual void handleClientMessage(uint32_t id, const std::string& message) override {}
   void updateState(uint32_t countdown, uint8_t current, uint8_t target, uint32_t challangeLength);
   void updateHighscore(const std::vector<HighScoreEntry>& highscore);
-  void newInput(const std::string& name, uint8_t current, uint8_t next);
+  void newInput(const std::string& name, uint8_t current, uint8_t next, const std::string& opText);
 
 private:
   std::vector<std::pair<std::string, uint32_t>> highscore;
@@ -70,7 +70,8 @@ private:
   std::vector<HighScoreEntry> highscore;
   
   void shuffleNumbers();
-  
+  void assignNewOps();
+    
   void startNewChallange();    
   void processInput(const std::string& name, const std::string& text);
   size_t getPlayerIndex(const std::string& name);

@@ -140,7 +140,7 @@ void BitMatcher::processInput(const std::string& name, const std::string& text) 
   const size_t index = getPlayerIndex(name);
   
   uint8_t next = op.execute(current, highscore[index].opID, text);
-  frontendConnections.newInput(name, current, next);
+  frontendConnections.newInput(name, current, next, op.genOpText(highscore[index].opID));
   current = next;
   
   if (current == target) {
@@ -160,6 +160,13 @@ void BitMatcher::startNewChallange() {
   challangeStartTime = 0;
   challangeSolved = false;
   shuffleNumbers();
+  assignNewOps();
+}
+
+void BitMatcher::assignNewOps() {
+  for (size_t i = 0;i<highscore.size();++i) {
+    highscore[i].opID = Rand::rand<uint32_t>(0,op.getOperatorCount());
+  }
 }
 
 FrontendServer::FrontendServer(uint16_t port) :
@@ -204,12 +211,13 @@ void FrontendServer::updateState() {
   sendMessage(e.getEncodedMessage());
 }
 
-void FrontendServer::newInput(const std::string& name, uint8_t current, uint8_t next) {
+void FrontendServer::newInput(const std::string& name, uint8_t current, uint8_t next, const std::string& opText) {
   Encoder e{char(1)};
   e.add(1);
   e.add(name);
   e.add(current);
   e.add(next);
+  e.add(opText);
   sendMessage(e.getEncodedMessage());
 }
 
