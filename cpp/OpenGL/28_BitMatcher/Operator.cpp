@@ -5,7 +5,7 @@
 
 Operator::Operator() :
 convCount{3},
-operationCount{5}
+operationCount{7}
 {
   
 }
