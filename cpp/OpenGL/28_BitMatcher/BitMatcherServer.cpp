@@ -6,7 +6,7 @@
 #include <Base64.h>
 
 BitMatcher::BitMatcher() :
-  Server(5566)
+  Server(11004)
 {
   loadHighscore();
   shuffleNumbers();

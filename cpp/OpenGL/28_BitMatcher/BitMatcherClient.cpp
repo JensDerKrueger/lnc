@@ -15,7 +15,7 @@
 
 BitMatcher::BitMatcher() :
   GLApp(1024, 768, 1, "BitMatcher"),
-  client("localhost", 11004, this)
+  client("localhost", 11005, this)
 {
 }
 
