@@ -24,7 +24,6 @@ struct HighScoreEntry {
   }
 };
 
-
 class FrontendServer : public Server<SizedClientConnection> {
 public:
   FrontendServer(uint16_t port);

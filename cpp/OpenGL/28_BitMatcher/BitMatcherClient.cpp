@@ -15,7 +15,7 @@
 
 BitMatcher::BitMatcher() :
   GLApp(1024, 768, 1, "BitMatcher"),
-  client("localhost", 11005, this)
+  client("134.91.11.186", 11005, this)
 {
 }
 
@@ -83,7 +83,6 @@ void BitMatcher::drawCountdown(const Vec2& offset) {
   drawImage(numberImage);
 }
 
-
 void BitMatcher::drawHighscore(const Vec2& offset) {
   setDrawTransform(Mat4::scaling(0.5f,0.35f,1.0f) * Mat4::translation(offset.x(), offset.y()+0.05f, 0.0f));
   drawRect({0.0f,0.2f,0.0f,1.0f});
@@ -125,7 +124,6 @@ void BitMatcher::addOverlay(const std::string& name, uint8_t current, uint8_t ne
   overlays.push_back({name, current, next, this});
 }
 
-
 OverlayImage::OverlayImage(const std::string& name, uint8_t current, uint8_t next, BitMatcher* app) :
 position{Rand::rand<float>(-0.5,0.5),Rand::rand<float>(-0.9f,-0.1f)},
 alpha{1.0f},
@@ -165,6 +163,11 @@ GameClient::GameClient(const std::string& address, short port, BitMatcher* app) 
   Client{address, port , "", 5000},
   app{app}
 {
+  highscore.resize(5);
+  for (size_t i = 0;i<highscore.size();++i) {
+    highscore[i].first = "---";
+    highscore[i].second = 0;
+  }
 }
 
 void GameClient::handleServerMessage(const std::string& message) {

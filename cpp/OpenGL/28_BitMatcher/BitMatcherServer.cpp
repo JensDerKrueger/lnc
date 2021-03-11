@@ -11,6 +11,7 @@ BitMatcher::BitMatcher() :
   loadHighscore();
   shuffleNumbers();
   frontendConnections.start();
+  frontendConnections.updateHighscore(highscore);
 }
 
 BitMatcher::~BitMatcher() {
@@ -130,6 +131,7 @@ size_t BitMatcher::getPlayerIndex(const std::string& name) {
     if (highscore[i].name == name) return i;
   }
   highscore.push_back({name,0,Rand::rand<uint32_t>(0,op.getOperatorCount())});
+  frontendConnections.updateHighscore(highscore);
   return highscore.size()-1;
 }
 
