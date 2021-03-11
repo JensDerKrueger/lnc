@@ -63,7 +63,7 @@ private:
   
   std::mutex gameStateMutex;
   uint32_t countdown;
-  uint32_t challangeLength{600};
+  uint32_t challangeLength{300};
   
   Operator op;
   
