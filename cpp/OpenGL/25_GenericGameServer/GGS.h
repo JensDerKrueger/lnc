@@ -35,11 +35,11 @@ private:
 };
 
 
-class GGS : public Server {
+class GGS : public Server<SizedClientConnection> {
 public:
   bool showErrors{false};
   
-  GGS(short port);
+  GGS(uint16_t port);
   virtual ~GGS();
   
   virtual void handleClientConnection(uint32_t id) override;

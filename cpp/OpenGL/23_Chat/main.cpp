@@ -12,7 +12,7 @@ struct ClientInfo {
   std::string name;
 };
 
-class MyServer : public Server {
+class MyServer : public Server<SizedClientConnection> {
 public:
   
   MyServer(short port) : Server(port, "asdn932lwnmflj23") {}

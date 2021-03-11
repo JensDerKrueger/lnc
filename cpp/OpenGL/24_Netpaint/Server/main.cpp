@@ -18,7 +18,7 @@ static bool fexists(const std::string& filename) {
   return (bool)ifile;
 }
 
-class MyServer : public Server {
+class MyServer : public Server<SizedClientConnection> {
 public:
   bool showErrors{true};
   

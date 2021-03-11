@@ -34,7 +34,7 @@ char ClientInfo::cleanupChar(char c) {
   if (validChars.find(c) != std::string::npos) return c; else return '_';
 }
   
-GGS::GGS(short port) :
+GGS::GGS(uint16_t port) :
   Server(port)
 {
 }
