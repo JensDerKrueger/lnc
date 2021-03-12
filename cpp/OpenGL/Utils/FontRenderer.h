@@ -4,6 +4,7 @@
 #include <vector>
 #include <map>
 #include <utility>
+#include <memory>
 
 #include "bmp.h"
 #include "Vec2.h"
