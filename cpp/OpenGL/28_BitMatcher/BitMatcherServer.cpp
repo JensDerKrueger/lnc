@@ -128,9 +128,11 @@ void BitMatcher::saveHighscore() {
   }
   std::ofstream csvScoreFile ("scores.csv");
   if (csvScoreFile.is_open()) {
-    csvScoreFile << "Name" << ";" << "Score" << std::endl;
+    csvScoreFile << "Place;Name;Score" << std::endl;
+    size_t i = 0;
     for (const HighScoreEntry& e : highscore) {
-      csvScoreFile << e.name << ";" << e.score << std::endl;
+      if (e.score > 0)
+        csvScoreFile << ++i << ";" << e.name << ";" << e.score << std::endl;
     }
     csvScoreFile.close();
   }
