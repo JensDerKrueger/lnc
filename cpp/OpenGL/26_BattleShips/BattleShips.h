@@ -46,10 +46,9 @@ public:
   
   std::string getOtherName() const {return otherName;}
   uint32_t getOtherLevel() const {return otherLevel;}
-  
-  static FontRenderer fr;
 
 private:
+  static FontRenderer fr;
 
   std::shared_ptr<GameClient> client{nullptr};
 
