@@ -101,11 +101,11 @@ void BitMatcher::handleClientMessage(uint32_t id, const std::string& message) {
 void BitMatcher::loadHighscore() {
   std::string line;
   highscore.clear();
-  std::ifstream scoreFile("scores.txt");
+  std::ifstream scoreFile("scores.data");
   try {
     if (scoreFile.is_open()) {
       while (getline(scoreFile,line) && !line.empty() ) {
-        Tokenizer tokenizer{line+",", ','};
+        Tokenizer tokenizer{line+";", ';'};
         const std::string encName = tokenizer.nextString();
         const std::string name = base64_decode(encName);
         const uint32_t score = tokenizer.nextUint32();
@@ -119,19 +119,20 @@ void BitMatcher::loadHighscore() {
 }
 
 void BitMatcher::saveHighscore() {
-  std::ofstream scoreFile ("scores.csv");
+  std::ofstream scoreFile ("scores.data");
   if (scoreFile.is_open()) {
     for (const HighScoreEntry& e : highscore) {
       scoreFile << base64_encode(e.name) << ";" << e.score << ";" << e.opID << std::endl;
     }
     scoreFile.close();
   }
-  std::ofstream humanReadableScoreFile ("scores.txt");
-  if (humanReadableScoreFile.is_open()) {
+  std::ofstream csvScoreFile ("scores.csv");
+  if (csvScoreFile.is_open()) {
+    csvScoreFile << "Name" << ";" << "Score" << std::endl;
     for (const HighScoreEntry& e : highscore) {
-      scoreFile << e.name << "," << e.score << "," << e.opID << std::endl;
+      csvScoreFile << e.name << ";" << e.score << std::endl;
     }
-    humanReadableScoreFile.close();
+    csvScoreFile.close();
   }
 }
 
