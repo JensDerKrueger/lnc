@@ -199,7 +199,7 @@ void FontEngine::render(const std::string& text, float winAspect, float height, 
 
     simpleProg.setTexture("raster",chars[c].tex,0);
     GL(glDrawArrays(GL_TRIANGLES, 0, GLsizei(6)));
-    trans = trans * Mat4::translation(2.0*height*chars[c].width*winAspect,0.0f,0.0f);
+    trans = trans * Mat4::translation(2.0f*height*chars[c].width*winAspect,0.0f,0.0f);
   }
 }
 
