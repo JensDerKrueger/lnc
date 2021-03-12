@@ -18,9 +18,9 @@ std::string Operator::genOpText(uint32_t opID) {
   
   std::string operant;
   switch (opIDs.first) {
-    case 0: operant = "length mod 8"; break;
-    case 1: operant = "first ascii"; break;
-    case 2: operant = "first digit mod 8"; break;
+    case 0: operant = "textlength mod 8"; break;
+    case 1: operant = "(first ascii)mod 8"; break;
+    case 2: operant = "(text as number) mod 8"; break;
   }
   
   std::stringstream ss;

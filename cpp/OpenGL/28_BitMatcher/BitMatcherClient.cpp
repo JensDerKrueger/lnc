@@ -137,7 +137,7 @@ app(app)
   float r = Rand::rand01();
   float g = Rand::rand01();
   float b = 2.0f-(r*g);
-  color = Vec3(r,g,b);
+  color = Vec3(r,g,b)*0.8f;
 }
 
 void OverlayImage::animate(double animationTime) {
