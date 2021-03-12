@@ -161,6 +161,7 @@ void BitMatcher::startNewChallange() {
   challangeSolved = false;
   shuffleNumbers();
   assignNewOps();
+  saveHighscore();
 }
 
 void BitMatcher::assignNewOps() {
