@@ -23,10 +23,7 @@ BitMatcher::~BitMatcher() {
 }
 
 void BitMatcher::init() {
-  currentTitle = GLTexture2D{fr.render("Current")};
-  targetTitle = GLTexture2D{fr.render("Target")};
-  remainTitle = GLTexture2D{fr.render("Time Remaining")};
-  highscoreTitle = GLTexture2D{fr.render("Highscore")};
+  fe = fr.generateFontEngine();
 }
 
 std::string BitMatcher::intToBin(uint8_t number) const {
@@ -39,23 +36,13 @@ std::string BitMatcher::intToBin(uint8_t number) const {
   return ss.str();
 }
 
-void BitMatcher::drawNumber(const GLTexture2D& title, uint8_t number, const Vec2& offset) {
+void BitMatcher::drawNumber(const std::string& title, uint8_t number, const Vec2& offset) {
   setDrawTransform(Mat4::scaling(0.3f,0.5f,1.0f) * Mat4::translation(offset.x(), offset.y(), 0.0f));
   drawRect({0.0f,0.0f,0.2f,1.0f});
-  
-  setDrawTransform(computeImageTransformFixedHeight({title.getWidth(), title.getHeight()},
-                                                    0.1f, {offset.x(), offset.y() + 0.35f,0}));
-  drawImage(title);
-
-  Image numberImage = fr.render(number);
-  setDrawTransform(computeImageTransformFixedHeight({numberImage.width, numberImage.height},
-                                                    0.2f,{offset.x(),offset.y(),0}));
-  drawImage(numberImage);
-  
-  numberImage = fr.render(intToBin(number));
-  setDrawTransform(computeImageTransformFixedHeight({numberImage.width, numberImage.height},
-                                                    0.05f,{offset.x(),offset.y() - 0.4f,0}));
-  drawImage(numberImage);
+    
+  fe->render(title, getAspect(), 0.1f, {offset.x(), offset.y() + 0.35f}, Alignment::Center);
+  fe->render(number, getAspect(), 0.2f, offset, Alignment::Center);
+  fe->render(intToBin(number), getAspect(), 0.05f, {offset.x(),offset.y() - 0.4f}, Alignment::Center);
 }
 
 void BitMatcher::animate(double animationTime) {
@@ -74,29 +61,21 @@ void BitMatcher::drawCountdown(const Vec2& offset) {
   setDrawTransform(Mat4::scaling(0.3f,0.35f,1.0f) * Mat4::translation(offset.x(), offset.y()+0.05f, 0.0f));
   drawRect(color);
 
-  setDrawTransform(computeImageTransformFixedHeight({remainTitle.getWidth(), remainTitle.getHeight()},0.05f,{0,0,0}) * Mat4::translation({offset.x(),offset.y()+0.25f,0}));
-  drawImage(remainTitle);
-
-  Image numberImage = fr.render(client.countdown);
-  setDrawTransform(computeImageTransformFixedHeight({numberImage.width, numberImage.height},
-                                                    0.2f,{offset.x(),offset.y()-0.05f,0}));
-  drawImage(numberImage);
+  fe->render("Time Remaining", getAspect(), 0.05f, {offset.x(),offset.y()+0.3f}, Alignment::Center);
+  fe->render(client.countdown, getAspect(), 0.2f, {offset.x(),offset.y()-0.05f}, Alignment::Center);
 }
 
 void BitMatcher::drawHighscore(const Vec2& offset) {
-  setDrawTransform(Mat4::scaling(0.5f,0.35f,1.0f) * Mat4::translation(offset.x(), offset.y()+0.05f, 0.0f));
+  setDrawTransform(Mat4::scaling(0.4f,0.35f,1.0f) * Mat4::translation(offset.x(), offset.y()+0.05f, 0.0f));
   drawRect({0.0f,0.2f,0.0f,1.0f});
-
-  setDrawTransform(computeImageTransformFixedHeight({highscoreTitle.getWidth(), highscoreTitle.getHeight()},0.05f,{0,0,0}) * Mat4::translation({offset.x(),offset.y()+0.25f,0}));
-  drawImage(highscoreTitle);
+    
+  fe->render("Highscore", getAspect(), 0.05f, {offset.x(),offset.y()+0.3f}, Alignment::Center);
 
   for (size_t i=0;i<5;++i) {
     std::pair<std::string, uint32_t> e = (i >= client.highscore.size()) ? std::make_pair<std::string, uint32_t>("----",0) : client.highscore[i];
-    std::stringstream ss;
-    ss << e.first << " " << e.second;
-    Image lineImage = fr.render(ss.str());
-    setDrawTransform(computeImageTransformFixedHeight({lineImage.width, lineImage.height},0.04f,{0,0,0}) * Mat4::translation({offset.x(),offset.y()+(i-1.5f)*-0.08f,0}));
-    drawImage(lineImage);
+    fe->render(uint32_t(i+1), getAspect(), 0.04f, {offset.x()-0.33f,offset.y()+(i-1.5f)*-0.08f}, Alignment::Center);
+    fe->render(e.first, getAspect(), 0.04f, {offset.x(),offset.y()+(i-1.5f)*-0.08f}, Alignment::Center);
+    fe->render(e.second, getAspect(), 0.04f, {offset.x()+0.3f,offset.y()+(i-1.5f)*-0.08f}, Alignment::Center);
   }
 }
 
@@ -107,8 +86,8 @@ void BitMatcher::draw() {
   GL(glClearColor(0.0f,0.0f,0.0f,0.0f));
   GL(glClear(GL_COLOR_BUFFER_BIT));
   
-  drawNumber(currentTitle, client.current, {-0.45f, 0.4f});
-  drawNumber(targetTitle, client.target, {0.45f, 0.4f});
+  drawNumber("Current", client.current, {-0.45f, 0.4f});
+  drawNumber("Target", client.target, {0.45f, 0.4f});
   drawHighscore({-0.45f,-0.6f});
   drawCountdown({0.45f, -0.6f});
     
@@ -131,8 +110,8 @@ startTime{0.0},
 app(app)
 {
   std::stringstream ss;
-  ss << name << ": " << opText; //int(current) << " > " << int(next);
-  text = app->fr.render(ss.str());
+  ss << name << ": " << opText;
+  text = ss.str();
 
   float r = Rand::rand01();
   float g = Rand::rand01();
@@ -146,17 +125,11 @@ void OverlayImage::animate(double animationTime) {
 }
 
 void OverlayImage::draw() {
-  Image i = text;
-  i.multiply(Vec4(1,1,1,alpha));
-  
-  const uint32_t w = i.width;
-  const uint32_t h = i.height;
-    
-  Mat4 textTrans = app->computeImageTransformFixedHeight({w,h},0.05f,{position.x(),position.y(),0});
-  app->setDrawTransform(Mat4::scaling(1.1f,1.1f,1.0f) * textTrans);
+  const Vec2 size = app->fe->getSize(text, app->getAspect(), 0.05f);
+  app->setDrawTransform(Mat4::scaling(1.1f*size.x(), 1.1f*size.y(), 1.0f) * Mat4::translation(Vec3{position.x(),position.y(), 0.0f}));
   app->drawRect(Vec4(color, alpha));
-  app->setDrawTransform(textTrans);
-  app->drawImage(i);
+
+  app->fe->render(text, app->getAspect(), 0.05f,  position, Alignment::Center, Vec4(1.0f,1.0f,1.0f,alpha));
 }
 
 GameClient::GameClient(const std::string& address, short port, BitMatcher* app) :

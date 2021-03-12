@@ -23,7 +23,7 @@ private:
   Vec2 position;
   float alpha;
   double startTime;
-  Image text;
+  std::string text;
   BitMatcher* app;
 };
 
@@ -51,29 +51,22 @@ public:
   virtual void init() override;
   virtual void draw() override;
 
-  static FontRenderer fr;
 
   void addOverlay(const std::string& name, uint8_t current, uint8_t next, const std::string& opText);
   
+  std::shared_ptr<FontEngine> fe{nullptr};
+
 private:
+  static FontRenderer fr;
   std::mutex overlayMutex;
   
   std::deque<OverlayImage> overlays;
   
   GameClient client;
   
-  GLTexture2D currentTitle;
-  GLTexture2D targetTitle;
-  GLTexture2D remainTitle;
-  GLTexture2D highscoreTitle;
-  GLTexture2D currentNumber;
-  GLTexture2D targetNumber;
-  GLTexture2D currentNumberBin;
-  GLTexture2D targetNumberBin;
-
   std::string intToBin(uint8_t number) const;
 
-  void drawNumber(const GLTexture2D& title, uint8_t number, const Vec2& offset);
+  void drawNumber(const std::string& title, uint8_t number, const Vec2& offset);
   void drawHighscore(const Vec2& offset);
   void drawCountdown(const Vec2& offset);
 };
