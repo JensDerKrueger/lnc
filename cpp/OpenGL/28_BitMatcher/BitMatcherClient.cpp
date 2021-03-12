@@ -195,7 +195,7 @@ void GameClient::handleServerMessage(const std::string& message) {
         highscore.resize(t.nextUint32());
         for (size_t i = 0;i<highscore.size();++i) {
           highscore[i].first = t.nextString();
-          highscore[i].second = t.nextUint8();
+          highscore[i].second = t.nextUint32();
         }
       }
       break;

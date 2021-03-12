@@ -8,6 +8,7 @@
 BitMatcher::BitMatcher() :
   Server(11004)
 {
+  const std::scoped_lock<std::mutex> lock(gameStateMutex);
   loadHighscore();
   shuffleNumbers();
   frontendConnections.start();
@@ -15,6 +16,7 @@ BitMatcher::BitMatcher() :
 }
 
 BitMatcher::~BitMatcher() {
+  const std::scoped_lock<std::mutex> lock(gameStateMutex);
   saveHighscore();
 }
 
