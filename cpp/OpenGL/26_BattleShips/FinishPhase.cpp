@@ -16,10 +16,9 @@ void FinishPhase::prepare(const GameGrid& my, const GameGrid& other, const std::
   otherBoard = other;
   encOtherBoard = enc;
   
-  const std::string title = (status == 1) ? "You win" : "You loose";
-  titleTex = GLTexture2D(app->fr.render(title));
-  homeTitleTex = GLTexture2D(app->fr.render(homeTitles[size_t(Rand::rand01() * homeTitles.size())]));
-  guestTitleTex = GLTexture2D(app->fr.render(guestTitles[size_t(Rand::rand01() * guestTitles.size())]));
+  title = (status == 1) ? "You win" : "You loose";  
+  homeTitle = homeTitles[size_t(Rand::rand01() * homeTitles.size())];
+  guestTitle = guestTitles[size_t(Rand::rand01() * guestTitles.size())];
 }
 
 void FinishPhase::drawBoard(const GameGrid& board, Mat4 boardTrans) {
@@ -57,14 +56,8 @@ void FinishPhase::drawInternal() {
   BoardPhase::drawInternal();
   if (backgroundImage) app->drawRect(Vec4{0,0,0,0.7f});
   
-  const Mat4 transGuest = app->computeImageTransformFixedHeight({guestTitleTex.getWidth(), guestTitleTex.getHeight()}, 0.07f, Vec3{0.5f,0.7f,0.0f});
-  const Mat4 transHome = app->computeImageTransformFixedHeight({homeTitleTex.getWidth(), homeTitleTex.getHeight()}, 0.07f, Vec3{-0.5f,0.7f,0.0f});
-  
-  app->setDrawTransform(transGuest);
-  app->drawImage(guestTitleTex);
-
-  app->setDrawTransform(transHome);
-  app->drawImage(homeTitleTex);
+  app->fe->render(guestTitle, app->getAspect(), 0.1f, {0.5f,0.8f}, Alignment::Center);
+  app->fe->render(homeTitle, app->getAspect(), 0.1f, {-0.5f,0.8f}, Alignment::Center);
 
   Mat4 myBoardTrans = app->computeImageTransform(boardSize) * Mat4::scaling(0.6f) * Mat4::translation(-0.5f,0.0f,0.0f);
   app->setDrawTransform(myBoardTrans);
@@ -76,10 +69,10 @@ void FinishPhase::drawInternal() {
   app->drawLines(gridLines, LineDrawType::LIST, 3);
   drawBoard(otherBoard, otherBoardTrans);
   
-  app->setDrawTransform(app->computeImageTransform({titleTex.getWidth(), titleTex.getHeight()}) * Mat4::scaling(0.9f));
+  const Vec2 size = app->fe->getSizeFixedWidth(title, app->getAspect(), 0.8f);
+  app->setDrawTransform(Mat4::scaling(1.1f*size.x(), 1.1f*size.y(), 1.0f));
   app->drawRect(Vec4(0,0,0,0.7f));
-  app->setDrawTransform(app->computeImageTransform({titleTex.getWidth(), titleTex.getHeight()}) * Mat4::scaling(0.8f));
-  app->drawImage(titleTex);
+  app->fe->renderFixedWidth(title, app->getAspect(), 0.8f, {}, Alignment::Center);
 }
 
 void FinishPhase::animateInternal(double animationTime) {
@@ -94,7 +87,7 @@ void FinishPhase::animateInternal(double animationTime) {
       otherBoard.setEnemyShips(sp);
     } else {
       verification = Verification::Invalid;
-      titleTex = GLTexture2D(app->fr.render("You win (the other cheated)"));
+      title = "You win (your oponent cheated)";
     }
   }
 }

@@ -9,11 +9,6 @@ userInput{},
 title{title}
 {}
 
-void InputPhase::init() {
-  GamePhase::init();
-  titleTex = GLTexture2D(app->fr.render(title));
-}
-
 void InputPhase::keyboardInternal(int key, int scancode, int action, int mods) {
   GamePhase::keyboardInternal(key, scancode, action, mods);
   
@@ -48,15 +43,35 @@ void InputPhase::keyboardCharInternal(unsigned int codepoint) {
 void InputPhase::drawInternal() {
   GamePhase::drawInternal();
   if (!title.empty()) {
-    const Mat4 titleTrans = app->computeImageTransformFixedHeight({titleTex.getWidth(), titleTex.getHeight()}, 0.1f, Vec3{0.f,0.8f,0.0f});
-    app->setDrawTransform(titleTrans);
-    app->drawImage(titleTex);
-  }  
-  Image textImage = app->fr.render((userInput.size() > 0) ? userInput : prompt);
+    if (backgroundImage) {
+      const Vec2 size = app->fe->getSizeFixedWidth(title, app->getAspect(), 0.6f);
+      app->setDrawTransform(Mat4::scaling(1.1f*size.x(), 1.1f*size.y(), 1.0f) * Mat4::translation(Vec3{0.0f, 0.8f, 0.0f}));
+      app->drawRect(Vec4(0,0,0,0.7f));
+    }
+    app->fe->renderFixedWidth(title, app->getAspect(), 0.6f, {0.0f, 0.8f}, Alignment::Center);
+  }
+
+  Vec2 promptSize = app->fe->getSizeFixedWidth(prompt, app->getAspect(), 0.4f);
   if (backgroundImage) {
-    app->setDrawTransform(Mat4::scaling(1.1f) * app->computeImageTransform({textImage.width, textImage.height}) );
+    app->setDrawTransform(Mat4::scaling(promptSize.x()+0.01f, 1.1f*promptSize.y(), 1.0f) * Mat4::translation(Vec3{0.0f, 0.2f, 0.0f}));
     app->drawRect(Vec4(0,0,0,0.7f));
   }
-  app->setDrawTransform(Mat4::scaling(0.5f) * app->computeImageTransform({textImage.width, textImage.height}) );
-  app->drawImage(textImage);
+  app->fe->renderFixedWidth(prompt, app->getAspect(), 0.4f, {0.0f, 0.2f}, Alignment::Center);
+
+  
+  if (!userInput.empty()) {
+    Vec2 size = app->fe->getSize(userInput, app->getAspect(), promptSize.y());
+    if (size.x() > 0.95) {
+      promptSize = promptSize / (size.x() + 0.05f);
+      size = size / (size.x() + 0.05f);
+    }
+
+    if (backgroundImage) {
+      app->setDrawTransform(Mat4::scaling(size.x()+0.01f, 1.1f*size.y(), 1.0f) * Mat4::translation(Vec3{0.0f, -0.2f, 0.0f}));
+      app->drawRect(Vec4(0,0,0,0.7f));
+    }
+    app->fe->render(userInput, app->getAspect(), promptSize.y(), {0.0f, -0.2f}, Alignment::Center);
+  }
+
+
 }

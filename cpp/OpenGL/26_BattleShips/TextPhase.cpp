@@ -15,7 +15,6 @@ void TextPhase::init() {
 
 void TextPhase::setTitle(const std::string& text) {
   title = text;
-  titleTex = GLTexture2D(app->fr.render(title));
 }
 
 void TextPhase::setSubtitle(const std::string& text) {
@@ -30,18 +29,19 @@ void TextPhase::animateInternal(double animationTime) {
 void TextPhase::drawInternal() {
   GamePhase::drawInternal();
   
-  Vec3 shift;
+  Vec2 shift;
   if (!title.empty()) {
-    Mat4 titleTrans = app->computeImageTransformFixedWidth({titleTex.getWidth(), titleTex.getHeight()}, 0.8f, Vec3{0.0f, 0.2f, 0.0f});
     if (backgroundImage) {
-      app->setDrawTransform(Mat4::scaling(1.1f, 1.1f, 1.0f) * titleTrans);
+      const Vec2 size = app->fe->getSizeFixedWidth(title, app->getAspect(), 0.8f);
+      app->setDrawTransform(Mat4::scaling(1.1f*size.x(), 1.1f*size.y(), 1.0f) * Mat4::translation(Vec3{0.0f, 0.2f, 0.0f}));
       app->drawRect(Vec4(0,0,0,0.7f));
     }
-    app->setDrawTransform(titleTrans);
-    app->drawImage(titleTex);
-    shift = Vec3{0.0f, -0.2f, 0.0f};
+    app->fe->renderFixedWidth(title, app->getAspect(), 0.8f,  Vec2{0.0f, 0.2f}, Alignment::Center);
+    shift = Vec2{0.0f, -0.2f};
   }
   
+  const Vec2 basicSize = app->fe->getSizeFixedWidth(subtitle, app->getAspect(), 0.5f);
+
   std::string renderText{subtitle};
   if (animationStep > 0) {
     renderText += " ";
@@ -50,14 +50,11 @@ void TextPhase::drawInternal() {
     }
   }
 
-  Image subtitleImage = app->fr.render(renderText);
-  Mat4 subtitleTrans = app->computeImageTransformFixedHeight({subtitleImage.width, subtitleImage.height}, 0.1f, shift);
-  
   if (backgroundImage) {
-    app->setDrawTransform(Mat4::scaling(1.1f, 1.1f, 1.0f) * subtitleTrans);
+    const Vec2 size = app->fe->getSize(renderText, app->getAspect(), basicSize.y());
+    app->setDrawTransform(Mat4::scaling(1.1f*size.x(), 1.1f*size.y(), 1.0f) * Mat4::translation(Vec3{shift.x(), shift.y(), 0.0f}));
     app->drawRect(Vec4(0,0,0,0.7f));
   }
   
-  app->setDrawTransform(subtitleTrans);
-  app->drawImage(subtitleImage);
+  app->fe->render(renderText, app->getAspect(), basicSize.y(), shift, Alignment::Center);
 }

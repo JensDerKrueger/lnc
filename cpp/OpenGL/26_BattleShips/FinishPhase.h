@@ -23,9 +23,9 @@ private:
   GameGrid myBoard{boardSize};
   GameGrid otherBoard{boardSize};
   
-  GLTexture2D titleTex;
-  GLTexture2D guestTitleTex;
-  GLTexture2D homeTitleTex;
+  std::string title;
+  std::string homeTitle;
+  std::string guestTitle;
   
   std::string encOtherBoard;
   

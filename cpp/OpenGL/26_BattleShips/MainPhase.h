@@ -20,15 +20,12 @@ private:
   Mat4 otherBoardTrans;
   Vec2ui otherCellPos{std::numeric_limits<uint32_t>::max(), std::numeric_limits<uint32_t>::max()};
   
+  std::string homeTitle;
+  std::string guestTitle;
+  
   GameGrid myBoard{boardSize};
   GameGrid otherBoard{boardSize};
   
-  GLTexture2D titleTex;
-  GLTexture2D guestTitleTex;
-  GLTexture2D homeTitleTex;
-  GLTexture2D myRemainingShipsTex;
-  GLTexture2D otherRemainingShipsTex;
-
   bool waitingForOther{false};
   bool sunkShipWithLastShot{false};
   size_t waitingMessageIndex{0};
@@ -52,7 +49,7 @@ private:
   virtual void drawInternal() override;
   void drawTitles();
   void drawBoards();
-  void drawRemainingShips(const Vec3& translation, const GLTexture2D& title, const std::vector<bool>& ships);
+  void drawRemainingShips(const Vec3& translation, const std::string text, const std::vector<bool>& ships);
   void drawPleaseWaitOverlay();
   
   void updateRemainingShips(uint32_t lastLength, std::vector<bool>& remainingShips);

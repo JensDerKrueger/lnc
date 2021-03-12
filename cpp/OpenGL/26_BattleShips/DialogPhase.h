@@ -10,12 +10,10 @@ class DialogPhase : public GamePhase {
 public:
   DialogPhase(BattleShips* app, GamePhaseID gamePhaseID, const std::string& prompt);
   virtual ~DialogPhase() {}
-  virtual void init() override;
   int getAnswer() const {return answer;}
   
 private:
   std::string prompt;
-  GLTexture2D texture;
   int answer;
     
   virtual void drawInternal() override;

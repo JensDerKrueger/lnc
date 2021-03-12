@@ -38,8 +38,8 @@ public:
   virtual void animate(double animationTime) override ;
   virtual void draw() override;
 
-  static FontRenderer fr;
-
+  std::shared_ptr<FontEngine> fe{nullptr};
+  
   Dimensions getWindowSize() const {return glEnv.getWindowSize();}
     
   std::shared_ptr<GameClient> getClient() {return client;}
@@ -47,7 +47,10 @@ public:
   std::string getOtherName() const {return otherName;}
   uint32_t getOtherLevel() const {return otherLevel;}
   
+  static FontRenderer fr;
+
 private:
+
   std::shared_ptr<GameClient> client{nullptr};
 
   bool addressComplete{false};

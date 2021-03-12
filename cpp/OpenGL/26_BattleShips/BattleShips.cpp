@@ -12,7 +12,7 @@
 #endif
 
 BattleShips::BattleShips() :
-  GLApp(1100, 600, 4, gameTitle, false),
+  GLApp(1100, 600, 4, gameTitle, true),
   adressPhase{this, GamePhaseID::AdressSetup, "Enter server address:", gameTitle},
   namePhase{this, GamePhaseID::NameSetup, "Enter callsign:", gameTitle},
   connectingPhase{this, GamePhaseID::Connecting, gameTitle},
@@ -43,6 +43,8 @@ void BattleShips::tryToLoadSettings() {
 }
 
 void BattleShips::init() {
+  fe = fr.generateFontEngine();
+  
   tryToLoadSettings();
 
   adressPhase.init();

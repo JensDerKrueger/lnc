@@ -10,16 +10,9 @@ answer(GLFW_KEY_UNKNOWN)
   setBackground(Image{Vec4{0,0,0,0.8f}}, false);
 }
 
-void DialogPhase::init() {
-  GamePhase::init();
-  Image textImage = app->fr.render(prompt);
-  texture = GLTexture2D(textImage);
-}
-
 void DialogPhase::drawInternal() {
   GamePhase::drawInternal();
-  app->setDrawTransform(Mat4::scaling(0.9f) * app->computeImageTransform({texture.getWidth(), texture.getHeight()}) );
-  app->drawImage(texture);
+  app->fe->renderFixedWidth(prompt, app->getAspect(), 0.9f, Vec2{}, Alignment::Center);
 }
 
 void DialogPhase::keyboardInternal(int key, int scancode, int action, int mods) {

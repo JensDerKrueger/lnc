@@ -17,7 +17,6 @@ public:
 
 private:
   std::string title;
-  GLTexture2D titleTex;
   std::string subtitle;
   size_t animationStep;
 

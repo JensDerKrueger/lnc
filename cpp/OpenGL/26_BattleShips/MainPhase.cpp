@@ -16,11 +16,8 @@ void MainPhase::prepare(const ShipPlacement& myShipPlacement) {
   otherBoard = GameGrid{boardSize};
   otherBoard.clearUnknown();
   
-  titleTex = GLTexture2D(app->fr.render(gameTitle));
-  myRemainingShipsTex = GLTexture2D(app->fr.render("My Armada"));
-  otherRemainingShipsTex = GLTexture2D(app->fr.render("Other Armada"));
-  homeTitleTex = GLTexture2D(app->fr.render(homeTitles[size_t(Rand::rand01() * homeTitles.size())]));
-  guestTitleTex = GLTexture2D(app->fr.render(guestTitles[size_t(Rand::rand01() * guestTitles.size())]));
+  homeTitle = homeTitles[size_t(Rand::rand01() * homeTitles.size())];
+  guestTitle = guestTitles[size_t(Rand::rand01() * guestTitles.size())];
   
   waitingForOther = false;
   waitingMessageIndex = 0;
@@ -111,42 +108,33 @@ void MainPhase::drawBoard(const GameGrid& board, Mat4 boardTrans, Vec2ui aimCoor
 
 
 void MainPhase::drawTitles() {
-  const Mat4 titleTrans = app->computeImageTransformFixedHeight({titleTex.getWidth(), titleTex.getHeight()}, 0.1f, Vec3{0.f,0.88f,0.0f});
-  app->setDrawTransform(titleTrans);
-  app->drawImage(titleTex);
-  
-  const Image subTitle = app->fr.render((sunkShipWithLastShot ? "You sunk one of the ships from " : "You are battling ") + app->getOtherName());
-  const Mat4 subTitleTrans = app->computeImageTransformFixedHeight({subTitle.width, subTitle.height}, 0.05f, Vec3{0.0f,-0.85f,0.0f});
-  app->setDrawTransform(subTitleTrans);
-  app->drawImage(subTitle);
+  app->fe->render(gameTitle, app->getAspect(), 0.1f, {0.0f,0.88f}, Alignment::Center);
+  const std::string subTitle = (sunkShipWithLastShot ? "You sunk one of the ships from " : "You are battling ")+ app->getOtherName();
+  app->fe->render(subTitle, app->getAspect(), 0.05f, {0.0f,-0.85f}, Alignment::Center);
 }
 
 void MainPhase::drawBoards() {
-  const Mat4 transHome = app->computeImageTransformFixedHeight({homeTitleTex.getWidth(), homeTitleTex.getHeight()}, 0.07f, Vec3{-0.5f,0.7f,0.0f});
-  app->setDrawTransform(transHome);
-  app->drawImage(homeTitleTex);
+  app->fe->render(guestTitle, app->getAspect(), 0.07f, {0.5f,0.7f}, Alignment::Center);
+  app->fe->render(homeTitle, app->getAspect(), 0.07f, {-0.5f,0.7f}, Alignment::Center);
+
   const Mat4 myBoardTrans = app->computeImageTransform(boardSize) * Mat4::scaling(0.6f) * Mat4::translation(-0.5f,0.0f,0.0f);
   app->setDrawTransform(myBoardTrans);
   app->drawLines(gridLines, LineDrawType::LIST, 3);
   drawBoard(myBoard, myBoardTrans, app->getClient()->getAim());
   
-  const Mat4 transGuest = app->computeImageTransformFixedHeight({guestTitleTex.getWidth(), guestTitleTex.getHeight()}, 0.07f, Vec3{0.5f,0.7f,0.0f});
-  app->setDrawTransform(transGuest);
-  app->drawImage(guestTitleTex);
   otherBoardTrans = app->computeImageTransform(boardSize) * Mat4::scaling(0.6f) * Mat4::translation(0.5f,0.0f,0.0f);
   app->setDrawTransform(otherBoardTrans);
   app->drawLines(gridLines, LineDrawType::LIST, 3);
   drawBoard(otherBoard, otherBoardTrans, otherCellPos);
 }
 
-void MainPhase::drawRemainingShips(const Vec3& baseTranslation, const GLTexture2D& title, const std::vector<bool>& ships) {
+void MainPhase::drawRemainingShips(const Vec3& baseTranslation, const std::string text, const std::vector<bool>& ships) {
   const Vec2 spacing{0.85f/boardSize.x(), 1.2f/boardSize.y()};
   
   const float maxBlockX = float(ShipPlacement::getLongestShipLength());
   const float maxBlockY = float(ShipPlacement::completePlacement.size());
-    
-  app->setDrawTransform(app->computeImageTransformFixedHeight({title.getWidth(), title.getHeight()}, 0.025f, baseTranslation));
-  app->drawImage(title);
+
+  app->fe->render(text, app->getAspect(), 0.025f, {baseTranslation.x(), baseTranslation.y()}, Alignment::Center);
   
   Mat4  trans = Mat4::translation(baseTranslation + Vec3{-(spacing.x()*maxBlockX)/2.0f,-0.07f,0.0f});
   const Mat4 blockScale = Mat4::scaling(2.0f/(maxBlockY*boardSize.x()),2.0f/(maxBlockY*boardSize.y()),1.0f);
@@ -179,8 +167,8 @@ void MainPhase::drawInternal() {
   
   drawTitles();
   drawBoards();
-  drawRemainingShips(Vec3{0.0f,0.55f,0.0f}, otherRemainingShipsTex, otherRemainingShips);
-  drawRemainingShips(Vec3{0.0f,-0.10f,0.0f}, myRemainingShipsTex, myRemainingShips);
+  drawRemainingShips(Vec3{0.0f,0.55f,0.0f}, "Other Armada", otherRemainingShips);
+  drawRemainingShips(Vec3{0.0f,-0.10f,0.0f}, "My Armada", myRemainingShips);
   drawPleaseWaitOverlay();
 }
 
