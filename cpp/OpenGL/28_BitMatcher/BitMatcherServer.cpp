@@ -82,12 +82,13 @@ void BitMatcher::handleClientMessage(uint32_t id, const std::string& message) {
     if (command == "GET") {
       std::map<std::string,std::string> p = parseParameters(parameter);
       
-      const std::string name = base64url_decode(p["name"]);
-      const std::string text = base64url_decode(p["text"]);
+      const std::string channel = base64url_decode(p["chan"]);
+      const std::string name    = base64url_decode(p["name"]);
+      const std::string text    = base64url_decode(p["text"]);
 
       if (!name.empty()) {
-        sendMessage("Player " + name + " wrote " + text , id);
-        processInput(name, text);
+        sendMessage("Player " + name + " wrote " + text + " in stream " + channel , id);
+        if (channel == "bitmatcher") processInput(name, text);
       } else {
         sendMessage("Name Missing from message");
       }
