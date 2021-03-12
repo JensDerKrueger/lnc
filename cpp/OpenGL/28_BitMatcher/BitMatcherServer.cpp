@@ -119,12 +119,19 @@ void BitMatcher::loadHighscore() {
 }
 
 void BitMatcher::saveHighscore() {
-  std::ofstream scoreFile ("scores.txt");
+  std::ofstream scoreFile ("scores.csv");
   if (scoreFile.is_open()) {
     for (const HighScoreEntry& e : highscore) {
       scoreFile << base64_encode(e.name) << "," << e.score << "," << e.opID << std::endl;
     }
     scoreFile.close();
+  }
+  std::ofstream humanReadableScoreFile ("scores.txt");
+  if (humanReadableScoreFile.is_open()) {
+    for (const HighScoreEntry& e : highscore) {
+      scoreFile << e.name << "," << e.score << "," << e.opID << std::endl;
+    }
+    humanReadableScoreFile.close();
   }
 }
 
