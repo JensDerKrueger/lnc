@@ -20,7 +20,7 @@ struct HighScoreEntry {
   uint32_t opID;
   
   bool operator<(const HighScoreEntry& other) const {
-    return score > other.score || (score == other.score && name > other.name) ;
+    return score > other.score || (score == other.score && name < other.name) ;
   }
 };
 
