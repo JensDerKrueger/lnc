@@ -144,10 +144,11 @@ FontEngine::FontEngine() :
    "}\n",
    "#version 410\n"
    "uniform sampler2D raster;\n"
+   "uniform vec4 globalColor;\n"
    "in vec2 texCoords;\n"
    "out vec4 FragColor;\n"
    "void main() {\n"
-   "    FragColor = texture(raster, texCoords);\n"
+   "    FragColor = globalColor*texture(raster, texCoords);\n"
    "}\n")},
   simpleArray{},
   simpleVb{GL_ARRAY_BUFFER}
@@ -164,9 +165,11 @@ FontEngine::FontEngine() :
   simpleVb.setData(data,5,GL_STATIC_DRAW);
 }
 
+#include <iostream>
 
-void FontEngine::render(const std::string& text, float winAspect, float height, const Vec2& pos, Alignment a) {
+void FontEngine::render(const std::string& text, float winAspect, float height, const Vec2& pos, Alignment a, const Vec4& color) {
   simpleProg.enable();
+  simpleProg.setUniform("globalColor", color);
   simpleArray.bind();
   simpleArray.connectVertexAttrib(simpleVb, simpleProg, "vPos", 3);
   simpleArray.connectVertexAttrib(simpleVb, simpleProg, "vTexCoords", 2, 3);
@@ -212,6 +215,24 @@ Vec2 FontEngine::getSize(const std::string& text, float winAspect, float height)
   return {height*totalWidth*winAspect, height};
 }
 
+void FontEngine::render(uint32_t number, float winAspect, float height, const Vec2& pos,
+                        Alignment a, const Vec4& color) {
+  render(std::to_string(number), winAspect, height, pos, a, color);
+}
+
+void FontEngine::renderFixedWidth(uint32_t number, float winAspect, float width, const Vec2& pos,
+                                  Alignment a, const Vec4& color) {
+  renderFixedWidth(std::to_string(number), winAspect, width, pos, a, color);
+}
+
+Vec2 FontEngine::getSize(uint32_t number, float winAspect, float height) const {
+  return getSize(std::to_string(number), winAspect, height);
+}
+
+Vec2 FontEngine::getSizeFixedWidth(uint32_t number, float winAspect, float width) const {
+  return getSizeFixedWidth(std::to_string(number), winAspect, width);
+}
+
 Vec2 FontEngine::getSizeFixedWidth(const std::string& text, float winAspect, float width) const {
   float totalWidth = 0;
   for (char c : text) {
@@ -222,8 +243,9 @@ Vec2 FontEngine::getSizeFixedWidth(const std::string& text, float winAspect, flo
 }
 
 
-void FontEngine::renderFixedWidth(const std::string& text, float winAspect, float width, const Vec2& pos, Alignment a) {
+void FontEngine::renderFixedWidth(const std::string& text, float winAspect, float width, const Vec2& pos, Alignment a, const Vec4& color) {
   simpleProg.enable();
+  simpleProg.setUniform("globalColor", color);
   simpleArray.bind();
   simpleArray.connectVertexAttrib(simpleVb, simpleProg, "vPos", 3);
   simpleArray.connectVertexAttrib(simpleVb, simpleProg, "vTexCoords", 2, 3);

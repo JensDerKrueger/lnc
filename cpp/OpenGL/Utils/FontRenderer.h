@@ -35,11 +35,21 @@ class FontEngine {
 public:
   FontEngine();
   virtual ~FontEngine() {}
-  void render(const std::string& text, float winAspect, float height, const Vec2& pos, Alignment a = Alignment::Center);
-  void renderFixedWidth(const std::string& text, float winAspect, float width, const Vec2& pos, Alignment a = Alignment::Center);
+  void render(const std::string& text, float winAspect, float height,
+              const Vec2& pos, Alignment a = Alignment::Center, const Vec4& color=Vec4{1.0f,1.0f,1.0f,1.0f});
+  void renderFixedWidth(const std::string& text, float winAspect, float width,
+                        const Vec2& pos, Alignment a = Alignment::Center, const Vec4& color=Vec4{1.0f,1.0f,1.0f,1.0f});
+
+  void render(uint32_t number, float winAspect, float height,
+              const Vec2& pos, Alignment a = Alignment::Center, const Vec4& color=Vec4{1.0f,1.0f,1.0f,1.0f});
+  void renderFixedWidth(uint32_t number, float winAspect, float width,
+                        const Vec2& pos, Alignment a = Alignment::Center, const Vec4& color=Vec4{1.0f,1.0f,1.0f,1.0f});
 
   Vec2 getSize(const std::string& text, float winAspect, float height) const;
   Vec2 getSizeFixedWidth(const std::string& text, float winAspect, float width) const;
+
+  Vec2 getSize(uint32_t number, float winAspect, float height) const;
+  Vec2 getSizeFixedWidth(uint32_t number, float winAspect, float width) const;
 
   std::string getAllCharsString() const;
 
