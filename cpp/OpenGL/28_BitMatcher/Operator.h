@@ -11,6 +11,9 @@ public:
   uint8_t execute(uint8_t sourceValue, uint32_t opID, const std::string& parameter) const;
   
   std::string genOpText(uint32_t opID);
+  
+  bool differInBothOps(uint32_t opID0, uint32_t opID1) const;
+  
 private:
   uint32_t convCount;
   uint32_t operationCount;

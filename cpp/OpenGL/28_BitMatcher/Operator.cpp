@@ -113,3 +113,9 @@ uint8_t Operator::applyOperation(uint8_t sourceValue, uint32_t opID, uint32_t pa
     default : return 0;
   }
 }
+
+bool Operator::differInBothOps(uint32_t opID0, uint32_t opID1) const {
+  std::pair<uint32_t, uint32_t> opIDs0 = splitID(opID0);
+  std::pair<uint32_t, uint32_t> opIDs1 = splitID(opID1);
+  return opIDs0.first != opIDs1.first && opIDs0.second != opIDs1.second;
+}

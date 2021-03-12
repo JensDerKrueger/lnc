@@ -165,7 +165,12 @@ void BitMatcher::startNewChallange() {
 
 void BitMatcher::assignNewOps() {
   for (size_t i = 0;i<highscore.size();++i) {
-    highscore[i].opID = Rand::rand<uint32_t>(0,op.getOperatorCount());
+    uint32_t oldID = highscore[i].opID;
+    uint32_t newID = Rand::rand<uint32_t>(0,op.getOperatorCount());
+    while (!op.differInBothOps(oldID, newID)) {
+      newID = Rand::rand<uint32_t>(0,op.getOperatorCount());
+    }
+    highscore[i].opID = newID;
   }
 }
 
