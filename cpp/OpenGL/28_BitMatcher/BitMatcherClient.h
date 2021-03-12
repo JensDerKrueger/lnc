@@ -51,7 +51,6 @@ public:
   virtual void init() override;
   virtual void draw() override;
 
-
   void addOverlay(const std::string& name, uint8_t current, uint8_t next, const std::string& opText);
   
   std::shared_ptr<FontEngine> fe{nullptr};
