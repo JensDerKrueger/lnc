@@ -27,7 +27,7 @@ std::string Operator::genOpText(uint32_t opID) {
   std::string result;
   switch (opIDs.second) {
     case 0:
-      result = "not";
+      result = "NOT current";
       break;
     case 1:
       ss << "rotl( " << operant << " )";
@@ -42,15 +42,15 @@ std::string Operator::genOpText(uint32_t opID) {
       result = ss.str();
       break;
     case 4:
-      ss << "xor( current " << operant << " )";
+      ss << "curent XOR (" << operant << ")";
       result = ss.str();
       break;
     case 5:
-      ss << "and( current " << operant << " )";
+      ss << "curent AND (" << operant << ")";
       result = ss.str();
       break;
     case 6:
-      ss << "or( current " << operant << " )";
+      ss << "curent OR (" << operant << ")";
       result = ss.str();
       break;
   }
