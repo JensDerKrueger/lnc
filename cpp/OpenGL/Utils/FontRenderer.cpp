@@ -4,7 +4,7 @@
 
 #include "FontRenderer.h"
 
-const CharPosition& FontRenderer::findElement(char c) {
+const CharPosition& FontRenderer::findElement(char c) const {
   for (size_t i = 0;i<positions.size();++i) {
     if (positions[i].c == c) return positions[i];
   }
@@ -59,11 +59,11 @@ positions(positions)
   if (fontImage.componentCount == 3) this->fontImage.generateAlphaFromLuminance();
 }
 
-Image FontRenderer::render(uint32_t number) {
+Image FontRenderer::render(uint32_t number) const {
   return render(std::to_string(number));
 }
 
-Image FontRenderer::render(const std::string& text) {
+Image FontRenderer::render(const std::string& text) const {
   
   Vec2ui dims{0,0};
   for (char element : text) {
@@ -86,7 +86,7 @@ Image FontRenderer::render(const std::string& text) {
   return result;
 }
 
-std::string FontRenderer::toCode(const std::string& varName) {
+std::string FontRenderer::toCode(const std::string& varName) const {
   std::stringstream ss;
   ss << fontImage.toCode(varName+"Image") << "\nstd::vector<CharPosition> " << varName << "Pos{";
   
@@ -100,5 +100,170 @@ std::string FontRenderer::toCode(const std::string& varName) {
   }
   ss << "};\n";
   
+  return ss.str();
+}
+
+std::shared_ptr<FontEngine> FontRenderer::generateFontEngine() const {
+  std::shared_ptr<FontEngine> fe = std::make_shared<FontEngine>();
+  
+  uint32_t maxWidth  = 0;
+  uint32_t maxHeight = 0;
+  
+  for (const CharPosition& c : positions) {
+    const uint32_t width  = c.bottomRight.x()-c.topLeft.x();
+    const uint32_t height = c.bottomRight.y()-c.topLeft.y();
+    maxWidth = std::max(maxWidth, width);
+    maxHeight = std::max(maxHeight, height);
+  }
+  
+  for (const CharPosition& c : positions) {
+    const Image i = render(std::string(1,c.c));
+    const float w=i.width/float(maxWidth);
+    const float h=i.height/float(maxHeight);
+    
+    const Mat4 s = Mat4::scaling(w,h,1.0f);
+    const Mat4 t = Mat4::translation(w,h,0.0f);
+    fe->chars[c.c] = CharTex{GLTexture2D(i),s,t,w,h};
+    fe->chars[c.c].tex.setFilter(GL_LINEAR, GL_LINEAR);
+  }
+  return fe;
+}
+
+
+FontEngine::FontEngine() :
+  simpleProg{GLProgram::createFromString(
+   "#version 410\n"
+   "uniform mat4 MVP;\n"
+   "layout (location = 0) in vec3 vPos;\n"
+   "layout (location = 1) in vec2 vTexCoords;\n"
+   "out vec4 color;\n"
+   "out vec2 texCoords;\n"
+   "void main() {\n"
+   "    gl_Position = MVP * vec4(vPos, 1.0);\n"
+   "    texCoords = vTexCoords;\n"
+   "}\n",
+   "#version 410\n"
+   "uniform sampler2D raster;\n"
+   "in vec2 texCoords;\n"
+   "out vec4 FragColor;\n"
+   "void main() {\n"
+   "    FragColor = texture(raster, texCoords);\n"
+   "}\n")},
+  simpleArray{},
+  simpleVb{GL_ARRAY_BUFFER}
+{
+  simpleArray.bind();
+  std::vector<float> data = {
+     1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+     1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+    -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+    -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+    -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+     1.0f, -1.0f, 0.0f, 1.0f, 0.0f
+  };
+  simpleVb.setData(data,5,GL_STATIC_DRAW);
+}
+
+
+void FontEngine::render(const std::string& text, float winAspect, float height, const Vec2& pos, Alignment a) {
+  simpleProg.enable();
+  simpleArray.bind();
+  simpleArray.connectVertexAttrib(simpleVb, simpleProg, "vPos", 3);
+  simpleArray.connectVertexAttrib(simpleVb, simpleProg, "vTexCoords", 2, 3);
+  
+  float totalWidth = 0;
+  for (char c : text) {
+    if (chars.find(c) == chars.end()) c = '_';
+    totalWidth += chars.at(c).width;
+  }
+  
+  Mat4 scale = Mat4::scaling(height*winAspect, height, 1.0f);
+  Mat4 trans;
+  switch (a) {
+    case Alignment::Center :
+      trans = Mat4::translation(pos.x()-height*totalWidth*winAspect, pos.y(), 0.0f);
+      break;
+    case Alignment::Right :
+      trans = Mat4::translation(pos.x()-2.0f*height*totalWidth*winAspect, pos.y(), 0.0f);
+      break;
+    default :
+      trans = Mat4::translation(pos.x(), pos.y(), 0.0f);
+      break;
+  }
+  
+  for (char c : text) {
+    if (chars.find(c) == chars.end()) c = '_';
+    simpleProg.setUniform("MVP", scale * chars[c].scale * Mat4::translation(height*chars[c].width*winAspect,
+                                                                            height*(chars[c].height-1.0f),
+                                                                            0.0f) * trans);
+
+    simpleProg.setTexture("raster",chars[c].tex,0);
+    GL(glDrawArrays(GL_TRIANGLES, 0, GLsizei(6)));
+    trans = trans * Mat4::translation(2.0*height*chars[c].width*winAspect,0.0f,0.0f);
+  }
+}
+
+Vec2 FontEngine::getSize(const std::string& text, float winAspect, float height) const {
+  float totalWidth = 0;
+  for (char c : text) {
+    if (chars.find(c) == chars.end()) c = '_';
+    totalWidth += chars.at(c).width;
+  }
+  return {height*totalWidth*winAspect, height};
+}
+
+Vec2 FontEngine::getSizeFixedWidth(const std::string& text, float winAspect, float width) const {
+  float totalWidth = 0;
+  for (char c : text) {
+    if (chars.find(c) == chars.end()) c = '_';
+    totalWidth += chars.at(c).width;
+  }
+  return {width, width/totalWidth/winAspect};
+}
+
+
+void FontEngine::renderFixedWidth(const std::string& text, float winAspect, float width, const Vec2& pos, Alignment a) {
+  simpleProg.enable();
+  simpleArray.bind();
+  simpleArray.connectVertexAttrib(simpleVb, simpleProg, "vPos", 3);
+  simpleArray.connectVertexAttrib(simpleVb, simpleProg, "vTexCoords", 2, 3);
+  
+  float totalWidth = 0;
+  for (char c : text) {
+    if (chars.find(c) == chars.end()) c = '_';
+    totalWidth += chars.at(c).width;
+  }
+  
+  Mat4 scale = Mat4::scaling(width/totalWidth, width/totalWidth/winAspect, 1.0f);
+  Mat4 trans;
+  switch (a) {
+    case Alignment::Center :
+      trans = Mat4::translation(pos.x()-width, pos.y(), 0.0f);
+      break;
+    case Alignment::Right :
+      trans = Mat4::translation(pos.x()-2.0f*width, pos.y(), 0.0f);
+      break;
+    default :
+      trans = Mat4::translation(pos.x(), pos.y(), 0.0f);
+      break;
+  }
+  
+  for (char c : text) {
+    if (chars.find(c) == chars.end()) c = '_';
+    simpleProg.setUniform("MVP", scale * chars[c].scale * Mat4::translation(width*chars[c].width/totalWidth,
+                                                                            width/totalWidth/winAspect*(chars[c].height-1.0f),
+                                                                            0.0f) * trans);
+    simpleProg.setTexture("raster",chars[c].tex,0);
+    GL(glDrawArrays(GL_TRIANGLES, 0, GLsizei(6)));
+    trans = trans * Mat4::translation(2.0f* width*chars[c].width/totalWidth,0.0f,0.0f);
+  }
+}
+
+
+std::string FontEngine::getAllCharsString() const {
+  std::stringstream ss;
+  for (const auto& c : chars) {
+    ss << c.first;
+  }
   return ss.str();
 }

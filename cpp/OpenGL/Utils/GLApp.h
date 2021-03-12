@@ -44,6 +44,11 @@ public:
     return animationActive;
   }
 
+  float getAspect() const {
+    const Dimensions d = glEnv.getWindowSize();
+    return float(d.height)/float(d.width);
+  }
+  
   void setImageFilter(GLint magFilter, GLint minFilter);
 
   void drawRect(const Vec4& color, const Vec2& bl, const Vec2& tr);
