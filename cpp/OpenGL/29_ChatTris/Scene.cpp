@@ -28,6 +28,7 @@ Scene::Scene(Grid& grid) :
 	grid.clear();
   
   loadHighscore();
+
   std::sort(highscore.begin(), highscore.end(),[](const std::pair<std::string, uint32_t> &x,
                                                   const std::pair<std::string, uint32_t> &y) {return x.second > y.second;});
   grid.getRenderer()->updateHighscore(highscore);
@@ -40,6 +41,7 @@ void Scene::restart() {
   next = genRandTetrominoIndex();
   grid.clear();
   gameOver = false;
+  gameOverTime = 0;
   grid.getRenderer()->setGameOver(false, score);
 }
 
@@ -138,17 +140,20 @@ bool Scene::render(double t) {
     if (getDelay() * 0.01 < t-lastAdvance && !grid.getRenderer()->isAnimating() && !gameOver) {
       if (!advance()) {
         setGameOver();
-        gameOverTime = t;
         return false;
       }
       lastAdvance = t;
     }
   }
 
+  renderMutex.lock();
   grid.render(transformedCurrent, colors[current], transformedNext,
               colors[next], transformedTarget, float(pause ? lastAdvance : t));
+  renderMutex.unlock();
 
-  if (gameOver && t-gameOverTime > 15) {
+  if (gameOver && gameOverTime == 0)
+    gameOverTime = t;
+  if (gameOver && t-gameOverTime > 10) {
     restart();
   }
   
@@ -271,7 +276,9 @@ void Scene::updateScore(uint32_t rowCount) {
 	}
 	score += (getLevel()+1)*points;
 	clearedRows += rowCount;
-  highscore[getPlayerIndex(activePlayer)].second += (getLevel()+1)*points;
+  
+  if (activePlayer != "" && activePlayer != "bitmatcher")   // exclude debugging from highscore
+    highscore[getPlayerIndex(activePlayer)].second += (getLevel()+1)*points;
   
   std::sort(highscore.begin(), highscore.end(),[](const std::pair<std::string, uint32_t> &x,
                                                   const std::pair<std::string, uint32_t> &y) {return x.second > y.second;});
@@ -331,8 +338,36 @@ app{app}
 {
 }
 
-static bool startsWith(const std::string& str, const std::string& command) {
-  return str.rfind(command, 0) == 0;
+void ChatConnection::excuteCommand(char c, const std::string& player) {
+  const std::scoped_lock<std::mutex> lock(app->renderMutex);
+  switch (c) {
+    case 'w':
+      app->setActivePlayer(player);
+      app->fullDrop();
+      break;
+    case 's':
+      app->setActivePlayer(player);
+      app->advance();
+      break;
+    case 'a':
+      app->setActivePlayer(player);
+      app->moveLeft();
+      break;
+    case 'd':
+      app->setActivePlayer(player);
+      app->moveRight();
+      break;
+    case 'q':
+      app->setActivePlayer(player);
+      app->rotateCCW();
+      break;
+    case 'e':
+      app->setActivePlayer(player);
+      app->rotateCW();
+      break;
+    default:
+      break;
+  }
 }
 
 void ChatConnection::handleServerMessage(const std::string& message) {
@@ -340,35 +375,9 @@ void ChatConnection::handleServerMessage(const std::string& message) {
     Tokenizer t{message, char(1)};
     const std::string player  = base64url_decode(t.nextString());
     const std::string command = base64url_decode(t.nextString());
-    
-    if (startsWith(command, "w")) {
-      app->setActivePlayer(player);
-      app->fullDrop();
-    } else {
-      if (startsWith(command, "s")) {
-        app->setActivePlayer(player);
-        app->advance();
-      } else {
-        if (startsWith(command, "a")) {
-          app->setActivePlayer(player);
-          app->moveLeft();
-        } else {
-          if (startsWith(command, "d")) {
-            app->setActivePlayer(player);
-            app->moveRight();
-          } else {
-            if (startsWith(command, "q")) {
-              app->setActivePlayer(player);
-              app->rotateCCW();
-            } else {
-              if (startsWith(command, "e")) {
-                app->setActivePlayer(player);
-                app->rotateCW();
-              }
-            }
-          }
-        }
-      }
+        
+    for (char c : command) {
+      excuteCommand( c, player );
     }
   } catch (const MessageException e) {
   }

@@ -171,17 +171,18 @@ bool OpenGLRenderer::isAnimating() const {
 }
 
 void OpenGLRenderer::setGameOver(bool gameOver, uint32_t score) {
-  this->gameOver = gameOver;
   if (gameOver) {
     particleBitmap = std::make_shared<Bitmap>(fr.render(score), 64);
     scoreParticleSystem.setBitmap(particleBitmap);    
   }
+  this->gameOver = gameOver;
 }
 
 void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3& currentColor,
                             const std::array<Vec2i,4>& nextTetrominoPos, const Vec3& nextColor,
                             const std::array<Vec2i,4>& targetTetrominoPos, float time) {
 								
+  
 	currentTime = time;
 								
 	// setup basic OpenGL states that do not change during the frame

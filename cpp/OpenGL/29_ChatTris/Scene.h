@@ -17,10 +17,14 @@ public:
 
 private:
   Scene* app;
+  
+  void excuteCommand(char c, const std::string& player);
 };
 
 class Scene {
 public:
+  std::mutex renderMutex;
+
 	Scene(Grid& grid);
 	
 	void rotateCW();
@@ -63,8 +67,7 @@ private:
   double gameOverTime;
   ChatConnection chatConnection;
   std::string activePlayer;
-
-
+  
 	size_t genRandTetrominoIndex();
 	std::vector<uint32_t> checkRows() const;
 	bool validateTransform(size_t rot, const Vec2i& pos) const;
