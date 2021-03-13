@@ -344,26 +344,21 @@ void ChatConnection::handleServerMessage(const std::string& message) {
         app->advance();
         app->setActivePlayer(player);
       } else {
-        if (startsWith(command, "l")) {
+        if (startsWith(command, "a")) {
           app->moveLeft();
           app->setActivePlayer(player);
         } else {
-          if (startsWith(command, "a")) {
+          if (startsWith(command, "d")) {
             app->moveRight();
             app->setActivePlayer(player);
           } else {
-            if (startsWith(command, "d")) {
-              app->moveRight();
+            if (startsWith(command, "q")) {
+              app->rotateCCW();
               app->setActivePlayer(player);
             } else {
-              if (startsWith(command, "q")) {
-                app->rotateCCW();
+              if (startsWith(command, "e")) {
+                app->rotateCW();
                 app->setActivePlayer(player);
-              } else {
-                if (startsWith(command, "e")) {
-                  app->rotateCW();
-                  app->setActivePlayer(player);
-                }
               }
             }
           }
