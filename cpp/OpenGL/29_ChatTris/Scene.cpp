@@ -29,7 +29,7 @@ Scene::Scene(Grid& grid) :
   
   loadHighscore();
   std::sort(highscore.begin(), highscore.end(),[](const std::pair<std::string, uint32_t> &x,
-                                                  const std::pair<std::string, uint32_t> &y) {return x.second < y.second;});
+                                                  const std::pair<std::string, uint32_t> &y) {return x.second > y.second;});
   grid.getRenderer()->updateHighscore(highscore);
 }
 
@@ -274,7 +274,7 @@ void Scene::updateScore(uint32_t rowCount) {
   highscore[getPlayerIndex(activePlayer)].second += (getLevel()+1)*points;
   
   std::sort(highscore.begin(), highscore.end(),[](const std::pair<std::string, uint32_t> &x,
-                                                  const std::pair<std::string, uint32_t> &y) {return x.second < y.second;});
+                                                  const std::pair<std::string, uint32_t> &y) {return x.second > y.second;});
   grid.getRenderer()->updateHighscore(highscore);
   saveHighscore();
 }
