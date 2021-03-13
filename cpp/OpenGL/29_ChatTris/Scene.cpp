@@ -333,39 +333,36 @@ static bool startsWith(const std::string& str, const std::string& command) {
 void ChatConnection::handleServerMessage(const std::string& message) {
   try {
     Tokenizer t{message, char(1)};
-    const std::string channel = t.nextString();
     const std::string player  = base64url_decode(t.nextString());
     const std::string command = base64url_decode(t.nextString());
     
-    if (channel == "bitmatcher") {
-      if (startsWith(command, "w")) {
-        app->fullDrop();
+    if (startsWith(command, "w")) {
+      app->fullDrop();
+      app->setActivePlayer(player);
+    } else {
+      if (startsWith(command, "s")) {
+        app->advance();
         app->setActivePlayer(player);
       } else {
-        if (startsWith(command, "s")) {
-          app->advance();
+        if (startsWith(command, "l")) {
+          app->moveLeft();
           app->setActivePlayer(player);
         } else {
-          if (startsWith(command, "l")) {
-            app->moveLeft();
+          if (startsWith(command, "a")) {
+            app->moveRight();
             app->setActivePlayer(player);
           } else {
-            if (startsWith(command, "a")) {
+            if (startsWith(command, "d")) {
               app->moveRight();
               app->setActivePlayer(player);
             } else {
-              if (startsWith(command, "d")) {
-                app->moveRight();
+              if (startsWith(command, "q")) {
+                app->rotateCCW();
                 app->setActivePlayer(player);
               } else {
-                if (startsWith(command, "q")) {
-                  app->rotateCCW();
+                if (startsWith(command, "e")) {
+                  app->rotateCW();
                   app->setActivePlayer(player);
-                } else {
-                  if (startsWith(command, "e")) {
-                    app->rotateCW();
-                    app->setActivePlayer(player);
-                  }
                 }
               }
             }
