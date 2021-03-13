@@ -18,7 +18,7 @@ public:
 private:
   Scene* app;
   
-  void excuteCommand(char c, const std::string& player);
+  bool executeCommand(char c, const std::string& player);
 };
 
 class Scene {

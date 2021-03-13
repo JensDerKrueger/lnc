@@ -338,7 +338,7 @@ app{app}
 {
 }
 
-void ChatConnection::excuteCommand(char c, const std::string& player) {
+bool ChatConnection::executeCommand(char c, const std::string& player) {
   const std::scoped_lock<std::mutex> lock(app->renderMutex);
   switch (c) {
     case 'w':
@@ -366,8 +366,10 @@ void ChatConnection::excuteCommand(char c, const std::string& player) {
       app->rotateCW();
       break;
     default:
+      return false;
       break;
   }
+  return true;
 }
 
 void ChatConnection::handleServerMessage(const std::string& message) {
@@ -377,7 +379,7 @@ void ChatConnection::handleServerMessage(const std::string& message) {
     const std::string command = base64url_decode(t.nextString());
         
     for (char c : command) {
-      excuteCommand( c, player );
+      if (!executeCommand( c, player )) break;
     }
   } catch (const MessageException e) {
   }
