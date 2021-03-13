@@ -52,8 +52,8 @@ void ChatTrisServer::handleClientMessage(uint32_t id, const std::string& message
       const std::string text    = p["text"];
 
       if (!name.empty()) {
-        sendMessage("Player " + base64url_decode(name) + " wrote " + base64url_decode(text) + " in stream " + channel , id);
-        if (channel == "bitmatcher")
+        sendMessage("Player " + base64url_decode(name) + " wrote " + base64url_decode(text) + " in stream " + base64url_decode(channel) , id);
+        if (base64url_decode(channel) == "#bitmatcher")
           frontendConnections.newInput(name, text);
       } else {
         sendMessage("Name Missing from message");
