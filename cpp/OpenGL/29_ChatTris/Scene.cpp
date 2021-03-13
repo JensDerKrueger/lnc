@@ -342,28 +342,28 @@ void ChatConnection::handleServerMessage(const std::string& message) {
     const std::string command = base64url_decode(t.nextString());
     
     if (startsWith(command, "w")) {
-      app->fullDrop();
       app->setActivePlayer(player);
+      app->fullDrop();
     } else {
       if (startsWith(command, "s")) {
-        app->advance();
         app->setActivePlayer(player);
+        app->advance();
       } else {
         if (startsWith(command, "a")) {
-          app->moveLeft();
           app->setActivePlayer(player);
+          app->moveLeft();
         } else {
           if (startsWith(command, "d")) {
-            app->moveRight();
             app->setActivePlayer(player);
+            app->moveRight();
           } else {
             if (startsWith(command, "q")) {
-              app->rotateCCW();
               app->setActivePlayer(player);
+              app->rotateCCW();
             } else {
               if (startsWith(command, "e")) {
-                app->rotateCW();
                 app->setActivePlayer(player);
+                app->rotateCW();
               }
             }
           }
