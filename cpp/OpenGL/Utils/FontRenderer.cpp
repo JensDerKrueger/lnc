@@ -155,9 +155,10 @@ FontEngine::FontEngine() :
 {
   simpleArray.bind();
   std::vector<float> data = {
-     1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
-     1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
     -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+     1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+     1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+
     -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
     -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
      1.0f, -1.0f, 0.0f, 1.0f, 0.0f
@@ -180,14 +181,14 @@ void FontEngine::render(const std::string& text, float winAspect, float height, 
     totalWidth += chars.at(c).width;
   }
   
-  Mat4 scale = Mat4::scaling(height*winAspect, height, 1.0f);
+  Mat4 scale = Mat4::scaling(height/winAspect, height, 1.0f);
   Mat4 trans;
   switch (a) {
     case Alignment::Center :
-      trans = Mat4::translation(pos.x()-height*totalWidth*winAspect, pos.y(), 0.0f);
+      trans = Mat4::translation(pos.x()-height*totalWidth/winAspect, pos.y(), 0.0f);
       break;
     case Alignment::Right :
-      trans = Mat4::translation(pos.x()-2.0f*height*totalWidth*winAspect, pos.y(), 0.0f);
+      trans = Mat4::translation(pos.x()-2.0f*height*totalWidth/winAspect, pos.y(), 0.0f);
       break;
     default :
       trans = Mat4::translation(pos.x(), pos.y(), 0.0f);
@@ -196,13 +197,13 @@ void FontEngine::render(const std::string& text, float winAspect, float height, 
   
   for (char c : text) {
     if (chars.find(c) == chars.end()) c = '_';
-    simpleProg.setUniform("MVP", scale * chars[c].scale * Mat4::translation(height*chars[c].width*winAspect,
+    simpleProg.setUniform("MVP", scale * chars[c].scale * Mat4::translation(height*chars[c].width/winAspect,
                                                                             height*(chars[c].height-1.0f),
                                                                             0.0f) * trans);
 
     simpleProg.setTexture("raster",chars[c].tex,0);
     GL(glDrawArrays(GL_TRIANGLES, 0, GLsizei(6)));
-    trans = trans * Mat4::translation(2.0f*height*chars[c].width*winAspect,0.0f,0.0f);
+    trans = trans * Mat4::translation(2.0f*height*chars[c].width/winAspect,0.0f,0.0f);
   }
 }
 
@@ -212,7 +213,7 @@ Vec2 FontEngine::getSize(const std::string& text, float winAspect, float height)
     if (chars.find(c) == chars.end()) c = '_';
     totalWidth += chars.at(c).width;
   }
-  return {height*totalWidth*winAspect, height};
+  return {height*totalWidth/winAspect, height};
 }
 
 void FontEngine::render(uint32_t number, float winAspect, float height, const Vec2& pos,
@@ -239,7 +240,7 @@ Vec2 FontEngine::getSizeFixedWidth(const std::string& text, float winAspect, flo
     if (chars.find(c) == chars.end()) c = '_';
     totalWidth += chars.at(c).width;
   }
-  return {width, width/totalWidth/winAspect};
+  return {width, width*winAspect/totalWidth};
 }
 
 
@@ -256,7 +257,7 @@ void FontEngine::renderFixedWidth(const std::string& text, float winAspect, floa
     totalWidth += chars.at(c).width;
   }
   
-  Mat4 scale = Mat4::scaling(width/totalWidth, width/totalWidth/winAspect, 1.0f);
+  Mat4 scale = Mat4::scaling(width/totalWidth, width/totalWidth*winAspect, 1.0f);
   Mat4 trans;
   switch (a) {
     case Alignment::Center :
@@ -273,7 +274,7 @@ void FontEngine::renderFixedWidth(const std::string& text, float winAspect, floa
   for (char c : text) {
     if (chars.find(c) == chars.end()) c = '_';
     simpleProg.setUniform("MVP", scale * chars[c].scale * Mat4::translation(width*chars[c].width/totalWidth,
-                                                                            width/totalWidth/winAspect*(chars[c].height-1.0f),
+                                                                            width/totalWidth*winAspect*(chars[c].height-1.0f),
                                                                             0.0f) * trans);
     simpleProg.setTexture("raster",chars[c].tex,0);
     GL(glDrawArrays(GL_TRIANGLES, 0, GLsizei(6)));

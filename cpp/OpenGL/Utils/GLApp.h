@@ -46,7 +46,7 @@ public:
 
   float getAspect() const {
     const Dimensions d = glEnv.getWindowSize();
-    return float(d.height)/float(d.width);
+    return float(d.width)/float(d.height);
   }
   
   void setImageFilter(GLint magFilter, GLint minFilter);
