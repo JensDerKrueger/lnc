@@ -17,6 +17,9 @@ public:
 
   virtual std::string checkData();
   void enqueueMessage(const std::string& m);
+  
+  std::string getPeerAddress() const;
+  uint16_t getPeerPort() const;
 
 protected:
   TCPSocket* connectionSocket;
@@ -84,9 +87,9 @@ public:
   bool isStarting() const {return starting;}
   bool isOK() const {return ok;}
   
-  virtual void handleClientConnection(uint32_t /* id */) {};
+  virtual void handleClientConnection(uint32_t id, const std::string& address, uint16_t port) {};
   virtual void handleClientMessage(uint32_t id, const std::string& message) = 0;
-  virtual void handleClientDisconnection(uint32_t /* id */) {};
+  virtual void handleClientDisconnection(uint32_t id) {};
   
   void sendMessage(const std::string& message, uint32_t id=0, bool invertID=false);
   void closeConnection(uint32_t id);
@@ -273,7 +276,7 @@ void Server<T>::serverFunc() {
         ++lastClientId;
         clientConnections.push_back(std::make_shared<T>(connectionSocket, lastClientId, key, timeout));
         try {
-          handleClientConnection(lastClientId);
+          handleClientConnection(lastClientId, connectionSocket->GetPeerAddress(), connectionSocket->GetPeerPort());
         } catch (SocketException const& ) {
         }
         clientVecMutex.unlock();

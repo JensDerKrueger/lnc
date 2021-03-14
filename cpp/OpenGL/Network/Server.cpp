@@ -64,6 +64,20 @@ std::string BaseClientConnection::checkData() {
   return "";
 }
 
+std::string BaseClientConnection::getPeerAddress() const {
+  if (connectionSocket && connectionSocket->IsConnected()) {
+    return connectionSocket->GetPeerAddress();
+  } else {
+    return "";
+  }
+}
+uint16_t BaseClientConnection::getPeerPort() const {
+  if (connectionSocket && connectionSocket->IsConnected()) {
+    return connectionSocket->GetPeerPort();
+  } else {
+    return 0;
+  }
+}
 
 SizedClientConnection::SizedClientConnection(TCPSocket* connectionSocket, uint32_t id, const std::string& key, uint32_t timeout) :
   BaseClientConnection(connectionSocket, id, key, timeout),
@@ -71,7 +85,6 @@ SizedClientConnection::SizedClientConnection(TCPSocket* connectionSocket, uint32
   sendCrypt(nullptr)
 {
 }
-
 
 std::string SizedClientConnection::checkData() {
   int8_t data[2048];
