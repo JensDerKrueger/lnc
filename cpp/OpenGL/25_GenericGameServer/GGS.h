@@ -42,7 +42,7 @@ public:
   GGS(uint16_t port);
   virtual ~GGS();
   
-  virtual void handleClientConnection(uint32_t id) override;
+  virtual void handleClientConnection(uint32_t id, const std::string& address, uint16_t port) override;
   virtual void handleClientDisconnection(uint32_t id) override;
   virtual void handleClientMessage(uint32_t id, const std::string& message) override;
   

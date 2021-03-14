@@ -9,7 +9,7 @@
   bool acceptFastMousePosUpdates = false;
 #endif
 
-MyClient::MyClient(const std::string& address, short port, const std::string& name) :
+MyClient::MyClient(const std::string& address, uint16_t port, const std::string& name) :
   Client{address, port , "", 5000},
   name{name},
   color{Vec3::hsvToRgb({360*Rand::rand01(),0.5f,1.0f}), 1.0f}

@@ -152,12 +152,9 @@ void MainPhase::drawRemainingShips(const Vec3& baseTranslation, const std::strin
 
 void MainPhase::drawPleaseWaitOverlay() {
   if (waitingForOther) {
-    const Image prompt = app->fr.render(waitingShotMessages[waitingMessageIndex]);
-    const Mat4 transPrompt = app->computeImageTransformFixedWidth({prompt.width, prompt.height}, 0.4f);
     app->setDrawTransform(Mat4{});
     app->drawRect(Vec4(0,0,0,0.7f));
-    app->setDrawTransform(transPrompt);
-    app->drawImage(prompt);
+    app->fe->renderFixedWidth(waitingShotMessages[waitingMessageIndex], app->getAspect(), 0.4f, {0,0}, Alignment::Center);
   }
 }
 

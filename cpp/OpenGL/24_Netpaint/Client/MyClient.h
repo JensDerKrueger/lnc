@@ -21,7 +21,7 @@ struct PaintJob {
 
 class MyClient : public Client {
 public:
-  MyClient(const std::string& address, short port, const std::string& name);
+  MyClient(const std::string& address, uint16_t port, const std::string& name);
 
   void moveMouse(uint32_t userID, const Vec2& pos);
   void addMouse(uint32_t userID, const std::string& name, const Vec4& color);

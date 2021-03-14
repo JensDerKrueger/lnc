@@ -29,7 +29,7 @@ private:
 
 class GameClient : public Client {
 public:
-  GameClient(const std::string& address, short port, BitMatcher* app);
+  GameClient(const std::string& address, uint16_t port, BitMatcher* app);
   virtual void handleServerMessage(const std::string& message) override;
 
   uint8_t current{0};

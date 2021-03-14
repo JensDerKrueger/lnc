@@ -132,7 +132,7 @@ void OverlayImage::draw() {
   app->fe->render(text, app->getAspect(), 0.05f,  position, Alignment::Center, Vec4(1.0f,1.0f,1.0f,alpha));
 }
 
-GameClient::GameClient(const std::string& address, short port, BitMatcher* app) :
+GameClient::GameClient(const std::string& address, uint16_t port, BitMatcher* app) :
   Client{address, port , "", 5000},
   app{app}
 {

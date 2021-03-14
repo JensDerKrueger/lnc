@@ -1,6 +1,6 @@
 #include "GameClient.h"
 
-GameClient::GameClient(const std::string& address, short port, const std::string& name, uint32_t level) :
+GameClient::GameClient(const std::string& address, uint16_t port, const std::string& name, uint32_t level) :
   Client{address, port , "", 5000},
   name{name},
   level{level}

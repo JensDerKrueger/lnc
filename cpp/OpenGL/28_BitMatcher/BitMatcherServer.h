@@ -28,7 +28,7 @@ class FrontendServer : public Server<SizedClientConnection> {
 public:
   FrontendServer(uint16_t port);
 
-  virtual void handleClientConnection(uint32_t id) override;
+  virtual void handleClientConnection(uint32_t id, const std::string& address, uint16_t port) override;
   virtual void handleClientMessage(uint32_t id, const std::string& message) override {}
   void updateState(uint32_t countdown, uint8_t current, uint8_t target, uint32_t challangeLength);
   void updateHighscore(const std::vector<HighScoreEntry>& highscore);

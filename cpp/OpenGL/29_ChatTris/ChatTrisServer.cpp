@@ -37,7 +37,6 @@ std::map<std::string,std::string> ChatTrisServer::parseParameters(const std::str
   return result;
 }
 
-
 void ChatTrisServer::handleClientMessage(uint32_t id, const std::string& message) {
   Tokenizer t{message, ' '};
   try {
@@ -75,4 +74,14 @@ void FrontendServer::newInput(const std::string& name, const std::string& text) 
   e.add(name);
   e.add(text);
   sendMessage(e.getEncodedMessage());
+}
+
+void FrontendServer::handleClientConnection(uint32_t id, const std::string& address, uint16_t port) {
+  connectionInfos[id] = ConnectionInfo{id, address, port};
+  std::cout << "New connection to " << address << ":" << port << " established." << std::endl;
+}
+
+void FrontendServer::handleClientDisconnection(uint32_t id)  {
+  std::cout << "Connection to " << connectionInfos[id].address << ":" << connectionInfos[id].port << " terminated" << std::endl;
+  connectionInfos.erase(id);
 }

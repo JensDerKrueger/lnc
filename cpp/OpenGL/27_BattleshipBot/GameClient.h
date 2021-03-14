@@ -30,7 +30,7 @@ enum class ShotResult {
 
 class GameClient : public Client {
 public:
-  GameClient(const std::string& address, short port, const std::string& name, uint32_t level);
+  GameClient(const std::string& address, uint16_t port, const std::string& name, uint32_t level);
 
   virtual void handleNewConnection() override;
   virtual void handleServerMessage(const std::string& message) override;

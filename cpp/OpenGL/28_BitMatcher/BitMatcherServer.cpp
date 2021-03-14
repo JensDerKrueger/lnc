@@ -197,7 +197,7 @@ FrontendServer::FrontendServer(uint16_t port) :
 {
 }
 
-void FrontendServer::handleClientConnection(uint32_t id) {
+void FrontendServer::handleClientConnection(uint32_t id, const std::string& address, uint16_t port) {
   updateState();
   updateHighscore();
 }

@@ -10,6 +10,8 @@
 struct ClientInfo {
   uint32_t id;
   std::string name;
+  std::string address;
+  uint16_t port;
 };
 
 class MyServer : public Server<SizedClientConnection> {
@@ -17,8 +19,8 @@ public:
   
   MyServer(short port) : Server(port, "asdn932lwnmflj23") {}
 
-  virtual void handleClientConnection(uint32_t id) override {
-    clientInfo.push_back(ClientInfo{id,"Unknown"});
+  virtual void handleClientConnection(uint32_t id, const std::string& address, uint16_t port) override {
+    clientInfo.push_back(ClientInfo{id,"Unknown", address, port});
   }
   
   virtual void handleClientDisconnection(uint32_t id) override {
@@ -53,7 +55,12 @@ public:
             break;
           }
         }
-        sendMessage(messageContent + " joined the chat!", id, true);
+        auto ci = getClientInfo(id);
+        if (ci.has_value() ) {
+          sendMessage(messageContent + " joined the chat from " + ci->address , id, true);
+        } else {
+          sendMessage(messageContent + " joined the chat" , id, true);
+        }
       } else if (messageID == "message") {
         auto ci = getClientInfo(id);
         if (ci.has_value() ) {

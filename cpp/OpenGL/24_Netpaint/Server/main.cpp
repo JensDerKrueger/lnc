@@ -59,7 +59,7 @@ public:
     if (recordInteraction) recordFile.flush();
   }
 
-  virtual void handleClientConnection(uint32_t id) override {
+  virtual void handleClientConnection(uint32_t id, const std::string& address, uint16_t port) override {
     InitMessage l(image, clientInfo);
     sendMessage(l.toString(), id);
   }

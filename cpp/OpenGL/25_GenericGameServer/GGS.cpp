@@ -68,9 +68,9 @@ void GGS::setLogFile(const std::string& filename) {
   }
 }
 
-void GGS::handleClientConnection(uint32_t id) {
+void GGS::handleClientConnection(uint32_t id, const std::string& address, uint16_t port) {
   std::stringstream ss;
-  ss << "New client " << id << " connected";
+  ss << "New client " << id << " connected from " << address << ":" << port;
   writeLog(ss.str());
 }
 
