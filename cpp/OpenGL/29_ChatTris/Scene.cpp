@@ -125,7 +125,6 @@ void Scene::fullDrop() {
 
 void Scene::setGameOver() {
   gameOver = true;
-  std::cout << "Score: " << score << " at level " << getLevel() << std::endl;
   grid.getRenderer()->setGameOver(true, score);
 }
 
