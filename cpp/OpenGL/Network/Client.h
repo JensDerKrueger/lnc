@@ -4,7 +4,7 @@
 
 class Client {
 public:
-  Client(const std::string& address, short port, const std::string& key="", uint32_t timeout = 100);
+  Client(const std::string& address, uint16_t port, const std::string& key="", uint32_t timeout = 100);
   virtual ~Client();
   
   bool isConnecting() const {return connecting;}
@@ -18,7 +18,7 @@ public:
   
 private:
   std::string address;
-  short port;
+  uint16_t port;
   uint32_t timeout;
   
   bool ok{false};

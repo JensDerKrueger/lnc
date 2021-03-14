@@ -3,7 +3,7 @@
 
 #include "Client.h"
 
-Client::Client(const std::string& address, short port, const std::string& key, uint32_t timeout) :
+Client::Client(const std::string& address, uint16_t port, const std::string& key, uint32_t timeout) :
   address{address},
   port{port},
   timeout{timeout},
