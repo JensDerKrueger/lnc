@@ -14,8 +14,7 @@ int main(int argc, char ** argv) {
   
   try {
     Image fontImage = BMP::load(argv[1]);
-    if (fontImage.componentCount == 3)
-      fontImage.generateAlphaFromLuminance();
+    if (fontImage.componentCount == 3) fontImage.generateAlphaFromLuminance();
     
     FontRenderer r{fontImage,argv[2]};
     

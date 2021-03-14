@@ -3,15 +3,16 @@ OSTYPE := $(shell uname)
 
 ifeq ($(OSTYPE),Linux)
 	CFLAGS=-c -Wall -std=c++17 -Wunreachable-code -fopenmp
-	LFLAGS=-fopenmp
+	LFLAGS=-lglfw -lGLEW -lGL -L../Utils -lutils -L../Network -lutils -fopenmp
 	LIBS=
-	INCLUDES=-I. -I../Utils
+	INCLUDES=-I. -I../Utils -I../Network -I ../../openmp/include
 else
 	CFLAGS=-c -Wall -std=c++17 -Wunreachable-code -Xclang -fopenmp
-	LFLAGS=-L../Network -lnetwork
+	LFLAGS=-lglfw -lGLEW -framework OpenGL -L../Utils -lutils -L../Network -lnetwork
 	LIBS=-lomp -L ../../openmp/lib -L /opt/homebrew/lib
-	INCLUDES=-I. -I ../../openmp/include -I /opt/homebrew/include -I../Utils
+	INCLUDES=-I. -I../Utils -I ../../openmp/include -I /opt/homebrew/include -I../Network
 endif
+
 
 SRC = main.cpp
 OBJ = $(SRC:.cpp=.o)
@@ -37,3 +38,4 @@ clean:
 
 mrproper: clean
 	cd ../Utils && make clean
+	
