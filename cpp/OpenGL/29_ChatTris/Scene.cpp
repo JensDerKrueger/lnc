@@ -331,7 +331,7 @@ void Scene::setActivePlayer(const std::string& name) {
 }
 
 
-ChatConnection::ChatConnection(const std::string& address, short port, Scene* app) :
+ChatConnection::ChatConnection(const std::string& address, uint16_t port, Scene* app) :
 Client{address, port , "", 5000},
 app{app}
 {
