@@ -9,260 +9,328 @@
 
 constexpr uint32_t imageWidth = 400;
 constexpr uint32_t imageHeight= 400;
+constexpr uint16_t serverPort = 11002;
 
-struct MouseInfo {
-  size_t id;
-  std::string name;
-  Vec4 color;
-  Vec2 pos;
-};
+class ClientInfo {
+public:
+  uint32_t id{0};
+  std::string name{""};
+  Vec4 color{0,0,0,0};
+  Vec2 pos{0,0};
+  
+  ClientInfo() {}
+  
+  ClientInfo(uint32_t id, const std::string& name, const Vec4& color, const Vec2 pos) :
+    id{id},
+    name{cleanupName(name)},
+    color{color},
+    pos{pos}
+  {}
 
-enum class PayloadType {
-  InvalidPayload = 0,
-  BasicPayload = 1,
-  MousePosPayload = 2,
-  NewUserPayload = 3,
-  LostUserPayload = 4,
-  CanvasUpdatePayload = 5,
-  InitPayload = 6
-};
-
-
-class DSException : public std::exception {
-  public:
-  DSException(const std::string& whatStr) : whatStr(whatStr) {}
-    virtual const char* what() const throw() {
-      return whatStr.c_str();
+  virtual ~ClientInfo() {}
+  
+  static std::string cleanupName(const std::string& name) {
+    std::string cName{name};
+    for (size_t i = 0;i<name.length();++i) {
+      cName[i] = cleanupChar(name[i]);
     }
-  private:
-    std::string whatStr;
+    return cName;
+  }
+
+private:
+  static char cleanupChar(char c) {
+    std::string validChars{"01234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ(),._ ;:"};
+    if (validChars.find(c) != std::string::npos) return c; else return '_';
+  }
+
 };
 
-PayloadType identifyString(const std::string& s) {
-  std::vector<std::string> l = Coder::decode(s);
-
-  if (l.size() < 2) return PayloadType::InvalidPayload;
-  if (l[0] != "painter") return PayloadType::InvalidPayload;
+class ClientInfoServerSide : public ClientInfo {
+public:
+  bool fastCursorUpdates;
   
-  int i;
-  try {
-    i = std::stoi( l[1] );
-    if (i < 0 || i > int(PayloadType::InitPayload)) return PayloadType::InvalidPayload;
-  } catch (const std::invalid_argument&) {
-    return PayloadType::InvalidPayload;
-  }
-  
-  return PayloadType(std::stoi(l[1]));
-}
-
-struct BasicPayload {
-  PayloadType pt;
-  uint32_t userID{0};
-
-  BasicPayload(const std::string& message) {
-    std::vector<std::string> token = Coder::decode(message);
-    if (token.size() < 3) {
-      throw DSException("BasicPayload message to short");
-    }
-    pt = PayloadType(std::stoi(token[1]));
-    userID = std::stoi(token[2]);
-  }
-  
-  BasicPayload()
+  ClientInfoServerSide(uint32_t id, const std::string& name, const Vec4& color,
+                       const Vec2 pos, bool fastCursorUpdates) :
+  ClientInfo(id, name, color, pos),
+  fastCursorUpdates(fastCursorUpdates)
   {
-    pt = PayloadType::BasicPayload;
   }
+
+  virtual ~ClientInfoServerSide() {}
+};
+
+class ClientInfoClientSide : public ClientInfo {
+public:
+  Image image;
+  
+  ClientInfoClientSide(uint32_t id, const std::string& name, const Vec4& color,
+                       const Vec2 pos, const Image& image) :
+  ClientInfo(id, name, color, pos),
+  image(image)
+  {
+  }
+  
+  virtual ~ClientInfoClientSide() {}
+};
+
+enum class MessageType {
+  InvalidMessage = 0,
+  BasicMessage = 1,
+  MousePosMessage = 2,
+  NewUserMessage = 3,
+  LostUserMessage = 4,
+  CanvasUpdateMessage = 5,
+  InitMessage = 6,
+  ConnectMessage = 7
+};
+
+MessageType identifyString(const std::string& s);
+
+struct BasicMessage {
+  MessageType pt;
+  uint32_t userID{0};
+  Tokenizer tokenizer;
+
+  BasicMessage(const std::string& message) :
+    tokenizer{message}
+  {
+    if (tokenizer.nextString() != "painter") throw MessageException("Invalid message");
+    pt = MessageType(tokenizer.nextUint32());
+    userID = tokenizer.nextUint32();
+    pt = MessageType::BasicMessage;
+  }
+  
+  BasicMessage() :
+    tokenizer{""}
+  {
+    pt = MessageType::BasicMessage;
+  }
+  
+  virtual ~BasicMessage() {}
   
   virtual std::string toString() {
-    return Coder::encode({
-      "painter",
-      std::to_string(int(pt)),
-      std::to_string(userID),
-    }, false);
+    Encoder e;
+    e.add("painter");
+    e.add(uint32_t(pt));
+    e.add(userID);
+    return e.getEncodedMessage();
   }
   
 };
 
-struct MousePosPayload : public BasicPayload {
+struct MousePosMessage : public BasicMessage {
   Vec2 mousePos;
 
-  MousePosPayload(const std::string& message) :
-    BasicPayload(message)
+  MousePosMessage(const std::string& message) :
+    BasicMessage(message)
   {
-    std::vector<std::string> token = Coder::decode(message);
-    if (token.size() < 5) {
-      throw DSException("MousePosPayload message to short");
-    }
-    mousePos = Vec2(std::stof(token[3]), std::stof(token[4]));
+    float x = tokenizer.nextFloat();
+    float y = tokenizer.nextFloat();
+    mousePos = Vec2(x,y);
+    pt = MessageType::MousePosMessage;
   }
   
-  MousePosPayload(const Vec2& mousePos) :
+  MousePosMessage(const Vec2& mousePos) :
     mousePos(mousePos)
   {
-    pt = PayloadType::MousePosPayload;
+    pt = MessageType::MousePosMessage;
   }
+  
+  virtual ~MousePosMessage() {}
 
   virtual std::string toString() override {
-    return Coder::encode({
-      BasicPayload::toString(),
-      std::to_string(mousePos.x()),
-      std::to_string(mousePos.y())
-    }, false);
+    Encoder e;
+    e.add(mousePos.x());
+    e.add(mousePos.y());
+    return BasicMessage::toString() + e.getEncodedMessage();
   }
 
 };
 
-struct NewUserPayload : public BasicPayload {
+struct NewUserMessage : public BasicMessage {
   std::string name;
   Vec4 color;
   
-  NewUserPayload(const std::string& message) :
-    BasicPayload(message)
+  NewUserMessage(const std::string& message) :
+    BasicMessage(message)
   {
-    std::vector<std::string> token = Coder::decode(message);
-    if (token.size() < 8) {
-      throw DSException("NewUserPayload message to short");
-    }
-    name = token[3];
-    color = Vec4(std::stof(token[4]), std::stof(token[5]),std::stof(token[6]), std::stof(token[7]));
+    name = tokenizer.nextString();
+    float r = tokenizer.nextFloat();
+    float g = tokenizer.nextFloat();
+    float b = tokenizer.nextFloat();
+    float a = tokenizer.nextFloat();
+    color = Vec4(r,g,b,a);
+    pt = MessageType::NewUserMessage;
   }
   
-  NewUserPayload(const std::string& name, const Vec4& color) :
+  NewUserMessage(const std::string& name, const Vec4& color) :
     name(name),
     color(color)
   {
-    pt = PayloadType::NewUserPayload;
+    pt = MessageType::NewUserMessage;
   }
+  
+  virtual ~NewUserMessage() {}
   
   virtual std::string toString() override {
-    return Coder::encode({
-      BasicPayload::toString(),
-      name,
-      std::to_string(color.x()),
-      std::to_string(color.y()),
-      std::to_string(color.z()),
-      std::to_string(color.w())
-    }, false);
+    Encoder e;
+    e.add(name);
+    e.add(color.x());
+    e.add(color.y());
+    e.add(color.z());
+    e.add(color.w());
+    return BasicMessage::toString() + e.getEncodedMessage();
   }
-
 };
 
-struct LostUserPayload : public BasicPayload {
+struct ConnectMessage : public NewUserMessage {
+  bool fastCursorUpdates;
   
-  LostUserPayload(const std::string& message) :
-    BasicPayload(message)
+  ConnectMessage(const std::string& message) :
+    NewUserMessage(message)
   {
+    fastCursorUpdates = tokenizer.nextBool();
+    pt = MessageType::ConnectMessage;
   }
   
-  LostUserPayload() {
-    pt = PayloadType::LostUserPayload;
+  ConnectMessage(const std::string& name, const Vec4& color, bool fastCursorUpdates) :
+  NewUserMessage(name, color),
+  fastCursorUpdates(fastCursorUpdates)
+  {
+    pt = MessageType::ConnectMessage;
   }
+  
+  virtual ~ConnectMessage() {}
+  
+  virtual std::string toString() override {
+    Encoder e;
+    e.add(fastCursorUpdates);
+    return NewUserMessage::toString() + e.getEncodedMessage();
+  }
+
 };
 
-struct CanvasUpdatePayload : public BasicPayload {
+struct LostUserMessage : public BasicMessage {
+  
+  LostUserMessage(const std::string& message) :
+    BasicMessage(message)
+  {
+    pt = MessageType::LostUserMessage;
+  }
+  
+  LostUserMessage() {
+    pt = MessageType::LostUserMessage;
+  }
+  
+  virtual ~LostUserMessage() {}
+};
+
+struct CanvasUpdateMessage : public BasicMessage {
   Vec4 color;
   Vec2i pos;
 
-  CanvasUpdatePayload(const std::string& message) :
-    BasicPayload(message)
+  CanvasUpdateMessage(const std::string& message) :
+    BasicMessage(message)
   {
-    std::vector<std::string> token = Coder::decode(message);
-    if (token.size() < 9) {
-      throw DSException("CanvasUpdatePayload message to short");
-    }
-    color = Vec4(std::stof(token[3]), std::stof(token[4]), std::stof(token[5]), std::stof(token[6]));
-    pos = Vec2i(std::stoi(token[7]), std::stoi(token[8]));
+    float r = tokenizer.nextFloat();
+    float g = tokenizer.nextFloat();
+    float b = tokenizer.nextFloat();
+    float a = tokenizer.nextFloat();
+    color = Vec4(r,g,b,a);
+
+    uint32_t x = tokenizer.nextInt32();
+    uint32_t y = tokenizer.nextInt32();
+    pos = Vec2i(x,y);
+
+    pt = MessageType::CanvasUpdateMessage;
   }
   
-  CanvasUpdatePayload(const Vec4& color, const Vec2i& pos) :
+  CanvasUpdateMessage(const Vec4& color, const Vec2i& pos) :
     color(color),
     pos(pos)
   {
-    pt = PayloadType::CanvasUpdatePayload;
+    pt = MessageType::CanvasUpdateMessage;
   }
   
+  virtual ~CanvasUpdateMessage() {}
+  
   virtual std::string toString() override {
-    return Coder::encode({
-      BasicPayload::toString(),
-      std::to_string(color.x()),
-      std::to_string(color.y()),
-      std::to_string(color.z()),
-      std::to_string(color.w()),
-      std::to_string(pos.x()),
-      std::to_string(pos.y())
-    }, false);
+    Encoder e;
+    e.add(color.x());
+    e.add(color.y());
+    e.add(color.z());
+    e.add(color.w());
+    e.add(pos.x());
+    e.add(pos.y());
+    return BasicMessage::toString() + e.getEncodedMessage();
   }
 };
 
-struct InitPayload : public BasicPayload {
+struct InitMessage : public BasicMessage {
   Image image;
-  std::vector<MouseInfo> mouseInfos;
+  std::vector<ClientInfo> clientInfos;
 
-  InitPayload(const std::string& message) :
-    BasicPayload(message)
+  InitMessage(const std::string& message) :
+    BasicMessage(message)
   {
-    std::vector<std::string> token = Coder::decode(message);
-    if (token.size() < 6) {
-      throw DSException("CanvasUpdatePayload message to short (first check)");
-    }
-    
-    size_t pos = 3;
-    size_t w = std::stoi(token[pos++]);
-    size_t h = std::stoi(token[pos++]);
+    const uint32_t w = tokenizer.nextUint32();
+    const uint32_t h = tokenizer.nextUint32();
     image = Image(w,h);
-    if (token.size() < pos+image.data.size()) {
-      throw DSException("CanvasUpdatePayload message to short (second check)");
-    }
-    for (size_t i = 0;i<image.data.size();++i) {
-      image.data[i] = std::stoi(token[pos++]);
-    }
+    for (size_t i = 0;i<image.data.size();++i) image.data[i] = tokenizer.nextUint8();
 
+    clientInfos.resize(tokenizer.nextUint32());
+    for (size_t i = 0;i<clientInfos.size();++i) {
+      clientInfos[i].id = tokenizer.nextUint32();
+      clientInfos[i].name = tokenizer.nextString();
+      
+      float r = tokenizer.nextFloat();
+      float g = tokenizer.nextFloat();
+      float b = tokenizer.nextFloat();
+      float a = tokenizer.nextFloat();
+      clientInfos[i].color = Vec4(r,g,b,a);
 
-    mouseInfos.resize(std::stoi(token[pos++]));
-    if (token.size() < pos+mouseInfos.size()*8) {
-      throw DSException("CanvasUpdatePayload message to short (third check)");
+      float x = tokenizer.nextFloat();
+      float y = tokenizer.nextFloat();
+      clientInfos[i].pos = Vec2(x,y);
     }
-    for (size_t i = 0;i<mouseInfos.size();++i) {
-      mouseInfos[i].id = std::stoi(token[pos++]);
-      mouseInfos[i].name = token[pos++];
-      mouseInfos[i].color = Vec4{std::stof(token[pos]),std::stof(token[pos+1]),std::stof(token[pos+2]),std::stof(token[pos+3])};
-      pos += 4;
-      mouseInfos[i].pos = Vec2{std::stof(token[pos]),std::stof(token[pos+1])};
-      pos += 2;
-    }
+    pt = MessageType::InitMessage;
+  }
 
-    
+  InitMessage(const Image& image, const std::vector<ClientInfoServerSide>& clientInfosSS) :
+    image(image)
+  {
+    clientInfos.resize(clientInfosSS.size());
+    for (size_t i = 0;i<clientInfos.size();++i) {
+      clientInfos[i].id = clientInfosSS[i].id;
+      clientInfos[i].name = clientInfosSS[i].name;
+      clientInfos[i].color = clientInfosSS[i].color;
+      clientInfos[i].pos = clientInfosSS[i].pos;
+    }
+    pt = MessageType::InitMessage;
   }
   
-  InitPayload(const Image& image, const std::vector<MouseInfo>& mouseInfos) :
-    image(image),
-    mouseInfos(mouseInfos)
-  {
-    pt = PayloadType::InitPayload;
-  }
+  virtual ~InitMessage() {}
   
   virtual std::string toString() override {
-    std::vector<std::string> v{BasicPayload::toString()};
+    Encoder e;
     
-    v.push_back(std::to_string(image.width));
-    v.push_back(std::to_string(image.height));
+    e.add(image.width);
+    e.add(image.height);
     for (size_t i = 0;i<image.data.size();++i) {
-      v.push_back(std::to_string(image.data[i]));
+      e.add(image.data[i]);
     }
 
-    v.push_back(std::to_string(mouseInfos.size()));
-    for (size_t i = 0;i<mouseInfos.size();++i) {
-      v.push_back(std::to_string(mouseInfos[i].id));
-      v.push_back(mouseInfos[i].name);
-      v.push_back(std::to_string(mouseInfos[i].color.x()));
-      v.push_back(std::to_string(mouseInfos[i].color.y()));
-      v.push_back(std::to_string(mouseInfos[i].color.z()));
-      v.push_back(std::to_string(mouseInfos[i].color.w()));
-      v.push_back(std::to_string(mouseInfos[i].pos.x()));
-      v.push_back(std::to_string(mouseInfos[i].pos.y()));
+    e.add(uint32_t(clientInfos.size()));
+    for (size_t i = 0;i<clientInfos.size();++i) {
+      e.add(clientInfos[i].id);
+      e.add(clientInfos[i].name);
+      e.add(clientInfos[i].color.x());
+      e.add(clientInfos[i].color.y());
+      e.add(clientInfos[i].color.z());
+      e.add(clientInfos[i].color.w());
+      e.add(clientInfos[i].pos.x());
+      e.add(clientInfos[i].pos.y());
     }
-    
-    return Coder::encode(v,false);
+    return BasicMessage::toString() + e.getEncodedMessage();
   }
 };
-

@@ -11,48 +11,62 @@
 #include "AES.h"
 #include "Sockets.h"
 
+class MessageException : public std::exception {
+  public:
+  MessageException(const std::string& whatStr) : whatStr(whatStr) {}
+    virtual const char* what() const throw() {
+      return whatStr.c_str();
+    }
+  private:
+    std::string whatStr;
+};
 
-struct Coder {
+class Tokenizer {
+public:
+  Tokenizer(const std::string& message, char delimititer = char(1));
   
-  static inline char DELIM = char(1);
+  std::string nextString();
+  uint8_t nextUint8();
+  int8_t nextInt8();
+  uint32_t nextUint32();
+  int32_t nextInt32();
+  uint64_t nextUint64();
+  int64_t nextInt64();
+  float nextFloat();
+  double nextDouble();
+  bool nextBool();
   
-  static std::string encode(const std::vector<std::string>& data, bool checkForDelim=true) {
-    std::string result;
-    for (size_t i = 0;i<data.size();++i) {
-      if (checkForDelim)
-        result += removeDelim(data[i]);
-      else
-        result += data[i];
-      if (i<data.size()-1) result += DELIM;
-    }
-    return result;
-  }
+private:
+  char delimititer;
+  const std::string message;
+  size_t currentIndex{0};
+};
 
-  static std::vector<std::string> decode(const std::string& input) {
-    std::vector<std::string> result;
-    size_t start = 0;
-    size_t delimPos = input.find(DELIM,start);
-    
-    while (delimPos != std::string::npos) {
-      result.push_back( input.substr(start,delimPos-start) );
-      start = delimPos+1;
-      delimPos = input.find(DELIM,start);
-    }
-    
-    result.push_back( input.substr(start) );
-    
-    return result;
-  }
+class Encoder {
+public:
+  Encoder(char delimititer = char(1));
 
-  static std::string removeDelim(std::string input) {
-    size_t pos=0;
-    while(pos<input.size()) {
-      pos=input.find(DELIM,pos);
-      if(pos==std::string::npos) break;
-      input.replace(pos,1,"");
-    }
-    return input;
-  }
+  void add(const char msg[]);
+  void add(const std::string& msg);
+  void add(const std::vector<std::string>& v);
+  void add(uint8_t i);
+  void add(int8_t i);
+  void add(uint32_t i);
+  void add(int32_t i);
+  void add(uint64_t i);
+  void add(int64_t i);
+  void add(float f);
+  void add(double d);
+  void add(bool b);
+  
+  std::string getEncodedMessage() const {return message;}
+  void clear() {message = "";}
+  
+private:
+  char delimititer;
+  std::string message;
+  
+  std::string removeDelim(std::string input) const;
 };
 
 std::string genHandshake(const std::string& iv, const std::string& key);

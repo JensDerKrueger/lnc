@@ -96,6 +96,9 @@
     <ClCompile Include="..\Mat3.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="..\Image.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\AbstractParticleSystem.h">
@@ -185,28 +188,28 @@
     <ClInclude Include="..\Vec4.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="Z:\twitch\lnc\cpp\OpenGL\VS\include\GL\glew.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="Z:\twitch\lnc\cpp\OpenGL\VS\include\GL\glxew.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="Z:\twitch\lnc\cpp\OpenGL\VS\include\GL\wglew.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="Z:\twitch\lnc\cpp\OpenGL\VS\include\GL\eglew.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="Z:\twitch\lnc\cpp\OpenGL\VS\include\GLFW\glfw3.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="Z:\twitch\lnc\cpp\OpenGL\VS\include\GLFW\glfw3native.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
     <ClInclude Include="..\Image.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="..\Mat3.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\VS\include\GLFW\glfw3.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\VS\include\GLFW\glfw3native.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\VS\include\GL\eglew.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\VS\include\GL\glew.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\VS\include\GL\glxew.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\VS\include\GL\wglew.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

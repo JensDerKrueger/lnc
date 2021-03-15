@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\Image.cpp" />
     <ClCompile Include="..\Mat3.cpp" />
     <ClCompile Include="..\AbstractParticleSystem.cpp" />
     <ClCompile Include="..\ArcBall.cpp" />

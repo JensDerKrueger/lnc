@@ -4,21 +4,21 @@
 
 class Client {
 public:
-  Client(const std::string& address, short port, const std::string& key="", uint32_t timeout = 100);
+  Client(const std::string& address, uint16_t port, const std::string& key="", uint32_t timeout = 100);
   virtual ~Client();
   
   bool isConnecting() const {return connecting;}
   bool isOK() const {return ok;}
     
   void sendMessage(const std::string& message);
-  virtual void handleServerMessage(const std::string& message) {};
+  virtual void handleServerMessage(const std::string& /* message */) {};
   virtual void handleNewConnection() {};
 
   size_t cueSize();
   
 private:
   std::string address;
-  short port;
+  uint16_t port;
   uint32_t timeout;
   
   bool ok{false};
@@ -43,4 +43,9 @@ private:
   
   std::string handleIncommingData(int8_t* data, uint32_t bytes);
     
+  void sendRawMessage(std::string message);
+  void sendRawMessage(std::vector<int8_t> rawData);
+  void sendRawMessage(const int8_t* rawData, uint32_t size);
+  std::vector<uint8_t> intToVec(uint32_t i) const;
+
 };

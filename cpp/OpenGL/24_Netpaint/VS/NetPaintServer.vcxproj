@@ -72,13 +72,13 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)..\..\..\VS\include;$(SolutionDir)..\..\..\Utils;$(SolutionDir)..\..\Network;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)..\..\VS\include;$(SolutionDir)..\..\Utils;$(SolutionDir)..\..\Network;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)bin\Server\$(Platform)-$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)tmp\Server\$(Platform)-$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)..\..\..\VS\include;$(SolutionDir)..\..\..\Utils;$(SolutionDir)..\..\Network;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)..\..\VS\include;$(SolutionDir)..\..\Utils;$(SolutionDir)..\..\Network;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)bin\Server\$(Platform)-$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)tmp\Server\$(Platform)-$(Configuration)\</IntDir>
   </PropertyGroup>
@@ -105,7 +105,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)..\..\..\VS\lib\Win32;$(PlatformTarget)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)Debug;$(SolutionDir)..\..\VS\lib\Win32;$(PlatformTarget)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>utils.lib;network.lib;opengl32.lib;glew32s.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -124,7 +124,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)..\..\..\VS\lib\Win32;$(PlatformTarget)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)Release;$(SolutionDir)..\..\VS\lib\Win32;$(PlatformTarget)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>utils.lib;network.lib;opengl32.lib;glew32s.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -163,7 +163,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\PainterCommon.cpp" />
     <ClCompile Include="..\Server\main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\PainterCommon.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

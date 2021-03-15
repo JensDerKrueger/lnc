@@ -545,7 +545,7 @@ void AESCrypt::genIV(uint8_t iv[16]) {
 
 std::string AESCrypt::genIVString() {
   
-  static const std::string safeChars =
+  const std::string safeChars =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
   "abcdefghijklmnopqrstuvwxyz"
   "0123456789+-*";

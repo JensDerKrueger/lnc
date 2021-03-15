@@ -16,7 +16,7 @@ namespace BMP {
                   source.data, source.componentCount);
   }
 
-  uint8_t floatToByte(float x) {  return uint8_t(x*255); }
+  static uint8_t floatToByte(float x) {  return uint8_t(x*255); }
 
   bool save(const std::string& filename, uint32_t w, uint32_t h,
             const std::vector<float>& data, uint8_t iComponentCount) {
@@ -61,7 +61,7 @@ namespace BMP {
 		// data in BMP is stored BGR, so convert scalar BGR
 		std::vector<uint8_t> pData(iComponentCount*w*h);
 		
-		uint32_t i = 0;
+		size_t index = 0;
 		for (size_t y = 0;y<h;++y) {
 			for (size_t x = 0;x<w;++x) {
 				
@@ -69,12 +69,12 @@ namespace BMP {
 				uint8_t g = data[iComponentCount*(x+y*w)+1];
 				uint8_t b = data[iComponentCount*(x+y*w)+2];
 				
-				pData[i++] = b;
-				pData[i++] = g;
-				pData[i++] = r;
+				pData[index++] = b;
+				pData[index++] = g;
+				pData[index++] = r;
         if (iComponentCount==4) {
             uint8_t a = data[iComponentCount*(x+y*w)+3];
-            pData[i++] = a;
+            pData[index++] = a;
         }
 			}
 		}
@@ -99,7 +99,7 @@ namespace BMP {
 		Image texture;
 		
 		// make sure file exists.
-		std::ifstream file(filename.c_str(), std::ofstream::binary);
+		std::ifstream file(filename.c_str(), std::ifstream::binary);
 		if (!file.is_open()) {
 			std::stringstream s;
 			s << "Can't open BMP file " << filename;

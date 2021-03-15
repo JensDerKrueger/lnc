@@ -15,7 +15,7 @@ public:
     }
     template <typename T> static void shuffle(std::vector<T>& a) {
         for (size_t i=0;i<a.size();++i) {
-            size_t r = rand<T>(0,i+1);
+            size_t r = Rand::rand<size_t>(0,i+1);
             std::swap(a[i], a[r]);
         }
     }

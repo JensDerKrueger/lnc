@@ -162,11 +162,12 @@ bool OpenGLRenderer::isAnimating() const {
 }
 
 void OpenGLRenderer::setGameOver(bool gameOver, uint32_t score) {
-    this->gameOver = gameOver;
-    if (gameOver) {
-        particleBitmap = std::make_shared<Bitmap>(FontRenderer::renderNumber(score, "numbers.bmp", "numbers.pos" ), 64);
-        scoreParticleSystem.setBitmap(particleBitmap);
-    }
+  this->gameOver = gameOver;
+  if (gameOver) {
+    FontRenderer fr("numbers.bmp", "numbers.pos");
+    particleBitmap = std::make_shared<Bitmap>(fr.render(score), 64);
+    scoreParticleSystem.setBitmap(particleBitmap);
+  }
 }
 
 void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3& currentColor,

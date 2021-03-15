@@ -8,20 +8,22 @@
 
 
 struct ClientInfo {
-  size_t id;
+  uint32_t id;
   std::string name;
+  std::string address;
+  uint16_t port;
 };
 
-class MyServer : public Server {
+class MyServer : public Server<SizedClientConnection> {
 public:
   
   MyServer(short port) : Server(port, "asdn932lwnmflj23") {}
 
-  virtual void handleClientConnection(size_t id) override {
-    clientInfo.push_back(ClientInfo{id,"Unknown"});
+  virtual void handleClientConnection(uint32_t id, const std::string& address, uint16_t port) override {
+    clientInfo.push_back(ClientInfo{id,"Unknown", address, port});
   }
   
-  virtual void handleClientDisconnection(size_t id) override {
+  virtual void handleClientDisconnection(uint32_t id) override {
     for (size_t i = 0;i<clientInfo.size();++i) {
       if (clientInfo[i].id == id) {
         sendMessage(clientInfo[i].name + " has left the building!", id, true);
@@ -31,7 +33,7 @@ public:
     }
   }
   
-  std::optional<ClientInfo> getClientInfo(size_t id) {
+  std::optional<ClientInfo> getClientInfo(uint32_t id) {
     for (auto& c : clientInfo) {
       if (c.id == id) {
         return c;
@@ -40,25 +42,35 @@ public:
     return {};
   }
   
-  virtual void handleClientMessage(size_t id, const std::string& message) override {
-    
-    const std::vector<std::string> data = Coder::decode(message);
-    
-    if (data[0] == "name") {
-      for (auto& c : clientInfo) {
-        if (c.id == id) {
-          c.name = data[1];
-          break;
+  virtual void handleClientMessage(uint32_t id, const std::string& message) override {
+    try {
+      Tokenizer t{message};
+      const std::string messageID = t.nextString();
+      const std::string messageContent = t.nextString();
+        
+      if (messageID == "name") {
+        for (auto& c : clientInfo) {
+          if (c.id == id) {
+            c.name = messageContent;
+            break;
+          }
         }
+        auto ci = getClientInfo(id);
+        if (ci.has_value() ) {
+          sendMessage(messageContent + " joined the chat from " + ci->address , id, true);
+        } else {
+          sendMessage(messageContent + " joined the chat" , id, true);
+        }
+      } else if (messageID == "message") {
+        auto ci = getClientInfo(id);
+        if (ci.has_value() ) {
+          sendMessage(ci.value().name + " writes " + messageContent, id, true);
+        }
+      }  else {
+        std::cerr << "client send unknown command" << std::endl;
       }
-      sendMessage(data[1] + " joined the chat!", id, true);
-    } else if (data[0] == "message") {
-      auto ci = getClientInfo(id);
-      if (ci.has_value() ) {
-        sendMessage(ci.value().name + " writes " + data[1], id, true);
-      }
-    } else {
-      std::cerr << "client send unknown command" << std::endl;
+    } catch (const MessageException& e) {
+      std::cerr << e.what() << std::endl;
     }
     
   }
@@ -75,13 +87,12 @@ public:
     name(name)
   {}
 
-
   std::string clean(const std::string& message) {
-    static const std::string unsafeChars = "\\~";   // we may want to add other harmfull chars here
+    static const std::string safeChars = "abcdefghijklmonqrstuvwxyzABCDEFGHIJKLMNOPRSTUVWXYZ1234567890ß+-*,.;:-_<># !?";
 
     std::string safeString{""};
     for (size_t i = 0;i<message.size();++i) {
-      if ( unsafeChars.find(message[i]) !=std::string::npos ) {
+      if ( safeChars.find(message[i]) == std::string::npos ) {
         safeString += "_";
       } else {
         safeString += message[i];
@@ -91,7 +102,9 @@ public:
   }
   
   virtual void handleNewConnection() override {
-    sendMessage(Coder::encode({"name",name}));
+    Encoder e;
+    e.add({"name",name});
+    sendMessage(e.getEncodedMessage());
   }
 
   virtual void handleServerMessage(const std::string& message) override {
@@ -120,8 +133,10 @@ int main(int argc, char ** argv) {
         std::getline (std::cin,message);
         if (message == "q") {
           break;
-        } else {          
-          c.sendMessage(Coder::encode({"message",message}));
+        } else {
+          Encoder e;
+          e.add({"message",message});
+          c.sendMessage(e.getEncodedMessage());
         }
       }
       return EXIT_SUCCESS;
@@ -131,6 +146,7 @@ int main(int argc, char ** argv) {
     }
   } else if (argc == 1) {
     MyServer s{11000};
+    s.start();
     std::cout << "starting ...";
     while (s.isStarting()) {
       std::cout << "." << std::flush;

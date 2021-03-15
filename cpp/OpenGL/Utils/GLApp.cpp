@@ -41,6 +41,24 @@ GLApp::GLApp(uint32_t w, uint32_t h, uint32_t s,
      "void main() {\n"
      "    FragColor = color*texture(pointSprite, gl_PointCoord);\n"
      "}\n")},
+  simpleHLSpriteProg{GLProgram::createFromString(
+     "#version 410\n"
+     "uniform mat4 MVP;\n"
+     "layout (location = 0) in vec3 vPos;\n"
+     "layout (location = 1) in vec4 vColor;\n"
+     "out vec4 color;\n"
+     "void main() {\n"
+     "    gl_Position = MVP * vec4(vPos, 1.0);\n"
+     "    color = vColor;\n"
+     "}\n",
+     "#version 410\n"
+     "uniform sampler2D pointSprite;\n"
+     "uniform sampler2D pointSpriteHighlight;\n"
+     "in vec4 color;\n"
+     "out vec4 FragColor;\n"
+     "void main() {\n"
+     "    FragColor = color*texture(pointSprite, gl_PointCoord)+texture(pointSpriteHighlight, gl_PointCoord);\n"
+     "}\n")},
   simpleTexProg{GLProgram::createFromString(
      "#version 410\n"
      "uniform mat4 MVP;\n"
@@ -88,18 +106,18 @@ GLApp::GLApp(uint32_t w, uint32_t h, uint32_t s,
      "}\n")},
   simpleArray{},
   simpleVb{GL_ARRAY_BUFFER},
-  raster{GL_LINEAR, GL_LINEAR},
-  pointSprite{GL_LINEAR, GL_LINEAR},
+  raster{GL_LINEAR, GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE},
+  pointSprite{GL_LINEAR, GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE},
+  pointSpriteHighlight{GL_LINEAR, GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE},
   resumeTime{0},
   animationActive{true}
 {
   staticAppPtr = this;
   glEnv.setMouseCallbacks(cursorPositionCallback, mouseButtonCallback, scrollCallback);
-  glEnv.setKeyCallback(keyCallback);
+  glEnv.setKeyCallbacks(keyCallback, keyCharCallback);
   glEnv.setResizeCallback(sizeCallback);
   
   resetPointTexture();
-
   
   // setup a minimal shader and buffer
   shaderUpdate();
@@ -107,6 +125,17 @@ GLApp::GLApp(uint32_t w, uint32_t h, uint32_t s,
   glfwSetTime(0);
   Dimensions dim{ glEnv.getFramebufferSize() };
   glViewport(0, 0, dim.width, dim.height);
+}
+
+GLApp::~GLApp() {
+}
+
+void GLApp::setPointTexture(const Image& shape) {
+  setPointTexture(shape.data, shape.width, shape.height, shape.componentCount);
+}
+
+void GLApp::setPointHighlightTexture(const Image& shape) {
+  pointSpriteHighlight.setData(shape.data, shape.width, shape.height, shape.componentCount);
 }
 
 void GLApp::setPointTexture(const std::vector<uint8_t>& shape, uint32_t x, uint32_t y, uint32_t components) {
@@ -127,6 +156,11 @@ void GLApp::resetPointTexture(uint32_t resolution) {
     }
   }
   setPointTexture(disk, resolution, resolution, 4);
+}
+
+void GLApp::resetPointHighlightTexture() {
+  Image i{0,0};
+  setPointHighlightTexture(i);
 }
 
 void GLApp::run() {
@@ -298,12 +332,23 @@ void GLApp::drawPoints(const std::vector<float>& data, float pointSize, bool use
   shaderUpdate();
   
   if (useTex) {
-    simpleSpriteProg.enable();
-    simpleSpriteProg.setTexture("pointSprite", pointSprite, 0);
-    simpleVb.setData(data,7,GL_DYNAMIC_DRAW);
-    simpleArray.bind();
-    simpleArray.connectVertexAttrib(simpleVb, simpleSpriteProg, "vPos", 3);
-    simpleArray.connectVertexAttrib(simpleVb, simpleSpriteProg, "vColor", 4, 3);
+    if (pointSpriteHighlight.getHeight() > 0) {
+      simpleHLSpriteProg.enable();
+      simpleHLSpriteProg.setTexture("pointSprite", pointSprite, 0);
+      simpleHLSpriteProg.setTexture("pointSpriteHighlight", pointSpriteHighlight, 1);
+      simpleVb.setData(data,7,GL_DYNAMIC_DRAW);
+      simpleArray.bind();
+      simpleArray.connectVertexAttrib(simpleVb, simpleHLSpriteProg, "vPos", 3);
+      simpleArray.connectVertexAttrib(simpleVb, simpleHLSpriteProg, "vColor", 4, 3);
+    } else {
+      simpleSpriteProg.enable();
+      simpleSpriteProg.setTexture("pointSprite", pointSprite, 0);
+      simpleVb.setData(data,7,GL_DYNAMIC_DRAW);
+      simpleArray.bind();
+      simpleArray.connectVertexAttrib(simpleVb, simpleSpriteProg, "vPos", 3);
+      simpleArray.connectVertexAttrib(simpleVb, simpleSpriteProg, "vColor", 4, 3);
+    }
+    
   } else {
     simpleProg.enable();
     simpleVb.setData(data,7,GL_DYNAMIC_DRAW);
@@ -381,6 +426,9 @@ void GLApp::shaderUpdate() {
   simpleSpriteProg.enable();
   simpleSpriteProg.setUniform("MVP", mv*p);
 
+  simpleHLSpriteProg.enable();
+  simpleHLSpriteProg.setUniform("MVP", mv*p);
+  
   simpleTexProg.enable();
   simpleTexProg.setUniform("MVP", mv*p);
 
@@ -394,9 +442,27 @@ void GLApp::setImageFilter(GLint magFilter, GLint minFilter) {
   raster.setFilter(magFilter, minFilter);
 }
 
-void GLApp::drawImage(const Image& image, const Vec3& bl,
+void GLApp::drawImage(const GLTexture2D& image, const Vec2& bl, const Vec2& tr) {
+  drawImage(image,
+            {bl.x(),bl.y(),0.0f},
+            {tr.x(),bl.y(),0.0f},
+            {bl.x(),tr.y(),0.0f},
+            {tr.x(),tr.y(),0.0f});
+}
+
+void GLApp::drawImage(const Image& image, const Vec2& bl, const Vec2& tr) {
+    drawImage(image,
+              {bl.x(),bl.y(),0.0f},
+              {tr.x(),bl.y(),0.0f},
+              {bl.x(),tr.y(),0.0f},
+              {tr.x(),tr.y(),0.0f});
+}
+
+
+void GLApp::drawImage(const GLTexture2D& image, const Vec3& bl,
                       const Vec3& br, const Vec3& tl,
                       const Vec3& tr) {
+
   shaderUpdate();
   
   simpleTexProg.enable();
@@ -411,13 +477,60 @@ void GLApp::drawImage(const Image& image, const Vec3& bl,
   };
   
   simpleVb.setData(data,5,GL_DYNAMIC_DRAW);
-    
-  raster.setData(image.data, image.width, image.height, image.componentCount);
   
   simpleArray.bind();
   simpleArray.connectVertexAttrib(simpleVb, simpleTexProg, "vPos", 3);
   simpleArray.connectVertexAttrib(simpleVb, simpleTexProg, "vTexCoords", 2, 3);
-  simpleTexProg.setTexture("raster",raster,0);
+  simpleTexProg.setTexture("raster",image,0);
 
   GL(glDrawArrays(GL_TRIANGLES, 0, GLsizei(data.size()/5)));
+}
+
+void GLApp::drawImage(const Image& image, const Vec3& bl,
+                      const Vec3& br, const Vec3& tl,
+                      const Vec3& tr) {
+
+  raster.setData(image.data, image.width, image.height, image.componentCount);
+  drawImage(raster, bl, br, tl, tr);
+}
+
+void GLApp::drawRect(const Vec4& color, const Vec2& bl, const Vec2& tr) {
+  drawRect(color,
+            {bl.x(),bl.y(),0.0f},
+            {tr.x(),bl.y(),0.0f},
+            {bl.x(),tr.y(),0.0f},
+            {tr.x(),tr.y(),0.0f});
+}
+
+void GLApp::drawRect(const Vec4& color, const Vec3& bl, const Vec3& br,
+                     const Vec3& tl, const Vec3& tr) {
+  drawImage(Image{color}, bl, br, tl, tr);
+}
+
+Mat4 GLApp::computeImageTransform(const Vec2ui& imageSize) const {
+  const Dimensions s = glEnv.getWindowSize();
+  const float ax = imageSize.x()/float(s.width);
+  const float ay = imageSize.y()/float(s.height);
+  const float m = std::max(ax,ay);
+  return Mat4::scaling({ax/m, ay/m, 1.0f});
+}
+
+Mat4 GLApp::computeImageTransformFixedHeight(const Vec2ui& imageSize,
+                                             float height,
+                                             const Vec3& center) const {
+  const Dimensions s = glEnv.getWindowSize();
+  const float ax = imageSize.x()/float(s.width);
+  const float ay = imageSize.y()/float(s.height);
+  return Mat4::scaling({height*ax/ay, height, 1.0f}) *
+         Mat4::translation(center);
+}
+
+Mat4 GLApp::computeImageTransformFixedWidth(const Vec2ui& imageSize,
+                                            float width,
+                                            const Vec3& center) const {
+  const Dimensions s = glEnv.getWindowSize();
+  const float ax = imageSize.x()/float(s.width);
+  const float ay = imageSize.y()/float(s.height);
+  return Mat4::scaling({width, width*ay/ax, 1.0f}) *
+         Mat4::translation(center);
 }

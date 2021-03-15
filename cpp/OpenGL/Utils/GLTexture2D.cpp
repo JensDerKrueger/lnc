@@ -1,3 +1,5 @@
+#include <array>
+
 #include "GLTexture2D.h"
 
 GLTexture2D::GLTexture2D(GLint magFilter, GLint minFilter, GLint wrapX, GLint wrapY) :
@@ -22,6 +24,14 @@ GLTexture2D::GLTexture2D(GLint magFilter, GLint minFilter, GLint wrapX, GLint wr
   GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter));
 }
 
+GLTexture2D::GLTexture2D(const Image& image,
+                         GLint magFilter, GLint minFilter, GLint wrapX, GLint wrapY) :
+GLTexture2D(magFilter, minFilter, wrapX, wrapY)
+{
+  setData(image);
+}
+
+
 void GLTexture2D::setFilter(GLint magFilter, GLint minFilter) {
   this->magFilter = magFilter;
   this->minFilter = minFilter;
@@ -40,33 +50,33 @@ GLTexture2D::GLTexture2D(const GLTexture2D& other) :
 {
   if (other.height > 0 && other.width > 0) {
     switch (dataType) {
-      case GLDataType::BYTE  : setData(other.data, other.height, other.width, other.componentCount); break;
-      case GLDataType::HALF  : setData(other.hdata, other.height, other.width, other.componentCount); break;
-      case GLDataType::FLOAT : setData(other.fdata, other.height, other.width, other.componentCount); break;
+      case GLDataType::BYTE  : setData(other.data, other.width, other.height, other.componentCount); break;
+      case GLDataType::HALF  : setData(other.hdata, other.width, other.height, other.componentCount); break;
+      case GLDataType::FLOAT : setData(other.fdata, other.width, other.height, other.componentCount); break;
     }
   }
 }
 
 GLTexture2D& GLTexture2D::operator=(const GLTexture2D& other) {
-    magFilter = other.magFilter;
-    minFilter = other.minFilter;
-    wrapX = other.wrapX;
-    wrapY = other.wrapY;
-    
-    GL(glBindTexture(GL_TEXTURE_2D, id));
-    GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapX));
-    GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapY));
-    GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter));
-    GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter));
-    
-    if (other.height > 0 && other.width > 0) {
-      switch (dataType) {
-        case GLDataType::BYTE  : setData(other.data, other.height, other.width, other.componentCount); break;
-        case GLDataType::HALF  : setData(other.hdata, other.height, other.width, other.componentCount); break;
-        case GLDataType::FLOAT : setData(other.fdata, other.height, other.width, other.componentCount); break;
-      }
+  magFilter = other.magFilter;
+  minFilter = other.minFilter;
+  wrapX = other.wrapX;
+  wrapY = other.wrapY;
+
+  GL(glBindTexture(GL_TEXTURE_2D, id));
+  GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapX));
+  GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapY));
+  GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter));
+  GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter));
+  
+  if (other.height > 0 && other.width > 0) {
+    switch (dataType) {
+      case GLDataType::BYTE  : setData(other.data, other.width, other.height, other.componentCount); break;
+      case GLDataType::HALF  : setData(other.hdata, other.width, other.height, other.componentCount); break;
+      case GLDataType::FLOAT : setData(other.fdata, other.width, other.height, other.componentCount); break;
     }
-    return *this;
+  }
+  return *this;
 }
 
 const GLint GLTexture2D::getId() const {
@@ -75,6 +85,11 @@ const GLint GLTexture2D::getId() const {
 
 void GLTexture2D::clear() {
   setEmpty(width,height,componentCount,dataType);
+}
+
+void GLTexture2D::setData(const Image& image) {
+  this->data = image.data;
+  setData((GLvoid*)(image.data.data()), image.width, image.height, image.componentCount, GLDataType::BYTE);
 }
 
 void GLTexture2D::setData(const std::vector<GLubyte>& data) {
@@ -120,17 +135,11 @@ void GLTexture2D::setData(const std::vector<GLfloat>& data, uint32_t width, uint
   setData((GLvoid*)data.data(), width, height, componentCount, GLDataType::FLOAT);
 }
 
-void GLTexture2D::setData(GLvoid* data, uint32_t width, uint32_t height, uint32_t componentCount, GLDataType dataType) {
-  this->dataType = dataType;
-  this->width = width;
-  this->height = height;
-  this->componentCount = componentCount;
-
-  GL(glBindTexture(GL_TEXTURE_2D, id));
-
-  GL(glPixelStorei(GL_PACK_ALIGNMENT ,1));
-  GL(glPixelStorei(GL_UNPACK_ALIGNMENT ,1));
-
+static std::array<GLenum,3> dataTypeToGL(GLDataType dataType, uint32_t componentCount) {
+  GLenum type{0};
+  GLenum internalformat{0};
+  GLenum format{0};
+  
   switch (dataType) {
     case GLDataType::BYTE :
       type = GL_UNSIGNED_BYTE;
@@ -198,10 +207,36 @@ void GLTexture2D::setData(GLvoid* data, uint32_t width, uint32_t height, uint32_
       }
       break;
   }
-      
-  GL(glTexImage2D(GL_TEXTURE_2D, 0, internalformat, GLuint(width), GLuint(height), 0, format, type, data));
+
+  return {type, internalformat, format};
 }
 
+void GLTexture2D::setData(GLvoid* data, uint32_t width, uint32_t height, uint32_t componentCount, GLDataType dataType) {
+  this->dataType = dataType;
+  this->width = width;
+  this->height = height;
+  this->componentCount = componentCount;
+
+  GL(glBindTexture(GL_TEXTURE_2D, id));
+
+  GL(glPixelStorei(GL_PACK_ALIGNMENT ,1));
+  GL(glPixelStorei(GL_UNPACK_ALIGNMENT ,1));
+
+  std::array<GLenum,3> format = dataTypeToGL(dataType, componentCount);
+  
+  GL(glTexImage2D(GL_TEXTURE_2D, 0, format[1], GLuint(width), GLuint(height), 0, format[2], format[0], data));
+}
+
+
+void GLTexture2D::setPixel(const std::vector<GLubyte>& data, uint32_t x, uint32_t y) {  
+  std::array<GLenum,3> format = dataTypeToGL(dataType, componentCount);
+  GL(glBindTexture(GL_TEXTURE_2D, id));
+  glTexSubImage2D(GL_TEXTURE_2D,0,GLint(x),GLint(y),1,1, format[2], format[0], data.data());
+}
+
+Image GLTexture2D::getImage() {
+  return {width, height, componentCount, getDataByte()};
+}
 
 const std::vector<GLubyte>& GLTexture2D::getDataByte() {
   GL(glPixelStorei(GL_PACK_ALIGNMENT, 1));

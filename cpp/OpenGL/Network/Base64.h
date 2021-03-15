@@ -7,6 +7,16 @@
 std::string base64_encode(uint8_t const* buf, size_t bufLen);
 void base64_decode(const std::string& encoded_string, std::vector<uint8_t>& result);
 
+std::string base64_encode(const std::string& str);
+std::string base64_decode(const std::string& encoded_string);
+
+std::string base64url_encode(uint8_t const* buf, size_t bufLen);
+void base64url_decode(const std::string& encoded_string, std::vector<uint8_t>& result);
+
+std::string base64url_encode(const std::string& str);
+std::string base64url_decode(const std::string& encoded_string);
+
+
 /*
  The MIT License
  
@@ -31,7 +41,7 @@ void base64_decode(const std::string& encoded_string, std::vector<uint8_t>& resu
  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  DEALINGS IN THE SOFTWARE.
 
- Copyright notive from base64.h:
+ Copyright notice from base64.h:
  
  Copyright (C) 2004-2008 René Nyffenegger
  

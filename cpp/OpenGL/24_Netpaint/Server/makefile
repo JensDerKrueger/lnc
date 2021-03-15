@@ -13,7 +13,7 @@ else
 	INCLUDES=-I. -I ../../../openmp/include -I /opt/homebrew/include -I../../Network -I../../Utils
 endif
 
-SRC = main.cpp
+SRC = ../PainterCommon.cpp main.cpp
 OBJ = $(SRC:.cpp=.o)
 TARGET = netPaintServer
 

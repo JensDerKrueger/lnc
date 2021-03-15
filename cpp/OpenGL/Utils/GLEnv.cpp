@@ -106,6 +106,11 @@ void GLEnv::setKeyCallback(GLFWkeyfun f) {
   glfwSetKeyCallback(window, f);
 }
 
+void GLEnv::setKeyCallbacks(GLFWkeyfun f, GLFWcharfun c) {
+  glfwSetKeyCallback(window, f);
+  glfwSetCharCallback(window, c);
+}
+
 void GLEnv::setResizeCallback(GLFWframebuffersizefun f) {
   glfwSetFramebufferSizeCallback(window, f);
 }
