@@ -44,7 +44,7 @@ int main(int argc, char ** argv) {
   }
   std::cout << std::endl;
   if (server.isOK()) {
-    std::cout << "running ..." << std::endl;
+    std::cout << "running ...\n" << std::flush;
 
     std::string answer;
     std::future<std::string> future = std::async(getAnswer);
