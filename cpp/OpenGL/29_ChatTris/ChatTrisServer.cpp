@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <chrono>
 #include <ctime>
-
+#include <iomanip>
 #include "ChatTrisServer.h"
 
 #include <Rand.h>
