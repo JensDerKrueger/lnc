@@ -43,6 +43,7 @@ void Scene::restart() {
   gameOver = false;
   gameOverTime = 0;
   grid.getRenderer()->setGameOver(false, score);
+  chatConnection.sendKeepAlivePing();
 }
 
 void Scene::rotateCW(){
@@ -382,4 +383,8 @@ void ChatConnection::handleServerMessage(const std::string& message) {
     }
   } catch (const MessageException e) {
   }
+}
+
+void ChatConnection::sendKeepAlivePing() {
+  sendMessage("Ping");
 }

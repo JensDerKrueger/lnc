@@ -18,13 +18,16 @@ public:
   FrontendServer(uint16_t port);
   
   virtual void handleClientConnection(uint32_t id, const std::string& address, uint16_t port) override;
-  virtual void handleClientMessage(uint32_t id, const std::string& message) override {}
+  virtual void handleClientMessage(uint32_t id, const std::string& message) override;
   virtual void handleClientDisconnection(uint32_t id) override;
   
   void newInput(const std::string& name, const std::string& text);
   
 private:
   std::map<uint32_t, ConnectionInfo> connectionInfos;
+  
+  std::string getTimeStr() const;
+  std::string clean(const std::string& message) const;
 };
 
 class ChatTrisServer : public Server<HttpClientConnection> {

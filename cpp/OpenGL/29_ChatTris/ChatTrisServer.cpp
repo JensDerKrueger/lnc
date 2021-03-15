@@ -1,4 +1,6 @@
 #include <algorithm>
+#include <chrono>
+#include <ctime>
 
 #include "ChatTrisServer.h"
 
@@ -76,12 +78,39 @@ void FrontendServer::newInput(const std::string& name, const std::string& text) 
   sendMessage(e.getEncodedMessage());
 }
 
+std::string FrontendServer::getTimeStr() const {
+  auto now = std::chrono::system_clock::now();
+  auto in_time_t = std::chrono::system_clock::to_time_t(now);
+
+  std::stringstream ss;
+  ss << std::put_time(std::localtime(&in_time_t), "%Y-%m-%d %X");
+  return ss.str();
+}
+
+std::string FrontendServer::clean(const std::string& message) const {
+  static const std::string safeChars = "abcdefghijklmonqrstuvwxyzABCDEFGHIJKLMNOPRSTUVWXYZ1234567890ß+-*,.;:-_<># !?";
+
+  std::string safeString{""};
+  for (size_t i = 0;i<message.size();++i) {
+    if ( safeChars.find(message[i]) == std::string::npos ) {
+      safeString += "_";
+    } else {
+      safeString += message[i];
+    }
+  }
+  return safeString;
+}
+
 void FrontendServer::handleClientConnection(uint32_t id, const std::string& address, uint16_t port) {
   connectionInfos[id] = ConnectionInfo{id, address, port};
-  std::cout << "New connection to " << address << ":" << port << " established." << std::endl;
+  std::cout << getTimeStr() << " New connection to " << address << ":" << port << " established." << std::endl;
 }
 
 void FrontendServer::handleClientDisconnection(uint32_t id)  {
-  std::cout << "Connection to " << connectionInfos[id].address << ":" << connectionInfos[id].port << " terminated" << std::endl;
+  std::cout << getTimeStr() << " Connection to " << connectionInfos[id].address << ":" << connectionInfos[id].port << " terminated" << std::endl;
   connectionInfos.erase(id);
+}
+
+void FrontendServer::handleClientMessage(uint32_t id, const std::string& message) {
+  std::cout << getTimeStr() << " Received " << clean(message) << std::endl;
 }

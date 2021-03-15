@@ -15,6 +15,7 @@ public:
   ChatConnection(const std::string& address, uint16_t port, Scene* app);
   virtual void handleServerMessage(const std::string& message) override;
 
+  void sendKeepAlivePing();
 private:
   Scene* app;
   
