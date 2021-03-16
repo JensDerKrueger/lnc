@@ -114,12 +114,13 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
       case GLFW_KEY_T:
         drawTorus = !drawTorus;
         break;
+      case GLFW_KEY_SPACE:
       case GLFW_KEY_P:
         paused = !paused;
         break;
       case GLFW_KEY_M:
         std::string msg{};
-        std::getline(std::cin, msg);
+        std::getline(std::cin, msg);    //TODO: get msg from twitch chat
         auto pos = calcGridPosition(msg);
         auto bits = calcBitVector2d(msg);
         paintBitVector(bits, pos.first, pos.second);
