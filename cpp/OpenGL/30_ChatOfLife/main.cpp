@@ -14,7 +14,7 @@
 
 #include <Tesselation.h>
 
-GLEnv gl{1024,1024,4,"OpenGL Game of Life", true, false, 4, 1, true};
+GLEnv gl{1024,1024,4,"OpenGL Game of Life with Chat", true, false, 4, 1, true};
 std::vector<GLTexture2D> gridTextures{GLTexture2D{GL_NEAREST, GL_NEAREST},
                                       GLTexture2D{GL_NEAREST, GL_NEAREST}};
 GLBuffer vbFullScreenQuad{GL_ARRAY_BUFFER};
@@ -39,6 +39,7 @@ GLArray torusArray;
 GLProgram progTorus{GLProgram::createFromFile("visualizeVS.glsl", "visualizeFS.glsl")};
 
 bool drawTorus{false};
+bool paused{ false };
 
 void randomizeGrid() {
   std::vector<uint8_t> data(gridTextures[0].getSize());
@@ -50,6 +51,48 @@ void randomizeGrid() {
   gridTextures[0].setData(data);
   gridTextures[1].setData(data);
 }
+
+
+
+void paintBitVector(std::vector<std::vector<uint8_t>>& bits, size_t gridX, size_t gridY) {
+  for (size_t yOffset = 0; yOffset < bits.size(); yOffset++) {
+    for (size_t xOffset = 0; xOffset < bits[yOffset].size(); xOffset++) {
+      if (bits[yOffset][xOffset]) {
+        gridTextures[0].setPixel({ 255,0,0 }, gridX + xOffset, gridY + yOffset);
+        gridTextures[1].setPixel({ 255,0,0 }, gridX + xOffset, gridY + yOffset);
+      }
+    }
+  }
+}
+
+std::vector<std::vector<uint8_t>> calcBitVector2d(std::string msg) {
+  std::vector<std::vector<uint8_t>> bitv;
+  std::vector<uint8_t> bits;
+  uint8_t length = uint8_t(ceil(sqrt(msg.size() * 8.0f)));
+  for (char c : msg) {
+    while (c) {
+      bits.push_back(c%2);
+      if (bits.size() >= length) {
+        bitv.push_back(bits);
+        bits.clear();
+      }
+      c /= 2;
+    }
+  }
+  return bitv;
+}
+
+std::pair<size_t, size_t> calcGridPosition(std::string msg) {  
+  const char* dividers = " -_";
+  msg = msg+dividers[0]+dividers[0];
+  size_t firstDivider{ msg.find_first_of(dividers) };
+  size_t secondDivider{ msg.find_first_of(dividers,firstDivider+1) - firstDivider - 1};
+
+  return std::make_pair(firstDivider * 47 % gridTextures[0].getWidth(),
+                        secondDivider * 47 % gridTextures[0].getHeight());  
+}
+
+
 
 void clearGrid() {
   gridTextures[0].clear();
@@ -70,6 +113,16 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
         break;
       case GLFW_KEY_T:
         drawTorus = !drawTorus;
+        break;
+      case GLFW_KEY_P:
+        paused = !paused;
+        break;
+      case GLFW_KEY_M:
+        std::string msg{};
+        std::getline(std::cin, msg);
+        auto pos = calcGridPosition(msg);
+        auto bits = calcBitVector2d(msg);
+        paintBitVector(bits, pos.first, pos.second);
         break;
     }
   }
@@ -201,7 +254,7 @@ int main(int argc, char** argv) {
     } else {
       render();
     }
-    evolve();
+    if(!paused)evolve();
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
     GLEnv::checkGLError("endOfFrame");
     gl.endOfFrame();
