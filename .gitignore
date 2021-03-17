@@ -4,6 +4,7 @@
 **/*.user
 .vs/
 
+
 cpp/**/VS/**/bin/*
 cpp/**/VS/**/tmp/*
 cpp/**/VS/**/x64/*
