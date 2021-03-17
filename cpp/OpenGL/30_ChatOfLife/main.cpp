@@ -91,24 +91,24 @@ void paintBitVector(std::vector<std::vector<uint8_t>>& bits, uint32_t gridX, uin
         uint32_t y{0};
         switch (direction) {
           case 0:
-            x = gridX + xOffset;
-            y = gridY + yOffset;
+            x = w + gridX + xOffset;
+            y = h + gridY + yOffset;
             break;
           case 1:
-            x = gridX + yOffset;
-            y = gridY - xOffset + w;
+            x = w + gridX + yOffset;
+            y = h + gridY - xOffset;
             break;
           case 2:
-            x = gridX - xOffset + w;
-            y = gridY - yOffset + h;
+            x = w + gridX - xOffset;
+            y = h + gridY - yOffset;
             break;
           case 3:
-            x = gridX - yOffset + h;
-            y = gridY + xOffset;
+            x = w + gridX - yOffset;
+            y = h + gridY + xOffset;
             break;
         }
-        x = (x + w) % w;
-        y = (y + h) % h;
+        x = x % w;
+        y = y % h;
         gridTextures[0].setPixel({ 255,0,0 }, x, y);
         gridTextures[1].setPixel({ 255,0,0 }, x, y);
       }
