@@ -13,6 +13,7 @@
 #include <Rand.h>
 
 #include <Tesselation.h>
+#include "golpatterns.h"
 
 GLEnv gl{1024,1024,4,"OpenGL Game of Life with Chat", true, false, 4, 1, true};
 std::vector<GLTexture2D> gridTextures{GLTexture2D{GL_NEAREST, GL_NEAREST},
@@ -41,6 +42,32 @@ GLProgram progTorus{GLProgram::createFromFile("visualizeVS.glsl", "visualizeFS.g
 bool drawTorus{false};
 bool paused{ false };
 
+
+std::vector<GOL::Pattern> patternsUsed{
+//Still lifes
+    GOL::block,
+    GOL::beehive,
+    GOL::loaf,
+    GOL::boat,
+    GOL::tub,
+//Oscillators
+    GOL::blinker,
+    GOL::toad,
+    GOL::beacon,
+    GOL::pulsar,
+    GOL::pentadecathlon,
+//Spaceships
+    GOL::glider,
+    GOL::lwss,
+    GOL::mwss,
+    GOL::hwss,
+//miscellaneous
+    GOL::acorn
+};
+
+
+
+
 void randomizeGrid() {
   std::vector<uint8_t> data(gridTextures[0].getSize());
   
@@ -54,45 +81,91 @@ void randomizeGrid() {
 
 
 
-void paintBitVector(std::vector<std::vector<uint8_t>>& bits, size_t gridX, size_t gridY) {
-  for (size_t yOffset = 0; yOffset < bits.size(); yOffset++) {
-    for (size_t xOffset = 0; xOffset < bits[yOffset].size(); xOffset++) {
-      if (bits[yOffset][xOffset]) {
-        gridTextures[0].setPixel({ 255,0,0 }, gridX + xOffset, gridY + yOffset);
-        gridTextures[1].setPixel({ 255,0,0 }, gridX + xOffset, gridY + yOffset);
+void paintBitVector(std::vector<std::vector<uint8_t>>& bits, uint32_t gridX, uint32_t gridY, uint8_t direction) {
+  uint32_t w = gridTextures[0].getWidth();
+  uint32_t h = gridTextures[0].getHeight();
+  for (uint32_t yOffset = 0; yOffset < bits.size(); yOffset++) {
+    for (uint32_t xOffset = 0; xOffset < bits[yOffset].size(); xOffset++) {
+      if (bits[yOffset][xOffset]) {        
+        uint32_t x{0};
+        uint32_t y{0};
+        switch (direction) {
+          case 0:
+            x = gridX + xOffset;
+            y = gridY + yOffset;
+            break;
+          case 1:
+            x = gridX + yOffset;
+            y = gridY - xOffset + w;
+            break;
+          case 2:
+            x = gridX - xOffset + w;
+            y = gridY - yOffset + h;
+            break;
+          case 3:
+            x = gridX - yOffset + h;
+            y = gridY + xOffset;
+            break;
+        }
+        x = (x + w) % w;
+        y = (y + h) % h;
+        gridTextures[0].setPixel({ 255,0,0 }, x, y);
+        gridTextures[1].setPixel({ 255,0,0 }, x, y);
       }
     }
   }
 }
 
-std::vector<std::vector<uint8_t>> calcBitVector2d(std::string msg) {
-  std::vector<std::vector<uint8_t>> bitv;
-  std::vector<uint8_t> bits;
-  uint8_t length = uint8_t(ceil(sqrt(msg.size() * 8.0f)));
+std::vector<std::vector<uint8_t>> calcRawBitsFromMsg(const std::string &msg) {
+  std::vector<std::vector<uint8_t>> bitv{ {} };
+  size_t patternWidth = size_t(ceil(sqrt(msg.size() * 8.0f)));
   for (char c : msg) {
     while (c) {
-      bits.push_back(c%2);
-      if (bits.size() >= length) {
-        bitv.push_back(bits);
-        bits.clear();
-      }
+      bitv.back().push_back(c%2);
+      if (bitv.back().size() >= patternWidth) { bitv.push_back({}); }
       c /= 2;
     }
   }
   return bitv;
 }
 
-std::pair<size_t, size_t> calcGridPosition(std::string msg) {  
-  const char* dividers = " -_";
-  msg = msg+dividers[0]+dividers[0];
-  size_t firstDivider{ msg.find_first_of(dividers) };
-  size_t secondDivider{ msg.find_first_of(dividers,firstDivider+1) - firstDivider - 1};
 
-  return std::make_pair(firstDivider * 47 % gridTextures[0].getWidth(),
-                        secondDivider * 47 % gridTextures[0].getHeight());  
+std::pair<uint32_t, uint32_t> calcPositionFromMsg(const std::string &msg) {
+  const char* delimiters = " -_";
+  std::string msgT = msg+delimiters[0]+delimiters[0];
+  size_t firstLength{ msgT.find_first_of(delimiters) };
+  size_t secondLength{ msgT.find_first_of(delimiters,firstLength+1) - firstLength - 1};
+
+  return std::make_pair(firstLength * 47 % gridTextures[0].getWidth(),
+                        secondLength * 47 % gridTextures[0].getHeight());  
+}
+
+uint8_t calcPatternTypeFromMsg(const std::string& msg) {
+  return msg.size() > 0 ? msg[0] % 2 : 0;
+}
+
+std::vector<std::vector<uint8_t>> calcLifeFormFromMsg(const std::string& msg) {
+  size_t id = msg.size() > 1 ? msg[1] % patternsUsed.size() : 0;
+  return patternsUsed[id].pattern;
+}
+
+uint8_t calcDirectionFromMsg(const std::string& msg) {
+  return msg.size() > 2 ? msg[2] % 4 : 0;
 }
 
 
+
+void paintPatternByMsg(const std::string &msg) {
+  std::vector<std::vector<uint8_t>> bits{};
+  if (calcPatternTypeFromMsg(msg) == 0) {
+    bits = calcRawBitsFromMsg(msg);
+  } else {
+    bits = calcLifeFormFromMsg(msg);
+  }
+  std::pair<uint32_t, uint32_t> gridPos = calcPositionFromMsg(msg);
+  uint8_t patternDirection = calcDirectionFromMsg(msg);
+  paintBitVector(bits, gridPos.first, gridPos.second, patternDirection);
+}
 
 void clearGrid() {
   gridTextures[0].clear();
@@ -121,9 +194,7 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
       case GLFW_KEY_M:
         std::string msg{};
         std::getline(std::cin, msg);    //TODO: get msg from twitch chat
-        auto pos = calcGridPosition(msg);
-        auto bits = calcBitVector2d(msg);
-        paintBitVector(bits, pos.first, pos.second);
+        paintPatternByMsg(msg);
         break;
     }
   }
