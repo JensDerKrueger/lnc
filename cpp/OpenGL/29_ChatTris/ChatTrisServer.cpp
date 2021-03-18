@@ -10,7 +10,8 @@
 ChatTrisServer::ChatTrisServer() :
   Server(11004)
 {
-  frontendConnections.start();
+  frontendConnections1.start();
+  frontendConnections2.start();
 }
 
 ChatTrisServer::~ChatTrisServer() {
@@ -55,7 +56,9 @@ void ChatTrisServer::handleClientMessage(uint32_t id, const std::string& message
       if (!name.empty()) {
         sendMessage("Player " + base64url_decode(name) + " wrote " + base64url_decode(text) + " in stream " + base64url_decode(channel) , id);
         if (base64url_decode(channel) == "#bitmatcher")
-          frontendConnections.newInput(name, text);
+          frontendConnections1.newInput(name, text);
+        if (base64url_decode(channel) == "#jhkrueger")
+          frontendConnections2.newInput(name, text);
       } else {
         sendMessage("Name Missing from message");
       }
