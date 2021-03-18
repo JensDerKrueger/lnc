@@ -37,7 +37,8 @@ public:
   virtual void handleClientMessage(uint32_t id, const std::string& message) override;
 
 private:
-  FrontendServer frontendConnections{11006};
+  FrontendServer frontendConnections1{11006};
+  FrontendServer frontendConnections2{11007};
     
   std::pair<std::string,std::string> parseParameter(const std::string& param) const;
   std::map<std::string,std::string> parseParameters(const std::string& params) const;
