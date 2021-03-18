@@ -3,27 +3,28 @@
 #include "ChatOfLife.h"
 #include "golpatterns.h"
 
-static std::vector<GOL::Pattern> patternsUsed {
-  //Still lifes
-      GOL::block,
-      GOL::beehive,
-      GOL::loaf,
-      GOL::boat,
-      GOL::tub,
-  //Oscillators
-      GOL::blinker,
-      GOL::toad,
-      GOL::beacon,
-      GOL::pulsar,
-      GOL::pentadecathlon,
-  //Spaceships
-      GOL::glider,
-      GOL::lwss,
-      GOL::mwss,
-      GOL::hwss,
-  //miscellaneous
-      GOL::acorn
-  };
+std::vector<GOL::Pattern> patternsUsed{
+//Still lifes
+    //GOL::block,
+    //GOL::beehive,
+    //GOL::loaf,
+    GOL::boat,
+    GOL::tub,
+//Oscillators
+    //GOL::blinker,
+    //GOL::toad,
+    GOL::beacon,
+    GOL::pulsar,
+    GOL::pentadecathlon,
+//Spaceships
+    GOL::glider,
+    GOL::lwss,
+    GOL::mwss,
+    GOL::hwss,
+//miscellaneous
+    GOL::acorn,
+    GOL::gosper
+};
 
 ChatOfLife::ChatOfLife() :
 GLApp(1024,1024,4,"OpenGL Game of Life with Chat"),
@@ -42,40 +43,22 @@ void ChatOfLife::randomizeGrid() {
   gridTextures[0].setData(data);
   gridTextures[1].setData(data);
 }
+void ChatOfLife::paintBitVector(std::vector<std::vector<uint8_t>>& bits, uint32_t gridX, uint32_t gridY, uint8_t direction, uint8_t value) {
+    uint32_t w = gridTextures[0].getWidth();
+    uint32_t h = gridTextures[0].getHeight();
+    std::vector<std::vector<int8_t>> rot{ {1,0,0,1}, {0,1,-1,0,}, {-1,0,0,-1}, {0,-1,1,0} };
 
-void ChatOfLife::paintBitVector(std::vector<std::vector<uint8_t>>& bits, uint32_t gridX, uint32_t gridY, uint8_t direction) {
-  uint32_t w = gridTextures[0].getWidth();
-  uint32_t h = gridTextures[0].getHeight();
-  for (uint32_t yOffset = 0; yOffset < bits.size(); yOffset++) {
-    for (uint32_t xOffset = 0; xOffset < bits[yOffset].size(); xOffset++) {
-      if (bits[yOffset][xOffset]) {
-        uint32_t x{0};
-        uint32_t y{0};
-        switch (direction) {
-          case 0:
-            x = w + gridX + xOffset;
-            y = h + gridY + yOffset;
-            break;
-          case 1:
-            x = w + gridX + yOffset;
-            y = h + gridY - xOffset;
-            break;
-          case 2:
-            x = w + gridX - xOffset;
-            y = h + gridY - yOffset;
-            break;
-          case 3:
-            x = w + gridX - yOffset;
-            y = h + gridY + xOffset;
-            break;
+    for (uint32_t yOffset = 0; yOffset < bits.size(); yOffset++) {
+        for (uint32_t xOffset = 0; xOffset < bits[yOffset].size(); xOffset++) {
+            if (bits[yOffset][xOffset]) {
+                uint32_t x{ (w + gridX + rot[direction][0] * xOffset + rot[direction][1] * yOffset) % w };
+                uint32_t y{ (h + gridY + rot[direction][2] * xOffset + rot[direction][3] * yOffset) % h };
+
+                gridTextures[0].setPixel({ value,0,0 }, x, y);
+                gridTextures[1].setPixel({ value,0,0 }, x, y);
+            }
         }
-        x = x % w;
-        y = y % h;
-        gridTextures[0].setPixel({ 255,0,0 }, x, y);
-        gridTextures[1].setPixel({ 255,0,0 }, x, y);
-      }
     }
-  }
 }
 
 std::vector<std::vector<uint8_t>> ChatOfLife::calcRawBitsFromMsg(const std::string &msg) {
@@ -123,7 +106,7 @@ void ChatOfLife::paintPatternByMsg(const std::string &msg) {
   }
   std::pair<uint32_t, uint32_t> gridPos = calcPositionFromMsg(msg);
   uint8_t patternDirection = calcDirectionFromMsg(msg);
-  paintBitVector(bits, gridPos.first, gridPos.second, patternDirection);
+  paintBitVector(bits, gridPos.first, gridPos.second, patternDirection, (std::rand()%16)*16);
 }
 
 void ChatOfLife::clearGrid() {
