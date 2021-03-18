@@ -64,7 +64,7 @@ void ChatOfLife::paintBitVector(std::vector<std::vector<uint8_t>>& bits, uint32_
 std::vector<std::vector<uint8_t>> ChatOfLife::calcRawBitsFromMsg(const std::string &msg) {
   std::vector<std::vector<uint8_t>> bitv{ {} };
   size_t patternWidth = size_t(ceil(sqrt(msg.size() * 8.0f)));
-  for (char c : msg) {
+  for (uint8_t c : msg) {
     while (c) {
       bitv.back().push_back(c%2);
       if (bitv.back().size() >= patternWidth) { bitv.push_back({}); }
@@ -85,7 +85,7 @@ std::pair<uint32_t, uint32_t> ChatOfLife::calcPositionFromMsg(const std::string 
 }
 
 uint8_t ChatOfLife::calcPatternTypeFromMsg(const std::string& msg) {
-  return msg.size() > 0 ? msg[0] % 2 : 0;
+  return msg.size() > 0 ? uint8_t(msg[0]) % 2 : 0;
 }
 
 std::vector<std::vector<uint8_t>> ChatOfLife::calcLifeFormFromMsg(const std::string& msg) {
@@ -94,7 +94,7 @@ std::vector<std::vector<uint8_t>> ChatOfLife::calcLifeFormFromMsg(const std::str
 }
 
 uint8_t ChatOfLife::calcDirectionFromMsg(const std::string& msg) {
-  return msg.size() > 2 ? msg[2] % 4 : 0;
+  return msg.size() > 2 ? uint8_t(msg[2]) % 4 : 0;
 }
 
 void ChatOfLife::paintPatternByMsg(const std::string &msg) {
@@ -106,7 +106,7 @@ void ChatOfLife::paintPatternByMsg(const std::string &msg) {
   }
   std::pair<uint32_t, uint32_t> gridPos = calcPositionFromMsg(msg);
   uint8_t patternDirection = calcDirectionFromMsg(msg);
-  paintBitVector(bits, gridPos.first, gridPos.second, patternDirection, (std::rand()%16)*16);
+  paintBitVector(bits, gridPos.first, gridPos.second, patternDirection, (std::rand()%16)*16+1);
 }
 
 void ChatOfLife::clearGrid() {
