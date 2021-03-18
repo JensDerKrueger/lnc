@@ -23,7 +23,7 @@ void main() {
     FragColor = vec4(1.0);
   } else if (gridValue.r > 0) {
     vec4 first = vec4(hsv2rgb(vec3(gridValue.r,1.0,1.0)),1.0);
-    vec4 last = first*0.1;
+    vec4 last = first*0.2;
     FragColor = mix(first,last,gridValue.b);
   } else {
     FragColor = vec4(0.0);

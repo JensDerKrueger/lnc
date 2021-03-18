@@ -23,7 +23,9 @@ std::vector<GOL::Pattern> patternsUsed{
     GOL::hwss,
 //miscellaneous
     GOL::acorn,
-    GOL::gosper
+    GOL::gosper,
+    GOL::engine1,
+    GOL::engine2
 };
 
 ChatOfLife::ChatOfLife() :
@@ -80,8 +82,8 @@ std::pair<uint32_t, uint32_t> ChatOfLife::calcPositionFromMsg(const std::string 
   size_t firstLength = { msgT.find_first_of(delimiters)};
   size_t secondLength= { msgT.find_first_of(delimiters,firstLength+1) - firstLength - 1};
 
-  return std::make_pair(uint32_t(firstLength * 47 % gridTextures[0].getWidth()),
-                        uint32_t(secondLength * 47 % gridTextures[0].getHeight()));
+  return std::make_pair(uint32_t(firstLength * 23 % gridTextures[0].getWidth()),
+                        uint32_t(secondLength * 23 % gridTextures[0].getHeight()));
 }
 
 uint8_t ChatOfLife::calcPatternTypeFromMsg(const std::string& msg) {
