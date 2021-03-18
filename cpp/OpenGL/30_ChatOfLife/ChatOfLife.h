@@ -109,7 +109,7 @@ private:
   
   
   void randomizeGrid();
-  void paintBitVector(std::vector<std::vector<uint8_t>>& bits, uint32_t gridX, uint32_t gridY, uint8_t direction);
+  void paintBitVector(std::vector<std::vector<uint8_t>>& bits, uint32_t gridX, uint32_t gridY, uint8_t direction, uint8_t value);
   std::vector<std::vector<uint8_t>> calcRawBitsFromMsg(const std::string &msg);
   std::pair<uint32_t, uint32_t> calcPositionFromMsg(const std::string &msg);
   uint8_t calcPatternTypeFromMsg(const std::string& msg);
