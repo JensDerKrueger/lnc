@@ -1,11 +1,12 @@
 #include <limits>
-#include <math.h>
+#include <algorithm>
+#include <cmath>
 
 #include <GLApp.h>
 
 class SignedDistanceTransform : public GLApp {
 public:
-  Image distanceImage{640,480,4};
+  Image distanceImage{500,500,4};
   std::vector<bool> I;
   std::vector<float> d;
   std::vector<Vec2ui> p;
@@ -17,10 +18,10 @@ public:
   const Vec2ui NO_POS{std::numeric_limits<uint32_t>::max(),
                       std::numeric_limits<uint32_t>::max()};
   
-  Vec2 normPos;
+  Vec2ui imagePos;
   
   SignedDistanceTransform() :
-    GLApp(640,480,1)
+    GLApp(500,500,1)
   {
     const size_t s = distanceImage.width*distanceImage.height;
     I.resize(s);
@@ -35,23 +36,36 @@ public:
   virtual void mouseMove(double xPosition, double yPosition) override{
     Dimensions s = glEnv.getWindowSize();
     if (xPosition < 0 || xPosition > s.width || yPosition < 0 || yPosition > s.height) return;
-    normPos = Vec2{float(xPosition)/s.width,1.0f-float(yPosition)/s.height};
+    imagePos = Vec2ui{uint32_t(float(xPosition)/s.width*distanceImage.width),
+                      uint32_t((1.0f-float(yPosition)/s.height)*distanceImage.height)};
+    computeDRA(false);
+    updateImage();
   }
     
   virtual void mouseButton(int button, int state, int mods, double xPosition, double yPosition) override {
     if (button == GLFW_MOUSE_BUTTON_LEFT) {
       if (state == GLFW_PRESS) {
-        uint32_t x = uint32_t(normPos.x()*distanceImage.width);
-        uint32_t y = uint32_t(normPos.y()*distanceImage.height);
-        
-        I[index(x,y)] = true;
-        
-        computeDRA();
+        computeDRA(true);
         updateImage();
       }
     }
   }
 
+  virtual void keyboard(int key, int scancode, int action, int mods) override{
+    if (action == GLFW_PRESS) {
+      switch (key) {
+        case GLFW_KEY_ESCAPE :
+          closeWindow();
+          break;
+        case GLFW_KEY_C :
+          std::fill(I.begin(), I.end(), false);
+          computeDRA(false);
+          updateImage();
+          break;
+      }
+    }
+  }
+  
   size_t index(size_t x, size_t y) {
     return x + y * distanceImage.width;
   }
@@ -61,7 +75,11 @@ public:
     return sqrtf( (x-p[i].x())*(x-p[i].x()) + (y-p[i].y())*(y-p[i].y()) );
   }
   
-  void computeDRA() {
+  void computeDRA(bool permanent) {
+    
+    const bool last = I[index(imagePos.x(), imagePos.y())];
+    I[index(imagePos.x(), imagePos.y())] = true;
+        
     for (size_t i = 0;i<I.size();++i) {
       d[i] = INV;
       p[i] = NO_POS;
@@ -124,6 +142,8 @@ public:
     for (size_t i = 0;i<I.size();++i) {
       if (!I[i]) d[i] = -d[i];
     }
+    
+    if (!permanent) I[index(imagePos.x(), imagePos.y())] = last;
   }
   
   void updateImage() {
