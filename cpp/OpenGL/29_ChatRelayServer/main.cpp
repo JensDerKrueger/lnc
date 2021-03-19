@@ -1,4 +1,4 @@
-#include "ChatTrisServer.h"
+#include "ChatRelayServer.h"
 
 #include <future>
 #include <chrono>
@@ -34,7 +34,7 @@ static std::string getAnswer()
 int main(int argc, char ** argv) {
   std::set_terminate (globalExceptionHandler);
 
-  ChatTrisServer server;
+  ChatRelayServer server;
   server.start();
   
   std::cout << "Starting ChatTris Server...";

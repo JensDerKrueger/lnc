@@ -2,29 +2,29 @@
 #include <chrono>
 #include <ctime>
 #include <iomanip>
-#include "ChatTrisServer.h"
+#include "ChatRelayServer.h"
 
 #include <Rand.h>
 #include <Base64.h>
 
-ChatTrisServer::ChatTrisServer() :
+ChatRelayServer::ChatRelayServer() :
   Server(11004)
 {
   frontendConnections1.start();
   frontendConnections2.start();
 }
 
-ChatTrisServer::~ChatTrisServer() {
+ChatRelayServer::~ChatRelayServer() {
 }
 
-std::pair<std::string,std::string> ChatTrisServer::parseParameter(const std::string& param) const {
+std::pair<std::string,std::string> ChatRelayServer::parseParameter(const std::string& param) const {
   size_t sep = param.find("=");
   if (sep == std::string::npos)
     throw MessageException("Seperator = not found in parameter");
   return std::make_pair<std::string,std::string>(param.substr(0, sep), param.substr(sep+1));
 }
 
-std::map<std::string,std::string> ChatTrisServer::parseParameters(const std::string& params) const {
+std::map<std::string,std::string> ChatRelayServer::parseParameters(const std::string& params) const {
   std::map<std::string,std::string> result;
   size_t start = params.find("?");
   while (start != std::string::npos) {
@@ -40,7 +40,7 @@ std::map<std::string,std::string> ChatTrisServer::parseParameters(const std::str
   return result;
 }
 
-void ChatTrisServer::handleClientMessage(uint32_t id, const std::string& message) {
+void ChatRelayServer::handleClientMessage(uint32_t id, const std::string& message) {
   Tokenizer t{message, ' '};
   try {
     std::string command = t.nextString();

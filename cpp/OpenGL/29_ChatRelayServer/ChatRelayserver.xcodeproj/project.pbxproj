@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		56C42EA825FA599E00143B99 /* ChatTrisServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 56C42EA625FA599E00143B99 /* ChatTrisServer.cpp */; };
-		56C42EA925FA599E00143B99 /* mainServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 56C42EA725FA599E00143B99 /* mainServer.cpp */; };
+		56C42EA825FA599E00143B99 /* ChatRelayServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 56C42EA625FA599E00143B99 /* ChatRelayServer.cpp */; };
+		A2AF7E532604C412005D5F1E /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A2AF7E522604C412005D5F1E /* main.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -24,10 +24,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		56C42EA525FA599E00143B99 /* ChatTrisServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChatTrisServer.h; sourceTree = "<group>"; };
-		56C42EA625FA599E00143B99 /* ChatTrisServer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ChatTrisServer.cpp; sourceTree = "<group>"; };
-		56C42EA725FA599E00143B99 /* mainServer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = mainServer.cpp; sourceTree = "<group>"; };
-		A231F0FF25EAF61A00CBFC23 /* ChatTris */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ChatTris; sourceTree = BUILT_PRODUCTS_DIR; };
+		56C42EA525FA599E00143B99 /* ChatRelayServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChatRelayServer.h; sourceTree = "<group>"; };
+		56C42EA625FA599E00143B99 /* ChatRelayServer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ChatRelayServer.cpp; sourceTree = "<group>"; };
+		A231F0FF25EAF61A00CBFC23 /* ChatRelay */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ChatRelay; sourceTree = BUILT_PRODUCTS_DIR; };
+		A2AF7E522604C412005D5F1E /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -44,9 +44,9 @@
 		A231F0F625EAF61A00CBFC23 = {
 			isa = PBXGroup;
 			children = (
-				56C42EA625FA599E00143B99 /* ChatTrisServer.cpp */,
-				56C42EA525FA599E00143B99 /* ChatTrisServer.h */,
-				56C42EA725FA599E00143B99 /* mainServer.cpp */,
+				56C42EA525FA599E00143B99 /* ChatRelayServer.h */,
+				56C42EA625FA599E00143B99 /* ChatRelayServer.cpp */,
+				A2AF7E522604C412005D5F1E /* main.cpp */,
 				A231F10025EAF61A00CBFC23 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -54,7 +54,7 @@
 		A231F10025EAF61A00CBFC23 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				A231F0FF25EAF61A00CBFC23 /* ChatTris */,
+				A231F0FF25EAF61A00CBFC23 /* ChatRelay */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -62,9 +62,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		A231F0FE25EAF61A00CBFC23 /* ChatTris */ = {
+		A231F0FE25EAF61A00CBFC23 /* ChatRelay */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A231F10625EAF61A00CBFC23 /* Build configuration list for PBXNativeTarget "ChatTris" */;
+			buildConfigurationList = A231F10625EAF61A00CBFC23 /* Build configuration list for PBXNativeTarget "ChatRelay" */;
 			buildPhases = (
 				A231F0FB25EAF61A00CBFC23 /* Sources */,
 				A231F0FC25EAF61A00CBFC23 /* Frameworks */,
@@ -74,9 +74,9 @@
 			);
 			dependencies = (
 			);
-			name = ChatTris;
-			productName = ChatTris;
-			productReference = A231F0FF25EAF61A00CBFC23 /* ChatTris */;
+			name = ChatRelay;
+			productName = ChatRelay;
+			productReference = A231F0FF25EAF61A00CBFC23 /* ChatRelay */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -92,7 +92,7 @@
 					};
 				};
 			};
-			buildConfigurationList = A231F0FA25EAF61A00CBFC23 /* Build configuration list for PBXProject "ChatTrisRelayserver" */;
+			buildConfigurationList = A231F0FA25EAF61A00CBFC23 /* Build configuration list for PBXProject "ChatRelayserver" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -105,7 +105,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				A231F0FE25EAF61A00CBFC23 /* ChatTris */,
+				A231F0FE25EAF61A00CBFC23 /* ChatRelay */,
 			);
 		};
 /* End PBXProject section */
@@ -115,8 +115,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				56C42EA925FA599E00143B99 /* mainServer.cpp in Sources */,
-				56C42EA825FA599E00143B99 /* ChatTrisServer.cpp in Sources */,
+				A2AF7E532604C412005D5F1E /* main.cpp in Sources */,
+				56C42EA825FA599E00143B99 /* ChatRelayServer.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -331,7 +331,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		A231F0FA25EAF61A00CBFC23 /* Build configuration list for PBXProject "ChatTrisRelayserver" */ = {
+		A231F0FA25EAF61A00CBFC23 /* Build configuration list for PBXProject "ChatRelayserver" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A231F10425EAF61A00CBFC23 /* Debug */,
@@ -340,7 +340,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A231F10625EAF61A00CBFC23 /* Build configuration list for PBXNativeTarget "ChatTris" */ = {
+		A231F10625EAF61A00CBFC23 /* Build configuration list for PBXNativeTarget "ChatRelay" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A231F10725EAF61A00CBFC23 /* Debug */,

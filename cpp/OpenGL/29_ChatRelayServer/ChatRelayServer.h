@@ -30,10 +30,10 @@ private:
   std::string clean(const std::string& message) const;
 };
 
-class ChatTrisServer : public Server<HttpClientConnection> {
+class ChatRelayServer : public Server<HttpClientConnection> {
 public:
-  ChatTrisServer();
-  virtual ~ChatTrisServer();
+  ChatRelayServer();
+  virtual ~ChatRelayServer();
   virtual void handleClientMessage(uint32_t id, const std::string& message) override;
 
 private:
