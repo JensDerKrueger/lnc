@@ -69,6 +69,12 @@ void ChatRelayServer::handleClientMessage(uint32_t id, const std::string& messag
   sendMessage("Something went wrong with the message:" + message, id);
 }
 
+
+void ChatRelayServer::sendKeepAlivePing() {
+  frontendConnections1.sendKeepAlivePing();
+  frontendConnections2.sendKeepAlivePing();
+}
+
 FrontendServer::FrontendServer(uint16_t port) :
   Server(port)
 {
@@ -116,4 +122,8 @@ void FrontendServer::handleClientDisconnection(uint32_t id)  {
 
 void FrontendServer::handleClientMessage(uint32_t id, const std::string& message) {
   std::cout << getTimeStr() << " Received " << clean(message) << std::endl;
+}
+
+void FrontendServer::sendKeepAlivePing() {
+  sendMessage("Ping");
 }

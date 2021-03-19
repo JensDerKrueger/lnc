@@ -4,6 +4,8 @@
 #include <chrono>
 typedef std::chrono::high_resolution_clock Clock;
 
+std::chrono::time_point<Clock> lastPingTime = Clock::now();
+
 static void globalExceptionHandler () {
   std::cerr << "terminate called after throwing an instance of ";
   try
@@ -54,6 +56,13 @@ int main(int argc, char ** argv) {
       if (future.wait_for(timeout) == std::future_status::ready) {
         answer = future.get();
         if (answer != "q") future = std::async(getAnswer);
+      }
+      
+      
+      auto currentTime = Clock::now();
+      if (std::chrono::duration_cast<std::chrono::seconds>(currentTime-lastPingTime).count() > 60) {
+        lastPingTime = currentTime;
+        server.sendKeepAlivePing();
       }
       
     } while (answer != "q");
