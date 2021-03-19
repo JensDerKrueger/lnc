@@ -16,7 +16,7 @@ endif
 SRC = main.cpp ChatRelayServer.cpp
 
 OBJ = $(SRC:.cpp=.o)
-TARGET = chatTrisServer
+TARGET = chatRelayServer
 
 all: $(TARGET)
 
