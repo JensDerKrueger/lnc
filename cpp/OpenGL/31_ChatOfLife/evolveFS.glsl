@@ -31,11 +31,10 @@ void main() {
       float result;
       if (gridValue.r > 0) {
         result = n == 2.0 || n == 3.0 ? gridValue.r : 0.0;
-        if (result > 0) age += 1.0/256.0;
       } else {
         result = n == 3.0 ? newGene : 0.0;
       }
-      if (result == 0) age = 0.0;
+      age = age + (result==0 ? -1.0/256.0 : 2.0/256.0);
       
       float paintValue = (length(tc-paintPos) <= brushSize/texSize.x) ? 1.0 : 0.0;
       FragColor = vec3(result, paintValue, age);
