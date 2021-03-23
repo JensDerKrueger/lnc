@@ -28,6 +28,7 @@ public:
   }
   
   virtual void handleServerMessage(const std::string& message) override{
+    if (message == "Ping") return;
     try {
       const std::scoped_lock<std::mutex> lock(paintQueueMutex);
       Tokenizer t{message, char(1)};

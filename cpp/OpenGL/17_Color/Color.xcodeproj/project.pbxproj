@@ -7,8 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		56C42EA825FA599E00143B99 /* ChatTrisServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 56C42EA625FA599E00143B99 /* ChatTrisServer.cpp */; };
-		56C42EA925FA599E00143B99 /* mainServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 56C42EA725FA599E00143B99 /* mainServer.cpp */; };
+		5677395325FB7BF000AB2341 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5677394C25FB7BF000AB2341 /* main.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -24,10 +23,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		56C42EA525FA599E00143B99 /* ChatTrisServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChatTrisServer.h; sourceTree = "<group>"; };
-		56C42EA625FA599E00143B99 /* ChatTrisServer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ChatTrisServer.cpp; sourceTree = "<group>"; };
-		56C42EA725FA599E00143B99 /* mainServer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = mainServer.cpp; sourceTree = "<group>"; };
-		A231F0FF25EAF61A00CBFC23 /* ChatTris */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ChatTris; sourceTree = BUILT_PRODUCTS_DIR; };
+		5677394C25FB7BF000AB2341 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		A231F0FF25EAF61A00CBFC23 /* Color */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Color; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -44,9 +41,7 @@
 		A231F0F625EAF61A00CBFC23 = {
 			isa = PBXGroup;
 			children = (
-				56C42EA625FA599E00143B99 /* ChatTrisServer.cpp */,
-				56C42EA525FA599E00143B99 /* ChatTrisServer.h */,
-				56C42EA725FA599E00143B99 /* mainServer.cpp */,
+				5677394C25FB7BF000AB2341 /* main.cpp */,
 				A231F10025EAF61A00CBFC23 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -54,7 +49,7 @@
 		A231F10025EAF61A00CBFC23 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				A231F0FF25EAF61A00CBFC23 /* ChatTris */,
+				A231F0FF25EAF61A00CBFC23 /* Color */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -62,9 +57,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		A231F0FE25EAF61A00CBFC23 /* ChatTris */ = {
+		A231F0FE25EAF61A00CBFC23 /* Color */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A231F10625EAF61A00CBFC23 /* Build configuration list for PBXNativeTarget "ChatTris" */;
+			buildConfigurationList = A231F10625EAF61A00CBFC23 /* Build configuration list for PBXNativeTarget "Color" */;
 			buildPhases = (
 				A231F0FB25EAF61A00CBFC23 /* Sources */,
 				A231F0FC25EAF61A00CBFC23 /* Frameworks */,
@@ -74,9 +69,9 @@
 			);
 			dependencies = (
 			);
-			name = ChatTris;
-			productName = ChatTris;
-			productReference = A231F0FF25EAF61A00CBFC23 /* ChatTris */;
+			name = Color;
+			productName = Color;
+			productReference = A231F0FF25EAF61A00CBFC23 /* Color */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -92,7 +87,7 @@
 					};
 				};
 			};
-			buildConfigurationList = A231F0FA25EAF61A00CBFC23 /* Build configuration list for PBXProject "ChatTrisRelayserver" */;
+			buildConfigurationList = A231F0FA25EAF61A00CBFC23 /* Build configuration list for PBXProject "Color" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -105,7 +100,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				A231F0FE25EAF61A00CBFC23 /* ChatTris */,
+				A231F0FE25EAF61A00CBFC23 /* Color */,
 			);
 		};
 /* End PBXProject section */
@@ -115,8 +110,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				56C42EA925FA599E00143B99 /* mainServer.cpp in Sources */,
-				56C42EA825FA599E00143B99 /* ChatTrisServer.cpp in Sources */,
+				5677395325FB7BF000AB2341 /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -331,7 +325,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		A231F0FA25EAF61A00CBFC23 /* Build configuration list for PBXProject "ChatTrisRelayserver" */ = {
+		A231F0FA25EAF61A00CBFC23 /* Build configuration list for PBXProject "Color" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A231F10425EAF61A00CBFC23 /* Debug */,
@@ -340,7 +334,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A231F10625EAF61A00CBFC23 /* Build configuration list for PBXNativeTarget "ChatTris" */ = {
+		A231F10625EAF61A00CBFC23 /* Build configuration list for PBXNativeTarget "Color" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A231F10725EAF61A00CBFC23 /* Debug */,

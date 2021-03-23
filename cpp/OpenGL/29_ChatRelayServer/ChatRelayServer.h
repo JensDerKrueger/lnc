@@ -23,6 +23,8 @@ public:
   
   void newInput(const std::string& name, const std::string& text);
   
+  void sendKeepAlivePing();
+  
 private:
   std::map<uint32_t, ConnectionInfo> connectionInfos;
   
@@ -30,12 +32,13 @@ private:
   std::string clean(const std::string& message) const;
 };
 
-class ChatTrisServer : public Server<HttpClientConnection> {
+class ChatRelayServer : public Server<HttpClientConnection> {
 public:
-  ChatTrisServer();
-  virtual ~ChatTrisServer();
+  ChatRelayServer();
+  virtual ~ChatRelayServer();
   virtual void handleClientMessage(uint32_t id, const std::string& message) override;
 
+  void sendKeepAlivePing();
 private:
   FrontendServer frontendConnections1{11006};
   FrontendServer frontendConnections2{11007};

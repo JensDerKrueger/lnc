@@ -13,10 +13,10 @@ else
 	INCLUDES=-I. -I ../../openmp/include -I /opt/homebrew/include -I../Network -I../Utils
 endif
 
-SRC = mainServer.cpp ChatTrisServer.cpp
+SRC = main.cpp ChatRelayServer.cpp
 
 OBJ = $(SRC:.cpp=.o)
-TARGET = chatTrisServer
+TARGET = chatRelayServer
 
 all: $(TARGET)
 

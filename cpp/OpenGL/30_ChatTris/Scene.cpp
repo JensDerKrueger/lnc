@@ -373,6 +373,8 @@ bool ChatConnection::executeCommand(char c, const std::string& player) {
 }
 
 void ChatConnection::handleServerMessage(const std::string& message) {
+  if (message == "Ping") return;
+  
   try {
     Tokenizer t{message, char(1)};
     const std::string player  = base64url_decode(t.nextString());

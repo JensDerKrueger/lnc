@@ -1,17 +1,15 @@
 import base64
 import urllib.request
 import pydle
-
 import configparser
 
 config = configparser.ConfigParser()
 config.read('config.ini')
 twitchConfig = config['twitch']
 
-streamname = twitchConfig['Stream']
+streamnames = twitchConfig['Stream'].split(',')
 nickname   = twitchConfig['Nickname']
 password   = twitchConfig['Password']
-
 
 BaseIrcClass = pydle.featurize(pydle.features.RFC1459Support, pydle.features.IRCv3Support)
 
@@ -19,7 +17,9 @@ class MyOwnBot(BaseIrcClass):
   async def on_raw_004(self, msg):
     return
   async def on_connect(self):
-    await self.join(streamname)
+    for stream in streamnames:
+      print("Joining",stream)
+      await self.join(stream)
   async def on_message(self, target, nick, message):
     name = str(base64.urlsafe_b64encode(nick.encode("utf-8")), "utf-8")
     message = str(base64.urlsafe_b64encode(message.encode("utf-8")), "utf-8")
@@ -29,4 +29,3 @@ class MyOwnBot(BaseIrcClass):
 client = MyOwnBot(nickname, realname=nickname)
 client.run('irc.twitch.tv', 6667, password=password)
 client.handle_forever()
-
