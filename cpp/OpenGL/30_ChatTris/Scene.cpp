@@ -383,7 +383,7 @@ void ChatConnection::handleServerMessage(const std::string& message) {
     for (char c : command) {
       if (!executeCommand( c, player )) break;
     }
-  } catch (const MessageException e) {
+  } catch (const MessageException& ) {
   }
 }
 
