@@ -6,11 +6,14 @@
 
 #include "Vec2.h"
 #include "Vec3.h"
+#include "Image.h"
+#include "GLTexture2D.h"
 
 class Grid2D {
 public:
   Grid2D(size_t width, size_t height);
   Grid2D(const Grid2D& other);
+  Grid2D(const Image& image);
   
   Grid2D(std::istream &is);
   void save(std::ostream &os) const;
@@ -20,6 +23,7 @@ public:
   std::string toString() const;
   std::vector<uint8_t> toByteArray() const;
   Grid2D toSignedDistance(float threshold) const;
+  GLTexture2D toTexture() const;
 
   void setValue(size_t x, size_t y, float value);
   float getValueNormalized(float x, float y) const;
@@ -50,6 +54,7 @@ public:
 
   static Grid2D fromBMP(const std::string& filename);
 
+  
 private:
   size_t width;
   size_t height;

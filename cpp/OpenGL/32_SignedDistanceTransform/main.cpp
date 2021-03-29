@@ -58,14 +58,14 @@ public:
     }
   }
 
-  virtual void keyboard(int key, int scancode, int action, int mods) override{
+  virtual void keyboard(int key, int scancode, int action, int mods) override {
     if (action == GLFW_PRESS) {
       switch (key) {
         case GLFW_KEY_ESCAPE :
           closeWindow();
           break;
         case GLFW_KEY_I :
-          data = Grid2D::fromBMP("image.bmp");
+          data = Grid2D::fromBMP("helvetica_neue.bmp");
           updateImage();
           break;
         case GLFW_KEY_C :
@@ -83,7 +83,7 @@ public:
     }
     
     const float INV = std::numeric_limits<float>::max();
-    const Grid2D distData = data.toSignedDistance(0.5);
+    const Grid2D distData = data.toSignedDistance(0.5f);
     
     float maxValue = 0.0f;
     for (size_t y = 0; y<distanceImage.height; y++ ) {

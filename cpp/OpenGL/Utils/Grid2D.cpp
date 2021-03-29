@@ -8,25 +8,35 @@
 #include "Grid2D.h"
 
 Grid2D::Grid2D(size_t width, size_t height) :
-    width(width),
-    height(height),
-    data(width*height)
+  width(width),
+  height(height),
+  data(width*height)
 {
 }
 
 Grid2D::Grid2D(const Grid2D& other) :
-    width(other.width),
-    height(other.height),
-    data(other.data)
+  width(other.width),
+  height(other.height),
+  data(other.data)
 {
+}
+
+Grid2D::Grid2D(const Image& image) :
+  width(image.width),
+  height(image.height),
+  data(image.data.size()/image.componentCount)
+{
+  for (size_t i = 0;i<data.size();++i) {
+    data[i] = image.data[i*image.componentCount] / 255.0f;
+  }
 }
     
 size_t Grid2D::getWidth() const {
-    return width;
+  return width;
 }
 
 size_t Grid2D::getHeight() const {
-    return height;
+  return height;
 }
 
 std::string Grid2D::toString() const {
@@ -446,4 +456,10 @@ Grid2D Grid2D::toSignedDistance(float threshold) const {
   }
   
   return r;
+}
+
+GLTexture2D Grid2D::toTexture() const {
+  GLTexture2D result;
+  result.setData(data, width, height, 1);
+  return result;
 }

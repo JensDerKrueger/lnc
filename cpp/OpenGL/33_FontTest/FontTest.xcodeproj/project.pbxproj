@@ -8,7 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		5677395325FB7BF000AB2341 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5677394C25FB7BF000AB2341 /* main.cpp */; };
-		A2635A3A26127B160007019E /* helvetica_neue.bmp in CopyFiles */ = {isa = PBXBuildFile; fileRef = A2635A3926127B0B0007019E /* helvetica_neue.bmp */; };
+		A2635A4126128C170007019E /* helvetica_neue.bmp in CopyFiles */ = {isa = PBXBuildFile; fileRef = A2635A3D26128BE40007019E /* helvetica_neue.bmp */; };
+		A2635A4226128C170007019E /* helvetica_neue.pos in CopyFiles */ = {isa = PBXBuildFile; fileRef = A2635A3E26128BE40007019E /* helvetica_neue.pos */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -18,7 +19,8 @@
 			dstPath = "";
 			dstSubfolderSpec = 7;
 			files = (
-				A2635A3A26127B160007019E /* helvetica_neue.bmp in CopyFiles */,
+				A2635A4126128C170007019E /* helvetica_neue.bmp in CopyFiles */,
+				A2635A4226128C170007019E /* helvetica_neue.pos in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -26,8 +28,9 @@
 
 /* Begin PBXFileReference section */
 		5677394C25FB7BF000AB2341 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		A231F0FF25EAF61A00CBFC23 /* SignedDistanceTransform */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = SignedDistanceTransform; sourceTree = BUILT_PRODUCTS_DIR; };
-		A2635A3926127B0B0007019E /* helvetica_neue.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; path = helvetica_neue.bmp; sourceTree = "<group>"; };
+		A231F0FF25EAF61A00CBFC23 /* FontTest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = FontTest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A2635A3D26128BE40007019E /* helvetica_neue.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; path = helvetica_neue.bmp; sourceTree = "<group>"; };
+		A2635A3E26128BE40007019E /* helvetica_neue.pos */ = {isa = PBXFileReference; lastKnownFileType = text; path = helvetica_neue.pos; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -45,7 +48,8 @@
 			isa = PBXGroup;
 			children = (
 				5677394C25FB7BF000AB2341 /* main.cpp */,
-				A2635A3926127B0B0007019E /* helvetica_neue.bmp */,
+				A2635A3D26128BE40007019E /* helvetica_neue.bmp */,
+				A2635A3E26128BE40007019E /* helvetica_neue.pos */,
 				A231F10025EAF61A00CBFC23 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -53,7 +57,7 @@
 		A231F10025EAF61A00CBFC23 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				A231F0FF25EAF61A00CBFC23 /* SignedDistanceTransform */,
+				A231F0FF25EAF61A00CBFC23 /* FontTest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -61,9 +65,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		A231F0FE25EAF61A00CBFC23 /* SignedDistanceTransform */ = {
+		A231F0FE25EAF61A00CBFC23 /* FontTest */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A231F10625EAF61A00CBFC23 /* Build configuration list for PBXNativeTarget "SignedDistanceTransform" */;
+			buildConfigurationList = A231F10625EAF61A00CBFC23 /* Build configuration list for PBXNativeTarget "FontTest" */;
 			buildPhases = (
 				A231F0FB25EAF61A00CBFC23 /* Sources */,
 				A231F0FC25EAF61A00CBFC23 /* Frameworks */,
@@ -73,9 +77,9 @@
 			);
 			dependencies = (
 			);
-			name = SignedDistanceTransform;
-			productName = SignedDistanceTransform;
-			productReference = A231F0FF25EAF61A00CBFC23 /* SignedDistanceTransform */;
+			name = FontTest;
+			productName = FontTest;
+			productReference = A231F0FF25EAF61A00CBFC23 /* FontTest */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -91,7 +95,7 @@
 					};
 				};
 			};
-			buildConfigurationList = A231F0FA25EAF61A00CBFC23 /* Build configuration list for PBXProject "SignedDistanceTransform" */;
+			buildConfigurationList = A231F0FA25EAF61A00CBFC23 /* Build configuration list for PBXProject "FontTest" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -104,7 +108,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				A231F0FE25EAF61A00CBFC23 /* SignedDistanceTransform */,
+				A231F0FE25EAF61A00CBFC23 /* FontTest */,
 			);
 		};
 /* End PBXProject section */
@@ -312,6 +316,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_ASSET_PATHS = "";
 				GCC_WARN_SHADOW = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -321,6 +326,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_ASSET_PATHS = "";
 				GCC_WARN_SHADOW = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -329,7 +335,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		A231F0FA25EAF61A00CBFC23 /* Build configuration list for PBXProject "SignedDistanceTransform" */ = {
+		A231F0FA25EAF61A00CBFC23 /* Build configuration list for PBXProject "FontTest" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A231F10425EAF61A00CBFC23 /* Debug */,
@@ -338,7 +344,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A231F10625EAF61A00CBFC23 /* Build configuration list for PBXNativeTarget "SignedDistanceTransform" */ = {
+		A231F10625EAF61A00CBFC23 /* Build configuration list for PBXNativeTarget "FontTest" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A231F10725EAF61A00CBFC23 /* Debug */,

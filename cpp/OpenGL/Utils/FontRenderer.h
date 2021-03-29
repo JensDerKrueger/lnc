@@ -11,6 +11,7 @@
 #include "GLTexture2D.h"
 #include "GLArray.h"
 #include "GLBuffer.h"
+#include "Grid2D.h"
 
 struct CharPosition {
   char c;
@@ -55,13 +56,22 @@ public:
   std::string getAllCharsString() const;
 
   std::map<char,CharTex> chars;
+  std::map<char,CharTex> sdChars;
   
-  
+  void setRenderAsSignedDistanceField(bool renderAsSignedDistanceField) {
+    this->renderAsSignedDistanceField = renderAsSignedDistanceField;
+  }
+
+  bool getRenderAsSignedDistanceField() const {
+    return renderAsSignedDistanceField;
+  }
+
 private:
   GLProgram simpleProg;
   GLProgram simpleDistProg;
   GLArray   simpleArray;
   GLBuffer  simpleVb;
+  bool renderAsSignedDistanceField;
 
 };
 
