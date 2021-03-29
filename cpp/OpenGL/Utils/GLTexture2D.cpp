@@ -1,4 +1,5 @@
 #include <array>
+#include <sstream>
 
 #include "GLTexture2D.h"
 
@@ -49,10 +50,16 @@ GLTexture2D::GLTexture2D(const GLTexture2D& other) :
   GLTexture2D(other.magFilter, other.minFilter, other.wrapX, other.wrapY)
 {
   if (other.height > 0 && other.width > 0) {
-    switch (dataType) {
-      case GLDataType::BYTE  : setData(other.data, other.width, other.height, other.componentCount); break;
-      case GLDataType::HALF  : setData(other.hdata, other.width, other.height, other.componentCount); break;
-      case GLDataType::FLOAT : setData(other.fdata, other.width, other.height, other.componentCount); break;
+    switch (other.dataType) {
+      case GLDataType::BYTE  :
+        setData(other.data, other.width, other.height, other.componentCount);
+        break;
+      case GLDataType::HALF  :
+        setData(other.hdata, other.width, other.height, other.componentCount);
+        break;
+      case GLDataType::FLOAT :
+        setData(other.fdata, other.width, other.height, other.componentCount);
+        break;
     }
   }
 }
@@ -70,10 +77,16 @@ GLTexture2D& GLTexture2D::operator=(const GLTexture2D& other) {
   GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter));
   
   if (other.height > 0 && other.width > 0) {
-    switch (dataType) {
-      case GLDataType::BYTE  : setData(other.data, other.width, other.height, other.componentCount); break;
-      case GLDataType::HALF  : setData(other.hdata, other.width, other.height, other.componentCount); break;
-      case GLDataType::FLOAT : setData(other.fdata, other.width, other.height, other.componentCount); break;
+    switch (other.dataType) {
+      case GLDataType::BYTE  :
+        setData(other.data, other.width, other.height, other.componentCount);
+        break;
+      case GLDataType::HALF  :
+        setData(other.hdata, other.width, other.height, other.componentCount);
+        break;
+      case GLDataType::FLOAT :
+        setData(other.fdata, other.width, other.height, other.componentCount);
+        break;
     }
   }
   return *this;
@@ -128,11 +141,14 @@ void GLTexture2D::setData(const std::vector<GLhalf>& data, uint32_t width, uint3
 
 void GLTexture2D::setData(const std::vector<GLfloat>& data, uint32_t width, uint32_t height, uint32_t componentCount) {
   if (data.size() != componentCount*width*height) {
-    throw GLException{"Data size and texure dimensions do not match."};
+    std::stringstream ss;
+    ss << "Data size " << data.size() << " and texure dimensions " << componentCount << "*" << width
+       << "*" << height << "=" << componentCount*width*height << " do not match.";
+    throw GLException{ss.str()};
   }
   
   this->fdata = data;
-  setData((GLvoid*)data.data(), width, height, componentCount, GLDataType::FLOAT);
+  setData((GLvoid*)this->fdata.data(), width, height, componentCount, GLDataType::FLOAT);
 }
 
 static std::array<GLenum,3> dataTypeToGL(GLDataType dataType, uint32_t componentCount) {
