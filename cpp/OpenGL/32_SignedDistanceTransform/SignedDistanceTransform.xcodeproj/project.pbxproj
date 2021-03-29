@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		5677395325FB7BF000AB2341 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5677394C25FB7BF000AB2341 /* main.cpp */; };
+		567895AB2609F03D008FE940 /* image.bmp in CopyFiles */ = {isa = PBXBuildFile; fileRef = 567895AA2609F039008FE940 /* image.bmp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -17,6 +18,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 7;
 			files = (
+				567895AB2609F03D008FE940 /* image.bmp in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -24,6 +26,7 @@
 
 /* Begin PBXFileReference section */
 		5677394C25FB7BF000AB2341 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		567895AA2609F039008FE940 /* image.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; path = image.bmp; sourceTree = "<group>"; };
 		A231F0FF25EAF61A00CBFC23 /* SignedDistanceTransform */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = SignedDistanceTransform; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -42,6 +45,7 @@
 			isa = PBXGroup;
 			children = (
 				5677394C25FB7BF000AB2341 /* main.cpp */,
+				567895AA2609F039008FE940 /* image.bmp */,
 				A231F10025EAF61A00CBFC23 /* Products */,
 			);
 			sourceTree = "<group>";

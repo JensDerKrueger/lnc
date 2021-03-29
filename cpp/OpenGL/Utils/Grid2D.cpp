@@ -1,4 +1,5 @@
 #include <limits>
+#include <cmath>
 
 #include "Rand.h"
 #include "Vec2.h"
@@ -292,17 +293,27 @@ void Grid2D::normalize() {
     }
 }
 
-MaxData Grid2D::maxValue() const {
-    MaxData maxV{std::numeric_limits<float>::min(), Vec2{0,0}};
-    for (size_t i = 0;i<data.size();++i) {
-        if (maxV.value < data[i]){
-            maxV.value = data[i];
-            const float x = float(i % width)/(width-1);
-            const float y = float(i / width)/(height-1);
-            maxV.pos = Vec2{x,y};
-        }
+Vec2t<size_t> Grid2D::maxValue() const {
+  float maxVal = std::numeric_limits<float>::min();
+  Vec2t<size_t> maxV{0,0};
+  for (size_t i = 0;i<data.size();++i) {
+    if (maxVal < data[i]){
+      maxVal = data[i];
+      maxV = Vec2t<size_t>{size_t(i % width), size_t(i / width)};    }
+  }
+  return maxV;
+}
+
+Vec2t<size_t> Grid2D::minValue() const {
+  float minVal = std::numeric_limits<float>::max();
+  Vec2t<size_t> minV{0,0};
+  for (size_t i = 0;i<data.size();++i) {
+    if (minVal > data[i]){
+      minVal = data[i];
+      minV = Vec2t<size_t>{size_t(i % width), size_t(i / width)};
     }
-    return maxV;
+  }
+  return minV;
 }
 
 size_t Grid2D::index(size_t x, size_t y) const {
@@ -313,11 +324,10 @@ std::ostream& operator<<(std::ostream &os, const Grid2D& v) {
     os << v.toString() ; return os;
 }
 
-
 Grid2D Grid2D::fromBMP(const std::string& filename) {
     Image bmp = BMP::load(filename);
     
-    Grid2D g{bmp.width, bmp.width};
+    Grid2D g{bmp.width, bmp.height};
     
     size_t i = 0;
     for (size_t y = 0;y<g.height;++y) {
@@ -328,4 +338,112 @@ Grid2D Grid2D::fromBMP(const std::string& filename) {
     }
 
     return g;
+}
+
+void Grid2D::fill(float value) {
+  std::fill(data.begin(), data.end(), value);
+}
+
+Grid2D::Grid2D(std::istream &is) {
+  is.read((char*)&width, sizeof (width));
+  is.read((char*)&height, sizeof (height));
+  
+  data.resize(width*height);
+  is.read((char*)data.data(), sizeof(float) * width * height);
+}
+
+void Grid2D::save(std::ostream &os) const {
+  os.write((char*)&width, sizeof (width));
+  os.write((char*)&height, sizeof (height));
+  os.write((char*)data.data(), sizeof(float) * width * height);
+}
+
+
+static const float d1{1.0f};
+static const float d2{1.4142135624f};
+
+static const float INV = std::numeric_limits<float>::max();
+static const Vec2ui NO_POS{std::numeric_limits<uint32_t>::max(),
+                    std::numeric_limits<uint32_t>::max()};
+static float dist(size_t x, size_t y, const Vec2ui& p) {
+  return std::sqrt( (x-p.x())*(x-p.x()) + (y-p.y())*(y-p.y()) );
+}
+
+Grid2D Grid2D::toSignedDistance(float threshold) const {
+  Grid2D r(width, height);
+  
+  std::vector<bool> I(width*height);
+  std::vector<Vec2ui> p(width*height);
+  
+  for (size_t i = 0;i<I.size();++i) {
+    I[i] = data[i] >= threshold;
+  }
+
+  for (size_t i = 0;i<I.size();++i) {
+    r.data[i] = INV;
+    p[i] = NO_POS;
+  }
+  
+  for (size_t y = 1; y<height-1; y++ ) {
+    for (size_t x = 1; x<width-1; x++ ) {
+      const size_t i = index(x,y);
+      if (I[index(x-1,y)] != I[i] ||
+          I[index(x+1,y)] != I[i] ||
+          I[index(x,y+1)] != I[i] ||
+          I[index(x,y-1)] != I[i]) {
+        r.data[i] = 0;
+        p[i] = Vec2ui(uint32_t(x),uint32_t(y));
+      }
+    }
+  }
+ 
+  for (size_t y = 1; y<height-1; y++ ) {
+    for (size_t x = 1; x<width-1; x++ ) {
+      const size_t i = index(x,y);
+      if (r.data[index(x-1,y-1)]+d2 < r.data[i]) {
+        p[i] = p[index(x-1,y-1)];
+        r.data[i] = dist(x, y, p[i]);
+      }
+      if (r.data[index(x,y-1)]+d1 < r.data[i]) {
+        p[i] = p[index(x,y-1)];
+        r.data[i] = dist(x, y, p[i]);
+      }
+      if (r.data[index(x+1,y-1)]+d2 < r.data[i]) {
+        p[i] = p[index(x+1,y-1)];
+        r.data[i] = dist(x, y, p[i]);
+      }
+      if (r.data[index(x-1,y)]+d1 < r.data[i]) {
+        p[i] = p[index(x-1,y)];
+        r.data[i] = dist(x, y, p[i]);
+      }
+    }
+  }
+  
+  for (size_t y = height-2; y>=1; y-- ) {
+    for (size_t x = width-2; x>=1; x--) {
+      const size_t i = index(x,y);
+      if (r.data[index(x+1,y)]+d1 < r.data[i]) {
+        p[i] = p[index(x+1,y)];
+        r.data[i] = dist(x, y, p[i]);
+      }
+      if (r.data[index(x-1,y+1)]+d2 < r.data[i]) {
+        p[i] = p[index(x-1,y+1)];
+        r.data[i] = dist(x, y, p[i]);
+      }
+      if (r.data[index(x,y+1)]+d1 < r.data[i]) {
+        p[i] = p[index(x,y+1)];
+        r.data[i] = dist(x, y, p[i]);
+      }
+      if (r.data[index(x+1,y+1)]+d2 < r.data[i]) {
+        p[i] = p[index(x+1,y+1)];
+        r.data[i] = dist(x, y, p[i]);
+      }
+    }
+  }
+  
+  for (size_t i = 0;i<I.size();++i) {
+    if (!I[i]) r.data[i] = -r.data[i];
+  }
+  
+  return r;
 }

@@ -59,6 +59,7 @@ public:
   
 private:
   GLProgram simpleProg;
+  GLProgram simpleDistProg;
   GLArray   simpleArray;
   GLBuffer  simpleVb;
 

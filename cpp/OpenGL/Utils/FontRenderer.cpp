@@ -150,6 +150,25 @@ FontEngine::FontEngine() :
    "void main() {\n"
    "    FragColor = globalColor*texture(raster, texCoords);\n"
    "}\n")},
+  simpleDistProg{GLProgram::createFromString(
+   "#version 410\n"
+   "uniform mat4 MVP;\n"
+   "layout (location = 0) in vec3 vPos;\n"
+   "layout (location = 1) in vec2 vTexCoords;\n"
+   "out vec4 color;\n"
+   "out vec2 texCoords;\n"
+   "void main() {\n"
+   "    gl_Position = MVP * vec4(vPos, 1.0);\n"
+   "    texCoords = vTexCoords;\n"
+   "}\n",
+   "#version 410\n"
+   "uniform sampler2D raster;\n"
+   "uniform vec4 globalColor;\n"
+   "in vec2 texCoords;\n"
+   "out vec4 FragColor;\n"
+   "void main() {\n"
+   "    FragColor = globalColor*texture(raster, texCoords);\n"
+   "}\n")},
   simpleArray{},
   simpleVb{GL_ARRAY_BUFFER}
 {

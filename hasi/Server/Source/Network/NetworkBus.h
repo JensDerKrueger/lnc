@@ -7,6 +7,7 @@
 #include "NetworkInputOutputServer.h"
 #include "NetworkInputOutputClient.h"
 #include "HarmonyHubDevice.h"
+#include "E3DCDevice.h"
 #include <memory>
 #include <map>
 
@@ -24,6 +25,7 @@ namespace HAS {
     std::map<const std::string, NetworkDevice*> m_vpAllDevices;
     
     std::vector<HarmonyHubDevice*> m_vpHarmonyHubDevice;
+    std::vector<E3DCDevice*> m_vpED3DDevices;
     std::vector<NetworkInputServer*> m_vpInputServers;
     std::vector<NetworkInputOutputServer*> m_vpInputOutputServers;
     std::vector<NetworkInputOutputClient*> m_vpInputOutputClients;
