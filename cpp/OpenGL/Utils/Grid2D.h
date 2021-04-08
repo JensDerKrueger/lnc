@@ -12,6 +12,8 @@
 class Grid2D {
 public:
   Grid2D(size_t width, size_t height);
+  Grid2D(size_t width, size_t height, const std::vector<float> data);
+  
   Grid2D(const Grid2D& other);
   Grid2D(const Image& image);
   
@@ -53,8 +55,7 @@ public:
   friend std::ostream& operator<<(std::ostream &os, const Grid2D& v);
 
   static Grid2D fromBMP(const std::string& filename);
-
-  
+    
 private:
   size_t width;
   size_t height;

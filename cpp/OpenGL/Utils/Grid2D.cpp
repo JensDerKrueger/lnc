@@ -1,5 +1,6 @@
 #include <limits>
 #include <cmath>
+#include <stdexcept>
 
 #include "Rand.h"
 #include "Vec2.h"
@@ -12,6 +13,15 @@ Grid2D::Grid2D(size_t width, size_t height) :
   height(height),
   data(width*height)
 {
+}
+
+Grid2D::Grid2D(size_t width, size_t height, const std::vector<float> data) :
+width(width),
+height(height),
+data(data)
+{
+  if (width*height != data.size())
+    throw std::runtime_error("size mismatch");
 }
 
 Grid2D::Grid2D(const Grid2D& other) :
