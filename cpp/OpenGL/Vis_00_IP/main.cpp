@@ -107,6 +107,14 @@ public:
             filter(sobelH);
           }
           break;
+        case GLFW_KEY_B:
+        {
+          Grid2D sobelV{ 3,3, {-1,-2,-1,
+                                0,0,0,
+                                1,2, 1} };
+          filter(sobelV);
+        }
+        break;
         case GLFW_KEY_G :
           toGraysascale(false);
           break;
@@ -123,9 +131,33 @@ public:
     }
   }
   
-} imageProcessing;
+};
 
-int main(int argc, char ** argv) {
-  imageProcessing.run();
+#ifdef _WIN32
+#include <Windows.h>
+
+INT WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow) {
+#else
+int main(int argc, char** argv) {
+#endif
+  try {
+    GLIPApp imageProcessing;
+    imageProcessing.run();
+  }
+  catch (const GLException& e) {
+    std::stringstream ss;
+    ss << "Insufficient OpenGL Support " << e.what();
+#ifndef _WIN32
+    std::cerr << ss.str().c_str() << std::endl;
+#else
+    MessageBoxA(
+      NULL,
+      ss.str().c_str(),
+      "OpenGL Error",
+      MB_ICONERROR | MB_OK
+    );
+#endif
+    return EXIT_FAILURE;
+  }
   return EXIT_SUCCESS;
 }
