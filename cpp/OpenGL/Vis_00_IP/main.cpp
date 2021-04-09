@@ -32,9 +32,26 @@ public:
       }
     }
   }
+
+  void loadImage() {
+    try {
+      image = BMP::load("lenna.bmp");
+    } catch (...) {
+      image = Image(512,512);
+      for (uint32_t y = 0;y<image.height;++y) {
+        for (uint32_t x = 0;x<image.width;++x) {
+          const Vec3 rgb = Vec3::hsvToRgb({360*float(x)/image.width,float(y)/image.height,1.0f});
+          image.setNormalizedValue(x,y,0,rgb.x());
+          image.setNormalizedValue(x,y,1,rgb.y());
+          image.setNormalizedValue(x,y,2,rgb.z());
+          image.setValue(x,y,3,255);
+        }
+      }
+    }
+  }
   
   virtual void init() override {
-    image = BMP::load("lenna.bmp");
+    loadImage();
   }
       
   virtual void draw() override {
@@ -122,7 +139,7 @@ public:
           toGraysascale(true);
           break;
         case GLFW_KEY_R :
-          image = BMP::load("lenna.bmp");
+          loadImage();
           break;
         case GLFW_KEY_T :
           std::cout << toString() << std::endl;
