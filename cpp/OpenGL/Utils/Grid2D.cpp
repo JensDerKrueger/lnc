@@ -386,7 +386,7 @@ static const float INV = std::numeric_limits<float>::max();
 static const Vec2ui NO_POS{std::numeric_limits<uint32_t>::max(),
                     std::numeric_limits<uint32_t>::max()};
 static float dist(size_t x, size_t y, const Vec2ui& p) {
-  return std::sqrtf( (x-p.x())*(x-p.x()) + (y-p.y())*(y-p.y()) );
+  return sqrtf( (x-p.x())*(x-p.x()) + (y-p.y())*(y-p.y()) );
 }
 
 Grid2D Grid2D::toSignedDistance(float threshold) const {
