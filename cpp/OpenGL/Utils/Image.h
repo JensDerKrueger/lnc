@@ -6,6 +6,8 @@
 
 #include "Vec4.h"
 
+class Grid2D;
+
 class Image {
 public:
   uint32_t width;
@@ -33,4 +35,6 @@ public:
   void setNormalizedValue(uint32_t x, uint32_t y, uint32_t component, float value);
   std::string toCode(const std::string& varName="myImage", bool padding=false) const;
   std::string toACIIArt(bool bSmallTable=true) const;
+  Image filter(const Grid2D& filter) const;
+  Image toGrayscale() const;
 };
