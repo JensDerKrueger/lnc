@@ -12,7 +12,7 @@ public:
   {
   }
   
-  void toGraysascale(bool uniform=false) {
+  void toGrayscale(bool uniform=false) {
     if (image.componentCount < 3) return;
     
     const Vec3 scale = uniform
@@ -133,10 +133,10 @@ public:
                          1, 2, 1}});
         break;
         case GLFW_KEY_G :
-          toGraysascale(false);
+          toGrayscale(false);
           break;
         case GLFW_KEY_H :
-          toGraysascale(true);
+          toGrayscale(true);
           break;
         case GLFW_KEY_R :
           loadImage();
