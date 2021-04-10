@@ -116,3 +116,23 @@ std::string Image::toCode(const std::string& varName, bool padding) const {
   
   return ss.str();
 }
+
+std::string Image::toACIIArt(bool bSmallTable) const {
+  const std::string lut1{" .'`^\",:;Il!i><~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$"};
+  const std::string lut2{" .:-=+*#%@"};
+  const std::string& lut = bSmallTable ? lut2 : lut1;
+  
+  std::stringstream ss;
+  for (uint32_t y = 0;y<height;y+=4) {
+    for (uint32_t x = 0;x<width;x+=4) {
+      const uint8_t v = getLumiValue(x,height-y);
+      ss << lut[(v*lut.length())/255] << lut[(v*lut.length())/255];
+    }
+    ss << "\n";
+  }
+  return ss.str();
+}
+
+uint8_t Image::getLumiValue(uint32_t x, uint32_t y) const {
+  
+}

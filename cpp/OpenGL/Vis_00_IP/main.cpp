@@ -60,16 +60,25 @@ public:
     drawImage(image);
   }
   
+  uint8_t getLumiValue(uint32_t x, uint32_t y) {
+    switch (image.componentCount) {
+      case 1 : return image.getValue(x,y,0);
+      case 2 : return uint8_t(image.getValue(x,y,0)*0.5f + image.getValue(x,y,1)*0.5f);
+      case 3 :
+      case 4 : return uint8_t(image.getValue(x,y,0)*0.299f + image.getValue(x,y,1)*0.587f + image.getValue(x,y,2)*0.114f);
+      default : return 0;
+    }
+  }
   
   std::string toString(bool bSmallTable=true) {
-    const std::string lut1{" .'`^\",:;Il!i><~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$"};
-    const std::string lut2{" .:-=+*#%@"};
+    const std::string lut1{"$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'. "};
+    const std::string lut2{"@%#*+=-:. "};
     const std::string& lut = bSmallTable ? lut2 : lut1;
     
     std::stringstream ss;
     for (uint32_t y = 0;y<image.height;y+=4) {
       for (uint32_t x = 0;x<image.width;x+=4) {
-        const uint8_t v = image.getValue(x,image.height-y,0);
+        const uint8_t v = getLumiValue(x,image.height-y);
         ss << lut[(v*lut.length())/255] << lut[(v*lut.length())/255];
       }
       ss << "\n";
@@ -139,7 +148,6 @@ public:
           loadImage();
           break;
         case GLFW_KEY_T :
-          toGraysascale(false);
           std::cout << toString() << std::endl;
           break;
       }
@@ -154,9 +162,6 @@ public:
 INT WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow) {
 #else
 int main(int argc, char** argv) {
-  
-
-  
 #endif
   try {
     GLIPApp imageProcessing;
