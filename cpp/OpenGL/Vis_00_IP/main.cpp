@@ -86,7 +86,7 @@ public:
     return ss.str();
   }
   
-  void filter(const Grid2D filter) {
+  void filter(const Grid2D& filter) {
     Image tempImage = image;
     
     const uint32_t hw = uint32_t(filter.getWidth()/2);
@@ -118,25 +118,19 @@ public:
         case GLFW_KEY_M :
           {
             Grid2D mean{3,3};
-            mean.fill(1.0f/9.0f);
+            mean.fill(1.0f/(mean.getHeight()*mean.getWidth()));
             filter(mean);
           }
           break;
         case GLFW_KEY_A :
-          {
-            Grid2D sobelH{3,3, {-1,0,1,
-                                -2,0,2,
-                                -1,0,1}};
-            filter(sobelH);
-          }
+          filter({3,3, {-1, 0, 1,
+                        -2, 0, 2,
+                        -1, 0, 1}});
           break;
         case GLFW_KEY_B:
-        {
-          Grid2D sobelV{ 3,3, {-1,-2,-1,
-                                0,0,0,
-                                1,2, 1} };
-          filter(sobelV);
-        }
+          filter({3,3, {-1,-2,-1,
+                         0, 0, 0,
+                         1, 2, 1}});
         break;
         case GLFW_KEY_G :
           toGraysascale(false);
