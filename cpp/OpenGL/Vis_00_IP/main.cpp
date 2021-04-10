@@ -12,8 +12,10 @@ public:
   {
   }
   
-  void toGraysascale(bool poor) {
-    const Vec3 scale = poor
+  void toGraysascale(bool uniform=false) {
+    if (image.componentCount < 3) return;
+    
+    const Vec3 scale = uniform
                         ? Vec3{0.33333f,0.33333f,0.33333f}
                         : Vec3{0.299f,0.587f,0.114f};
         
@@ -57,23 +59,18 @@ public:
   virtual void draw() override {
     drawImage(image);
   }
-
-  std::string toString() {
+  
+  
+  std::string toString(bool bSmallTable=true) {
+    const std::string lut1{" .'`^\",:;Il!i><~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$"};
+    const std::string lut2{" .:-=+*#%@"};
+    const std::string& lut = bSmallTable ? lut2 : lut1;
+    
     std::stringstream ss;
     for (uint32_t y = 0;y<image.height;y+=4) {
       for (uint32_t x = 0;x<image.width;x+=4) {
         const uint8_t v = image.getValue(x,image.height-y,0);
-        
-        if (v < 20)  ss << "  "; else
-        if (v < 40)  ss << ".."; else
-        if (v < 80)  ss << "::"; else
-        if (v < 120) ss << ";;"; else
-        if (v < 140) ss << "oo"; else
-        if (v < 160) ss << "xx"; else
-        if (v < 180) ss << "%%"; else
-        if (v < 200) ss << "##"; else
-        ss << "@@";
-        
+        ss << lut[(v*lut.length())/255] << lut[(v*lut.length())/255];
       }
       ss << "\n";
     }
@@ -142,6 +139,7 @@ public:
           loadImage();
           break;
         case GLFW_KEY_T :
+          toGraysascale(false);
           std::cout << toString() << std::endl;
           break;
       }
@@ -156,6 +154,9 @@ public:
 INT WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow) {
 #else
 int main(int argc, char** argv) {
+  
+
+  
 #endif
   try {
     GLIPApp imageProcessing;
