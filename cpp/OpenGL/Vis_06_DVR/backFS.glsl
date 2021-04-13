@@ -6,19 +6,19 @@ out vec4 fc;
 uniform sampler2D frontFaces;
 uniform sampler3D volume;
 
-uniform float stepCount;
-uniform float stepStart;
-uniform float stepWidth;
+uniform float sampleCount;
+uniform float smoothStepStart;
+uniform float smoothStepWidth;
 
 vec4 transferFunction(float v) {
-  v = clamp((v - stepStart) / (stepWidth), 0.0, 1.0);
+  v = clamp((v - smoothStepStart) / (smoothStepWidth), 0.0, 1.0);
   return vec4(v*v * (3-2*v));
 }
 
-vec4 blend(float currentScalar, vec4 last) {
+vec4 under(float currentScalar, vec4 last) {
   vec4 current = transferFunction(currentScalar);
   last.rgb = last.rgb + (1.0-last.a) * current.a * current.rgb;
-  last.a = last.a + (1.0-last.a) * current.a;
+  last.a   = last.a + (1.0-last.a) * current.a;
   return last;
 }
 
@@ -30,13 +30,13 @@ bool inBounds(vec3 pos) {
 void main() {
   vec3 currentPoint = texelFetch(frontFaces,ivec2(gl_FragCoord),0).xyz;
   vec3 exitPoint = tc;
-  vec3 direction = normalize(exitPoint-currentPoint)/stepCount;
+  vec3 direction = normalize(exitPoint-currentPoint)/sampleCount;
     
   fc = vec4(0.0);
   while (inBounds(currentPoint)) {
     float volumeValue = texture(volume, currentPoint).r;
-    fc = blend(volumeValue, fc);
-    currentPoint+=direction;
+    fc = under(volumeValue, fc);
+    currentPoint += direction;
     if (fc.a > 0.95) break;
   }
 }
