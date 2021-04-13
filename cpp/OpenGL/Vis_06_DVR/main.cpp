@@ -1,0 +1,132 @@
+#include <GLApp.h>
+#include <GLFramebuffer.h>
+#include <Tesselation.h>
+
+#include "QVis.h"
+
+class GLIPApp : public GLApp {
+public:
+
+  GLFramebuffer framebuffer;
+  GLTexture2D frontFaceTexture{GL_NEAREST, GL_NEAREST};
+  Tesselation cube{Tesselation::genBrick({0, 0, 0}, {1, 1, 1})};
+  GLBuffer vbCube{GL_ARRAY_BUFFER};
+  GLBuffer ibCube{GL_ELEMENT_ARRAY_BUFFER};
+  GLArray cubeArray;
+  GLProgram progCubeFront{GLProgram::createFromFile("cubeVS.glsl", "frontFS.glsl")};
+  GLProgram progCubeBack{GLProgram::createFromFile("cubeVS.glsl", "backFS.glsl")};
+  Volume volume = QVis{"bonsai.dat"}.volume;
+  GLTexture3D volumeTex{GL_LINEAR, GL_LINEAR,GL_CLAMP_TO_BORDER,GL_CLAMP_TO_BORDER,GL_CLAMP_TO_BORDER};
+  Mat4 mvp;
+  
+  GLIPApp() : GLApp(512, 512, 4, "Raycaster")
+  {
+  }
+
+  virtual void animate(double animationTime) override {
+    const Mat4 m{Mat4::rotationX(float(animationTime)*50.0f)*
+                 Mat4::rotationY(float(animationTime)*21.0f)};
+    const Mat4 v{ Mat4::lookAt({ 0, 0, 2 }, { 0, 0, 0 }, { 0, 1, 0 })};
+    const Mat4 p{ Mat4::perspective(45, glEnv.getFramebufferSize().aspect(), 0.1f, 100) };
+    mvp = m * v * p;
+  }
+  
+  virtual void init() override {
+    volumeTex.setData(volume.data, uint32_t(volume.width),
+                      uint32_t(volume.height), uint32_t(volume.depth), 1);
+
+    cubeArray.bind();
+    vbCube.setData(cube.getVertices(), 3);
+    ibCube.setData(cube.getIndices());
+    cubeArray.connectVertexAttrib(vbCube, progCubeFront, "vPos", 3);
+    cubeArray.connectIndexBuffer(ibCube);
+              
+    Tesselation fullScreenQuad{Tesselation::genRectangle({0,0,0},2,2)};
+
+    GL(glClearDepth(1.0f));
+    GL(glClearColor(0,0,0.5,0));
+    GL(glEnable(GL_DEPTH_TEST));
+    GL(glEnable(GL_CULL_FACE));
+  }
+      
+  virtual void resize(int width, int height) override {
+    frontFaceTexture.setEmpty( uint32_t(width), uint32_t(height), 3, GLDataType::HALF);
+  }
+  
+  virtual void draw() override {
+    const Dimensions dim = glEnv.getFramebufferSize();
+    const GLsizei indexCount = GLsizei(cube.getIndices().size());
+    
+    GL(glCullFace(GL_BACK));
+    framebuffer.bind( frontFaceTexture );
+    GL(glClearColor(0,0,0.0,0));
+    GL(glClear(GL_COLOR_BUFFER_BIT));
+
+    progCubeFront.enable();
+    progCubeFront.setUniform(progCubeFront.getUniformLocation("MVP"), mvp);
+    cubeArray.bind();
+    GL(glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, (void*)0));
+    framebuffer.unbind2D();
+
+    GL(glCullFace(GL_FRONT));
+    GL(glEnable(GL_BLEND));
+    GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+    GL(glBlendEquation(GL_FUNC_ADD));
+
+    GL(glViewport(0, 0, GLsizei(dim.width), GLsizei(dim.height)));
+    GL(glClearColor(0,0,0,0));
+    GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+
+    progCubeBack.enable();
+    progCubeBack.setTexture("volume",volumeTex,2);
+    progCubeBack.setTexture("frontFaces",frontFaceTexture,0);
+    progCubeBack.setUniform("MVP", mvp);
+    GL(glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, (void*)0));
+    progCubeBack.unsetTexture2D(0);
+    progCubeBack.unsetTexture2D(1);
+    progCubeBack.unsetTexture3D(2);
+    progCubeBack.unsetTexture3D(3);
+
+    GL(glDisable(GL_BLEND));
+  }
+  
+  virtual void keyboard(int key, int scancode, int action, int mods) override {
+    if (action == GLFW_PRESS) {
+      switch (key) {
+        case GLFW_KEY_ESCAPE :
+          closeWindow();
+          break;
+      }
+    }
+  }
+  
+};
+
+#ifdef _WIN32
+#include <Windows.h>
+
+INT WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow) {
+#else
+int main(int argc, char** argv) {
+#endif
+  try {
+    GLIPApp imageProcessing;
+    imageProcessing.run();
+  }
+  catch (const GLException& e) {
+    std::stringstream ss;
+    ss << "Insufficient OpenGL Support " << e.what();
+#ifndef _WIN32
+    std::cerr << ss.str().c_str() << std::endl;
+#else
+    MessageBoxA(
+      NULL,
+      ss.str().c_str(),
+      "OpenGL Error",
+      MB_ICONERROR | MB_OK
+    );
+#endif
+    return EXIT_FAILURE;
+  }
+  return EXIT_SUCCESS;
+}
