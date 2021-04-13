@@ -6,25 +6,15 @@
 
 class GLIPApp : public GLApp {
 public:
-
-  GLFramebuffer framebuffer;
-  GLTexture2D frontFaceTexture{GL_NEAREST, GL_NEAREST};
-  Tesselation cube{Tesselation::genBrick({0, 0, 0}, {1, 1, 1})};
-  GLBuffer vbCube{GL_ARRAY_BUFFER};
-  GLBuffer ibCube{GL_ELEMENT_ARRAY_BUFFER};
-  GLArray cubeArray;
-  GLProgram progCubeFront{GLProgram::createFromFile("cubeVS.glsl", "frontFS.glsl")};
-  GLProgram progCubeBack{GLProgram::createFromFile("cubeVS.glsl", "backFS.glsl")};
-  Volume volume = QVis{"bonsai.dat"}.volume;
-  GLTexture3D volumeTex{GL_LINEAR, GL_LINEAR,GL_CLAMP_TO_BORDER,GL_CLAMP_TO_BORDER,GL_CLAMP_TO_BORDER};
-  Mat4 mvp;
-  
   GLIPApp() : GLApp(512, 512, 4, "Raycaster")
   {
   }
 
   virtual void animate(double animationTime) override {
-    const Mat4 m{Mat4::rotationX(float(animationTime)*50.0f)*
+    const Vec3 extend = volume.scale*Vec3{float(volume.width),float(volume.height),float(volume.depth)}/volume.maxSize;
+    
+    const Mat4 m{Mat4::scaling(extend) *
+                 Mat4::rotationX(float(animationTime)*50.0f)*
                  Mat4::rotationY(float(animationTime)*21.0f)};
     const Mat4 v{ Mat4::lookAt({ 0, 0, 2 }, { 0, 0, 0 }, { 0, 1, 0 })};
     const Mat4 p{ Mat4::perspective(45, glEnv.getFramebufferSize().aspect(), 0.1f, 100) };
@@ -81,6 +71,10 @@ public:
     progCubeBack.setTexture("volume",volumeTex,2);
     progCubeBack.setTexture("frontFaces",frontFaceTexture,0);
     progCubeBack.setUniform("MVP", mvp);
+    progCubeBack.setUniform("stepStart", stepStart);
+    progCubeBack.setUniform("stepWidth", stepWidth);
+    progCubeBack.setUniform("stepCount", float(volume.maxSize));
+
     GL(glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, (void*)0));
     progCubeBack.unsetTexture2D(0);
     progCubeBack.unsetTexture2D(1);
@@ -100,6 +94,45 @@ public:
     }
   }
   
+  virtual void mouseMove(double xPosition, double yPosition) override {
+    if (mouseDown) {
+      const Dimensions dim = glEnv.getFramebufferSize();
+      const double xDelta = xPositionStart - xPosition;
+      const double yDelta = yPositionStart - yPosition;
+      xPositionStart = xPosition;
+      yPositionStart = yPosition;
+      
+      stepStart += float(xDelta/dim.width);
+      stepWidth += float(yDelta/dim.height);
+    }
+  }
+  
+  virtual void mouseButton(int button, int state, int mods, double xPosition, double yPosition) override {
+    if (button == GLFW_MOUSE_BUTTON_LEFT) {
+      mouseDown = state == GLFW_PRESS;
+      xPositionStart = xPosition;
+      yPositionStart = yPosition;
+    }
+  }
+
+private:
+  GLFramebuffer framebuffer;
+  GLTexture2D frontFaceTexture{GL_NEAREST, GL_NEAREST};
+  Tesselation cube{Tesselation::genBrick({0, 0, 0}, {1, 1, 1})};
+  GLBuffer vbCube{GL_ARRAY_BUFFER};
+  GLBuffer ibCube{GL_ELEMENT_ARRAY_BUFFER};
+  GLArray cubeArray;
+  GLProgram progCubeFront{GLProgram::createFromFile("cubeVS.glsl", "frontFS.glsl")};
+  GLProgram progCubeBack{GLProgram::createFromFile("cubeVS.glsl", "backFS.glsl")};
+  Volume volume = QVis{"bonsai.dat"}.volume;
+  GLTexture3D volumeTex{GL_LINEAR, GL_LINEAR,GL_CLAMP_TO_BORDER,GL_CLAMP_TO_BORDER,GL_CLAMP_TO_BORDER};
+  Mat4 mvp;
+  float stepStart{0.12f};
+  float stepWidth{0.1f};
+  bool mouseDown{false};
+  double xPositionStart{0};
+  double yPositionStart{0};
+
 };
 
 #ifdef _WIN32

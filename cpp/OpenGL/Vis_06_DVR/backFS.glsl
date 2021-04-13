@@ -6,10 +6,13 @@ out vec4 fc;
 uniform sampler2D frontFaces;
 uniform sampler3D volume;
 
-uniform float stepCount = 200;
+uniform float stepCount;
+uniform float stepStart;
+uniform float stepWidth;
 
 vec4 transferFunction(float v) {
-  return vec4(v,v,v,v);
+  v = clamp((v - stepStart) / (stepWidth), 0.0, 1.0);
+  return vec4(v*v * (3-2*v));
 }
 
 vec4 blend(float currentScalar, vec4 last) {

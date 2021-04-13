@@ -14,6 +14,8 @@
 		56339BC826250A3000AA3B11 /* bonsai.raw in CopyFiles */ = {isa = PBXBuildFile; fileRef = 56339BC626250A2800AA3B11 /* bonsai.raw */; };
 		56339BCD26250ABA00AA3B11 /* QVis.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 56339BCC26250ABA00AA3B11 /* QVis.cpp */; };
 		5677395325FB7BF000AB2341 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5677394C25FB7BF000AB2341 /* main.cpp */; };
+		56A20E0B26260259003E2458 /* Engine.dat in CopyFiles */ = {isa = PBXBuildFile; fileRef = 56A20E0926260259003E2458 /* Engine.dat */; };
+		56A20E0C26260259003E2458 /* Engine.raw in CopyFiles */ = {isa = PBXBuildFile; fileRef = 56A20E0A26260259003E2458 /* Engine.raw */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -23,6 +25,8 @@
 			dstPath = "";
 			dstSubfolderSpec = 7;
 			files = (
+				56A20E0B26260259003E2458 /* Engine.dat in CopyFiles */,
+				56A20E0C26260259003E2458 /* Engine.raw in CopyFiles */,
 				56339BC726250A3000AA3B11 /* bonsai.dat in CopyFiles */,
 				56339BC826250A3000AA3B11 /* bonsai.raw in CopyFiles */,
 				56339BC1262509B100AA3B11 /* backFS.glsl in CopyFiles */,
@@ -43,6 +47,8 @@
 		56339BCB26250ABA00AA3B11 /* Volume.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Volume.h; sourceTree = "<group>"; };
 		56339BCC26250ABA00AA3B11 /* QVis.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = QVis.cpp; sourceTree = "<group>"; };
 		5677394C25FB7BF000AB2341 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		56A20E0926260259003E2458 /* Engine.dat */ = {isa = PBXFileReference; lastKnownFileType = text; path = Engine.dat; sourceTree = "<group>"; };
+		56A20E0A26260259003E2458 /* Engine.raw */ = {isa = PBXFileReference; lastKnownFileType = file; path = Engine.raw; sourceTree = "<group>"; };
 		A231F0FF25EAF61A00CBFC23 /* Raycaster */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Raycaster; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -60,6 +66,8 @@
 		A231F0F625EAF61A00CBFC23 = {
 			isa = PBXGroup;
 			children = (
+				56A20E0926260259003E2458 /* Engine.dat */,
+				56A20E0A26260259003E2458 /* Engine.raw */,
 				56339BC526250A2800AA3B11 /* bonsai.dat */,
 				56339BC626250A2800AA3B11 /* bonsai.raw */,
 				56339BBF2625089900AA3B11 /* backFS.glsl */,
