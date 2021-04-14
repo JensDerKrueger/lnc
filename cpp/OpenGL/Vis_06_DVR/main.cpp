@@ -1,17 +1,17 @@
 #include <GLApp.h>
 #include <GLFramebuffer.h>
 #include <Tesselation.h>
+#include <ArcBall.h>
 
 #include "QVis.h"
 
 class GLIPApp : public GLApp {
 public:
+    
   GLIPApp() : GLApp(512, 512, 4, "Raycaster") {}
 
   virtual void animate(double animationTime) override {
-    const Mat4 m{Mat4::scaling(volumeExtend) *
-                 Mat4::rotationX(float(animationTime)*50.0f)*
-                 Mat4::rotationY(float(animationTime)*21.0f)};
+    const Mat4 m{Mat4::scaling(volumeExtend) * rotation };
     mvp = m * v * p;
   }
   
@@ -39,6 +39,9 @@ public:
   virtual void resize(int width, int height) override {
     frontFaceTexture.setEmpty( uint32_t(width), uint32_t(height), 3, GLDataType::HALF);
     p = Mat4{ Mat4::perspective(45, glEnv.getFramebufferSize().aspect(), 0.1f, 100) };
+    
+    const Dimensions dim = glEnv.getWindowSize();
+    arcball.setWindowSize({dim.width,dim.height});
   }
   
   void renderRayEntryTex() {
@@ -98,7 +101,7 @@ public:
   }
   
   virtual void mouseMove(double xPosition, double yPosition) override {
-    if (mouseDown) {
+    if (rightMouseDown) {
       const Dimensions dim = glEnv.getFramebufferSize();
       const double xDelta = xPositionStart - xPosition;
       const double yDelta = yPositionStart - yPosition;
@@ -108,14 +111,26 @@ public:
       stepStart += float(xDelta/dim.width);
       stepWidth += float(yDelta/dim.height);
     }
+    
+    if (leftMouseDown) {
+      const Quaternion q = arcball.drag({uint32_t(xPosition),uint32_t(yPosition)});
+      arcball.click({uint32_t(xPosition),uint32_t(yPosition)});
+      rotation = rotation * q.computeRotation();
+    }
   }
   
   virtual void mouseButton(int button, int state, int mods, double xPosition, double yPosition) override {
-    if (button == GLFW_MOUSE_BUTTON_LEFT) {
-      mouseDown = state == GLFW_PRESS;
+    if (button == GLFW_MOUSE_BUTTON_RIGHT) {
+      rightMouseDown = state == GLFW_PRESS;
       xPositionStart = xPosition;
       yPositionStart = yPosition;
     }
+    
+    if (button == GLFW_MOUSE_BUTTON_LEFT) {
+      leftMouseDown = state == GLFW_PRESS;
+      arcball.click({uint32_t(xPosition),uint32_t(yPosition)});
+    }
+
   }
 
 private:
@@ -131,13 +146,16 @@ private:
   Vec3 volumeExtend = volume.scale*Vec3{float(volume.width),float(volume.height),float(volume.depth)}/volume.maxSize;
   GLTexture3D volumeTex{GL_LINEAR, GL_LINEAR,GL_CLAMP_TO_BORDER,GL_CLAMP_TO_BORDER,GL_CLAMP_TO_BORDER};
   
+  ArcBall arcball{{512, 512}};
+  Mat4 rotation;
   Mat4 mvp;
   Mat4 p;
   Mat4 v{Mat4::lookAt({ 0, 0, 2 }, { 0, 0, 0 }, { 0, 1, 0 })};
 
   float stepStart{0.12f};
   float stepWidth{0.1f};
-  bool mouseDown{false};
+  bool leftMouseDown{false};
+  bool rightMouseDown{false};
   double xPositionStart{0};
   double yPositionStart{0};
 
