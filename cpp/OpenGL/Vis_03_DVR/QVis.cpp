@@ -23,9 +23,9 @@ void QVis::load(const std::string& filename) {
       std::vector<std::string> t = tokenize(l.value);
       if (t.size() != 3) throw QVisFileException{"invalid resolution tag"};
       try {
-        volume.width  = stoi(t[0]);
-        volume.height = stoi(t[1]);
-        volume.depth  = stoi(t[2]);
+        volume.width  = size_t(stoi(t[0]));
+        volume.height = size_t(stoi(t[1]));
+        volume.depth  = size_t(stoi(t[2]));
       } catch (const std::invalid_argument&) {
         throw QVisFileException{"invalid resolution tag"};
       }
