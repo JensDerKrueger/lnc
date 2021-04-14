@@ -1,17 +1,20 @@
 #include <GLApp.h>
 #include <Mat4.h>
+#include <ArcBall.h>
 
 #include "Flowfield.h"
 
 class MyGLApp : public GLApp {
 public:
   size_t particleCount{1000};
-  double angle{0};
   double lastAnimationTime{0};
   std::vector<Vec3> particlePos;
   std::vector<float> data;
   Flowfield flow = Flowfield::genDemo(64, DemoType::SATTLE);
-  
+  ArcBall arcball{{512, 512}};
+  Mat4 rotation;
+  bool leftMouseDown{false};
+
   virtual void init() override {
     glEnv.setTitle("Flow Vis Demo 1 (Particle Tracing)");
     GL(glDisable(GL_CULL_FACE));
@@ -60,21 +63,34 @@ public:
   }
   
   virtual void animate(double animationTime) override {
-    angle = animationTime;
-    advect(animationTime*10);
+    advect(animationTime);
     particlePosToRenderData();
   }
   
   virtual void draw() override {
     GL(glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT));
     setDrawProjection(Mat4::perspective(45, glEnv.getFramebufferSize().aspect(), 0.0001f, 100));
-    setDrawTransform(Mat4::rotationY(float(angle)) * Mat4::rotationX(float(angle/2.0)) * Mat4::lookAt({0,0,5},{0,0,0},{0,1,0}));
+    setDrawTransform(rotation *  Mat4::lookAt({0,0,5},{0,0,0},{0,1,0}));
     
     drawPoints(data, 4, false);
   }
-  
-  virtual void keyboard(int key, int scancode, int action, int mods) override {
 
+  virtual void mouseMove(double xPosition, double yPosition) override {
+    if (leftMouseDown) {
+      const Quaternion q = arcball.drag({uint32_t(xPosition),uint32_t(yPosition)});
+      arcball.click({uint32_t(xPosition),uint32_t(yPosition)});
+      rotation = rotation * q.computeRotation();
+    }
+  }
+
+  virtual void mouseButton(int button, int state, int mods, double xPosition, double yPosition) override {
+    if (button == GLFW_MOUSE_BUTTON_LEFT) {
+      leftMouseDown = state == GLFW_PRESS;
+      arcball.click({uint32_t(xPosition),uint32_t(yPosition)});
+    }
+  }
+
+  virtual void keyboard(int key, int scancode, int action, int mods) override {
     if (action == GLFW_PRESS) {
       switch (key) {
         case GLFW_KEY_ESCAPE:
