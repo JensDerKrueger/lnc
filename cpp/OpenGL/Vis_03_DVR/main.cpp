@@ -130,7 +130,6 @@ public:
       leftMouseDown = state == GLFW_PRESS;
       arcball.click({uint32_t(xPosition),uint32_t(yPosition)});
     }
-
   }
 
 private:
