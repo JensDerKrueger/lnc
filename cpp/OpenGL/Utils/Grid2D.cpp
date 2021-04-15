@@ -378,7 +378,6 @@ void Grid2D::save(std::ostream &os) const {
   os.write((char*)data.data(), sizeof(float) * width * height);
 }
 
-
 static const float d1{1.0f};
 static const float d2{1.4142135624f};
 
@@ -386,7 +385,8 @@ static const float INV = std::numeric_limits<float>::max();
 static const Vec2ui NO_POS{std::numeric_limits<uint32_t>::max(),
                     std::numeric_limits<uint32_t>::max()};
 static float dist(size_t x, size_t y, const Vec2ui& p) {
-  return sqrtf( (x-p.x())*(x-p.x()) + (y-p.y())*(y-p.y()) );
+  return sqrtf( (x-float(p.x()))*(x-float(p.x())) + 
+                (y-float(p.y()))*(y-float(p.y())));
 }
 
 Grid2D Grid2D::toSignedDistance(float threshold) const {
