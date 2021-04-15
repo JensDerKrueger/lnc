@@ -5,10 +5,11 @@
 
 class MyGLApp : public GLApp {
 public:
-  const uint32_t fieldSize{256};
-  Flowfield flow = Flowfield::genDemo(fieldSize, DemoType::SATTLE);
+  Flowfield flow = Flowfield::genDemo(256, DemoType::SATTLE);
+  //this field my be a better start for debugging
+  //Flowfield flow = Flowfield::fromFile("four_sector_128.txt");
   Image inputImage = BMP::load("noise.bmp");
-  Image licImage{fieldSize,fieldSize,4};
+  Image licImage{uint32_t(flow.getSizeX()),uint32_t(flow.getSizeY()),3};
 
   virtual void init() override {
     glEnv.setTitle("LIC demo");
