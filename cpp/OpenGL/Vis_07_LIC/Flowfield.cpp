@@ -8,7 +8,7 @@
 static std::string getElem(std::ifstream& s, char sep) {
   std::string result;
   while (s.good()) {
-    char c = s.get();
+    char c = char(s.get());
     if (c == sep) break;
     result += c;
   }
@@ -25,7 +25,7 @@ Flowfield Flowfield::fromFile(const std::string& filename) {
 
   std::string elem{""};
 
-  size_t dims = std::stoi(getElem(file,','));
+  size_t dims = size_t(std::stoi(getElem(file,',')));
   size_t sizeX{1}, sizeY{1}, sizeZ{1};
   
   if (dims < 1 || dims > 3) {
@@ -34,11 +34,11 @@ Flowfield Flowfield::fromFile(const std::string& filename) {
     throw std::runtime_error(s.str());
   }
   
-  sizeX = std::stoi(getElem(file,','));
+  sizeX = size_t(std::stoi(getElem(file,',')));
   if (dims == 2)
-    sizeY = std::stoi(getElem(file,','));
+    sizeY = size_t(std::stoi(getElem(file,',')));
   if (dims == 3)
-    sizeZ = std::stoi(getElem(file,','));
+    sizeZ = size_t(std::stoi(getElem(file,',')));
   
   int timesteps = std::stoi(getElem(file,','));
   if (timesteps < 1) {

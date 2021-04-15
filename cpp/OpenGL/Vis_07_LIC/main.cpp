@@ -50,16 +50,16 @@ public:
   }
 
   void licStep(Image& image, size_t steps) {
-    for (size_t y = 0; y < image.height;++y) {
-      for (size_t x = 0; x < image.width;++x) {
+    for (uint32_t y = 0; y < image.height;++y) {
+      for (uint32_t x = 0; x < image.width;++x) {
         std::vector<Vec2> trace = computeCurve(float(x)/image.width,
                                                float(y)/image.height,
                                                0.5f,
                                                steps);
         float value=0.0f;
         for (size_t i = 0;i<trace.size();++i) {
-          const size_t u = size_t(trace[i].x() * inputImage.width + 0.5f);
-          const size_t v = size_t(trace[i].y() * inputImage.height + 0.5f);
+          const uint32_t u = uint32_t(trace[i].x() * inputImage.width + 0.5f);
+          const uint32_t v = uint32_t(trace[i].y() * inputImage.height + 0.5f);
           value += inputImage.getValue(u,v,0);
         }
         
@@ -79,7 +79,7 @@ public:
     for (size_t i = 0; i < pixelCount;++i) {
       histogram[image.data[i*image.componentCount]]++;
     }
-    std::array<float, 256> cdf;
+    std::array<size_t, 256> cdf;
     cdf[0] = histogram[0];
     size_t cdf_min = cdf[0];
     for (size_t i = 1; i < 256;++i) {
@@ -90,7 +90,7 @@ public:
     }
     std::array<uint8_t, 256> remap;
     for (size_t i = 0; i < 256;++i) {
-      remap[i] = uint8_t(round((cdf[i] - cdf_min)/(pixelCount-cdf_min) * 255) );
+      remap[i] = uint8_t(round(float(cdf[i] - cdf_min)/float(pixelCount-cdf_min) * 255) );
     }
     for (size_t i = 0;i<pixelCount;++i) {
       uint8_t remapped = remap[image.data[i*image.componentCount]];
