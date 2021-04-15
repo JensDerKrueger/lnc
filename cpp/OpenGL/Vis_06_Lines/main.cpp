@@ -1,10 +1,15 @@
 #include <GLApp.h>
 #include <Mat4.h>
+#include <ArcBall.h>
 
 #include "Flowfield.h"
 
 class MyGLApp : public GLApp {
 public:
+  ArcBall arcball{{512, 512}};
+  Mat4 rotation;
+  bool leftMouseDown{false};
+
   size_t lineCount{200};
   size_t linelength{300};
   double angle{0};
@@ -83,20 +88,14 @@ public:
     }
   }
   
-  virtual void animate(double animationTime) override {
-    angle = animationTime*10;
-  }
-  
   virtual void draw() override {
     GL(glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT));
     setDrawProjection(Mat4::perspective(45, glEnv.getFramebufferSize().aspect(), 0.0001f, 100));
-    setDrawTransform(Mat4::rotationY(float(angle)) * Mat4::rotationX(float(angle/2.0)) * Mat4::lookAt({0,0,5},{0,0,0},{0,1,0}));
-    
+    setDrawTransform(rotation * Mat4::lookAt({0,0,5},{0,0,0},{0,1,0}));
     drawLines(data, LineDrawType::LIST, 1.0f);
   }
   
   virtual void keyboard(int key, int scancode, int action, int mods) override {
-
     if (action == GLFW_PRESS) {
       switch (key) {
         case GLFW_KEY_ESCAPE:
@@ -106,6 +105,24 @@ public:
     }
   }
 
+  virtual void mouseMove(double xPosition, double yPosition) override {
+    if (leftMouseDown) {
+      const Quaternion q = arcball.drag({uint32_t(xPosition),uint32_t(yPosition)});
+      arcball.click({uint32_t(xPosition),uint32_t(yPosition)});
+      rotation = rotation * q.computeRotation();
+    }
+  }
+  virtual void mouseButton(int button, int state, int mods, double xPosition, double yPosition) override {
+    if (button == GLFW_MOUSE_BUTTON_LEFT) {
+      leftMouseDown = state == GLFW_PRESS;
+      arcball.click({uint32_t(xPosition),uint32_t(yPosition)});
+    }
+  }
+
+  virtual void resize(int width, int height) override {
+    const Dimensions dim = glEnv.getWindowSize();
+    arcball.setWindowSize({dim.width,dim.height});
+  }
 
 } myApp;
 
