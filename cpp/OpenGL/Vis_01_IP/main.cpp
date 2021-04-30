@@ -79,7 +79,7 @@ public:
     for (uint32_t y = 0;y<image.height;y+=4) {
       for (uint32_t x = 0;x<image.width;x+=4) {
         const uint8_t v = getLumiValue(x,image.height-y);
-        const unsigned char c = lut[(v*(lut.length()-1))/255];
+        const char c = lut[(v*(lut.length()-1))/255];
         ss << c << c;
       }
       ss << "\n";
