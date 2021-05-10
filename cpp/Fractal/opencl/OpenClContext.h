@@ -331,17 +331,24 @@ void OpenClContext<T>::run(size_t ySize) {
     throw OpenClContextException("Failed to retrieve "
                                  "kernel work group info!", err);
   }
-  
+
   // Execute the kernel over the entire range of our input data set
   // using the maximum number of work group items for this device
-  //
   size_t global[] = {(size_t)width, (size_t)height};
   size_t localArray[] = {local/ySize, ySize};
-
   err = clEnqueueNDRangeKernel(commands, kernel, 2, NULL,
                                global, localArray, 0, NULL, NULL);
   if (err) {
-    throw OpenClContextException("Failed to execute kernel!", err);
+    // on some systems the reportet CL_KERNEL_WORK_GROUP_SIZE
+    // does not work but a 1x1 kernel works, so try that before
+    // giving up
+    localArray[0] = 1;
+    localArray[1] = 1;
+    err = clEnqueueNDRangeKernel(commands, kernel, 2, NULL,
+                                 global, {localArray}, 0, NULL, NULL);
+    if (err) {
+      throw OpenClContextException("Failed to execute kernel!", err);
+    }
   }
   
 }
