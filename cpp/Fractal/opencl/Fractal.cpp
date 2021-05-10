@@ -40,7 +40,7 @@ Fractal::Fractal(unsigned int w, unsigned int h)
     }
   }
   
-  cl_device_id selectedDevice;
+  cl_device_id selectedDevice{0};
   size_t selectedDeviceIndex{0};
   std::cout << "Select a device number: ";  std::cin >> selectedDeviceIndex;
 
@@ -54,9 +54,9 @@ Fractal::Fractal(unsigned int w, unsigned int h)
       }
       i++;
     }
+    if (selectedDevice != 0) break;
   }
-  
-  
+    
   context.init(selectedDevice);
   context.setProgramCode(code, false);
   context.setParam(0, sizeof(unsigned int), &w);
