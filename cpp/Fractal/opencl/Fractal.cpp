@@ -1,6 +1,6 @@
 #include "Fractal.h"
 
-Fractal::Fractal(unsigned int w, unsigned int h)
+Fractal::Fractal(unsigned int w, unsigned int h, cl_device_id clDevice)
 : Image(w,h)
 , context(w,h)
 {
@@ -30,34 +30,8 @@ Fractal::Fractal(unsigned int w, unsigned int h)
   "  }                                         \n" \
   "  output[x+y*w] = depth;                    \n" \
   "}                                           \n" ;
-  
-  
-  const auto platforms = OpenClContext<unsigned char>::getInfo();
-  size_t i = 0;
-  for (const PlatformInfo& platform : platforms) {
-    for (const DeviceInfo& d : platform.devices) {
-      std::cout << i++ << " " << d.toString() << std::endl;
-    }
-  }
-  
-  cl_device_id selectedDevice{0};
-  size_t selectedDeviceIndex{0};
-  std::cout << "Select a device number: ";  std::cin >> selectedDeviceIndex;
-
-  i = 0;
-  for (const PlatformInfo& platform : platforms) {
-    for (const DeviceInfo& d : platform.devices) {
-      if (i == selectedDeviceIndex) {
-        selectedDevice =  d.deviceID;
-        std::cout << "Selected " << d.name << std::endl;
-        break;
-      }
-      i++;
-    }
-    if (selectedDevice != 0) break;
-  }
-    
-  context.init(selectedDevice);
+      
+  context.init(clDevice);
   context.setProgramCode(code, false);
   context.setParam(0, sizeof(unsigned int), &w);
   context.setParam(1, sizeof(unsigned int), &h);
