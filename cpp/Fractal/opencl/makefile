@@ -1,6 +1,13 @@
 CC=g++
 CFLAGS=-c -Wall -std=c++0x -Wunreachable-code 
-LIBS=-framework OpenCL
+
+OSTYPE := $(shell uname)
+ifeq ($(OSTYPE),Linux)
+  LIBS=-l OpenCL
+else
+  LIBS=-framework OpenCL
+endif
+
 INCLUDES=-I.
 SRC = main.cpp Image.cpp Fractal.cpp OpenClContext.cpp
 OBJ = $(SRC:.cpp=.o)
