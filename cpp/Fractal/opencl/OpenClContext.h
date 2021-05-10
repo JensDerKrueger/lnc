@@ -1,8 +1,20 @@
 #pragma once
 
-#include <OpenCL/opencl.h>
+#define CL_HPP_MINIMUM_OPENCL_VERSION 110
+#define CL_HPP_TARGET_OPENCL_VERSION 110
+#define CL_TARGET_OPENCL_VERSION 110
+
+#ifdef __APPLE__
+    #include <OpenCL/opencl.h>
+#else
+    #include "opencl.h"
+    #include "cl.hpp"
+#endif
+
 #include <exception>
 #include <string>
+#include <vector>
+#include <sstream>
 #include <fstream>
 #include <iostream>
 
@@ -19,6 +31,52 @@ private:
   static std::string getErrorString(cl_int error);
 };
 
+template <typename T> struct DynBuffer {
+  T* data{NULL};
+  size_t currentSize{0};
+  
+  DynBuffer(size_t initialSize) :
+    currentSize{initialSize}
+  {
+    data = new T[currentSize];
+  }
+  
+  void ensureSize(size_t minSize) {
+    if (minSize < currentSize) return;
+    currentSize = minSize;
+    delete [] data;
+    data = new T[currentSize];
+  }
+  
+  ~DynBuffer() {
+    delete [] data;
+  }
+};
+
+struct DeviceInfo {
+  cl_device_id deviceID;
+  std::string name{""};
+  cl_device_type type{CL_DEVICE_TYPE_DEFAULT};
+  std::string deviceVersion{""};
+  std::string driverVersion{""};
+  std::string openCLCVersion{""};
+  cl_uint maxComputeUnits{0};
+  
+  DeviceInfo(cl_device_id deviceID);
+  std::string toString() const;
+};
+
+struct PlatformInfo {
+  cl_platform_id platformID;
+  std::string name{""};
+  std::string vendor{""};
+  std::string version{""};  
+  std::vector<DeviceInfo> devices;
+  
+  PlatformInfo(cl_platform_id platformID);
+  std::string toString() const;
+};
+
 template <typename T> class OpenClContext {
 public:
   OpenClContext(unsigned int w, unsigned int h)
@@ -26,7 +84,6 @@ public:
   , height(h)
   , bHasInput(true)
   , num_devices(0)
-  , deviceIndex(0)
   , context(0)
   , commands(0)
   , program(0)
@@ -37,6 +94,7 @@ public:
   }
   
   void init(bool useGPU=true, size_t deviceIndex=0);
+  void init(cl_device_id deviceID);
   cl_uint getNumDevices() const {return num_devices;}
   void destroy();
   void setProgramCode(const std::string& code,
@@ -51,14 +109,25 @@ public:
   void getOutput(T* results);
   void setParam(cl_uint arg_index, size_t arg_size, const void *arg_value);
   
+  static std::vector<PlatformInfo> getInfo() {
+    std::vector<PlatformInfo> result;
+    cl_uint count;
+    clGetPlatformIDs(0, NULL, &count);
+    DynBuffer<cl_platform_id> platformBuffer{count};
+    clGetPlatformIDs(platformBuffer.currentSize, platformBuffer.data, NULL);
+    for (cl_uint i = 0;i<count;++i) {
+      result.push_back(PlatformInfo(platformBuffer.data[i]));
+    }
+    return result;
+  }
+
 private:
   unsigned int width;
   unsigned int height;
   bool bHasInput;
   
   cl_uint num_devices;
-  cl_uint deviceIndex;
-  cl_device_id device_ids[16];        // compute device id
+  cl_device_id deviceID;              // computed device id
   cl_context context;                 // compute context
   cl_command_queue commands;          // compute command queue
   cl_program program;                 // compute program
@@ -71,34 +140,57 @@ private:
 
 template <typename T>
 void OpenClContext<T>::init(bool useGPU, size_t deviceIndex) {
-  int err;                            // error code returned from api calls
-  
-  this->deviceIndex = deviceIndex;
-  
+  cl_int err;                            // error code returned from api calls
+    
   // Connect to a compute device
   //
+  cl_device_id deviceIDs[16];
   err = clGetDeviceIDs(NULL, useGPU ? CL_DEVICE_TYPE_GPU : CL_DEVICE_TYPE_CPU,
-                       16, device_ids, &num_devices);
+                       16, deviceIDs, &num_devices);
   if (err != CL_SUCCESS) {
     throw OpenClContextException("Failed to create a device group!",
                                          err);
   }
-  
+  deviceID = deviceIDs[deviceIndex];
+
   // Create a compute context
   //
-  context = clCreateContext(0, 1, &(device_ids[deviceIndex]), NULL, NULL, &err);
+  context = clCreateContext(0, 1, &deviceID, NULL, NULL, &err);
   if (!context) {
     throw OpenClContextException("Failed to create a compute context!",
                                          err);
   }
   
+  
   // Create a command commands
   //
-  commands = clCreateCommandQueue(context, device_ids[deviceIndex], 0, &err);
+  commands = clCreateCommandQueue(context, deviceID, 0, &err);
   if (!commands) {
     throw OpenClContextException("Failed to create a command commands!",
                                          err);
   }
+}
+
+template <typename T>
+void OpenClContext<T>::init(cl_device_id deviceID) {
+  cl_int err;                            // error code returned from api calls
+    
+  // Create a compute context
+  //
+  context = clCreateContext(0, 1, &deviceID, NULL, NULL, &err);
+  if (!context) {
+    throw OpenClContextException("Failed to create a compute context!",
+                                         err);
+  }
+    
+  // Create a command commands
+  //
+  commands = clCreateCommandQueue(context, deviceID, 0, &err);
+  if (!commands) {
+    throw OpenClContextException("Failed to create a command commands!",
+                                         err);
+  }
+  this->deviceID = deviceID;
 }
 
 template <typename T>
@@ -125,7 +217,7 @@ template <typename T>
 void OpenClContext<T>::setProgramCode(const std::string& code,
                                       bool bHasInput,
                                       const std::string& mainMethod) {
-  int err;                            // error code returned from api calls
+  cl_int err;                            // error code returned from api calls
 
   this->bHasInput = bHasInput;
 
@@ -147,7 +239,7 @@ void OpenClContext<T>::setProgramCode(const std::string& code,
   if (err != CL_SUCCESS) {
     size_t len;
     char buffer[2048];
-    clGetProgramBuildInfo(program, device_ids[deviceIndex],
+    clGetProgramBuildInfo(program, deviceID,
                           CL_PROGRAM_BUILD_LOG,
                           sizeof(buffer), buffer, &len);
     
@@ -198,7 +290,7 @@ void OpenClContext<T>::setProgramCode(const std::string& code,
 template <typename T>
 void OpenClContext<T>::setParam(cl_uint arg_index,  size_t arg_size,
                                 const void *arg_value) {
-  int err;                            // error code returned from api calls
+  cl_int err;                            // error code returned from api calls
   err = clSetKernelArg(kernel, arg_index+(bHasInput ? 2 : 1),
                        arg_size, arg_value);
   if (err != CL_SUCCESS) {
@@ -208,7 +300,7 @@ void OpenClContext<T>::setParam(cl_uint arg_index,  size_t arg_size,
 
 template <typename T>
 void OpenClContext<T>::setInput(T* data) {
-  int err;                            // error code returned from api calls
+  cl_int err;                            // error code returned from api calls
 
   if (!input) {
     throw OpenClContextException("Input does not exist (yet)!");
@@ -227,38 +319,36 @@ void OpenClContext<T>::setInput(T* data) {
 
 template <typename T>
 void OpenClContext<T>::run(size_t ySize) {
-  int err;                            // error code returned from api calls
+  cl_int err;                            // error code returned from api calls
   size_t local;                       // local domain size for our calculation
   
   // Get the maximum work group size for executing the kernel on the device
   //
-  err = clGetKernelWorkGroupInfo(kernel, device_ids[deviceIndex],
+  err = clGetKernelWorkGroupInfo(kernel, deviceID,
                                  CL_KERNEL_WORK_GROUP_SIZE,
                                  sizeof(local), &local, NULL);
   if (err != CL_SUCCESS) {
     throw OpenClContextException("Failed to retrieve "
-                                         "kernel work group info!", err);
+                                 "kernel work group info!", err);
   }
-  
   
   // Execute the kernel over the entire range of our input data set
   // using the maximum number of work group items for this device
   //
   size_t global[] = {(size_t)width, (size_t)height};
-
   size_t localArray[] = {local/ySize, ySize};
+
   err = clEnqueueNDRangeKernel(commands, kernel, 2, NULL,
                                global, localArray, 0, NULL, NULL);
   if (err) {
-    std::cout << err << std::endl;
-
     throw OpenClContextException("Failed to execute kernel!", err);
   }
+  
 }
 
 template <typename T>
 void OpenClContext<T>::getOutput(T* results) {
-  int err;                            // error code returned from api calls
+  cl_int err;                            // error code returned from api calls
   
   // Wait for the command commands to get serviced before reading back results
   //
