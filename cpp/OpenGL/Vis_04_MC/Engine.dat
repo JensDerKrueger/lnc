@@ -1,0 +1,9 @@
+ObjectFileName: Engine.raw
+TaggedFileName: ---
+Resolution:     256 256 110
+SliceThickness: 1 1 1
+Format:         UCHAR
+NbrTags:        0
+ObjectType:     TEXTURE_VOLUME_OBJECT
+ObjectModel:    DENSITY
+GridType:       EQUIDISTANT

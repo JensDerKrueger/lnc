@@ -9,7 +9,8 @@ Client::Client(const std::string& address, uint16_t port, const std::string& key
   timeout{timeout},
   crypt(nullptr),
   receiveCrypt(nullptr),
-  key(key)
+  key(key),
+  connection{nullptr}
 {
   clientThread = std::thread(&Client::clientFunc, this);
 }
@@ -77,9 +78,11 @@ std::string Client::handleIncommingData(int8_t* data, uint32_t bytes) {
 
 
 void Client::sendRawMessage(const int8_t* rawData, uint32_t size) {
+  if (size == 0) return;
+
   uint32_t currentBytes = 0;
   uint32_t totalBytes = 0;
-
+  
   try {
     do {
       currentBytes = connection->SendData(rawData + totalBytes, size-totalBytes, timeout);

@@ -228,13 +228,13 @@ int main(int argc, char ** argv) {
     roughHeightField.normalize();
     
     const float reduction = 1.5f;
-    
-    
-    heightField = std::make_shared<Grid2D>((smoothHeightField * parameterField + roughHeightField * (parameterField*-1+1))/reduction);
-    
-    const MaxData maxv{heightField->maxValue()};
-    const Vec3 mountainTop{maxv.pos.x()-0.5f,maxv.value+0.0005f,maxv.pos.y()-0.5f};
 
+    heightField = std::make_shared<Grid2D>((smoothHeightField * parameterField + roughHeightField * (parameterField*-1+1))/reduction);
+    const Vec2ui maxv{heightField->maxValue()};
+    const Vec3 mountainTop{maxv.x()/float(heightField->getWidth())-0.5f,
+                           heightField->getValue(maxv.x(),maxv.y())+0.0005f,
+                           maxv.y()/float(heightField->getHeight())-0.5f};
+  
     GLEnv gl{1024,768,4,"Terrain Generator", true, true, 4, 1, true};
 
     std::shared_ptr<SphereStart> starter = std::make_shared<SphereStart>(mountainTop, 0.001f);

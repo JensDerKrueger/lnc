@@ -125,6 +125,9 @@ std::shared_ptr<FontEngine> FontRenderer::generateFontEngine() const {
     const Mat4 t = Mat4::translation(w,h,0.0f);
     fe->chars[c.c] = CharTex{GLTexture2D(i),s,t,w,h};
     fe->chars[c.c].tex.setFilter(GL_LINEAR, GL_LINEAR);
+
+    fe->sdChars[c.c] = CharTex{Grid2D(i).toSignedDistance(0.9f).toTexture(),s,t,w,h};
+    fe->sdChars[c.c].tex.setFilter(GL_LINEAR, GL_LINEAR);
   }
   return fe;
 }
@@ -150,8 +153,30 @@ FontEngine::FontEngine() :
    "void main() {\n"
    "    FragColor = globalColor*texture(raster, texCoords);\n"
    "}\n")},
+  simpleDistProg{GLProgram::createFromString(
+   "#version 410\n"
+   "uniform mat4 MVP;\n"
+   "layout (location = 0) in vec3 vPos;\n"
+   "layout (location = 1) in vec2 vTexCoords;\n"
+   "out vec4 color;\n"
+   "out vec2 texCoords;\n"
+   "void main() {\n"
+   "    gl_Position = MVP * vec4(vPos, 1.0);\n"
+   "    texCoords = vTexCoords;\n"
+   "}\n",
+   "#version 410\n"
+   "uniform sampler2D raster;\n"
+   "uniform vec4 globalColor;\n"
+   "in vec2 texCoords;\n"
+   "out vec4 FragColor;\n"
+   "void main() {\n"
+   "    float dist = texture(raster, texCoords).r;\n"
+   "    float val  = smoothstep(-3.0,1.0,dist);\n"
+   "    FragColor  = globalColor*val;\n"
+   "}\n")},
   simpleArray{},
-  simpleVb{GL_ARRAY_BUFFER}
+  simpleVb{GL_ARRAY_BUFFER},
+  renderAsSignedDistanceField{false}
 {
   simpleArray.bind();
   std::vector<float> data = {
@@ -166,19 +191,22 @@ FontEngine::FontEngine() :
   simpleVb.setData(data,5,GL_STATIC_DRAW);
 }
 
-#include <iostream>
-
-void FontEngine::render(const std::string& text, float winAspect, float height, const Vec2& pos, Alignment a, const Vec4& color) {
-  simpleProg.enable();
-  simpleProg.setUniform("globalColor", color);
+void FontEngine::render(const std::string& text, float winAspect,
+                        float height, const Vec2& pos, Alignment a, const Vec4& color) {
+  
+  GLProgram& activeShader = (renderAsSignedDistanceField) ? simpleDistProg : simpleProg;
+  std::map<char,CharTex>& activeFontMap = (renderAsSignedDistanceField) ? sdChars : chars;
+  
+  activeShader.enable();
+  activeShader.setUniform("globalColor", color);
   simpleArray.bind();
-  simpleArray.connectVertexAttrib(simpleVb, simpleProg, "vPos", 3);
-  simpleArray.connectVertexAttrib(simpleVb, simpleProg, "vTexCoords", 2, 3);
+  simpleArray.connectVertexAttrib(simpleVb, activeShader, "vPos", 3);
+  simpleArray.connectVertexAttrib(simpleVb, activeShader, "vTexCoords", 2, 3);
   
   float totalWidth = 0;
   for (char c : text) {
-    if (chars.find(c) == chars.end()) c = '_';
-    totalWidth += chars.at(c).width;
+    if (activeFontMap.find(c) == activeFontMap.end()) c = '_';
+    totalWidth += activeFontMap.at(c).width;
   }
   
   Mat4 scale = Mat4::scaling(height/winAspect, height, 1.0f);
@@ -196,14 +224,14 @@ void FontEngine::render(const std::string& text, float winAspect, float height, 
   }
   
   for (char c : text) {
-    if (chars.find(c) == chars.end()) c = '_';
-    simpleProg.setUniform("MVP", scale * chars[c].scale * Mat4::translation(height*chars[c].width/winAspect,
-                                                                            height*(chars[c].height-1.0f),
-                                                                            0.0f) * trans);
+    if (activeFontMap.find(c) == activeFontMap.end()) c = '_';
+    activeShader.setUniform("MVP", scale * activeFontMap[c].scale * Mat4::translation(height*activeFontMap[c].width/winAspect,
+                        height*(activeFontMap[c].height-1.0f),
+                        0.0f) * trans);
 
-    simpleProg.setTexture("raster",chars[c].tex,0);
+    activeShader.setTexture("raster",activeFontMap[c].tex,0);
     GL(glDrawArrays(GL_TRIANGLES, 0, GLsizei(6)));
-    trans = trans * Mat4::translation(2.0f*height*chars[c].width/winAspect,0.0f,0.0f);
+    trans = trans * Mat4::translation(2.0f*height*activeFontMap[c].width/winAspect,0.0f,0.0f);
   }
 }
 
@@ -274,8 +302,8 @@ void FontEngine::renderFixedWidth(const std::string& text, float winAspect, floa
   for (char c : text) {
     if (chars.find(c) == chars.end()) c = '_';
     simpleProg.setUniform("MVP", scale * chars[c].scale * Mat4::translation(width*chars[c].width/totalWidth,
-                                                                            width/totalWidth*winAspect*(chars[c].height-1.0f),
-                                                                            0.0f) * trans);
+                        width/totalWidth*winAspect*(chars[c].height-1.0f),
+                        0.0f) * trans);
     simpleProg.setTexture("raster",chars[c].tex,0);
     GL(glDrawArrays(GL_TRIANGLES, 0, GLsizei(6)));
     trans = trans * Mat4::translation(2.0f* width*chars[c].width/totalWidth,0.0f,0.0f);

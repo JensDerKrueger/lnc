@@ -5,9 +5,8 @@
 
 class Fractal : public Image {
 public:
-  Fractal(unsigned int w, unsigned int h);
-  ~Fractal();
-  
+  Fractal(unsigned int w, unsigned int h, cl_device_id clDevice);
+  ~Fractal();  
   void compute();
   
 private:

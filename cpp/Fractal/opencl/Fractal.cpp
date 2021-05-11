@@ -1,6 +1,6 @@
 #include "Fractal.h"
 
-Fractal::Fractal(unsigned int w, unsigned int h)
+Fractal::Fractal(unsigned int w, unsigned int h, cl_device_id clDevice)
 : Image(w,h)
 , context(w,h)
 {
@@ -30,8 +30,8 @@ Fractal::Fractal(unsigned int w, unsigned int h)
   "  }                                         \n" \
   "  output[x+y*w] = depth;                    \n" \
   "}                                           \n" ;
-  
-  context.init();
+      
+  context.init(clDevice);
   context.setProgramCode(code, false);
   context.setParam(0, sizeof(unsigned int), &w);
   context.setParam(1, sizeof(unsigned int), &h);

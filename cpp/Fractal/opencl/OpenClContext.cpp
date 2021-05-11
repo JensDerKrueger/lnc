@@ -149,3 +149,101 @@ std::string OpenClContextException::getErrorString(cl_int error) {
     default: return "Unknown OpenCL error";
   }
 }
+
+PlatformInfo::PlatformInfo(cl_platform_id platformID)  :
+  platformID(platformID)
+{
+  size_t valueSize{0};
+  DynBuffer<char> buffer{2048};
+  
+  clGetPlatformInfo(platformID, CL_PLATFORM_NAME, 0, NULL, &valueSize);
+  buffer.ensureSize(valueSize);
+  clGetPlatformInfo(platformID, CL_PLATFORM_NAME, buffer.currentSize, buffer.data, NULL);
+  name = buffer.data;
+
+  clGetPlatformInfo(platformID, CL_PLATFORM_VENDOR, 0, NULL, &valueSize);
+  buffer.ensureSize(valueSize);
+  clGetPlatformInfo(platformID, CL_PLATFORM_VENDOR, buffer.currentSize, buffer.data, NULL);
+  vendor = buffer.data;
+
+  clGetPlatformInfo(platformID, CL_PLATFORM_VERSION, 0, NULL, &valueSize);
+  buffer.ensureSize(valueSize);
+  clGetPlatformInfo(platformID, CL_PLATFORM_VERSION, buffer.currentSize, buffer.data, NULL);
+  version = buffer.data;
+  
+  cl_uint count;
+  clGetDeviceIDs(platformID, CL_DEVICE_TYPE_ALL, 0, NULL, &count);
+  DynBuffer<cl_device_id> deviceBuffer{count};
+  clGetDeviceIDs(platformID, CL_DEVICE_TYPE_ALL, deviceBuffer.currentSize, deviceBuffer.data, NULL);
+
+  for (cl_uint i = 0;i<count;++i) {
+    devices.push_back(DeviceInfo(deviceBuffer.data[i]));
+  }
+}
+
+std::string PlatformInfo::toString() const {
+  std::stringstream ss;
+  ss << "Name:" << name << " Vendor:" << vendor  << " Version:" << version << "\n";
+  for (const DeviceInfo& dev : devices) {
+    ss << "\t" << dev.toString() << "\n";
+  }
+  return ss.str();
+}
+
+DeviceInfo::DeviceInfo(cl_device_id deviceID) :
+  deviceID(deviceID)
+{
+  size_t valueSize{0};
+  DynBuffer<char> buffer{2048};
+
+  clGetDeviceInfo(deviceID, CL_DEVICE_NAME, 0, NULL, &valueSize);
+  buffer.ensureSize(valueSize);
+  clGetDeviceInfo(deviceID, CL_DEVICE_NAME, buffer.currentSize, buffer.data, NULL);
+  name = buffer.data;
+
+  clGetDeviceInfo(deviceID, CL_DEVICE_TYPE, sizeof(type), &type, NULL);
+    
+  clGetDeviceInfo(deviceID, CL_DEVICE_VERSION, 0, NULL, &valueSize);
+  buffer.ensureSize(valueSize);
+  clGetDeviceInfo(deviceID, CL_DEVICE_VERSION, buffer.currentSize, buffer.data, NULL);
+  deviceVersion = buffer.data;
+
+  clGetDeviceInfo(deviceID, CL_DRIVER_VERSION, 0, NULL, &valueSize);
+  buffer.ensureSize(valueSize);
+  clGetDeviceInfo(deviceID, CL_DRIVER_VERSION, buffer.currentSize, buffer.data, NULL);
+  driverVersion = buffer.data;
+
+  clGetDeviceInfo(deviceID, CL_DEVICE_OPENCL_C_VERSION, 0, NULL, &valueSize);
+  buffer.ensureSize(valueSize);
+  clGetDeviceInfo(deviceID, CL_DEVICE_OPENCL_C_VERSION, buffer.currentSize, buffer.data, NULL);
+  openCLCVersion = buffer.data;
+
+  clGetDeviceInfo(deviceID, CL_DEVICE_MAX_COMPUTE_UNITS, sizeof(maxComputeUnits), &maxComputeUnits, NULL);
+}
+
+std::string DeviceInfo::toString() const {
+  std::stringstream ss;
+  ss << "Name:" << name
+     << "\tDevice Version: " << deviceVersion
+     << "\tDriver Version: " << driverVersion
+     << "\tOpenCL C Version: " << openCLCVersion
+     << "\tMax Compute Units: " << maxComputeUnits
+     << "\tType: ";
+  
+  switch (type) {
+    case CL_DEVICE_TYPE_CPU:
+      ss << "CPU";
+      break;
+    case CL_DEVICE_TYPE_GPU:
+      ss << "GPU";
+      break;
+    case CL_DEVICE_TYPE_ACCELERATOR:
+      ss << "Accelerator";
+      break;
+    case CL_DEVICE_TYPE_DEFAULT:
+      ss << "Default";
+      break;
+  }
+  
+  return ss.str();
+}

@@ -4,10 +4,11 @@
 
 TOPTARGETS := all clean release
 
-SUBDIRS := $(wildcard */.)
-SUBDIRS := $(filter-out VS/. Utils/. LibML/. Network/.,$(SUBDIRS))
-FIRSTDIR := LibML/. Network/.
 UTILSDIR := Utils/.
+FIRSTDIR := LibML/. Network/.
+
+SUBDIRS := $(wildcard */.)
+SUBDIRS := $(filter-out VS/. $(UTILSDIR) $(FIRSTDIR),$(SUBDIRS))
 
 $(TOPTARGETS): $(SUBDIRS)
 

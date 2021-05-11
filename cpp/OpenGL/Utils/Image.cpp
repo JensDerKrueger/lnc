@@ -2,6 +2,7 @@
 #include <iomanip>
 
 #include "Image.h"
+#include "Grid2D.h"
 
 Image::Image(const Vec4& color) :
   Image(1,1,4,{uint8_t(color.x()*255),
@@ -115,4 +116,63 @@ std::string Image::toCode(const std::string& varName, bool padding) const {
   ss << "          }};\n";
   
   return ss.str();
+}
+
+std::string Image::toACIIArt(bool bSmallTable) const {
+  const std::string lut1{"$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'. "};
+  const std::string lut2{"@%#*+=-:. "};
+  const std::string& lut = bSmallTable ? lut2 : lut1;
+
+  std::stringstream ss;
+  for (uint32_t y = 0;y<height;y+=4) {
+    for (uint32_t x = 0;x<width;x+=4) {
+      const uint8_t v = getLumiValue(x,height-y);
+      ss << lut[(v*lut.length())/255] << lut[(v*lut.length())/255];
+    }
+    ss << "\n";
+  }
+  return ss.str();
+}
+
+uint8_t Image::getLumiValue(uint32_t x, uint32_t y) const {
+  switch (componentCount) {
+    case 1 : return getValue(x,y,0);
+    case 2 : return uint8_t(getValue(x,y,0)*0.5f + getValue(x,y,1)*0.5f);
+    case 3 :
+    case 4 : return uint8_t(getValue(x,y,0)*0.299f + getValue(x,y,1)*0.587f + getValue(x,y,2)*0.114f);
+    default : return 0;
+  }
+}
+
+Image Image::filter(const Grid2D& filter) const {
+  Image filteredImage{width, height, componentCount};
+  
+  const uint32_t hw = uint32_t(filter.getWidth()/2);
+  const uint32_t hh = uint32_t(filter.getHeight()/2);
+  
+  for (uint32_t y = hh;y<height-hh;y+=1) {
+    for (uint32_t x = hw;x<width-hw;x+=1) {
+      for (uint32_t c = 0;c<componentCount;c+=1) {
+        float conv = 0.0f;
+        for (uint32_t u = 0;u<filter.getHeight();u+=1) {
+          for (uint32_t v = 0;v<filter.getWidth();v+=1) {
+            conv += float(getValue((x+u-hw),(y+v-hh),c)) * filter.getValue(u, v);
+          }
+        }
+        filteredImage.setValue(x,y,c,uint8_t(fabs(conv)));
+      }
+    }
+  }
+  
+  return filteredImage;
+}
+
+Image Image::toGrayscale() const {
+  Image grayScaleImage{width,height,1};
+  for (uint32_t y = 0;y<height;++y) {
+    for (uint32_t x = 0;x<width;++x) {
+      grayScaleImage.setValue(x,y,0,getLumiValue(x,y));
+    }
+  }
+  return grayScaleImage;
 }
