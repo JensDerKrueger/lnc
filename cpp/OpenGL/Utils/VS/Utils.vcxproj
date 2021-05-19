@@ -45,8 +45,6 @@
     <ClCompile Include="..\PrecomputedParticleSystem.cpp" />
     <ClCompile Include="..\Rand.cpp" />
     <ClCompile Include="..\Tesselation.cpp" />
-    <ClCompile Include="..\Vec3.cpp" />
-    <ClCompile Include="..\Vec4.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Image.h" />

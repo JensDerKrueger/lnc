@@ -87,12 +87,6 @@
     <ClCompile Include="..\Tesselation.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="..\Vec3.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Vec4.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
     <ClCompile Include="..\Mat3.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
