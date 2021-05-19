@@ -173,15 +173,15 @@ std::vector<float> PrecomputedParticleSystem::getData() const {
             
             const Vec3 pos = prevPos * (1.0f-alpha) + nextPos * alpha;
             
-            result.push_back(pos.x());
-            result.push_back(pos.y());
-            result.push_back(pos.z());
+            result.push_back(pos.x);
+            result.push_back(pos.y);
+            result.push_back(pos.z);
             
             Vec3 c = particleColors[i] == RAINBOW_COLOR ? Vec3::hsvToRgb({float(index),1.0,1.0}) : particleColors[i];
             
-            result.push_back(c.x());
-            result.push_back(c.y());
-            result.push_back(c.z());
+            result.push_back(c.x);
+            result.push_back(c.y);
+            result.push_back(c.z);
             
             if (prevPos == nextPos)
                 result.push_back(reverse ? 1.0f : 0.0f);

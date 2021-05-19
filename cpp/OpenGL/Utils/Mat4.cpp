@@ -36,10 +36,10 @@ Mat4::Mat4(const Mat4& other) :
 }
 
 Mat4::Mat4(const Vec3& e1, float e14, const Vec3& e2, float e24, const Vec3& e3, float e34, const Vec3& e4, float e44) :
-	Mat4(e1.x(),e1.y(),e1.z(),e14,
-		   e2.x(),e2.y(),e2.z(),e24,
-		   e3.x(),e3.y(),e3.z(),e34,
-		   e4.x(),e4.y(),e4.z(),e44)
+	Mat4(e1.x,e1.y,e1.z,e14,
+		   e2.x,e2.y,e2.z,e24,
+		   e3.x,e3.y,e3.z,e34,
+		   e4.x,e4.y,e4.z,e44)
 {
 }
 
@@ -101,21 +101,21 @@ Mat4 Mat4::operator * ( const Mat4& other ) const {
 }
 
 Vec3 Mat4::operator * ( const Vec3& other ) const {
-	float w = other.x()*e[12]+other.y()*e[13]+other.z()*e[14]+1*e[15];
-	return Vec3{(other.x()*e[0]+other.y()*e[1]+other.z()*e[2]+1*e[3])/w,
-              (other.x()*e[4]+other.y()*e[5]+other.z()*e[6]+1*e[7])/w,
-              (other.x()*e[8]+other.y()*e[9]+other.z()*e[10]+1*e[11])/w};
+	float w = other.x*e[12]+other.y*e[13]+other.z*e[14]+1*e[15];
+	return Vec3{(other.x*e[0]+other.y*e[1]+other.z*e[2]+1*e[3])/w,
+              (other.x*e[4]+other.y*e[5]+other.z*e[6]+1*e[7])/w,
+              (other.x*e[8]+other.y*e[9]+other.z*e[10]+1*e[11])/w};
 }
 
 Vec4 Mat4::operator * ( const Vec4& other ) const {
-  return Vec4{(other.x()*e[0]+other.y()*e[1]+other.z()*e[2]+other.w()*e[3]),
-              (other.x()*e[4]+other.y()*e[5]+other.z()*e[6]+other.w()*e[7]),
-              (other.x()*e[8]+other.y()*e[9]+other.z()*e[10]+other.w()*e[11]),
-              (other.x()*e[12]+other.y()*e[13]+other.z()*e[14]+other.w()*e[15])};
+  return Vec4{(other.x*e[0]+other.y*e[1]+other.z*e[2]+other.w*e[3]),
+              (other.x*e[4]+other.y*e[5]+other.z*e[6]+other.w*e[7]),
+              (other.x*e[8]+other.y*e[9]+other.z*e[10]+other.w*e[11]),
+              (other.x*e[12]+other.y*e[13]+other.z*e[14]+other.w*e[15])};
 }
 
 Mat4 Mat4::translation(const Vec3& trans) {
-	return translation(trans.x(), trans.y(), trans.z());
+	return translation(trans.x, trans.y, trans.z);
 }
 
 Mat4 Mat4::scaling(float scale) {
@@ -123,7 +123,7 @@ Mat4 Mat4::scaling(float scale) {
 }
 
 Mat4 Mat4::scaling(const Vec3& scale) {
-	return scaling(scale.x(), scale.y(), scale.z());
+	return scaling(scale.x, scale.y, scale.z);
 }
 
 Mat4 Mat4::translation(float x, float y, float z) {
@@ -183,9 +183,9 @@ Mat4 Mat4::rotationAxis(const Vec3& axis, float degree) {
 
 	const Vec3 sqrAxis{axis * axis};
 
-  return {cosA+omCosA*sqrAxis.x(),                 omCosA*axis.x()*axis.y()+sinA*axis.z(), omCosA*axis.x()*axis.z()-sinA*axis.y(), 0,
-          omCosA*axis.x()*axis.y()-sinA*axis.z(),  cosA+omCosA*sqrAxis.y(),                omCosA*axis.y()*axis.z()+sinA*axis.x(), 0,
-          omCosA*axis.x()*axis.z()+sinA*axis.y(),  omCosA*axis.y()*axis.z()-sinA*axis.x(), cosA+omCosA*sqrAxis.z(),                0,
+  return {cosA+omCosA*sqrAxis.x,             omCosA*axis.x*axis.y+sinA*axis.z, omCosA*axis.x*axis.z-sinA*axis.y, 0,
+          omCosA*axis.x*axis.y-sinA*axis.z,  cosA+omCosA*sqrAxis.y,                omCosA*axis.y*axis.z+sinA*axis.x, 0,
+          omCosA*axis.x*axis.z+sinA*axis.y,  omCosA*axis.y*axis.z-sinA*axis.x, cosA+omCosA*sqrAxis.z,               0,
           0,                                       0,                                      0,                                      1
   };
 }
@@ -376,19 +376,18 @@ Mat4 Mat4::lookAt(const Vec3& vEye, const Vec3& vAt, const Vec3& vUp) {
 	u = Vec3::normalize(u);
 	s = Vec3::normalize(s);
 
-	return {s.x(), s.y(), s.z(), -Vec3::dot(s,vEye),
-          u.x(), u.y(), u.z(), -Vec3::dot(u,vEye),
-          -f.x(), -f.y(), -f.z(), Vec3::dot(f,vEye),
+	return {s.x, s.y, s.z, -Vec3::dot(s,vEye),
+          u.x, u.y, u.z, -Vec3::dot(u,vEye),
+          -f.x, -f.y, -f.z, Vec3::dot(f,vEye),
           0.0f,0.0f,0.0f,1.0};
 }
 
 Mat4 Mat4::mirror(const Vec3& p, const Vec3& n) {	
 	float k = Vec3::dot(p,n);
 
-  
-  return {1-2*n.x()*n.x(),-2*n.x()*n.y(),-2*n.x()*n.z(),2*k*n.x(),
-    -2*n.y()*n.x(),1-2*n.y()*n.y(),-2*n.y()*n.z(),2*k*n.y(),
-    -2*n.z()*n.x(),-2*n.z()*n.y(),1-2*n.z()*n.z(),2*k*n.z(),
+  return {1-2*n.x*n.x,-2*n.x*n.y,-2*n.x*n.z,2*k*n.x,
+    -2*n.y*n.x,1-2*n.y*n.y,-2*n.y*n.z,2*k*n.y,
+    -2*n.z*n.x,-2*n.z*n.y,1-2*n.z*n.z,2*k*n.z,
     0,0,0,1
   };
 }

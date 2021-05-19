@@ -166,10 +166,10 @@ namespace BMP {
   void blit(const Image& source, const Vec2ui& rawSourceStart, const Vec2ui& rawSourceEnd,
             Image& target, const Vec2ui& targetStart, bool skipChecks) {
     
-    Vec2ui sourceStart{rawSourceStart.x() > rawSourceEnd.x() ? rawSourceEnd.x() : rawSourceStart.x(),
-                      rawSourceStart.y() > rawSourceEnd.y() ? rawSourceEnd.y() : rawSourceStart.y()};
-    Vec2ui sourceEnd{rawSourceStart.x() > rawSourceEnd.x() ? rawSourceStart.x() : rawSourceEnd.x(),
-                    rawSourceStart.y() > rawSourceEnd.y() ? rawSourceStart.y() : rawSourceEnd.y()};
+    Vec2ui sourceStart{rawSourceStart.x > rawSourceEnd.x ? rawSourceEnd.x : rawSourceStart.x,
+                      rawSourceStart.y > rawSourceEnd.y ? rawSourceEnd.y : rawSourceStart.y};
+    Vec2ui sourceEnd{rawSourceStart.x > rawSourceEnd.x ? rawSourceStart.x : rawSourceEnd.x,
+                    rawSourceStart.y > rawSourceEnd.y ? rawSourceStart.y : rawSourceEnd.y};
     
     if (!skipChecks) {
       if (target.componentCount != source.componentCount) {
@@ -178,22 +178,22 @@ namespace BMP {
         throw BMPException(s.str());
       }
                   
-      if (sourceEnd.x() > source.width || sourceEnd.y() > source.height) {
+      if (sourceEnd.x > source.width || sourceEnd.y > source.height) {
         std::stringstream s;
-        s << "blit source region out of bounds (w=" << source.width << " h=" << source.height << " x=" << sourceEnd.x() << " y=" << sourceEnd.y() << ")";
+        s << "blit source region out of bounds (w=" << source.width << " h=" << source.height << " x=" << sourceEnd.x << " y=" << sourceEnd.y << ")";
         throw BMPException(s.str());
       }
 
       Vec2ui blitSize = sourceEnd-sourceStart;
-      if (targetStart.x() + blitSize.x() > target.width ||
-          targetStart.y() + blitSize.y() > target.height) {
+      if (targetStart.x + blitSize.x > target.width ||
+          targetStart.y + blitSize.y > target.height) {
 
-        Vec2ui newSize{(target.width >= targetStart.x() + blitSize.x()) ? target.width : (targetStart.x() + blitSize.x()),
-                      (target.height >= targetStart.y() + blitSize.y()) ? target.height : (targetStart.y() + blitSize.y())};
+        Vec2ui newSize{(target.width >= targetStart.x + blitSize.x) ? target.width : (targetStart.x + blitSize.x),
+                      (target.height >= targetStart.y + blitSize.y) ? target.height : (targetStart.y + blitSize.y)};
         
         Image tmp;
-        tmp.width = newSize.x();
-        tmp.height = newSize.y();
+        tmp.width = newSize.x;
+        tmp.height = newSize.y;
         tmp.componentCount = source.componentCount;
         tmp.data.resize(tmp.width*tmp.height*tmp.componentCount);
         
@@ -205,10 +205,10 @@ namespace BMP {
       }
     }
         
-    for (uint32_t y = sourceStart.y();y < sourceEnd.y();++y) {
-      for (uint32_t x = sourceStart.x();x < sourceEnd.x();++x) {
+    for (uint32_t y = sourceStart.y;y < sourceEnd.y;++y) {
+      for (uint32_t x = sourceStart.x;x < sourceEnd.x;++x) {
         for (uint32_t c = 0;c<target.componentCount;++c) {
-            target.setValue(targetStart.x()+x-sourceStart.x(),targetStart.y()+y-sourceStart.y(),c,source.getValue(x,y,c));
+            target.setValue(targetStart.x+x-sourceStart.x,targetStart.y+y-sourceStart.y,c,source.getValue(x,y,c));
         }
       }
     }

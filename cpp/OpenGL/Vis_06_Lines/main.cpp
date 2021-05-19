@@ -49,9 +49,9 @@ public:
   }
 
   Vec3 advect(const Vec3& particle, double deltaT) {
-    if (particle.x() < 0.0 || particle.x() > 1.0 ||
-        particle.y() < 0.0 || particle.y() > 1.0 ||
-        particle.z() < 0.0 || particle.z() > 1.0) {
+    if (particle.x < 0.0 || particle.x > 1.0 ||
+        particle.y < 0.0 || particle.y > 1.0 ||
+        particle.z < 0.0 || particle.z > 1.0) {
       return particle;
     }
     return particle + flow.interpolate(particle) * float(deltaT);
@@ -65,24 +65,24 @@ public:
         
         if (linePoints[j] == linePoints[j+1]) break;
         
-        data[i++] = linePoints[j].x()*2-1;
-        data[i++] = linePoints[j].y()*2-1;
-        data[i++] = linePoints[j].z()*2-1;
+        data[i++] = linePoints[j].x*2-1;
+        data[i++] = linePoints[j].y*2-1;
+        data[i++] = linePoints[j].z*2-1;
         
-        data[i++] = linePoints[j].x();
-        data[i++] = linePoints[j].y();
-        data[i++] = linePoints[j].z();
+        data[i++] = linePoints[j].x;
+        data[i++] = linePoints[j].y;
+        data[i++] = linePoints[j].z;
         data[i++] = 1.0f;
 
         j++;
         
-        data[i++] = linePoints[j].x()*2-1;
-        data[i++] = linePoints[j].y()*2-1;
-        data[i++] = linePoints[j].z()*2-1;
+        data[i++] = linePoints[j].x*2-1;
+        data[i++] = linePoints[j].y*2-1;
+        data[i++] = linePoints[j].z*2-1;
         
-        data[i++] = linePoints[j].x();
-        data[i++] = linePoints[j].y();
-        data[i++] = linePoints[j].z();
+        data[i++] = linePoints[j].x;
+        data[i++] = linePoints[j].y;
+        data[i++] = linePoints[j].z;
         data[i++] = 1.0f;
       }
     }

@@ -27,9 +27,9 @@ Tesselation Tesselation::genSphere(const Vec3& center, const float radius, const
 			// vertex position (x, y, z)
 			const float x = xy * cosf(sectorAngle);             // r * cos(u) * cos(v)
 			const float y = xy * sinf(sectorAngle);             // r * cos(u) * sin(v)
-			tess.vertices.push_back(center.x() + x);
-			tess.vertices.push_back(center.y() + y);
-			tess.vertices.push_back(center.z() + z);
+			tess.vertices.push_back(center.x + x);
+			tess.vertices.push_back(center.y + y);
+			tess.vertices.push_back(center.z + z);
 
 			// normalized vertex normal (nx, ny, nz)
 			tess.normals.push_back(x * lengthInv);
@@ -47,9 +47,9 @@ Tesselation Tesselation::genSphere(const Vec3& center, const float radius, const
 			Vec3 tCorr{Vec3::cross(b,n)};
 					
 			// normalized vertex tangent (tx, ty, tz)
-			tess.tangents.push_back(tCorr.x());
-			tess.tangents.push_back(tCorr.y());
-			tess.tangents.push_back(tCorr.z());
+			tess.tangents.push_back(tCorr.x);
+			tess.tangents.push_back(tCorr.y);
+			tess.tangents.push_back(tCorr.z);
 			
 			// vertex tex coord (s, t) range between [0, 1]
 			tess.texCoords.push_back((float)j / sectorCount);
@@ -102,27 +102,27 @@ Tesselation Tesselation::genRectangle(const Vec3& a, const Vec3& b, const Vec3& 
 	const Vec3 v{c-a};
 		
 	tess.vertices = std::vector<float>{
-		a.x(), a.y(), a.z(),
-		b.x(), b.y(), b.z(),
-		c.x(), c.y(), c.z(),
-		d.x(), d.y(), d.z(),
+		a.x, a.y, a.z,
+		b.x, b.y, b.z,
+		c.x, c.y, c.z,
+		d.x, d.y, d.z,
 	};	
 	
 	const Vec3 normal{Vec3::normalize(Vec3::cross(u,v))};
 
 	tess.normals = std::vector<float>{
-		normal.x(), normal.y(), normal.z(), 
-		normal.x(), normal.y(), normal.z(), 
-		normal.x(), normal.y(), normal.z(), 
-		normal.x(), normal.y(), normal.z() 
+		normal.x, normal.y, normal.z,
+		normal.x, normal.y, normal.z,
+		normal.x, normal.y, normal.z,
+		normal.x, normal.y, normal.z
 	};
 
 	const Vec3 tangent{Vec3::normalize(u)};
 	tess.tangents = std::vector<float>{
-		tangent.x(), tangent.y(), tangent.z(), 
-		tangent.x(), tangent.y(), tangent.z(), 
-		tangent.x(), tangent.y(), tangent.z(), 
-		tangent.x(), tangent.y(), tangent.z()
+		tangent.x, tangent.y, tangent.z,
+		tangent.x, tangent.y, tangent.z,
+		tangent.x, tangent.y, tangent.z,
+		tangent.x, tangent.y, tangent.z
 	};
 
 	tess.texCoords = std::vector<float>{
@@ -150,49 +150,49 @@ Tesselation Tesselation::genBrick(const Vec3& center, const Vec3& size, const Ve
 	const Vec3 E = center-size/2.0f;
 	const Vec3 C = center+size/2.0f;
 
-	const Vec3 A{E.x(), E.y(), C.z()};
-	const Vec3 B{C.x(), E.y(), C.z()};
-	const Vec3 D{E.x(), C.y(), C.z()};
-	const Vec3 F{C.x(), E.y(), E.z()};
-	const Vec3 G{C.x(), C.y(), E.z()};
-	const Vec3 H{E.x(), C.y(), E.z()};
+	const Vec3 A{E.x, E.y, C.z};
+	const Vec3 B{C.x, E.y, C.z};
+	const Vec3 D{E.x, C.y, C.z};
+	const Vec3 F{C.x, E.y, E.z};
+	const Vec3 G{C.x, C.y, E.z};
+	const Vec3 H{E.x, C.y, E.z};
 
 	tess.vertices = std::vector<float>{
 		// front
-		A.x(), A.y(), A.z(),
-		B.x(), B.y(), B.z(),
-		C.x(), C.y(), C.z(),
-		D.x(), D.y(), D.z(),
+		A.x, A.y, A.z,
+		B.x, B.y, B.z,
+		C.x, C.y, C.z,
+		D.x, D.y, D.z,
 
 		// back
-		F.x(), F.y(), F.z(),
-		E.x(), E.y(), E.z(),
-		H.x(), G.y(), H.z(),
-		G.x(), G.y(), G.z(),
+		F.x, F.y, F.z,
+		E.x, E.y, E.z,
+		H.x, G.y, H.z,
+		G.x, G.y, G.z,
 
 		// left
-		E.x(), E.y(), E.z(),
-		A.x(), A.y(), A.z(),
-		D.x(), D.y(), D.z(),
-		H.x(), H.y(), H.z(),
+		E.x, E.y, E.z,
+		A.x, A.y, A.z,
+		D.x, D.y, D.z,
+		H.x, H.y, H.z,
 
 		// right
-		B.x(), B.y(), B.z(),
-		F.x(), F.y(), F.z(),
-		G.x(), G.y(), G.z(),
-		C.x(), C.y(), C.z(),
+		B.x, B.y, B.z,
+		F.x, F.y, F.z,
+		G.x, G.y, G.z,
+		C.x, C.y, C.z,
 
 		// top
-		D.x(), D.y(), D.z(),
-		C.x(), C.y(), C.z(),
-		G.x(), G.y(), G.z(),
-		H.x(), H.y(), H.z(),
+		D.x, D.y, D.z,
+		C.x, C.y, C.z,
+		G.x, G.y, G.z,
+		H.x, H.y, H.z,
 
 		// bottom
-		B.x(), B.y(), B.z(),
-		A.x(), A.y(), A.z(),
-		E.x(), E.y(), E.z(),
-		F.x(), F.y(), F.z()
+		B.x, B.y, B.z,
+		A.x, A.y, A.z,
+		E.x, E.y, E.z,
+		F.x, F.y, F.z
 	};
 
 	tess.normals = std::vector<float>{
@@ -274,39 +274,39 @@ Tesselation Tesselation::genBrick(const Vec3& center, const Vec3& size, const Ve
 	tess.texCoords = std::vector<float>{
 		// front
 		0.0f, 0.0f,
-		texScale.x(), 0.0f,
-		texScale.x(), texScale.y(),
-		0.0f, texScale.y(),
+		texScale.x, 0.0f,
+		texScale.x, texScale.y,
+		0.0f, texScale.y,
 
 		// back
 		0.0f, 0.0f,
-		texScale.x(), 0.0f,
-		texScale.x(), texScale.y(),
-		0.0f, texScale.y(),
+		texScale.x, 0.0f,
+		texScale.x, texScale.y,
+		0.0f, texScale.y,
 
 		// left
 		0.0f, 0.0f,
-		texScale.z(), 0.0f,
-		texScale.z(), texScale.y(),
-		0.0f, texScale.y(),
+		texScale.z, 0.0f,
+		texScale.z, texScale.y,
+		0.0f, texScale.y,
 
 		// right
 		0.0f, 0.0f,
-		texScale.z(), 0.0f,
-		texScale.z(), texScale.y(),
-		0.0f, texScale.y(),
+		texScale.z, 0.0f,
+		texScale.z, texScale.y,
+		0.0f, texScale.y,
 
 		// top
 		0.0f, 0.0f,
-		texScale.x(), 0.0f,
-		texScale.x(), texScale.z(),
-		0.0f, texScale.z(),
+		texScale.x, 0.0f,
+		texScale.x, texScale.z,
+		0.0f, texScale.z,
 
 		// bottom
 		0.0f, 0.0f,
-		texScale.x(), 0.0f,
-		texScale.x(), texScale.z(),
-		0.0f, texScale.z()
+		texScale.x, 0.0f,
+		texScale.x, texScale.z,
+		0.0f, texScale.z
 	};
 
 	tess.indices = std::vector<uint32_t>{
@@ -340,23 +340,23 @@ Tesselation Tesselation::genTorus(const Vec3 &center, float majorRadius, float m
 			// select tangent in toroidal direction
 			const Vec3 tangent{-majorRadius*std::sin(phi), majorRadius*std::cos(phi), 0};
 			const Vec2 texture{static_cast<float>(x)/static_cast<float>(majorSteps),
-					   static_cast<float>(y)/static_cast<float>(minorSteps)};
+                         static_cast<float>(y)/static_cast<float>(minorSteps)};
 
 
-			tess.vertices.push_back(vertice.x() + center.x());
-			tess.vertices.push_back(vertice.y() + center.y());
-			tess.vertices.push_back(vertice.z() + center.z());
+			tess.vertices.push_back(vertice.x + center.x);
+			tess.vertices.push_back(vertice.y + center.y);
+			tess.vertices.push_back(vertice.z + center.z);
 
-			tess.normals.push_back(normal.x());
-			tess.normals.push_back(normal.y());
-			tess.normals.push_back(normal.z());
+			tess.normals.push_back(normal.x);
+			tess.normals.push_back(normal.y);
+			tess.normals.push_back(normal.z);
 
-			tess.tangents.push_back(tangent.x());
-			tess.tangents.push_back(tangent.y());
-			tess.tangents.push_back(tangent.z());
+			tess.tangents.push_back(tangent.x);
+			tess.tangents.push_back(tangent.y);
+			tess.tangents.push_back(tangent.z);
 
-			tess.texCoords.push_back(texture.x());
-			tess.texCoords.push_back(texture.y());
+			tess.texCoords.push_back(texture.x);
+			tess.texCoords.push_back(texture.y);
 		}
 	}
 

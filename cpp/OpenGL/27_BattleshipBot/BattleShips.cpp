@@ -230,8 +230,8 @@ void BattleShips::rememberNastyPos(const GameGrid& fullOtherBoard) {
   const size_t MAX_NASTY_POS = 50;
   
   std::vector<Vec2ui> newNastyPos;
-  for (uint32_t y = 0;y<fullOtherBoard.getSize().y();++y) {
-    for (uint32_t x = 0;x<fullOtherBoard.getSize().x();++x) {
+  for (uint32_t y = 0;y<fullOtherBoard.getSize().y;++y) {
+    for (uint32_t x = 0;x<fullOtherBoard.getSize().x;++x) {
         if (fullOtherBoard.getCell(x,y) == Cell::Ship)
           newNastyPos.push_back({x,y});
     }
@@ -257,7 +257,7 @@ void BattleShips::rememberNastyPos(const GameGrid& fullOtherBoard) {
   std::ofstream nastyPosFile ("nastyPos.txt");
   if (nastyPosFile.is_open()) {
     for (const Vec2ui& p : nastyPos) {
-      nastyPosFile << p.x() << "," << p.y() << std::endl;
+      nastyPosFile << p.x << "," << p.y << std::endl;
     }
     nastyPosFile.close();
   }

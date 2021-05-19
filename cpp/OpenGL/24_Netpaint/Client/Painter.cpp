@@ -13,9 +13,9 @@ void MyGLApp::fillHSVImage() {
   for (uint32_t y = 0;y<hsvImage.height;++y) {
     for (uint32_t x = 0;x<hsvImage.width;++x) {
       const Vec3 rgb = convertPosToHSV(float(x)/hsvImage.width, float(y)/hsvImage.height);
-      hsvImage.setNormalizedValue(x,y,0,rgb.x());
-      hsvImage.setNormalizedValue(x,y,1,rgb.y());
-      hsvImage.setNormalizedValue(x,y,2,rgb.z());
+      hsvImage.setNormalizedValue(x,y,0,rgb.x);
+      hsvImage.setNormalizedValue(x,y,1,rgb.y);
+      hsvImage.setNormalizedValue(x,y,2,rgb.z);
       hsvImage.setValue(x,y,3,255);
     }
   }
@@ -94,7 +94,7 @@ void MyGLApp::addTransformation(const Mat4& trafo) {
 }
 
 Vec2i MyGLApp::computePixelPos() {
-  return Vec2i{int((normPos.x()/2.0f+0.5f)*imageSize.x()),int((normPos.y()/2.0f+0.5f)*imageSize.y())};
+  return Vec2i{int((normPos.x/2.0f+0.5f)*imageSize.x),int((normPos.y/2.0f+0.5f)*imageSize.y)};
 }
 
 void MyGLApp::dropPaint() {
@@ -112,14 +112,14 @@ void MyGLApp::mouseMove(double xPosition, double yPosition) {
   updateMousePos();
 
   if (colorChooserMode) {
-    if (rightMouseDown) client->setColor( Vec4{Vec3::hsvToRgb({360*(normPos.x()+1.0f)/2.0f,(normPos.y()+1.0f)/2.0f,value}), 1.0f} );
+    if (rightMouseDown) client->setColor( Vec4{Vec3::hsvToRgb({360*(normPos.x+1.0f)/2.0f,(normPos.y+1.0f)/2.0f,value}), 1.0f} );
   } else {
   
     if (rightMouseDown) dropPaint();
     
     if (leftMouseDown) {
       const Vec2 trans = normPos - startDragPos;
-      addTransformation(Mat4::translation(trans.x(), trans.y(), 0));
+      addTransformation(Mat4::translation(trans.x, trans.y, 0));
       startDragPos = normPos;
     }
 
@@ -137,7 +137,7 @@ void MyGLApp::mouseButton(int button, int state, int mods, double xPosition, dou
   if (colorChooserMode) {
     if (button == GLFW_MOUSE_BUTTON_LEFT) {
       rightMouseDown = (state == GLFW_PRESS);
-      if (rightMouseDown) client->setColor( Vec4{Vec3::hsvToRgb({360*(normPos.x()+1.0f)/2.0f,(normPos.y()+1.0f)/2.0f,value}), 1.0f} );
+      if (rightMouseDown) client->setColor( Vec4{Vec3::hsvToRgb({360*(normPos.x+1.0f)/2.0f,(normPos.y+1.0f)/2.0f,value}), 1.0f} );
       colorChooserMode = false;
     }
   } else {
@@ -162,9 +162,9 @@ void MyGLApp::mouseWheel(double x_offset, double y_offset, double xPosition, dou
     value = std::clamp<float>(value + float(y_offset)/wheelScale, 0.0f, 1.0);
     fillHSVImage();
   } else {
-    addTransformation(Mat4::translation(-normPos.x(), -normPos.y(), 0) *
+    addTransformation(Mat4::translation(-normPos.x, -normPos.y, 0) *
                       Mat4::scaling(1.0f+float(y_offset)/wheelScale) *
-                      Mat4::translation(normPos.x(), normPos.y(), 0));
+                      Mat4::translation(normPos.x, normPos.y, 0));
   }
 }
 
@@ -208,7 +208,7 @@ void MyGLApp::keyboard(int key, int scancode, int action, int mods) {
 
     if (key >= GLFW_KEY_0 && key <= GLFW_KEY_9) {
       if (colorChooserMode) {
-        quickColors[key-GLFW_KEY_0] = Vec4{Vec3::hsvToRgb({360*(normPos.x()+1.0f)/2.0f,(normPos.y()+1.0f)/2.0f,value}), 1.0f};
+        quickColors[key-GLFW_KEY_0] = Vec4{Vec3::hsvToRgb({360*(normPos.x+1.0f)/2.0f,(normPos.y+1.0f)/2.0f,value}), 1.0f};
       } else {
         client->setColor(quickColors[key-GLFW_KEY_0]);
       }
@@ -280,7 +280,7 @@ void MyGLApp::draw() {
     drawImage(hsvImage);
     
     glShape.clear();
-    glShape.push_back(normPos.x()); glShape.push_back(normPos.y()); glShape.push_back(0.0f);
+    glShape.push_back(normPos.x); glShape.push_back(normPos.y); glShape.push_back(0.0f);
     glShape.push_back(0.0f); glShape.push_back(0.0f); glShape.push_back(0.0f);  glShape.push_back(1.0f);
     setPointTexture(cursorShape);
     setPointHighlightTexture(cursorHighlight);
@@ -309,12 +309,12 @@ void MyGLApp::draw() {
   while (!client->paintQueue.empty()) {
     const PaintJob& paintJob = client->paintQueue.front();
     std::vector<GLubyte> data{
-      uint8_t(paintJob.color.x()*255),
-      uint8_t(paintJob.color.y()*255),
-      uint8_t(paintJob.color.z()*255),
-      uint8_t(paintJob.color.w()*255)
+      uint8_t(paintJob.color.x*255),
+      uint8_t(paintJob.color.y*255),
+      uint8_t(paintJob.color.z*255),
+      uint8_t(paintJob.color.w*255)
     };
-    texture->setPixel(data, paintJob.pos.x(), paintJob.pos.y());
+    texture->setPixel(data, paintJob.pos.x, paintJob.pos.y);
     client->paintQueue.pop();
   }
 
@@ -323,23 +323,23 @@ void MyGLApp::draw() {
 
   const std::vector<ClientInfoClientSide>& others = client->getClientInfos();
   for (const ClientInfoClientSide& m : others) {
-    glShape.push_back(m.pos.x()); glShape.push_back(m.pos.y()); glShape.push_back(0.0f);
-    glShape.push_back(m.color.x()); glShape.push_back(m.color.y()); glShape.push_back(m.color.z());  glShape.push_back(m.color.w());
+    glShape.push_back(m.pos.x); glShape.push_back(m.pos.y); glShape.push_back(0.0f);
+    glShape.push_back(m.color.x); glShape.push_back(m.color.y); glShape.push_back(m.color.z);  glShape.push_back(m.color.w);
   }
   Vec4 color{client->getColor()};
   drawPoints(glShape, 10, true);
   
   if (showLabel) {
     for (const ClientInfoClientSide& m : others) {
-      setDrawTransform( Mat4::translation(1.0f, 1.0f, 0.0f) * Mat4::scaling(1/10.0f) * computeImageTransform({m.image.width, m.image.height}) * Mat4::translation(m.pos.x(), m.pos.y(), 0.0f) * userTransformation * baseTransformation );
+      setDrawTransform( Mat4::translation(1.0f, 1.0f, 0.0f) * Mat4::scaling(1/10.0f) * computeImageTransform({m.image.width, m.image.height}) * Mat4::translation(m.pos.x, m.pos.y, 0.0f) * userTransformation * baseTransformation );
       drawImage(m.image);
     }
   }
   client->unlockData();
   
   glShape.clear();
-  glShape.push_back(normPos.x()); glShape.push_back(normPos.y()); glShape.push_back(0.0f);
-  glShape.push_back(color.r()); glShape.push_back(color.y()); glShape.push_back(color.z());  glShape.push_back(color.w());
+  glShape.push_back(normPos.x); glShape.push_back(normPos.y); glShape.push_back(0.0f);
+  glShape.push_back(color.r); glShape.push_back(color.g); glShape.push_back(color.b);  glShape.push_back(color.a);
   setDrawTransform(userTransformation*baseTransformation);
   
   setPointTexture(cursorShape);

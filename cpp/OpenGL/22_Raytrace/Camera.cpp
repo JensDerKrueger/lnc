@@ -20,6 +20,6 @@ Camera::Camera(const Vec3& lookFrom, const Vec3& lookAt, const Vec3& vUp, float 
 
 Ray Camera::getRay(const float s, const float t) const {
 	const Vec3 temp{Vec3::randomPointInDisc() * lenseRadius};
-	const Vec3 apertureOffset{u*temp.x() + v*temp.y()};
+	const Vec3 apertureOffset{u*temp.x + v*temp.y};
 	return Ray{lookFrom + apertureOffset, lowerLeftCorner + u*s*2*halfWidth + v*t*2*halfHeight  - (lookFrom + apertureOffset)};
 }

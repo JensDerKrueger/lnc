@@ -37,8 +37,8 @@ public:
     for (uint32_t y = 0;y<28;++y) {
       for (uint32_t x = 0;x<28;++x) {
         
-        const float dx = x/28.0f-mousePos.x();
-        const float dy = y/28.0f-mousePos.y();
+        const float dx = x/28.0f-mousePos.x;
+        const float dy = y/28.0f-mousePos.y;
         
         float value = std::max(0.0f,0.22f-powf(dx*dx+dy*dy,0.3f));
         value = std::min(1.0f, value + image.getValue(x,y,3)/255.0f);
@@ -241,7 +241,7 @@ public:
     GL(glClear(GL_COLOR_BUFFER_BIT));
     drawImage(image);
     std::vector<float> glShape;
-    glShape.push_back(mousePos.x()*2.0f-1.0f); glShape.push_back(mousePos.y()*2.0f-1.0f); glShape.push_back(0.0f);
+    glShape.push_back(mousePos.x*2.0f-1.0f); glShape.push_back(mousePos.y*2.0f-1.0f); glShape.push_back(0.0f);
     glShape.push_back(1.0f); glShape.push_back(1.0f); glShape.push_back(1.0f); glShape.push_back(1.0f);
     drawPoints(glShape, 40, true);
   }

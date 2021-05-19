@@ -144,8 +144,8 @@ void GameClient::shootAt(const Vec2ui& pos) {
   
   Encoder e{char(2)};
   e.add(uint32_t(GameMessageType::Shot));
-  e.add(pos.x());
-  e.add(pos.y());
+  e.add(pos.x);
+  e.add(pos.y);
   GameMessage m;
   m.payload = e.getEncodedMessage();
   sendMessage(m.toString());
@@ -157,8 +157,8 @@ void GameClient::aimAt(const Vec2ui& pos) {
   
   Encoder e{char(2)};
   e.add(uint32_t(GameMessageType::Aim));
-  e.add(pos.x());
-  e.add(pos.y());
+  e.add(pos.x);
+  e.add(pos.y);
   GameMessage m;
   m.payload = e.getEncodedMessage();
   sendMessage(m.toString());

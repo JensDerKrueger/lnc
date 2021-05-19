@@ -69,18 +69,18 @@ Image FontRenderer::render(const std::string& text) const {
   for (char element : text) {
     const auto& pos = findElement(element);
     Vec2ui size = pos.bottomRight-pos.topLeft;
-    dims = Vec2ui{dims.x()+size.x(), std::max(dims.y(), size.y())};
+    dims = Vec2ui{dims.x+size.x, std::max(dims.y, size.y)};
   }
   
-  Image result{dims.x(),dims.y(),fontImage.componentCount,
-  std::vector<uint8_t>(dims.x()*dims.y()*fontImage.componentCount)};
+  Image result{dims.x,dims.y,fontImage.componentCount,
+  std::vector<uint8_t>(dims.x*dims.y*fontImage.componentCount)};
   
   Vec2ui currentPos{0,0};
   for (char element : text) {
     const auto& pos = findElement(element);
     Vec2ui size = pos.bottomRight-pos.topLeft;
     BMP::blit(fontImage, pos.topLeft, pos.bottomRight, result, currentPos);
-    currentPos = Vec2ui(currentPos.x()+size.x(), currentPos.y());
+    currentPos = Vec2ui(currentPos.x+size.x, currentPos.y);
   }
   
   return result;
@@ -92,8 +92,8 @@ std::string FontRenderer::toCode(const std::string& varName) const {
   
   for (size_t i = 0;i<positions.size();++i) {
     const CharPosition& p = positions[i];
-    ss << "{" << int(p.c) << ", {" << p.topLeft.x() << "," << p.topLeft.y() << "},";
-    ss << "{" << p.bottomRight.x() << "," << p.bottomRight.y() << "}}";
+    ss << "{" << int(p.c) << ", {" << p.topLeft.x << "," << p.topLeft.y << "},";
+    ss << "{" << p.bottomRight.x << "," << p.bottomRight.y << "}}";
     
     if (i % 3 == 0) ss << "\n  ";
     if (i<positions.size()-1) ss << ",";
@@ -110,8 +110,8 @@ std::shared_ptr<FontEngine> FontRenderer::generateFontEngine() const {
   uint32_t maxHeight = 0;
   
   for (const CharPosition& c : positions) {
-    const uint32_t width  = c.bottomRight.x()-c.topLeft.x();
-    const uint32_t height = c.bottomRight.y()-c.topLeft.y();
+    const uint32_t width  = c.bottomRight.x-c.topLeft.x;
+    const uint32_t height = c.bottomRight.y-c.topLeft.y;
     maxWidth = std::max(maxWidth, width);
     maxHeight = std::max(maxHeight, height);
   }
@@ -213,13 +213,13 @@ void FontEngine::render(const std::string& text, float winAspect,
   Mat4 trans;
   switch (a) {
     case Alignment::Center :
-      trans = Mat4::translation(pos.x()-height*totalWidth/winAspect, pos.y(), 0.0f);
+      trans = Mat4::translation(pos.x-height*totalWidth/winAspect, pos.y, 0.0f);
       break;
     case Alignment::Right :
-      trans = Mat4::translation(pos.x()-2.0f*height*totalWidth/winAspect, pos.y(), 0.0f);
+      trans = Mat4::translation(pos.x-2.0f*height*totalWidth/winAspect, pos.y, 0.0f);
       break;
     default :
-      trans = Mat4::translation(pos.x(), pos.y(), 0.0f);
+      trans = Mat4::translation(pos.x, pos.y, 0.0f);
       break;
   }
   
@@ -289,13 +289,13 @@ void FontEngine::renderFixedWidth(const std::string& text, float winAspect, floa
   Mat4 trans;
   switch (a) {
     case Alignment::Center :
-      trans = Mat4::translation(pos.x()-width, pos.y(), 0.0f);
+      trans = Mat4::translation(pos.x-width, pos.y, 0.0f);
       break;
     case Alignment::Right :
-      trans = Mat4::translation(pos.x()-2.0f*width, pos.y(), 0.0f);
+      trans = Mat4::translation(pos.x-2.0f*width, pos.y, 0.0f);
       break;
     default :
-      trans = Mat4::translation(pos.x(), pos.y(), 0.0f);
+      trans = Mat4::translation(pos.x, pos.y, 0.0f);
       break;
   }
   

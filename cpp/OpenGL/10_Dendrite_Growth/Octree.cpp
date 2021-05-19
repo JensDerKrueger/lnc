@@ -30,9 +30,9 @@ Vec3 OctreeNode::computeCenter() const {
 
 size_t OctreeNode::subtreeIndex(const Vec3& pos) const {
     const Vec3 center{computeCenter()};
-    return ((pos.z() <= center.z()) ? 0 : 4) +
-           ((pos.y() <= center.y()) ? 0 : 2) +
-           ((pos.x() <= center.x()) ? 0 : 1);
+    return ((pos.z <= center.z) ? 0 : 4) +
+           ((pos.y <= center.y) ? 0 : 2) +
+           ((pos.x <= center.x) ? 0 : 1);
 }
 
 void OctreeNode::add(const Vec3& pos, size_t maxElemCount, size_t maxDepth) {
@@ -52,19 +52,19 @@ void OctreeNode::split(size_t maxElemCount, size_t maxDepth) {
     // create childen
     const Vec3 center{computeCenter()};
     children[0] = std::make_shared<OctreeNode>(minPos,center);
-    children[1] = std::make_shared<OctreeNode>(Vec3(center.x(),minPos.y(),minPos.z()),
-                                               Vec3(maxPos.x(),center.y(),center.z()));
-    children[2] = std::make_shared<OctreeNode>(Vec3(minPos.x(),center.y(),minPos.z()),
-                                               Vec3(center.x(),maxPos.y(),center.z()));
-    children[3] = std::make_shared<OctreeNode>(Vec3(center.x(),center.y(),minPos.z()),
-                                               Vec3(maxPos.x(),maxPos.y(),center.z()));
+    children[1] = std::make_shared<OctreeNode>(Vec3(center.x,minPos.y,minPos.z),
+                                               Vec3(maxPos.x,center.y,center.z));
+    children[2] = std::make_shared<OctreeNode>(Vec3(minPos.x,center.y,minPos.z),
+                                               Vec3(center.x,maxPos.y,center.z));
+    children[3] = std::make_shared<OctreeNode>(Vec3(center.x,center.y,minPos.z),
+                                               Vec3(maxPos.x,maxPos.y,center.z));
 
-    children[4] = std::make_shared<OctreeNode>(Vec3(minPos.x(),minPos.y(),center.z()),
-                                               Vec3(center.x(),center.y(),maxPos.z()));
-    children[5] = std::make_shared<OctreeNode>(Vec3(center.x(),minPos.y(),center.z()),
-                                               Vec3(maxPos.x(),center.y(),maxPos.z()));
-    children[6] = std::make_shared<OctreeNode>(Vec3(minPos.x(),center.y(),center.z()),
-                                               Vec3(center.x(),maxPos.y(),maxPos.z()));
+    children[4] = std::make_shared<OctreeNode>(Vec3(minPos.x,minPos.y,center.z),
+                                               Vec3(center.x,center.y,maxPos.z));
+    children[5] = std::make_shared<OctreeNode>(Vec3(center.x,minPos.y,center.z),
+                                               Vec3(maxPos.x,center.y,maxPos.z));
+    children[6] = std::make_shared<OctreeNode>(Vec3(minPos.x,center.y,center.z),
+                                               Vec3(center.x,maxPos.y,maxPos.z));
     children[7] = std::make_shared<OctreeNode>(center, maxPos);
 
     // insert elements into children
@@ -97,20 +97,20 @@ float OctreeNode::minSqDistApprox(const Vec3& pos) const {
 }
 
 bool OctreeNode::intersect(const Vec3& pos, float radiusSq, Vec3 minPos, Vec3 maxPos) const {
-    if (pos.x() < minPos.x()) {
-        radiusSq -= sq(minPos.x() - pos.x());
-    } else if (pos.x() > maxPos.x()) {
-        radiusSq -= sq(maxPos.x() - pos.x());
+    if (pos.x < minPos.x) {
+        radiusSq -= sq(minPos.x - pos.x);
+    } else if (pos.x > maxPos.x) {
+        radiusSq -= sq(maxPos.x - pos.x);
     }
-    if (pos.y() < minPos.y()) {
-        radiusSq -= sq(minPos.y() - pos.y());
-    } else if (pos.y() > maxPos.y()) {
-        radiusSq -= sq(maxPos.y() - pos.y());
+    if (pos.y < minPos.y) {
+        radiusSq -= sq(minPos.y - pos.y);
+    } else if (pos.y > maxPos.y) {
+        radiusSq -= sq(maxPos.y - pos.y);
     }
-    if (pos.z() < minPos.z()) {
-        radiusSq -= sq(minPos.z() - pos.z());
-    } else if (pos.z() > maxPos.z()) {
-        radiusSq -= sq(maxPos.z() - pos.z());
+    if (pos.z < minPos.z) {
+        radiusSq -= sq(minPos.z - pos.z);
+    } else if (pos.z > maxPos.z) {
+        radiusSq -= sq(maxPos.z - pos.z);
     }
     return radiusSq > 0;
 }
@@ -128,10 +128,10 @@ float OctreeNode::minSqDist(const Vec3& pos, float radiusSq) const {
 }
 
 void OctreeNode::pushColor(std::vector<float>& v, const Vec4& c) {
-    v.push_back(c.r());
-    v.push_back(c.g());
-    v.push_back(c.b());
-    v.push_back(c.a());
+    v.push_back(c.r);
+    v.push_back(c.g);
+    v.push_back(c.b);
+    v.push_back(c.a);
 }
 
 std::vector<float> OctreeNode::toTriList() {
@@ -145,34 +145,34 @@ std::vector<float> OctreeNode::toTriList() {
         const Vec3 center{computeCenter()};
         
         // tris 0
-        result.push_back(minPos.x()); result.push_back(minPos.y()); result.push_back(center.z()); pushColor(result,color);
-        result.push_back(maxPos.x()); result.push_back(minPos.y()); result.push_back(center.z()); pushColor(result,color);
-        result.push_back(maxPos.x()); result.push_back(maxPos.y()); result.push_back(center.z()); pushColor(result,color);
+        result.push_back(minPos.x); result.push_back(minPos.y); result.push_back(center.z); pushColor(result,color);
+        result.push_back(maxPos.x); result.push_back(minPos.y); result.push_back(center.z); pushColor(result,color);
+        result.push_back(maxPos.x); result.push_back(maxPos.y); result.push_back(center.z); pushColor(result,color);
         
         // tris 1
-        result.push_back(minPos.x()); result.push_back(minPos.y()); result.push_back(center.z()); pushColor(result,color);
-        result.push_back(maxPos.x()); result.push_back(maxPos.y()); result.push_back(center.z()); pushColor(result,color);
-        result.push_back(minPos.x()); result.push_back(maxPos.y()); result.push_back(center.z()); pushColor(result,color);
+        result.push_back(minPos.x); result.push_back(minPos.y); result.push_back(center.z); pushColor(result,color);
+        result.push_back(maxPos.x); result.push_back(maxPos.y); result.push_back(center.z); pushColor(result,color);
+        result.push_back(minPos.x); result.push_back(maxPos.y); result.push_back(center.z); pushColor(result,color);
 
         // tris 2
-        result.push_back(minPos.x()); result.push_back(center.y()); result.push_back(minPos.z()); pushColor(result,color);
-        result.push_back(maxPos.x()); result.push_back(center.y()); result.push_back(minPos.z()); pushColor(result,color);
-        result.push_back(maxPos.x()); result.push_back(center.y()); result.push_back(maxPos.z()); pushColor(result,color);
+        result.push_back(minPos.x); result.push_back(center.y); result.push_back(minPos.z); pushColor(result,color);
+        result.push_back(maxPos.x); result.push_back(center.y); result.push_back(minPos.z); pushColor(result,color);
+        result.push_back(maxPos.x); result.push_back(center.y); result.push_back(maxPos.z); pushColor(result,color);
         
         // tris 3
-        result.push_back(minPos.x()); result.push_back(center.y()); result.push_back(minPos.z()); pushColor(result,color);
-        result.push_back(maxPos.x()); result.push_back(center.y()); result.push_back(maxPos.z()); pushColor(result,color);
-        result.push_back(minPos.x()); result.push_back(center.y()); result.push_back(maxPos.z()); pushColor(result,color);
+        result.push_back(minPos.x); result.push_back(center.y); result.push_back(minPos.z); pushColor(result,color);
+        result.push_back(maxPos.x); result.push_back(center.y); result.push_back(maxPos.z); pushColor(result,color);
+        result.push_back(minPos.x); result.push_back(center.y); result.push_back(maxPos.z); pushColor(result,color);
 
         // tris 4
-        result.push_back(center.x()); result.push_back(minPos.y()); result.push_back(minPos.z()); pushColor(result,color);
-        result.push_back(center.x()); result.push_back(maxPos.y()); result.push_back(minPos.z()); pushColor(result,color);
-        result.push_back(center.x()); result.push_back(maxPos.y()); result.push_back(maxPos.z()); pushColor(result,color);
+        result.push_back(center.x); result.push_back(minPos.y); result.push_back(minPos.z); pushColor(result,color);
+        result.push_back(center.x); result.push_back(maxPos.y); result.push_back(minPos.z); pushColor(result,color);
+        result.push_back(center.x); result.push_back(maxPos.y); result.push_back(maxPos.z); pushColor(result,color);
         
         // tris 5
-        result.push_back(center.x()); result.push_back(minPos.y()); result.push_back(minPos.z()); pushColor(result,color);
-        result.push_back(center.x()); result.push_back(maxPos.y()); result.push_back(maxPos.z()); pushColor(result,color);
-        result.push_back(center.x()); result.push_back(minPos.y()); result.push_back(maxPos.z()); pushColor(result,color);
+        result.push_back(center.x); result.push_back(minPos.y); result.push_back(minPos.z); pushColor(result,color);
+        result.push_back(center.x); result.push_back(maxPos.y); result.push_back(maxPos.z); pushColor(result,color);
+        result.push_back(center.x); result.push_back(minPos.y); result.push_back(maxPos.z); pushColor(result,color);
         
         for (size_t i = 0;i<children.size();++i) {
             std::vector<float> b = children[i]->toTriList();
@@ -190,37 +190,37 @@ std::vector<float> OctreeNode::toLineList() const {
     
     if (!isLeaf()) {
         // front back
-        result.push_back(minPos.x()); result.push_back(minPos.y()); result.push_back(minPos.z()); pushColor(result,color);
-        result.push_back(maxPos.x()); result.push_back(minPos.y()); result.push_back(minPos.z()); pushColor(result,color);
-        result.push_back(minPos.x()); result.push_back(minPos.y()); result.push_back(minPos.z()); pushColor(result,color);
-        result.push_back(minPos.x()); result.push_back(maxPos.y()); result.push_back(minPos.z()); pushColor(result,color);
-        result.push_back(maxPos.x()); result.push_back(maxPos.y()); result.push_back(minPos.z()); pushColor(result,color);
-        result.push_back(maxPos.x()); result.push_back(minPos.y()); result.push_back(minPos.z()); pushColor(result,color);
-        result.push_back(maxPos.x()); result.push_back(maxPos.y()); result.push_back(minPos.z()); pushColor(result,color);
-        result.push_back(minPos.x()); result.push_back(maxPos.y()); result.push_back(minPos.z()); pushColor(result,color);
+        result.push_back(minPos.x); result.push_back(minPos.y); result.push_back(minPos.z); pushColor(result,color);
+        result.push_back(maxPos.x); result.push_back(minPos.y); result.push_back(minPos.z); pushColor(result,color);
+        result.push_back(minPos.x); result.push_back(minPos.y); result.push_back(minPos.z); pushColor(result,color);
+        result.push_back(minPos.x); result.push_back(maxPos.y); result.push_back(minPos.z); pushColor(result,color);
+        result.push_back(maxPos.x); result.push_back(maxPos.y); result.push_back(minPos.z); pushColor(result,color);
+        result.push_back(maxPos.x); result.push_back(minPos.y); result.push_back(minPos.z); pushColor(result,color);
+        result.push_back(maxPos.x); result.push_back(maxPos.y); result.push_back(minPos.z); pushColor(result,color);
+        result.push_back(minPos.x); result.push_back(maxPos.y); result.push_back(minPos.z); pushColor(result,color);
 
         // back quad
-        result.push_back(minPos.x()); result.push_back(minPos.y()); result.push_back(maxPos.z()); pushColor(result,color);
-        result.push_back(maxPos.x()); result.push_back(minPos.y()); result.push_back(maxPos.z()); pushColor(result,color);
-        result.push_back(minPos.x()); result.push_back(minPos.y()); result.push_back(maxPos.z()); pushColor(result,color);
-        result.push_back(minPos.x()); result.push_back(maxPos.y()); result.push_back(maxPos.z()); pushColor(result,color);
-        result.push_back(maxPos.x()); result.push_back(maxPos.y()); result.push_back(maxPos.z()); pushColor(result,color);
-        result.push_back(maxPos.x()); result.push_back(minPos.y()); result.push_back(maxPos.z()); pushColor(result,color);
-        result.push_back(maxPos.x()); result.push_back(maxPos.y()); result.push_back(maxPos.z()); pushColor(result,color);
-        result.push_back(minPos.x()); result.push_back(maxPos.y()); result.push_back(maxPos.z()); pushColor(result,color);
+        result.push_back(minPos.x); result.push_back(minPos.y); result.push_back(maxPos.z); pushColor(result,color);
+        result.push_back(maxPos.x); result.push_back(minPos.y); result.push_back(maxPos.z); pushColor(result,color);
+        result.push_back(minPos.x); result.push_back(minPos.y); result.push_back(maxPos.z); pushColor(result,color);
+        result.push_back(minPos.x); result.push_back(maxPos.y); result.push_back(maxPos.z); pushColor(result,color);
+        result.push_back(maxPos.x); result.push_back(maxPos.y); result.push_back(maxPos.z); pushColor(result,color);
+        result.push_back(maxPos.x); result.push_back(minPos.y); result.push_back(maxPos.z); pushColor(result,color);
+        result.push_back(maxPos.x); result.push_back(maxPos.y); result.push_back(maxPos.z); pushColor(result,color);
+        result.push_back(minPos.x); result.push_back(maxPos.y); result.push_back(maxPos.z); pushColor(result,color);
         
         // connections
-        result.push_back(minPos.x()); result.push_back(minPos.y()); result.push_back(minPos.z()); pushColor(result,color);
-        result.push_back(minPos.x()); result.push_back(minPos.y()); result.push_back(maxPos.z()); pushColor(result,color);
+        result.push_back(minPos.x); result.push_back(minPos.y); result.push_back(minPos.z); pushColor(result,color);
+        result.push_back(minPos.x); result.push_back(minPos.y); result.push_back(maxPos.z); pushColor(result,color);
 
-        result.push_back(minPos.x()); result.push_back(maxPos.y()); result.push_back(minPos.z()); pushColor(result,color);
-        result.push_back(minPos.x()); result.push_back(maxPos.y()); result.push_back(maxPos.z()); pushColor(result,color);
+        result.push_back(minPos.x); result.push_back(maxPos.y); result.push_back(minPos.z); pushColor(result,color);
+        result.push_back(minPos.x); result.push_back(maxPos.y); result.push_back(maxPos.z); pushColor(result,color);
 
-        result.push_back(maxPos.x()); result.push_back(minPos.y()); result.push_back(minPos.z()); pushColor(result,color);
-        result.push_back(maxPos.x()); result.push_back(minPos.y()); result.push_back(maxPos.z()); pushColor(result,color);
+        result.push_back(maxPos.x); result.push_back(minPos.y); result.push_back(minPos.z); pushColor(result,color);
+        result.push_back(maxPos.x); result.push_back(minPos.y); result.push_back(maxPos.z); pushColor(result,color);
 
-        result.push_back(maxPos.x()); result.push_back(maxPos.y()); result.push_back(minPos.z()); pushColor(result,color);
-        result.push_back(maxPos.x()); result.push_back(maxPos.y()); result.push_back(maxPos.z()); pushColor(result,color);
+        result.push_back(maxPos.x); result.push_back(maxPos.y); result.push_back(minPos.z); pushColor(result,color);
+        result.push_back(maxPos.x); result.push_back(maxPos.y); result.push_back(maxPos.z); pushColor(result,color);
         
         for (size_t i = 0;i<children.size();++i) {
             std::vector<float> b = children[i]->toLineList();

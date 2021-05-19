@@ -33,9 +33,9 @@ Mat3::Mat3(const Mat3& other) :
 }
 
 Mat3::Mat3(const Vec3& e1,const Vec3& e2, const Vec3& e3) :
-	Mat3(e1.x(),e1.y(),e1.z(),
-		   e2.x(),e2.y(),e2.z(),
-		   e3.x(),e3.y(),e3.z())
+	Mat3(e1.x,e1.y,e1.z,
+		   e2.x,e2.y,e2.z,
+		   e3.x,e3.y,e3.z)
 {
 }
 
@@ -91,14 +91,14 @@ Mat3 Mat3::operator * ( const Mat3& other ) const {
 }
 
 Vec3 Mat3::operator * ( const Vec3& other ) const {
-	return Vec3{(other.x()*e[0]+other.y()*e[1]+other.z()*e[2]),
-              (other.x()*e[3]+other.y()*e[4]+other.z()*e[5]),
-              (other.x()*e[6]+other.y()*e[7]+other.z()*e[8])};
+	return Vec3{(other.x*e[0]+other.y*e[1]+other.z*e[2]),
+              (other.x*e[3]+other.y*e[4]+other.z*e[5]),
+              (other.x*e[6]+other.y*e[7]+other.z*e[8])};
 }
 
 
 Mat3 Mat3::scaling(const Vec3& scale) {
-	return scaling(scale.x(), scale.y(), scale.z());
+	return scaling(scale.x, scale.y, scale.z);
 }
 
 Mat3 Mat3::scaling(float x, float y, float z) {

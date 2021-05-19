@@ -41,9 +41,9 @@ public:
   }
 
   Vec3 advect(const Vec3& particle, double deltaT) {
-    if (particle.x() < 0.0 || particle.x() > 1.0 ||
-        particle.y() < 0.0 || particle.y() > 1.0 ||
-        particle.z() < 0.0 || particle.z() > 1.0) {
+    if (particle.x < 0.0 || particle.x > 1.0 ||
+        particle.y < 0.0 || particle.y > 1.0 ||
+        particle.z < 0.0 || particle.z > 1.0) {
       return Vec3::random();
     }
     return particle + flow.interpolate(particle) * float(deltaT);
@@ -51,13 +51,13 @@ public:
 
   void particlePosToRenderData() {
     for (size_t i = 0;i<particlePos.size();++i) {
-      data[i*7+0] = particlePos[i].x()*2-1;
-      data[i*7+1] = particlePos[i].y()*2-1;
-      data[i*7+2] = particlePos[i].z()*2-1;
+      data[i*7+0] = particlePos[i].x*2-1;
+      data[i*7+1] = particlePos[i].y*2-1;
+      data[i*7+2] = particlePos[i].z*2-1;
       
-      data[i*7+3] = particlePos[i].x();
-      data[i*7+4] = particlePos[i].y();
-      data[i*7+5] = particlePos[i].z();
+      data[i*7+3] = particlePos[i].x;
+      data[i*7+4] = particlePos[i].y;
+      data[i*7+5] = particlePos[i].z;
       data[i*7+6] = 1.0f;
     }
   }

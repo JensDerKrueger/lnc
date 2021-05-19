@@ -54,7 +54,7 @@ void Scene::rotateCCW(){
 void Scene::moveLeft(){
     if (pause || gameOver) return;
 	prevPosition = position;
-	Vec2i nextPosition{position.x()-1, position.y()};
+	Vec2i nextPosition{position.x-1, position.y};
 	if (validateTransform(rotationIndex,nextPosition)) {
 		position = nextPosition;
 	}		
@@ -63,7 +63,7 @@ void Scene::moveLeft(){
 void Scene::moveRight(){
     if (pause || gameOver) return;
 	prevPosition = position;
-	Vec2i nextPosition{position.x()+1, position.y()};
+	Vec2i nextPosition{position.x+1, position.y};
 	if (validateTransform(rotationIndex,nextPosition)) {
 		position = nextPosition;
 	}	
@@ -94,16 +94,16 @@ bool Scene::evaluateState(const Vec2i& nextPosition) {
 
 bool Scene::advance() {
 	prevPosition = position;
-	Vec2i nextPosition{position.x(), position.y()+1};
+	Vec2i nextPosition{position.x, position.y+1};
 	return evaluateState(nextPosition);
 }
 
 Vec2i Scene::fullDropPosition() const {
-	Vec2i fullDropPosition{position.x(), position.y()+1};
+	Vec2i fullDropPosition{position.x, position.y+1};
 	while (validateTransform(rotationIndex,fullDropPosition)) {
-		fullDropPosition = Vec2i{fullDropPosition.x(), fullDropPosition.y()+1};
+		fullDropPosition = Vec2i{fullDropPosition.x, fullDropPosition.y+1};
 	}
-	return Vec2i{fullDropPosition.x(), fullDropPosition.y()-1};
+	return Vec2i{fullDropPosition.x, fullDropPosition.y-1};
 }
 
 void Scene::fullDrop() {
@@ -172,10 +172,10 @@ std::vector<uint32_t> Scene::checkRows() const {
 bool Scene::validateTransform(size_t rot, const Vec2i& pos) const {
 	std::array<Vec2i,4> transformedTetromino = transformTetromino(current, rot, pos);
 	for (const Vec2i& brick : transformedTetromino) {
-		if (brick.x() < 0) return false;
-		if (brick.y() >= int64_t(grid.getHeight())) return false;
-		if (brick.x() >= int64_t(grid.getWidth())) return false;
-		if (grid.getPixel(brick.x(), brick.y()) >= 0) return false;
+		if (brick.x < 0) return false;
+		if (brick.y >= int64_t(grid.getHeight())) return false;
+		if (brick.x >= int64_t(grid.getWidth())) return false;
+		if (grid.getPixel(brick.x, brick.y) >= 0) return false;
 	}
 	return true;
 }
@@ -195,14 +195,14 @@ void Scene::clearRow(uint32_t row) {
 void Scene::applyCollision() {
 	std::array<Vec2i,4> transformedTetromino = transformTetromino(current, rotationIndex, position);
 	for (const Vec2i& brick : transformedTetromino)
-		grid.setPixel(brick.x(), brick.y(), uint8_t(current));	
+		grid.setPixel(brick.x, brick.y, uint8_t(current));
 }
 
 std::array<Vec2i,4> Scene::transformTetromino(size_t tetIndex, size_t rot, const Vec2i& pos) const {
 	std::array<Vec2i,4> transformedTetromino = tetrominos[tetIndex][rot%tetrominos[tetIndex].size()];
 	for (uint32_t i = 0;i<transformedTetromino.size();++i) {
 		transformedTetromino[i] = transformedTetromino[i] + pos;
-		if (transformedTetromino[i].y() < 0) { // when the tetromino collides with the top of the grid then try to lower it by one
+		if (transformedTetromino[i].y < 0) { // when the tetromino collides with the top of the grid then try to lower it by one
 			transformedTetromino = transformTetromino(tetIndex, rot, pos+Vec2i{0,1});
 			break;
 		}

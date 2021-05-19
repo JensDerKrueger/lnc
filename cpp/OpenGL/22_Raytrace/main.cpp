@@ -40,7 +40,7 @@ const Vec3 rayColor(const Ray& r, const HitableList& world, const float depth) {
 
 	// background
 	const Vec3 unitDirection{Vec3::normalize(r.direction())};
-	const float t = (unitDirection.y() + 1.0f)*0.5f;
+	const float t = (unitDirection.y + 1.0f)*0.5f;
 	return Vec3{1.0f, 1.0f, 1.0f}*(1.0f-t) + Vec3{0.5f, 0.7f, 1.0f}*t;
 }
 
@@ -49,9 +49,9 @@ float clamp(const float n, const float smallest, const float largest) {
 }
 	
 const std::array<uint8_t,3> finalizeColor(const Vec3& pixelColor, const uint32_t samplesPerPixel) {
-	float r{pixelColor.r()};
-	float g{pixelColor.g()};
-	float b{pixelColor.b()};
+	float r{pixelColor.r};
+	float g{pixelColor.g};
+	float b{pixelColor.b};
 
 	// Replace NaN components with zero. See explanation in Ray Tracing: The Rest of Your Life.
 	if (!std::isnormal(r)) r = 0.0f;

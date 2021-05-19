@@ -10,8 +10,12 @@
 
 
 template <typename T>
-class Vec2t {
+union Vec2t {
 public:
+  std::array<T, 2> e;
+  struct { T x; T y; };
+  struct { T r; T g; };
+
   Vec2t() :
     e{0,0}
   {}
@@ -22,21 +26,13 @@ public:
       
   template <typename U>
   Vec2t(const Vec2t<U>& other) :
-    e{T(other.x()), T(other.y())}
+    e{T(other.x), T(other.y)}
   {}
 
   const std::string toString() const {
     std::stringstream s;
     s << "[" << e[0] << ", " << e[1] << "]";
     return s.str();
-  }
-
-  T x() const {
-    return e[0];
-  }
-
-  T y() const {
-    return e[1];
   }
 
   Vec2t<T> operator+(const Vec2t<T>& val) const{
@@ -92,9 +88,6 @@ public:
     const float l = a.length();
     return (l != T(0)) ? a/l : Vec2t<T>{T(0),T(0)};
   }
-  
-private:
-  std::array<T, 2> e;
 		
 };
 

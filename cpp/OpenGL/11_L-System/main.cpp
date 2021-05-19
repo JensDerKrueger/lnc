@@ -196,18 +196,18 @@ std::vector<float> genTree(size_t iterations, const LShape& currenShape) {
     }
     
     const Vec3 sizeV = maxV-minV;
-    float maxSize = std::max(sizeV.x(), std::max(sizeV.y(), sizeV.z()));
+    float maxSize = std::max(sizeV.x, std::max(sizeV.y, sizeV.z));
     
     std::vector<float> data{};
     for (const Vertex& p : structure) {
-        data.push_back((p.pos.x()-minV.x()-sizeV.x()/2)/maxSize);
-        data.push_back((p.pos.y()-minV.y()-sizeV.y()/2)/maxSize);
-        data.push_back((p.pos.z()-minV.z()-sizeV.z()/2)/maxSize);
+        data.push_back((p.pos.x-minV.x-sizeV.x/2)/maxSize);
+        data.push_back((p.pos.y-minV.y-sizeV.y/2)/maxSize);
+        data.push_back((p.pos.z-minV.z-sizeV.z/2)/maxSize);
                 
         Vec3 color = Vec3::hsvToRgb(Vec3{360.0f * p.depth/maxDepth,1.0f,1.0f});
-        data.push_back(color.r());
-        data.push_back(color.g());
-        data.push_back(color.b());
+        data.push_back(color.r);
+        data.push_back(color.g);
+        data.push_back(color.b);
         data.push_back(1.0f);
     }
     
@@ -250,7 +250,7 @@ void mousePosCallback(GLFWwindow* window, double xpos, double ypos) {
     }
     
     if (rightMousePressed) {
-        rotation = lastRotation + 360*(currentPos.x()-rigthStartPos.x());
+        rotation = lastRotation + 360*(currentPos.x-rigthStartPos.x);
     }
 }
 
@@ -341,7 +341,7 @@ int main(int argc, char ** argv) {
         glViewport(0, 0, dim.width, dim.height);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
                         
-        const Mat4 p{Mat4::scaling(scale, scale, scale) * Mat4::rotationZ(rotation)* Mat4::translation(translation.x(), translation.y(), 0) * Mat4::ortho(-1,1,-1/dim.aspect(),1/dim.aspect(),-1,1)};
+        const Mat4 p{Mat4::scaling(scale, scale, scale) * Mat4::rotationZ(rotation)* Mat4::translation(translation.x, translation.y, 0) * Mat4::ortho(-1,1,-1/dim.aspect(),1/dim.aspect(),-1,1)};
         
             
         prog.enable();

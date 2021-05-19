@@ -31,8 +31,8 @@ public:
       } else {
         if (shape.size() > 0 && shape.size()%2 == 0) shape.push_back(shape[shape.size()-1]);
       }
-      shape.push_back(Vec2{float(int(mousePos.x()*gridCells+0.5f)/gridCells) *2.0f-1.0f,
-                           float(int(mousePos.y()*gridCells+0.5f)/gridCells) *2.0f-1.0f});
+      shape.push_back(Vec2{float(int(mousePos.x*gridCells+0.5f)/gridCells) *2.0f-1.0f,
+                           float(int(mousePos.y*gridCells+0.5f)/gridCells) *2.0f-1.0f});
     }
   }
 
@@ -73,7 +73,7 @@ public:
   void dumpShape() {
     std::cout << "{";
     for (size_t i = 0;i<shape.size();++i) {
-      std::cout << "Vec2{"<< shape[i].x() <<  ", "  << shape[i].y();
+      std::cout << "Vec2{"<< shape[i].x <<  ", "  << shape[i].y;
       if (i < shape.size()-1 )
         std::cout << "}, ";
       else
@@ -84,21 +84,21 @@ public:
   
   virtual void draw() override{
     GL(glClear(GL_COLOR_BUFFER_BIT));
-    Vec2 gridMousePos{float(int(mousePos.x()*gridCells+0.5f)/gridCells),
-                      float(int(mousePos.y()*gridCells+0.5f)/gridCells)};
+    Vec2 gridMousePos{float(int(mousePos.x*gridCells+0.5f)/gridCells),
+                      float(int(mousePos.y*gridCells+0.5f)/gridCells)};
 
     std::vector<float> glShape;
     if (showGuides) {
-      glShape.push_back(-1.0f); glShape.push_back(gridMousePos.y()*2.0f-1.0f); glShape.push_back(0.0f);
+      glShape.push_back(-1.0f); glShape.push_back(gridMousePos.y*2.0f-1.0f); glShape.push_back(0.0f);
       glShape.push_back(1.0f); glShape.push_back(1.0f); glShape.push_back(0.0f);  glShape.push_back(1.0f);
       
-      glShape.push_back(1.0f); glShape.push_back(gridMousePos.y()*2.0f-1.0f); glShape.push_back(0.0f);
+      glShape.push_back(1.0f); glShape.push_back(gridMousePos.y*2.0f-1.0f); glShape.push_back(0.0f);
       glShape.push_back(1.0f); glShape.push_back(1.0f); glShape.push_back(0.0f);  glShape.push_back(1.0f);
 
-      glShape.push_back(gridMousePos.x()*2.0f-1.0f); glShape.push_back(-1.0); glShape.push_back(0.0f);
+      glShape.push_back(gridMousePos.x*2.0f-1.0f); glShape.push_back(-1.0); glShape.push_back(0.0f);
       glShape.push_back(1.0f); glShape.push_back(1.0f); glShape.push_back(0.0f);  glShape.push_back(1.0f);
       
-      glShape.push_back(gridMousePos.x()*2.0f-1.0f); glShape.push_back(1.0f); glShape.push_back(0.0f);
+      glShape.push_back(gridMousePos.x*2.0f-1.0f); glShape.push_back(1.0f); glShape.push_back(0.0f);
       glShape.push_back(1.0f); glShape.push_back(1.0f); glShape.push_back(0.0f);  glShape.push_back(1.0f);
     }
     drawLines(glShape, LineDrawType::LIST);
@@ -117,26 +117,26 @@ public:
     drawPoints(glShape, 10, true);
     glShape.clear();
     
-    glShape.push_back(mousePos.x()*2.0f-1.0f); glShape.push_back(mousePos.y()*2.0f-1.0f); glShape.push_back(0.0f);
+    glShape.push_back(mousePos.x*2.0f-1.0f); glShape.push_back(mousePos.y*2.0f-1.0f); glShape.push_back(0.0f);
     glShape.push_back(0.2f); glShape.push_back(0.2f); glShape.push_back(0.2f); glShape.push_back(1.0f);
-    glShape.push_back(gridMousePos.x() *2.0f-1.0f); glShape.push_back(gridMousePos.y() *2.0f-1.0f); glShape.push_back(0.0f);
+    glShape.push_back(gridMousePos.x *2.0f-1.0f); glShape.push_back(gridMousePos.y *2.0f-1.0f); glShape.push_back(0.0f);
     glShape.push_back(1.0f); glShape.push_back(1.0f); glShape.push_back(1.0f);  glShape.push_back(1.0f);
     drawPoints(glShape, 20, true);
     
     glShape.clear();
     for (size_t i = 0;i<(shape.size()/2)*2;++i) {
-      glShape.push_back(shape[i].x());
-      glShape.push_back(shape[i].y());
+      glShape.push_back(shape[i].x);
+      glShape.push_back(shape[i].y);
       glShape.push_back(0.0f);
       glShape.push_back(1.0f); glShape.push_back(1.0f); glShape.push_back(1.0f);  glShape.push_back(1.0f);
     }
 
     if (!restartPrimitive && shape.size()) {
-      glShape.push_back(shape[shape.size()-1].x());
-      glShape.push_back(shape[shape.size()-1].y());
+      glShape.push_back(shape[shape.size()-1].x);
+      glShape.push_back(shape[shape.size()-1].y);
       glShape.push_back(0.0f);
       glShape.push_back(0.2f); glShape.push_back(0.2f); glShape.push_back(0.2f);  glShape.push_back(1.0f);
-      glShape.push_back(gridMousePos.x()*2.0f-1.0f); glShape.push_back(gridMousePos.y()*2.0f-1.0f); glShape.push_back(0.0f);
+      glShape.push_back(gridMousePos.x*2.0f-1.0f); glShape.push_back(gridMousePos.y*2.0f-1.0f); glShape.push_back(0.0f);
       glShape.push_back(0.2f); glShape.push_back(0.2f); glShape.push_back(0.2f); glShape.push_back(1.0f);
     }
     drawLines(glShape, LineDrawType::LIST);

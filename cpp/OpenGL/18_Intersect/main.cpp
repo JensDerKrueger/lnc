@@ -73,9 +73,9 @@ public:
         } else {
           color = Vec3{0.0f,0.0f,0.0f};
         }
-        image.setNormalizedValue(x,y,0,color.x());
-        image.setNormalizedValue(x,y,1,color.y());
-        image.setNormalizedValue(x,y,2,color.z());
+        image.setNormalizedValue(x,y,0,color.r);
+        image.setNormalizedValue(x,y,1,color.g);
+        image.setNormalizedValue(x,y,2,color.b);
         image.setValue(x,y,3,255);
       }
     }

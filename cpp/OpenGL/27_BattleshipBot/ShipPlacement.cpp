@@ -24,8 +24,8 @@ bool Ship::check(const ShipLocation& loc) const{
 
 Vec2ui Ship::computeEnd() const {
   return (Orientation::Vertical == orientation)
-                              ? Vec2ui(pos.x(), pos.y()+uint32_t(shipSize)-1)
-                              : Vec2ui(pos.x()+uint32_t(shipSize)-1, pos.y());
+                              ? Vec2ui(pos.x, pos.y+uint32_t(shipSize)-1)
+                              : Vec2ui(pos.x+uint32_t(shipSize)-1, pos.y);
 }
 
 
@@ -58,7 +58,7 @@ bool ShipPlacement::shipTypeValid(const Ship& newShip) const {
 
 bool ShipPlacement::shipInGrid(const Ship& newShip) const {
   const Vec2ui end   = newShip.computeEnd();
-  return end.x() < gridSize.x() && end.y() < gridSize.y();
+  return end.x < gridSize.x && end.y < gridSize.y;
 }
 
 bool ShipPlacement::shipCollisionFree(const Ship& newShip) const {
@@ -68,8 +68,8 @@ bool ShipPlacement::shipCollisionFree(const Ship& newShip) const {
   for (const Ship& other : ships) {
     const Vec2ui otherStart = other.pos;
     const Vec2ui otherEnd   = other.computeEnd();
-    if (end.x()+1 < otherStart.x() || start.x() > otherEnd.x()+1 ||
-        end.y()+1 < otherStart.y() || start.y() > otherEnd.y()+1) continue;
+    if (end.x+1 < otherStart.x || start.x > otherEnd.x+1 ||
+        end.y+1 < otherStart.y || start.y > otherEnd.y+1) continue;
     return false;
   }
   
@@ -105,14 +105,14 @@ std::string ShipPlacement::toEncryptedString(const std::string& password) const 
 std::string ShipPlacement::toString() const {
   Encoder e;
   e.add("ShipPlacement");
-  e.add(gridSize.x());
-  e.add(gridSize.y());
+  e.add(gridSize.x);
+  e.add(gridSize.y);
   e.add(uint32_t(ships.size()));
   for (const Ship& s : ships) {
     e.add(uint32_t(s.shipSize));
     e.add(uint32_t(s.orientation));
-    e.add(s.pos.x());
-    e.add(s.pos.y());
+    e.add(s.pos.x);
+    e.add(s.pos.y);
   }
   return e.getEncodedMessage();
 }
@@ -142,8 +142,8 @@ bool ShipPlacement::incomming(const Vec2ui& pos) const {
   for (const Ship& s : ships) {
     const Vec2ui start = s.pos;
     const Vec2ui end   = s.computeEnd();    
-    if (pos.x() >= start.x() && pos.x() <= end.x() &&
-        pos.y() >= start.y() && pos.y() <= end.y()) return true;
+    if (pos.x >= start.x && pos.x <= end.x &&
+        pos.y >= start.y && pos.y <= end.y) return true;
   }
   return false;
 }

@@ -23,9 +23,9 @@ public:
     for (uint32_t y = 0;y<image.height;++y) {
       for (uint32_t x = 0;x<image.width;++x) {
         const Vec3 rgb = convertPosToHSV(float(x)/image.width, float(y)/image.height);
-        image.setNormalizedValue(x,y,0,rgb.x());
-        image.setNormalizedValue(x,y,1,rgb.y());
-        image.setNormalizedValue(x,y,2,rgb.z());
+        image.setNormalizedValue(x,y,0,rgb.r);
+        image.setNormalizedValue(x,y,1,rgb.g);
+        image.setNormalizedValue(x,y,2,rgb.b);
         image.setValue(x,y,3,255);
       }
     }

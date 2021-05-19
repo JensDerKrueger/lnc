@@ -35,8 +35,8 @@ void TextRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3& c
 	}	
 
 	for (const auto& p : spritePixels) {
-		if (p.pos.y() < 0 || p.pos.x() < 0 || int64_t(p.pos.y()) >= height() || int64_t(p.pos.x()) >= width()) continue;
-		size_t index = gridIndex(p.pos.x(), p.pos.y());
+		if (p.pos.y < 0 || p.pos.x < 0 || int64_t(p.pos.y) >= height() || int64_t(p.pos.x) >= width()) continue;
+		size_t index = gridIndex(p.pos.x, p.pos.y);
 		colorData[index] = colorData.at(index) * (1-p.alpha) + p.rgb * p.alpha;
 	}
 	
@@ -54,9 +54,9 @@ void TextRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3& c
 }
 
 void TextRenderer::setColor(const Vec3& color) {
-	const uint32_t index = 16 + uint32_t(color.r()*5) +
-							6 * uint32_t(color.g()*5) +
-						   36 * uint32_t(color.b()*5);
+	const uint32_t index = 16 + uint32_t(color.r*5) +
+							6 * uint32_t(color.g*5) +
+						   36 * uint32_t(color.b*5);
 
 	std::cout << "\033[48;5;" << index << "m";
 }

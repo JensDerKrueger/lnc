@@ -147,15 +147,15 @@ static void scrollCallback(GLFWwindow* window, double x_offset, double y_offset)
 }
 
 void setPosGradient(const Vec3& v, floatVecPtr a, size_t& targetIndex) {
-    a->at(targetIndex++)=v.x();
-    a->at(targetIndex++)=v.y();
-    a->at(targetIndex++)=v.z();
+    a->at(targetIndex++)=v.x;
+    a->at(targetIndex++)=v.y;
+    a->at(targetIndex++)=v.z;
 }
 
 void setNormal(const Vec3& v, floatVecPtr a, float gradient, size_t& targetIndex) {
-    a->at(targetIndex++)=v.x();
-    a->at(targetIndex++)=v.y();
-    a->at(targetIndex++)=v.z();
+    a->at(targetIndex++)=v.x;
+    a->at(targetIndex++)=v.y;
+    a->at(targetIndex++)=v.z;
     a->at(targetIndex++)=gradient;
 }
 
@@ -209,20 +209,20 @@ int main(int argc, char ** argv) {
     
     const size_t maxOctaves = 10;
     const Vec2t<size_t> startRes{size_t(1)<<maxOctaves, size_t(1)<<maxOctaves};
-    Grid2D smoothHeightField{startRes.x(),startRes.y()};
+    Grid2D smoothHeightField{startRes.x,startRes.y};
     for (size_t octave = 0;octave<maxOctaves;++octave) {
         const Vec2 currentRes = startRes / (size_t(1)<<octave);
-        Grid2D currentGrid = Grid2D::genRandom(currentRes.x(), currentRes.y());
+        Grid2D currentGrid = Grid2D::genRandom(currentRes.x, currentRes.y);
         smoothHeightField = smoothHeightField + currentGrid/(powf(2.1f,maxOctaves-octave));
     }
     smoothHeightField.normalize();
     smoothHeightField = smoothHeightField / 3.0f + 0.2f;
     
     const size_t reducedOctaves = 9;
-    Grid2D roughHeightField{startRes.x(),startRes.y()};
+    Grid2D roughHeightField{startRes.x,startRes.y};
     for (size_t octave = 0;octave<reducedOctaves;++octave) {
         const Vec2 currentRes = startRes / (size_t(1)<<octave);
-        Grid2D currentGrid = Grid2D::genRandom(currentRes.x(), currentRes.y());
+        Grid2D currentGrid = Grid2D::genRandom(currentRes.x, currentRes.y);
         roughHeightField = roughHeightField + currentGrid/(1<<(reducedOctaves-octave));
     }
     roughHeightField.normalize();
@@ -231,9 +231,9 @@ int main(int argc, char ** argv) {
 
     heightField = std::make_shared<Grid2D>((smoothHeightField * parameterField + roughHeightField * (parameterField*-1+1))/reduction);
     const Vec2ui maxv{heightField->maxValue()};
-    const Vec3 mountainTop{maxv.x()/float(heightField->getWidth())-0.5f,
-                           heightField->getValue(maxv.x(),maxv.y())+0.0005f,
-                           maxv.y()/float(heightField->getHeight())-0.5f};
+    const Vec3 mountainTop{maxv.x/float(heightField->getWidth())-0.5f,
+                           heightField->getValue(maxv.x,maxv.y)+0.0005f,
+                           maxv.y/float(heightField->getHeight())-0.5f};
   
     GLEnv gl{1024,768,4,"Terrain Generator", true, true, 4, 1, true};
 

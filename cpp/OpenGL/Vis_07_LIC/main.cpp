@@ -31,17 +31,17 @@ public:
     const Vec2 delta{0.5f/flow.getSizeX(),0.5f/flow.getSizeY()};
     
     for (size_t i = 0;i<steps;++i) {
-      const Vec3 v = flow.interpolate(Vec3(pos.x(), pos.y(), z));
-      pos = pos + Vec2::normalize(Vec2{v.x(),v.y()}) * delta;
-      if (pos.x() < 0.0 || pos.x() > 1.0 || pos.y() < 0.0 || pos.y() > 1.0) break;
+      const Vec3 v = flow.interpolate(Vec3(pos.x, pos.y, z));
+      pos = pos + Vec2::normalize(Vec2{v.x,v.y}) * delta;
+      if (pos.x < 0.0 || pos.x > 1.0 || pos.y < 0.0 || pos.y > 1.0) break;
       r.push_back(pos);
     }
 
     pos = Vec2{x,y};
     for (size_t i = 0;i<steps;++i) {
-      const Vec3 v = flow.interpolate(Vec3(pos.x(), pos.y(), z));
-      pos = pos + Vec2::normalize(Vec2{v.x(),v.y()}) * delta;
-      if (pos.x() < 0.0 || pos.x() > 1.0 || pos.y() < 0.0 || pos.y() > 1.0) break;
+      const Vec3 v = flow.interpolate(Vec3(pos.x, pos.y, z));
+      pos = pos + Vec2::normalize(Vec2{v.x,v.y}) * delta;
+      if (pos.x < 0.0 || pos.x > 1.0 || pos.y < 0.0 || pos.y > 1.0) break;
       r.push_back(pos);
     }
 
@@ -57,8 +57,8 @@ public:
                                                steps);
         float value=0.0f;
         for (size_t i = 0;i<trace.size();++i) {
-          const uint32_t u = uint32_t(trace[i].x() * inputImage.width + 0.5f);
-          const uint32_t v = uint32_t(trace[i].y() * inputImage.height + 0.5f);
+          const uint32_t u = uint32_t(trace[i].x * inputImage.width + 0.5f);
+          const uint32_t v = uint32_t(trace[i].y * inputImage.height + 0.5f);
           value += inputImage.getValue(u,v,0);
         }
         
