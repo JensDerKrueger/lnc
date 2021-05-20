@@ -211,7 +211,7 @@ int main(int argc, char ** argv) {
     const Vec2t<size_t> startRes{size_t(1)<<maxOctaves, size_t(1)<<maxOctaves};
     Grid2D smoothHeightField{startRes.x,startRes.y};
     for (size_t octave = 0;octave<maxOctaves;++octave) {
-        const Vec2 currentRes = startRes / (size_t(1)<<octave);
+        const Vec2 currentRes = Vec2(startRes) / (size_t(1)<<octave);
         Grid2D currentGrid = Grid2D::genRandom(currentRes.x, currentRes.y);
         smoothHeightField = smoothHeightField + currentGrid/(powf(2.1f,maxOctaves-octave));
     }
@@ -221,7 +221,7 @@ int main(int argc, char ** argv) {
     const size_t reducedOctaves = 9;
     Grid2D roughHeightField{startRes.x,startRes.y};
     for (size_t octave = 0;octave<reducedOctaves;++octave) {
-        const Vec2 currentRes = startRes / (size_t(1)<<octave);
+        const Vec2 currentRes = Vec2(startRes) / (size_t(1)<<octave);
         Grid2D currentGrid = Grid2D::genRandom(currentRes.x, currentRes.y);
         roughHeightField = roughHeightField + currentGrid/(1<<(reducedOctaves-octave));
     }

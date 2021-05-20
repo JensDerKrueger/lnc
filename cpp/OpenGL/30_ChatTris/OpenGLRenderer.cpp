@@ -157,7 +157,7 @@ void OpenGLRenderer::dropAnimation(const std::array<Vec2i,4>& source, const Vec3
 		if (source[i].y > source[maxIndex].y) maxIndex = i;
 	}
 	animationStart = source[maxIndex];
-	animationCurrent = animationStart;
+	animationCurrent = Vec2(animationStart);
 	animationTarget = target[maxIndex];
 	droppedTetromino = source;
 	droppedTetrominoColor = sourceColor;
@@ -167,7 +167,7 @@ void OpenGLRenderer::dropAnimation(const std::array<Vec2i,4>& source, const Vec3
 }
 
 bool OpenGLRenderer::isAnimating() const {
-	return animationCurrent != animationTarget;
+	return animationCurrent != Vec2(animationTarget);
 }
 
 void OpenGLRenderer::setGameOver(bool gameOver, uint32_t score) {
@@ -213,7 +213,7 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 			if (a < 1.0f)
 				animationCurrent = Vec2(animationStart) * (1-a) + Vec2(animationTarget) * a;
 			else {
-				animationCurrent = animationTarget;
+				animationCurrent = Vec2(animationTarget);
 			}
 			lookFromVec = Vec3{pos2Coord(animationCurrent, 20.0f)};
 			lookAtVec = lookFromVec+Vec3(0,-10,0);
@@ -223,7 +223,7 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 			const float totalTime = float(animationTarget.y - animationStart.y)*0.01f;
 			double a = (currentTime - animationStartTime)/totalTime;
 			if (a>=1.0) {
-				animationCurrent = animationTarget;
+				animationCurrent = Vec2(animationTarget);
 				a = 1.0;
 			}
 			for (size_t i = 0;i<tetrominoPos.size();++i) {
@@ -235,7 +235,7 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 		if (!isAnimating()) clearRows();
 	} else {
 		for (size_t i = 0;i<tetrominoPos.size();++i)
-			activeTetrominoPos[i] = tetrominoPos[i];
+			activeTetrominoPos[i] = Vec2(tetrominoPos[i]);
 		activeTetrominoColor = currentColor;		
 	}
 	
@@ -329,7 +329,7 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 	if (getShowPreview()) {
     
 		for (const Vec2i& pos : nextTetrominoPos) {
-			const Mat4 m{Mat4::translation(pos2Coord(pos+Vec2i(13,17), 20.0f))};
+			const Mat4 m{Mat4::translation(pos2Coord(Vec2(pos+Vec2i(13,17)), 20.0f))};
 			progBrick.setUniform(mvpLocationBrick, m*v*p);
 			progBrick.setUniform(mLocationBrick, m);
 			progBrick.setUniform(mitLocationBrick, Mat4::inverse(m), true);			
@@ -345,7 +345,7 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 		glDepthMask(GL_FALSE);
 			
 		for (const Vec2i& pos : targetTetrominoPos) {
-			const Mat4 m{Mat4::translation(pos2Coord(pos, 20.0f))};
+			const Mat4 m{Mat4::translation(pos2Coord(Vec2(pos), 20.0f))};
 			progBrick.setUniform(mvpLocationBrick, m*v*p);
 			progBrick.setUniform(mLocationBrick, m);
 			progBrick.setUniform(mitLocationBrick, Mat4::inverse(m), true);			
