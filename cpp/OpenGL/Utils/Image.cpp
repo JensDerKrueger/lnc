@@ -176,3 +176,35 @@ Image Image::toGrayscale() const {
   }
   return grayScaleImage;
 }
+
+
+Image Image::genTestImage(uint32_t width,
+                          uint32_t height) {
+  
+  const uint32_t partY1 = height/3;
+  const uint32_t partY2 = height*2/3;
+  const uint32_t partX  = width/2;
+  
+  Image result{width,height,4};
+  for (uint32_t y = 0;y<height;++y) {
+    for (uint32_t x = 0;x<width;++x) {
+      
+      uint8_t r = y < partY1;
+      uint8_t g = y >= partY1 && y < partY2;
+      uint8_t b = y >= partY2;
+          
+      if (x>partX) {
+        r = 1-r;
+        g = 1-g;
+        b = 1-b;
+      }
+      
+      result.setValue(x,y,0,r*255);
+      result.setValue(x,y,1,g*255);
+      result.setValue(x,y,2,b*255);
+      result.setValue(x,y,3,255);
+    }
+  }
+
+  return result;
+}
