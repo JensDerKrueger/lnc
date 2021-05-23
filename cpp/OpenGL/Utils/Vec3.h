@@ -42,8 +42,8 @@ public:
     e{T(other.x), T(other.y), z}
   {}
   
-  template <typename U>
-  friend std::ostream& operator<<(std::ostream &os, const Vec3t<U>& v) {os << v.toString() ; return os;}
+  friend std::ostream& operator<<(std::ostream &os, const Vec3t& v) {os << v.toString() ; return os;}
+  
   const std::string toString() const {
     std::stringstream s;
     s << "[" << e[0] << ", " << e[1] << ", " << e[2] << "]";
@@ -175,13 +175,36 @@ public:
     return {r*cosf(a), r*sinf(a), z};
   }
   
+  static Vec3t<float> rgbToHsv(const Vec3t<float>& other) {
+    Vec3t<float> hsv;
+    
+    const float minComp = std::min(other.r, std::min(other.g,other.b));
+    const float maxComp = std::max(other.r, std::max(other.g,other.b));
+    const float delta = maxComp - minComp;
+
+    float h = 0;
+    if (maxComp != minComp) {
+      if (maxComp == other.r)
+        h = fmod((60.0f * ((other.g - other.b) / delta) + 360.0f), 360.0f);
+      else if (maxComp == other.g)
+        h = fmod((60.0f * ((other.b - other.r) / delta) + 120.0f), 360.0f);
+      else if (maxComp == other.b)
+        h = fmod((60.0f * ((other.r - other.g) / delta) + 240.0f), 360.0f);
+    }
+
+    const float s = (maxComp == 0) ? 0 : (delta / maxComp);
+    const float v = maxComp;
+
+    return {h,s,v};
+  }
+  
   static Vec3t<float> hsvToRgb(const Vec3t<float>& other) {
     // Make sure our arguments stay in-range
     const float h = float(int(other.x) % 360) / 60;
     const float s = std::max(0.0f, std::min(1.0f, other.y));
     const float v = std::max(0.0f, std::min(1.0f, other.z));
 
-    if(s == 0) return {v,v,v}; // Achromatic (grey)
+    if (s == 0) return {v,v,v}; // Achromatic (grey)
 
     const int i = int(floor(h));
     const float f = h - i;
