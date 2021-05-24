@@ -16,7 +16,6 @@ largeImageResolution{largeImageResolution}
 
 void MosaicMaker::updateSmallImageCache() {
   // TODO: iterate over files in directory
-  
   if (smallImages.empty())
     throw MosaicMakerException("Unable to load small images");
 }
@@ -31,7 +30,7 @@ void MosaicMaker::loadLargeImage() {
 
 void MosaicMaker::generateResultImage() {
   // TODO: iterate over image and find best candidates
-  resultImage = Image::genTestImage(99,99);
+  resultImage = Image::genTestImage(300,300);
 }
 
 void MosaicMaker::generate() {
@@ -44,30 +43,37 @@ Image MosaicMaker::getResultImage() const {
   return resultImage;
 }
 
+Image MosaicMaker::getResultImage(const uint32_t maxWidth) const {
+  if (maxWidth < resultImage.width)
+    return resultImage.resample(maxWidth);
+  else
+    return resultImage;
+}
+
 SmallImageInfo::SmallImageInfo(const std::string& filename,
-                               const Vec3t<int>& hsv) :
+                               const Vec3t<double> featureVec) :
 filename{filename},
-hsv{hsv}
+featureVec{featureVec}
 {
 }
 
 SmallImageInfo::SmallImageInfo(const std::string& filename) :
   filename{filename}
 {
-  computeAverageColor();
+  computeFeatureVector();
 }
 
-void SmallImageInfo::computeAverageColor() {
+void SmallImageInfo::computeFeatureVector() {
   Image image = BMP::load(filename);
   if (image.componentCount < 3) throw BMP::BMPException("Too few image componets.");
-  Vec3t<double> hsv;
+  featureVec = Vec3t<double>{0,0,0};
   for (uint32_t y = 0;y<image.height;++y) {
     for (uint32_t x = 0;x<image.width;++x) {
       const Vec3 rgb{image.getValue(x,y,0)/255.0f,
                      image.getValue(x,y,1)/255.0f,
                      image.getValue(x,y,2)/255.0f};
-      hsv = hsv + Vec3t<double>(Vec3::rgbToHsv(rgb));
+      featureVec = featureVec + Vec3t<double>(Vec3::rgbToHsv(rgb));
     }
   }
-  hsv = hsv / double(image.height * image.width);
+  featureVec = featureVec / double(image.height * image.width);
 }

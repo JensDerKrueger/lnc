@@ -19,14 +19,14 @@ class MosaicMakerException : public std::exception {
 
 class SmallImageInfo {
 public:
-  SmallImageInfo(const std::string& filename, const Vec3t<int>& hsv);
+  SmallImageInfo(const std::string& filename, const Vec3t<double> featureVec);
   SmallImageInfo(const std::string& filename);
   
   std::string filename;
-  Vec3t<int> hsv;
+  Vec3t<double> featureVec;
 
 private:
-  void computeAverageColor();
+  void computeFeatureVector();
 };
 
 class MosaicMaker {
@@ -38,6 +38,7 @@ public:
   
   void generate();
   Image getResultImage() const;
+  Image getResultImage(const uint32_t maxWidth) const;
   
 private:
   const std::string smallDir;
