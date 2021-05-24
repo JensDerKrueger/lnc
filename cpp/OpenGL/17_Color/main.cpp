@@ -1,5 +1,6 @@
 #include <GLApp.h>
 #include <FontRenderer.h>
+#include <ColorConversion.h>
 
 class MyGLApp : public GLApp {
 public:
@@ -13,7 +14,7 @@ public:
     // ok, I admit that's very simple :-), but I assume that only very few students will
     // take a closer look at the Vec3 class to realize that the solution to this exercise
     // is already there
-    return Vec3::hsvToRgb({360*x,y,1.0f});
+    return ColorConversion::hsvToRgb({360*x,y,1.0f});
   }
   
   virtual void init() {

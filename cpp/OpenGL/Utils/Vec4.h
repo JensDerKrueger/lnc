@@ -27,7 +27,7 @@ public:
   {}
   
   Vec4t(const Vec3t<T>& other, T w):
-    e{other.x, other.y, other.z}
+    e{other.x, other.y, other.z, w}
   {}
   
   Vec4t(const Vec2t<T>& other, T z, T w) :
@@ -98,6 +98,14 @@ public:
   
   Vec4t operator/(const T& val) const {
     return {e[0]/val, e[1]/val, e[2]/val, e[3]/val};
+  }
+  
+  Vec4t operator+(const T& val) const {
+    return {e[0]+val,e[1]+val,e[2]+val,e[3]+val};
+  }
+  
+  Vec4t operator-(const T& val) const{
+    return {e[0]-val,e[1]-val,e[2]-val,e[3]-val};
   }
   
   bool operator == ( const Vec4t& other ) const {

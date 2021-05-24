@@ -62,6 +62,14 @@ public:
   Vec2t operator/(const T& val) const {
     return {e[0]/val, e[1]/val};
   }
+  
+  Vec2t operator+(const T& val) const {
+    return {e[0]+val,e[1]+val};
+  }
+  
+  Vec2t operator-(const T& val) const{
+    return {e[0]-val,e[1]-val};
+  }
 
   bool operator == ( const Vec2t& other ) const {
       return e == other.e;

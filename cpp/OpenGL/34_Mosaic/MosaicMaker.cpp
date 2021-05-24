@@ -1,6 +1,7 @@
 #include "MosaicMaker.h"
 
 #include <bmp.h>
+#include <ColorConversion.h>
 
 MosaicMaker::MosaicMaker(const std::string& smallDir,
                          const std::string& largeImageFilename,
@@ -72,7 +73,7 @@ void SmallImageInfo::computeFeatureVector() {
       const Vec3 rgb{image.getValue(x,y,0)/255.0f,
                      image.getValue(x,y,1)/255.0f,
                      image.getValue(x,y,2)/255.0f};
-      featureVec = featureVec + Vec3t<double>(Vec3::rgbToHsv(rgb));
+      featureVec = featureVec + Vec3t<double>(ColorConversion::rgbToHsv(rgb));
     }
   }
   featureVec = featureVec / double(image.height * image.width);

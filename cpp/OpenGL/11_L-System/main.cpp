@@ -13,6 +13,7 @@ typedef std::chrono::high_resolution_clock Clock;
 #include <Vec2.h>
 #include <Mat4.h>
 #include <Rand.h>
+#include <ColorConversion.h>
 
 #include "GLProgram.h"
 #include "GLBuffer.h"
@@ -204,7 +205,7 @@ std::vector<float> genTree(size_t iterations, const LShape& currenShape) {
         data.push_back((p.pos.y-minV.y-sizeV.y/2)/maxSize);
         data.push_back((p.pos.z-minV.z-sizeV.z/2)/maxSize);
                 
-        Vec3 color = Vec3::hsvToRgb(Vec3{360.0f * p.depth/maxDepth,1.0f,1.0f});
+        Vec3 color = ColorConversion::hsvToRgb(Vec3{360.0f * p.depth/maxDepth,1.0f,1.0f});
         data.push_back(color.r);
         data.push_back(color.g);
         data.push_back(color.b);

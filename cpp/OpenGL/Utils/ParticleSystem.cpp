@@ -1,6 +1,7 @@
 #include "ParticleSystem.h"
 #include "Rand.h"
 #include "Vec2.h"
+#include "ColorConversion.h"
 
 ParticleSystem::ParticleSystem(	uint32_t particleCount, std::shared_ptr<StartVolume> starter,
 								const Vec3& initialSpeedMin, const Vec3& initialSpeedMax, 
@@ -193,7 +194,7 @@ void Particle::update(float deltaT) {
 }
 	
 std::vector<float> Particle::getData() const {
-	Vec3 c = color == RAINBOW_COLOR ? Vec3::hsvToRgb({age*100,1.0,1.0}) : color;
+	Vec3 c = color == RAINBOW_COLOR ? ColorConversion::hsvToRgb({age*100,1.0,1.0}) : color;
 	//return {position.x, position.y, position.z, c.x, c.y, c.z, opacity*((maxAge-age)/maxAge)};
 	return { position.x, position.y, position.z, c.x, c.y, c.z, opacity  };
 }

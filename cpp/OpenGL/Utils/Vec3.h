@@ -75,11 +75,19 @@ public:
   }
 
   Vec3t operator*(const T& val) const {
-    return Vec3t{e[0]*val,e[1]*val,e[2]*val};
+    return {e[0]*val,e[1]*val,e[2]*val};
   }
   
   Vec3t operator/(const T& val) const{
-    return Vec3t{e[0]/val,e[1]/val,e[2]/val};
+    return {e[0]/val,e[1]/val,e[2]/val};
+  }
+
+  Vec3t operator+(const T& val) const {
+    return {e[0]+val,e[1]+val,e[2]+val};
+  }
+  
+  Vec3t operator-(const T& val) const{
+    return {e[0]-val,e[1]-val,e[2]-val};
   }
   
   bool operator == (const Vec3t& other) const {
@@ -175,52 +183,6 @@ public:
     return {r*cosf(a), r*sinf(a), z};
   }
   
-  static Vec3t<float> rgbToHsv(const Vec3t<float>& other) {
-    Vec3t<float> hsv;
-    
-    const float minComp = std::min(other.r, std::min(other.g,other.b));
-    const float maxComp = std::max(other.r, std::max(other.g,other.b));
-    const float delta = maxComp - minComp;
-
-    float h = 0;
-    if (maxComp != minComp) {
-      if (maxComp == other.r)
-        h = fmod((60.0f * ((other.g - other.b) / delta) + 360.0f), 360.0f);
-      else if (maxComp == other.g)
-        h = fmod((60.0f * ((other.b - other.r) / delta) + 120.0f), 360.0f);
-      else if (maxComp == other.b)
-        h = fmod((60.0f * ((other.r - other.g) / delta) + 240.0f), 360.0f);
-    }
-
-    const float s = (maxComp == 0) ? 0 : (delta / maxComp);
-    const float v = maxComp;
-
-    return {h,s,v};
-  }
-  
-  static Vec3t<float> hsvToRgb(const Vec3t<float>& other) {
-    // Make sure our arguments stay in-range
-    const float h = float(int(other.x) % 360) / 60;
-    const float s = std::max(0.0f, std::min(1.0f, other.y));
-    const float v = std::max(0.0f, std::min(1.0f, other.z));
-
-    if (s == 0) return {v,v,v}; // Achromatic (grey)
-
-    const int i = int(floor(h));
-    const float f = h - i;
-    const float p = v * (1 - s);
-    const float q = v * (1 - s * f);
-    const float t = v * (1 - s * (1 - f));
-
-    switch(i) {
-      case 0: return {v,t,p};
-      case 1: return {q,v,p};
-      case 2: return {p,v,t};
-      case 3: return {p,q,v};
-      case 4: return {t,p,v};
-      default: return {v,p,q};
-    }
-  }
   		
 };
 
