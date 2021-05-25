@@ -4,8 +4,13 @@
 #include "MosaicMaker.h"
 
 class MyGLApp : public GLApp {
-public:
+public:  
   MosaicMaker mm{"smallImages", "largeImage.bmp", {100,100}, {10,10}};
+  /*
+  MosaicMaker mm{"/Users/lnc/lnc/cpp/OpenGL/34_Mosaic/smallImages",
+                 "/Users/lnc/lnc/cpp/OpenGL/34_Mosaic/zapp_girl_small.bmp",
+                  {100,100}, {2,2}};
+  */
   FontRenderer fr{"helvetica_neue.bmp", "helvetica_neue.pos"};
   std::shared_ptr<FontEngine> fe{nullptr};
   std::string text;
@@ -31,9 +36,9 @@ public:
                         float(mm.getResultImage().height);    
     float scale = imageAspect/glEnv.getFramebufferSize().aspect();
     if (scale < 1)
-      setDrawTransform(Mat4::scaling(1, -1, 1) * Mat4::scaling(scale, 1, 1)  );
+      setDrawTransform(Mat4::scaling(scale, 1, 1));
     else
-      setDrawTransform(Mat4::scaling(1, -1, 1) * Mat4::scaling(1, 1/scale, 1)  );
+      setDrawTransform(Mat4::scaling(1, 1/scale, 1));
     drawImage(*result);
   }
 };
