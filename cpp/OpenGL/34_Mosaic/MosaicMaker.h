@@ -34,7 +34,7 @@ public:
   MosaicMaker(const std::string& smallDir,
               const std::string& largeImageFilename,
               const Vec2ui& smallImageResolution,
-              const Vec2ui& largeImageResolution);
+              const Vec2ui& largeImageBlockSize);
   
   void generate();
   Image getResultImage() const;
@@ -44,14 +44,20 @@ private:
   const std::string smallDir;
   const std::string largeImageFilename;
   const Vec2ui smallImageResolution;
-  const Vec2ui largeImageResolution;
+  const Vec2ui largeImageBlockSize;
  
   Image resultImage;
   Image largeImage;
-  std::vector<SmallImageInfo> smallImages;
+  std::vector<SmallImageInfo> smallImageInfos;
   
   void updateSmallImageCache();
   void loadLargeImage();
   void generateResultImage();
+  
+  Vec3t<double> computeFeatureVec(const uint32_t xBlock, const uint32_t yBlock) const;
+  const SmallImageInfo& findBestSmallImage(const Vec3t<double>& largeImageFeatureVec) const;
+  void placeSmallImageIntoResult(const uint32_t xBlock, const uint32_t yBlock,
+                                 const SmallImageInfo& imageInfo);
+    
   
 };
