@@ -15,4 +15,7 @@ namespace ColorConversion {
 
   Vec3 cmyToRgb(const Vec3& other);
   Vec3 cmykToRgb(const Vec4& other);
+  
+  Vec3 rgbToYuv(const Vec3& other);
+  Vec3 yuvToRgb(const Vec3& other);
 }

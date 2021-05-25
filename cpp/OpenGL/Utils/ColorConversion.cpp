@@ -1,5 +1,7 @@
 #include "ColorConversion.h"
 
+#include "Mat4.h"
+
 Vec3 ColorConversion::rgbToHsv(const Vec3& other) {
   Vec3 hsv;
   
@@ -54,8 +56,6 @@ Vec3 ColorConversion::cmyToRgb(const Vec3& other) {
   return {1.0f-other.x,1.0f-other.y,1.0f-other.z};
 }
 
-#include <iostream>
-
 Vec4 ColorConversion::rgbToCmyk(const Vec3& other) {
   const Vec3 cmy = rgbToCmy(other);
   const float minVal = std::min(cmy.x,std::min(cmy.y,cmy.z));
@@ -83,4 +83,22 @@ Vec3 ColorConversion::hsvToHsl(const Vec3& other) {
   float l = v-v*s/2;
   float m = std::min(l,1-l);
   return {h,(m > 0) ? (v-l)/m : l, l};
+}
+
+Vec3 ColorConversion::rgbToYuv(const Vec3& other) {
+  const Mat4 c{   0.299f,   0.587f,  0.114f,  0.0f,
+                 -0.147f,  -0.289f,  0.436f,  0.0f,
+                  0.615f,  -0.515f, -0.100f,  0.0f,
+                    0.0f,     0.0f,    0.0f,  1.0f
+  };
+  return (c * Vec4(other,1.0f)).xyz();
+}
+
+Vec3 ColorConversion::yuvToRgb(const Vec3& other) {
+  const Mat4 c{ 1.0f,      0.0f,    1.140f,  0.0f,
+                1.0f,   -0.395f,   -0.581f,  0.0f,
+                1.0f,    2.032f,      0.0f,  0.0f,
+                0.0f,      0.0f,      0.0f,  1.0f
+  };
+  return (c * Vec4(other,1.0f)).xyz();
 }
