@@ -6,6 +6,7 @@
 #include <Vec3.h>
 #include <Vec2.h>
 #include <Image.h>
+#include <MD5.h>
 
 class MosaicMakerException : public std::exception {
   public:
@@ -19,14 +20,18 @@ class MosaicMakerException : public std::exception {
 
 class SmallImageInfo {
 public:
-  SmallImageInfo(const std::string& filename, const Vec3t<double> featureVec);
   SmallImageInfo(const std::string& filename);
   
   std::string filename;
   Vec3t<double> featureVec;
+  
+  bool operator == ( const SmallImageInfo& other ) const {
+    return hash == other.hash;
+  }
 
 private:
   void computeFeatureVector();
+  MD5Hash hash;
 };
 
 class MosaicMaker {
@@ -49,15 +54,17 @@ private:
   Image resultImage;
   Image largeImage;
   std::vector<SmallImageInfo> smallImageInfos;
+  std::vector<SmallImageInfo> usedImages;
   
   void updateSmallImageCache();
   void loadLargeImage();
   void generateResultImage();
   
   Vec3t<double> computeFeatureVec(const uint32_t xBlock, const uint32_t yBlock) const;
-  const SmallImageInfo& findBestSmallImage(const Vec3t<double>& largeImageFeatureVec) const;
+  const SmallImageInfo& findBestSmallImage(const Vec3t<double>& largeImageFeatureVec,
+                                           const std::vector<SmallImageInfo>& recentBricks) const;
   void placeSmallImageIntoResult(const uint32_t xBlock, const uint32_t yBlock,
                                  const SmallImageInfo& imageInfo);
     
-  
+  const std::vector<SmallImageInfo> gatherRecentBricks(uint32_t x, uint32_t y, uint32_t dist);
 };
