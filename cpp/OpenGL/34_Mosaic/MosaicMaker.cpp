@@ -21,8 +21,8 @@ largeImageBlockSize{largeImageBlockSize}
 void MosaicMaker::updateSmallImageCache() {
   for (auto& p: std::filesystem::directory_iterator(smallDir)) {
     try {
-      if (p.path().extension() != ".bmp") continue;      
-      SmallImageInfo info{p.path()};
+      if (p.path().extension() != ".bmp") continue;        
+      SmallImageInfo info{ p.path().string()};
       smallImageInfos.push_back(info);
     } catch (...) {
     }
