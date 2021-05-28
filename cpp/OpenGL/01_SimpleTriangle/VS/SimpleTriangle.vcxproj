@@ -85,8 +85,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(SolutionDir)..\..\VS\include;$(SolutionDir)..\..\Utils;$(IncludePath)</IncludePath>
-    <OutDir>$(SolutionDir)..\..\..\VS-locale\$(ProjectName)\bin\$(Platform)-$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)..\..\..\VS-locale\$(ProjectName)\tmp\$(Platform)-$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -139,7 +137,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>utils.lib;opengl32.lib;glew32s.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)..\..\VS\lib\x64;$(SolutionDir)..\..\..\VS-locale\Utils\bin\$(Platform)-$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\..\VS\lib\x64;$(PlatformTarget)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>XCOPY "$(ProjectDir)..\*.bmp" "$(OutDir)*.*" /Y
