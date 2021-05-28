@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\ColorConversion.cpp" />
     <ClCompile Include="..\Image.cpp" />
     <ClCompile Include="..\Mat3.cpp" />
     <ClCompile Include="..\AbstractParticleSystem.cpp" />
@@ -39,6 +40,7 @@
     <ClCompile Include="..\GLTexture3D.cpp" />
     <ClCompile Include="..\Grid2D.cpp" />
     <ClCompile Include="..\Mat4.cpp" />
+    <ClCompile Include="..\MD5.cpp" />
     <ClCompile Include="..\OBJFile.cpp" />
     <ClCompile Include="..\ParticleSystem.cpp" />
     <ClCompile Include="..\PlanarMirror.cpp" />
@@ -47,6 +49,7 @@
     <ClCompile Include="..\Tesselation.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\ColorConversion.h" />
     <ClInclude Include="..\Image.h" />
     <ClInclude Include="..\Mat3.h" />
     <ClInclude Include="..\AbstractParticleSystem.h" />
@@ -68,6 +71,7 @@
     <ClInclude Include="..\GLTexture3D.h" />
     <ClInclude Include="..\Grid2D.h" />
     <ClInclude Include="..\Mat4.h" />
+    <ClInclude Include="..\MD5.h" />
     <ClInclude Include="..\OBJFile.h" />
     <ClInclude Include="..\ParticleSystem.h" />
     <ClInclude Include="..\PlanarMirror.h" />
