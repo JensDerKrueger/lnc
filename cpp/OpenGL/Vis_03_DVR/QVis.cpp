@@ -1,6 +1,7 @@
 #include <fstream>
 #include <iterator>
 #include <algorithm>
+#include <filesystem>
 
 #include "QVis.h"
 
@@ -12,14 +13,21 @@ void QVis::load(const std::string& filename) {
   std::ifstream datfile(filename);
   if (!datfile) throw QVisFileException{std::string("Unable to read file ")+filename};
   
+  bool needsConversion{false};
+  
+  std::filesystem::path p{filename};
+  
   std::string rawFilename;
   std::string line;
   while (std::getline(datfile, line)) {
     QVisDatLine l{line};
     
-    if (l.id == "objectfilename")
-      rawFilename = l.value;
-    else if (l.id == "resolution") {
+    if (l.id == "objectfilename") {
+      if (std::string(p.parent_path()).empty())
+        rawFilename = l.value;
+      else
+        rawFilename = std::string(p.parent_path()) + "/" + l.value;
+    } else if (l.id == "resolution") {
       std::vector<std::string> t = tokenize(l.value);
       if (t.size() != 3) throw QVisFileException{"invalid resolution tag"};
       try {
@@ -44,7 +52,7 @@ void QVis::load(const std::string& filename) {
       if(l.value != "char" &&
          l.value != "uchar" &&
          l.value != "byte") {
-        throw QVisFileException{"only 8bit data supported by this mini-reader"};
+        needsConversion = true;
       }
     }
     else if (l.id == "endianess") {
@@ -60,9 +68,28 @@ void QVis::load(const std::string& filename) {
     throw QVisFileException{"object filename not found"};
   
   std::ifstream rawFile( rawFilename, std::ios::binary );  
-  volume.data = std::vector<uint8_t>(std::istreambuf_iterator<char>(rawFile), {});
-  rawFile.close();
   
+  if (needsConversion) {
+    // if it's not 8bit, we assume 16bit
+    std::vector<uint16_t> data(volume.width*volume.height*volume.depth);
+    rawFile.read((char*)data.data(), std::streamsize(volume.width*volume.height*volume.depth*2));
+    uint16_t minVal = data[0], maxVal = data[0];
+    
+    for (uint16_t val : data ) {
+      minVal = std::min(minVal, val);
+      maxVal = std::max(maxVal, val);
+    }
+    volume.data.resize(data.size());
+    
+    for (size_t i = 0;i<data.size();++i) {
+      volume.data[i] = uint8_t(((data[i]-minVal)*255) / (1+maxVal-minVal));
+    }
+    
+  } else {
+    volume.data = std::vector<uint8_t>(std::istreambuf_iterator<char>(rawFile), {});
+  }
+  rawFile.close();
+
   volume.computeNormals();
 }
 
