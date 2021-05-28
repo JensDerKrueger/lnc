@@ -48,13 +48,13 @@ void MainPhase::mouseMoveInternal(double xPosition, double yPosition) {
   BoardPhase::mouseMoveInternal(xPosition, yPosition);
     
   const Mat4 invOtherBoardTrans = Mat4::inverse(otherBoardTrans);
-  const Vec2 normOtherBoardPos = ((invOtherBoardTrans * Vec4(normPos,0,1)).xy() + Vec2{1.0f,1.0f}) / 2.0f;
+  const Vec2 normOtherBoardPos = ((invOtherBoardTrans * Vec4(normPos,0.0f,1.0f)).xy() + Vec2{1.0f,1.0f}) / 2.0f;
   
-  if (normOtherBoardPos.x() < 0 || normOtherBoardPos.x() > 1.0 || normOtherBoardPos.y() < 0 || normOtherBoardPos.y() > 1.0) {
+  if (normOtherBoardPos.x < 0 || normOtherBoardPos.x > 1.0 || normOtherBoardPos.y < 0 || normOtherBoardPos.y > 1.0) {
     otherCellPos = Vec2ui(std::numeric_limits<uint32_t>::max(), std::numeric_limits<uint32_t>::max());
   } else {
-    otherCellPos = Vec2ui{std::min(boardSize.x()-1, uint32_t(normOtherBoardPos.x() * boardSize.x())),
-                          std::min(boardSize.y()-1, uint32_t(normOtherBoardPos.y() * boardSize.y()))};
+    otherCellPos = Vec2ui{std::min(boardSize.x-1, uint32_t(normOtherBoardPos.x * boardSize.x)),
+                          std::min(boardSize.y-1, uint32_t(normOtherBoardPos.y * boardSize.y))};
   }
   app->getClient()->aimAt(otherCellPos);
 }
@@ -64,8 +64,8 @@ void MainPhase::mouseButtonInternal(int button, int state, int mods, double xPos
 
   if (button == GLFW_MOUSE_BUTTON_LEFT && state == GLFW_PRESS) {
     if (shotResults.size() == shotsFired.size() &&
-        otherCellPos.x() < boardSize.x() && otherCellPos.y() < boardSize.y() && ! waitingForOther &&
-        Cell::Unknown == otherBoard.getCell(otherCellPos.x(), otherCellPos.y())) {
+        otherCellPos.x < boardSize.x && otherCellPos.y < boardSize.y && ! waitingForOther &&
+        Cell::Unknown == otherBoard.getCell(otherCellPos.x, otherCellPos.y)) {
       shotsFired.push_back(otherCellPos);
       app->getClient()->shootAt(otherCellPos);
     }
@@ -73,12 +73,12 @@ void MainPhase::mouseButtonInternal(int button, int state, int mods, double xPos
 }
 
 void MainPhase::drawBoard(const GameGrid& board, Mat4 boardTrans, Vec2ui aimCoords) {
-  for (uint32_t y = 0; y < boardSize.y(); ++y) {
-    for (uint32_t x = 0; x < boardSize.x(); ++x) {
+  for (uint32_t y = 0; y < boardSize.y; ++y) {
+    for (uint32_t x = 0; x < boardSize.x; ++x) {
       
-      const float tX = (x+0.5f)/boardSize.x()*2.0f-1.0f;
-      const float tY = (y+0.5f)/boardSize.y()*2.0f-1.0f;
-      app->setDrawTransform(Mat4::scaling(0.9f/boardSize.x(),0.9f/boardSize.y(),1.0f) * Mat4::translation(tX,tY,0.0f) * boardTrans);
+      const float tX = (x+0.5f)/boardSize.x*2.0f-1.0f;
+      const float tY = (y+0.5f)/boardSize.y*2.0f-1.0f;
+      app->setDrawTransform(Mat4::scaling(0.9f/boardSize.x,0.9f/boardSize.y,1.0f) * Mat4::translation(tX,tY,0.0f) * boardTrans);
       
       switch (board.getCell(x,y)) {
         case Cell::Unknown :
@@ -100,7 +100,7 @@ void MainPhase::drawBoard(const GameGrid& board, Mat4 boardTrans, Vec2ui aimCoor
           break;
       }
       
-      if (x == aimCoords.x() && y == aimCoords.y())
+      if (x == aimCoords.x && y == aimCoords.y)
         app->drawImage(aimCell);
     }
   }
@@ -129,24 +129,24 @@ void MainPhase::drawBoards() {
 }
 
 void MainPhase::drawRemainingShips(const Vec3& baseTranslation, const std::string text, const std::vector<bool>& ships) {
-  const Vec2 spacing{0.85f/boardSize.x(), 1.2f/boardSize.y()};
+  const Vec2 spacing{0.85f/boardSize.x, 1.2f/boardSize.y};
   
   const float maxBlockX = float(ShipPlacement::getLongestShipLength());
   const float maxBlockY = float(ShipPlacement::completePlacement.size());
 
-  app->fe->render(text, app->getAspect(), 0.025f, {baseTranslation.x(), baseTranslation.y()}, Alignment::Center);
+  app->fe->render(text, app->getAspect(), 0.025f, {baseTranslation.x, baseTranslation.y}, Alignment::Center);
   
-  Mat4  trans = Mat4::translation(baseTranslation + Vec3{-(spacing.x()*maxBlockX)/2.0f,-0.07f,0.0f});
-  const Mat4 blockScale = Mat4::scaling(2.0f/(maxBlockY*boardSize.x()),2.0f/(maxBlockY*boardSize.y()),1.0f);
+  Mat4  trans = Mat4::translation(baseTranslation + Vec3{-(spacing.x*maxBlockX)/2.0f,-0.07f,0.0f});
+  const Mat4 blockScale = Mat4::scaling(2.0f/(maxBlockY*boardSize.x),2.0f/(maxBlockY*boardSize.y),1.0f);
   for (size_t i = 0;i<ShipPlacement::completePlacement.size();++i ) {
     const ShipSize s = ShipPlacement::completePlacement[i];
     const uint32_t blockCount{uint32_t(s)};
     for (uint32_t j = 0;j<blockCount;++j) {
-      app->setDrawTransform(blockScale * trans * Mat4::translation({ ((maxBlockX-blockCount)/2.0f + j+0.5f)*spacing.x(),0.0f,0.0f}) * app->computeImageTransform({1,1}) );
+      app->setDrawTransform(blockScale * trans * Mat4::translation({ ((maxBlockX-blockCount)/2.0f + j+0.5f)*spacing.x,0.0f,0.0f}) * app->computeImageTransform({1,1}) );
       app->drawImage(shipCell);
       if (!ships[i]) app->drawImage(shotCell);
     }
-    trans = trans * Mat4::translation({0.0f,-spacing.y(),0.0f});
+    trans = trans * Mat4::translation({0.0f,-spacing.y,0.0f});
   }
 }
 
@@ -178,8 +178,8 @@ void MainPhase::animateInternal(double animationTime) {
   if (newShotsReceived.size() > shotsReceived.size() && otherRound <= myRound) {
     Vec2ui newShot = newShotsReceived[shotsReceived.size()];
     
-    const bool hit = Cell::Ship == myBoard.getCell(newShot.x(), newShot.y()) ||
-                     Cell::ShipShot == myBoard.getCell(newShot.x(), newShot.y());
+    const bool hit = Cell::Ship == myBoard.getCell(newShot.x, newShot.y) ||
+                     Cell::ShipShot == myBoard.getCell(newShot.x, newShot.y);
     
     ShotResult result = ShotResult::MISS;
     if (hit) {

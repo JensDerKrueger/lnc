@@ -13,9 +13,9 @@ public:
   {}
 
   Quaternion(const Vec3 v, float w):
-    x(v.x()),
-    y(v.y()),
-    z(v.z()),
+    x(v.x),
+    y(v.y),
+    z(v.z),
     w(w)
   {}
 

@@ -33,7 +33,7 @@ void TextPhase::drawInternal() {
   if (!title.empty()) {
     if (backgroundImage) {
       const Vec2 size = app->fe->getSizeFixedWidth(title, app->getAspect(), 0.8f);
-      app->setDrawTransform(Mat4::scaling(1.1f*size.x(), 1.1f*size.y(), 1.0f) * Mat4::translation(Vec3{0.0f, 0.2f, 0.0f}));
+      app->setDrawTransform(Mat4::scaling(1.1f*size.x, 1.1f*size.y, 1.0f) * Mat4::translation(Vec3{0.0f, 0.2f, 0.0f}));
       app->drawRect(Vec4(0,0,0,0.7f));
     }
     app->fe->renderFixedWidth(title, app->getAspect(), 0.8f,  Vec2{0.0f, 0.2f}, Alignment::Center);
@@ -51,10 +51,10 @@ void TextPhase::drawInternal() {
   }
 
   if (backgroundImage) {
-    const Vec2 size = app->fe->getSize(renderText, app->getAspect(), basicSize.y());
-    app->setDrawTransform(Mat4::scaling(1.1f*size.x(), 1.1f*size.y(), 1.0f) * Mat4::translation(Vec3{shift.x(), shift.y(), 0.0f}));
+    const Vec2 size = app->fe->getSize(renderText, app->getAspect(), basicSize.y);
+    app->setDrawTransform(Mat4::scaling(1.1f*size.x, 1.1f*size.y, 1.0f) * Mat4::translation(Vec3{shift.x, shift.y, 0.0f}));
     app->drawRect(Vec4(0,0,0,0.7f));
   }
   
-  app->fe->render(renderText, app->getAspect(), basicSize.y(), shift, Alignment::Center);
+  app->fe->render(renderText, app->getAspect(), basicSize.y, shift, Alignment::Center);
 }

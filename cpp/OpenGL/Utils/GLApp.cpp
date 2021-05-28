@@ -444,18 +444,18 @@ void GLApp::setImageFilter(GLint magFilter, GLint minFilter) {
 
 void GLApp::drawImage(const GLTexture2D& image, const Vec2& bl, const Vec2& tr) {
   drawImage(image,
-            {bl.x(),bl.y(),0.0f},
-            {tr.x(),bl.y(),0.0f},
-            {bl.x(),tr.y(),0.0f},
-            {tr.x(),tr.y(),0.0f});
+            {bl.x,bl.y,0.0f},
+            {tr.x,bl.y,0.0f},
+            {bl.x,tr.y,0.0f},
+            {tr.x,tr.y,0.0f});
 }
 
 void GLApp::drawImage(const Image& image, const Vec2& bl, const Vec2& tr) {
     drawImage(image,
-              {bl.x(),bl.y(),0.0f},
-              {tr.x(),bl.y(),0.0f},
-              {bl.x(),tr.y(),0.0f},
-              {tr.x(),tr.y(),0.0f});
+              {bl.x,bl.y,0.0f},
+              {tr.x,bl.y,0.0f},
+              {bl.x,tr.y,0.0f},
+              {tr.x,tr.y,0.0f});
 }
 
 
@@ -496,10 +496,10 @@ void GLApp::drawImage(const Image& image, const Vec3& bl,
 
 void GLApp::drawRect(const Vec4& color, const Vec2& bl, const Vec2& tr) {
   drawRect(color,
-            {bl.x(),bl.y(),0.0f},
-            {tr.x(),bl.y(),0.0f},
-            {bl.x(),tr.y(),0.0f},
-            {tr.x(),tr.y(),0.0f});
+            {bl.x,bl.y,0.0f},
+            {tr.x,bl.y,0.0f},
+            {bl.x,tr.y,0.0f},
+            {tr.x,tr.y,0.0f});
 }
 
 void GLApp::drawRect(const Vec4& color, const Vec3& bl, const Vec3& br,
@@ -509,8 +509,8 @@ void GLApp::drawRect(const Vec4& color, const Vec3& bl, const Vec3& br,
 
 Mat4 GLApp::computeImageTransform(const Vec2ui& imageSize) const {
   const Dimensions s = glEnv.getWindowSize();
-  const float ax = imageSize.x()/float(s.width);
-  const float ay = imageSize.y()/float(s.height);
+  const float ax = imageSize.x/float(s.width);
+  const float ay = imageSize.y/float(s.height);
   const float m = std::max(ax,ay);
   return Mat4::scaling({ax/m, ay/m, 1.0f});
 }
@@ -519,8 +519,8 @@ Mat4 GLApp::computeImageTransformFixedHeight(const Vec2ui& imageSize,
                                              float height,
                                              const Vec3& center) const {
   const Dimensions s = glEnv.getWindowSize();
-  const float ax = imageSize.x()/float(s.width);
-  const float ay = imageSize.y()/float(s.height);
+  const float ax = imageSize.x/float(s.width);
+  const float ay = imageSize.y/float(s.height);
   return Mat4::scaling({height*ax/ay, height, 1.0f}) *
          Mat4::translation(center);
 }
@@ -529,8 +529,8 @@ Mat4 GLApp::computeImageTransformFixedWidth(const Vec2ui& imageSize,
                                             float width,
                                             const Vec3& center) const {
   const Dimensions s = glEnv.getWindowSize();
-  const float ax = imageSize.x()/float(s.width);
-  const float ay = imageSize.y()/float(s.height);
+  const float ax = imageSize.x/float(s.width);
+  const float ay = imageSize.y/float(s.height);
   return Mat4::scaling({width, width*ay/ax, 1.0f}) *
          Mat4::translation(center);
 }

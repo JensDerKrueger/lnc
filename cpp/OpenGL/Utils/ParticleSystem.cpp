@@ -1,6 +1,7 @@
 #include "ParticleSystem.h"
 #include "Rand.h"
 #include "Vec2.h"
+#include "ColorConversion.h"
 
 ParticleSystem::ParticleSystem(	uint32_t particleCount, std::shared_ptr<StartVolume> starter,
 								const Vec3& initialSpeedMin, const Vec3& initialSpeedMax, 
@@ -142,27 +143,27 @@ void Particle::update(float deltaT) {
 	
     if (grid) {
         
-        const Vec2 posOverGrid{(nextPosition.x()-minPos.x())/(maxPos.x()-minPos.x()),
-                               (nextPosition.z()-minPos.z())/(maxPos.z()-minPos.z())};
+        const Vec2 posOverGrid{(nextPosition.x-minPos.x)/(maxPos.x-minPos.x),
+                               (nextPosition.z-minPos.z)/(maxPos.z-minPos.z)};
         
         const float gridHeight = grid->sample(posOverGrid);
         
         if (bounce) {
-            if (nextPosition.x() < minPos.x() || nextPosition.x() > maxPos.x())
+            if (nextPosition.x < minPos.x || nextPosition.x > maxPos.x)
                 direction = direction * Vec3(-0.5f,0.0f,0.0f);
-            if (nextPosition.y() < gridHeight || nextPosition.y() > maxPos.y())
+            if (nextPosition.y < gridHeight || nextPosition.y > maxPos.y)
                 direction = direction * Vec3(0.0f,-0.5f,0.0f);
-            if (nextPosition.z() < minPos.z() || nextPosition.z() > maxPos.z())
+            if (nextPosition.z < minPos.z || nextPosition.z > maxPos.z)
                 direction = direction * Vec3(0.0f,0.0f,-0.5f);
             nextPosition = position + direction*deltaT;
         } else {
 			const float reduceAir = 0.999f;
 			const float reduceHit = 0.4f;
-			if (nextPosition.x() < minPos.x() || nextPosition.x() > maxPos.x() ||
-                nextPosition.y() < gridHeight || nextPosition.y() > maxPos.y() ||
-                nextPosition.z() < minPos.z() || nextPosition.z() > maxPos.z()) {
+			if (nextPosition.x < minPos.x || nextPosition.x > maxPos.x ||
+                nextPosition.y < gridHeight || nextPosition.y > maxPos.y ||
+                nextPosition.z < minPos.z || nextPosition.z > maxPos.z) {
 
-				Vec3 n = grid->normal(posOverGrid);
+        Vec3 n = grid->normal(posOverGrid);
 				direction = (Vec3::reflect(direction, n))*reduceHit;
 				nextPosition = position + direction * deltaT;
 				
@@ -171,17 +172,17 @@ void Particle::update(float deltaT) {
         }
     } else {
         if (bounce) {
-            if (nextPosition.x() < minPos.x() || nextPosition.x() > maxPos.x())
+            if (nextPosition.x < minPos.x || nextPosition.x > maxPos.x)
                 direction = direction * Vec3(-0.5f,0.0f,0.0f);
-            if (nextPosition.y() < minPos.y() || nextPosition.y() > maxPos.y())
+            if (nextPosition.y < minPos.y || nextPosition.y > maxPos.y)
                 direction = direction * Vec3(0.0f,-0.5f,0.0f);
-            if (nextPosition.z() < minPos.z() || nextPosition.z() > maxPos.z())
+            if (nextPosition.z < minPos.z || nextPosition.z > maxPos.z)
                 direction = direction * Vec3(0.0f,0.0f,-0.5f);
             nextPosition = position + direction*deltaT;
         } else {
-            if (nextPosition.x() < minPos.x() || nextPosition.x() > maxPos.x() ||
-                nextPosition.y() < minPos.y() || nextPosition.y() > maxPos.y() ||
-                nextPosition.z() < minPos.z() || nextPosition.z() > maxPos.z()) {
+            if (nextPosition.x < minPos.x || nextPosition.x > maxPos.x ||
+                nextPosition.y < minPos.y || nextPosition.y > maxPos.y ||
+                nextPosition.z < minPos.z || nextPosition.z > maxPos.z) {
                 direction = Vec3(0,0,0);
                 acceleration = Vec3(0,0,0);
                 nextPosition = position;
@@ -193,9 +194,9 @@ void Particle::update(float deltaT) {
 }
 	
 std::vector<float> Particle::getData() const {
-	Vec3 c = color == RAINBOW_COLOR ? Vec3::hsvToRgb({age*100,1.0,1.0}) : color;
-	//return {position.x(), position.y(), position.z(), c.x(), c.y(), c.z(), opacity*((maxAge-age)/maxAge)};
-	return { position.x(), position.y(), position.z(), c.x(), c.y(), c.z(), opacity  };
+	Vec3 c = color == RAINBOW_COLOR ? ColorConversion::hsvToRgb({age*100,1.0,1.0}) : color;
+	//return {position.x, position.y, position.z, c.x, c.y, c.z, opacity*((maxAge-age)/maxAge)};
+	return { position.x, position.y, position.z, c.x, c.y, c.z, opacity  };
 }
 
 void Particle::restart(const Vec3& position, const Vec3& direction, const Vec3& acceleration, const Vec3& color, float opacity, float maxAge) {	

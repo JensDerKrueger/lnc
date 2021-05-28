@@ -17,6 +17,7 @@ typedef std::chrono::high_resolution_clock Clock;
 #include <Vec3.h>
 #include <Mat4.h>
 #include <Rand.h>
+#include <ColorConversion.h>
 
 #include "Octree.h"
 
@@ -42,11 +43,11 @@ public:
             floatParticleData[j*7+1] = data[i+1];
             floatParticleData[j*7+2] = data[i+2];
             
-            Vec3 c = color == RAINBOW_COLOR ? Vec3::hsvToRgb({float(i)/data.size()*360,1.0,1.0}) : computeColor(color);
+            Vec3 c = color == RAINBOW_COLOR ? ColorConversion::hsvToRgb({float(i)/data.size()*360,1.0,1.0}) : computeColor(color);
             
-            floatParticleData[j*7+3] = c.x();
-            floatParticleData[j*7+4] = c.y();
-            floatParticleData[j*7+5] = c.z();
+            floatParticleData[j*7+3] = c.x;
+            floatParticleData[j*7+4] = c.y;
+            floatParticleData[j*7+5] = c.z;
             floatParticleData[j*7+6] = 1.0f;
             j+=1;
         }
@@ -55,15 +56,15 @@ public:
     void setData(const std::vector<Vec3> data) {
         floatParticleData.resize(data.size()*7);
         for (size_t i = 0;i<data.size();++i) {
-            floatParticleData[i*7+0] = data[i].x();
-            floatParticleData[i*7+1] = data[i].y();
-            floatParticleData[i*7+2] = data[i].z();
+            floatParticleData[i*7+0] = data[i].x;
+            floatParticleData[i*7+1] = data[i].y;
+            floatParticleData[i*7+2] = data[i].z;
             
-            Vec3 c = color == RAINBOW_COLOR ? Vec3::hsvToRgb({float(i)/data.size()*360,1.0,1.0}) : computeColor(color);
+            Vec3 c = color == RAINBOW_COLOR ? ColorConversion::hsvToRgb({float(i)/data.size()*360,1.0,1.0}) : computeColor(color);
             
-            floatParticleData[i*7+3] = c.x();
-            floatParticleData[i*7+4] = c.y();
-            floatParticleData[i*7+5] = c.z();
+            floatParticleData[i*7+3] = c.x;
+            floatParticleData[i*7+4] = c.y;
+            floatParticleData[i*7+5] = c.z;
             floatParticleData[i*7+6] = 1.0f;
         }
     }

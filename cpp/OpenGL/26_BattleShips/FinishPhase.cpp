@@ -22,12 +22,12 @@ void FinishPhase::prepare(const GameGrid& my, const GameGrid& other, const std::
 }
 
 void FinishPhase::drawBoard(const GameGrid& board, Mat4 boardTrans) {
-  for (uint32_t y = 0; y < boardSize.y(); ++y) {
-    for (uint32_t x = 0; x < boardSize.x(); ++x) {
+  for (uint32_t y = 0; y < boardSize.y; ++y) {
+    for (uint32_t x = 0; x < boardSize.x; ++x) {
       
-      float tX = (x+0.5f)/boardSize.x()*2.0f-1.0f;
-      float tY = (y+0.5f)/boardSize.y()*2.0f-1.0f;
-      app->setDrawTransform(Mat4::scaling(0.9f/boardSize.x(),0.9f/boardSize.y(),1.0f) * Mat4::translation(tX,tY,0.0f) * boardTrans);
+      float tX = (x+0.5f)/boardSize.x*2.0f-1.0f;
+      float tY = (y+0.5f)/boardSize.y*2.0f-1.0f;
+      app->setDrawTransform(Mat4::scaling(0.9f/boardSize.x,0.9f/boardSize.y,1.0f) * Mat4::translation(tX,tY,0.0f) * boardTrans);
       
       switch (board.getCell(x,y)) {
         case Cell::Unknown :
@@ -70,7 +70,7 @@ void FinishPhase::drawInternal() {
   drawBoard(otherBoard, otherBoardTrans);
   
   const Vec2 size = app->fe->getSizeFixedWidth(title, app->getAspect(), 0.8f);
-  app->setDrawTransform(Mat4::scaling(1.1f*size.x(), 1.1f*size.y(), 1.0f));
+  app->setDrawTransform(Mat4::scaling(1.1f*size.x, 1.1f*size.y, 1.0f));
   app->drawRect(Vec4(0,0,0,0.7f));
   app->fe->renderFixedWidth(title, app->getAspect(), 0.8f, {}, Alignment::Center);
 }

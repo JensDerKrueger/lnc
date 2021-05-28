@@ -33,8 +33,8 @@ Quaternion ArcBall::drag(const Vec2ui& position) {
 Vec3 ArcBall::mapToSphere(const Vec2ui& position) const {
   // normalize position to [-1 ... 1]
   const Vec2 normPosition {
-      -((2.0f * position.x() / float(winDim.x() - 1) ) - 1.0f),
-       ((2.0f * position.y() / float(winDim.y() - 1) ) - 1.0f)
+      -((2.0f * position.x / float(winDim.x - 1) ) - 1.0f),
+       ((2.0f * position.y / float(winDim.y - 1) ) - 1.0f)
   };
 
   // compute the length of the vector to the point from the center
@@ -46,10 +46,10 @@ Vec3 ArcBall::mapToSphere(const Vec2ui& position) const {
     const float norm = float(radius / length);
 
     // return the "normalized" vector, a point on the sphere
-    return {normPosition.x() * norm, normPosition.y() * norm, 0.0f};
+    return {normPosition.x * norm, normPosition.y * norm, 0.0f};
   } else {   // else it's inside
     // return a vector to a point mapped inside the sphere
-    return {normPosition.x(), normPosition.y(), length-radius};
+    return {normPosition.x, normPosition.y, length-radius};
   }
 }
 

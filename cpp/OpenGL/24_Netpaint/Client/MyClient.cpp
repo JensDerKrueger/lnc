@@ -1,5 +1,7 @@
 #include "MyClient.h"
 
+#include <ColorConversion.h>
+
 #ifndef _WIN32
   #include "helvetica_neue.inc"
   FontRenderer MyClient::fr{fontImage, fontPos};
@@ -12,7 +14,7 @@
 MyClient::MyClient(const std::string& address, uint16_t port, const std::string& name) :
   Client{address, port , "", 5000},
   name{name},
-  color{Vec3::hsvToRgb({360*Rand::rand01(),0.5f,1.0f}), 1.0f}
+  color{ColorConversion::hsvToRgb({360*Rand::rand01(),0.5f,1.0f}), 1.0f}
 {
 }
 
@@ -97,8 +99,8 @@ void MyClient::handleServerMessage(const std::string& m) {
       }
       case MessageType::CanvasUpdateMessage : {
         CanvasUpdateMessage l(message);
-        const Vec2 normPos{(l.pos.x()/float(canvasDims.width)-0.5f) * 2.0f,
-                           (l.pos.y()/float(canvasDims.height)-0.5f) * 2.0f};
+        const Vec2 normPos{(l.pos.x/float(canvasDims.width)-0.5f) * 2.0f,
+                           (l.pos.y/float(canvasDims.height)-0.5f) * 2.0f};
         moveMouse(l.userID, normPos);
         paint(l.color, l.pos);
         break;
@@ -176,8 +178,8 @@ void MyClient::setColor(const Vec4& color) {
 }
 
 void MyClient::paint(const Vec4& color, const Vec2i& pos) {
-  if (pos.x() < 0 || uint32_t(pos.x()) >= canvasDims.width) return;
-  if (pos.y() < 0 || uint32_t(pos.y()) >= canvasDims.height) return;
+  if (pos.x < 0 || uint32_t(pos.x) >= canvasDims.width) return;
+  if (pos.y < 0 || uint32_t(pos.y) >= canvasDims.height) return;
     
   paintQueue.push({color,pos});
 }

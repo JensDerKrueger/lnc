@@ -86,7 +86,7 @@ float Grid2D::getValue(size_t x, size_t y) const {
 
 
 float Grid2D::sample(const Vec2& pos) const  {
-    return sample(pos.x(), pos.y());
+    return sample(pos.x, pos.y);
 }
 
 float Grid2D::sample(float x, float y) const {
@@ -104,17 +104,16 @@ float Grid2D::sample(float x, float y) const {
     Vec2ui c{uint32_t(floorf(sx)),uint32_t(ceilf(sy))};
     Vec2ui d{uint32_t(ceilf(sx)),uint32_t(ceilf(sy))};
     
-    float va = getValue(a.x(), a.y());
-    float vb = getValue(b.x(), b.y());
-    float vc = getValue(c.x(), c.y());
-    float vd = getValue(d.x(), d.y());
+    float va = getValue(a.x, a.y);
+    float vb = getValue(b.x, b.y);
+    float vc = getValue(c.x, c.y);
+    float vd = getValue(d.x, d.y);
     
     return (va * (1.0f-alpha) + vb * alpha) * (1.0f-beta) + (vc * (1.0f-alpha) + vd * alpha) * beta;
 }
 
-
 Vec3 Grid2D::normal(const Vec2& pos) const {
-    return normal(pos.x(), pos.y());
+    return normal(pos.x, pos.y);
 }
 
 Vec3 Grid2D::normal(float x, float y) const {
@@ -129,10 +128,10 @@ Vec3 Grid2D::normal(float x, float y) const {
     Vec2ui c{ uint32_t(floorf(sx)),uint32_t(ceilf(sy)) };
     Vec2ui d{ uint32_t(ceilf(sx)),uint32_t(ceilf(sy)) };
 
-    float va = getValue(a.x(), a.y());
-    float vb = getValue(b.x(), b.y());
-    float vc = getValue(c.x(), c.y());
-    float vd = getValue(d.x(), d.y());
+    float va = getValue(a.x, a.y);
+    float vb = getValue(b.x, b.y);
+    float vc = getValue(c.x, c.y);
+    float vd = getValue(d.x, d.y);
 
     Vec3 n1 = Vec3::cross(Vec3(1.0f/width,(vb-va), 0.0f), Vec3(0.0f,(vc-va), 1.0f/height ));
     Vec3 n2 = Vec3::cross(Vec3(-1.0f/width,(vc - vd), 0.0f), Vec3(0.0f, (vb - vd), -1.0f/height));
@@ -385,8 +384,8 @@ static const float INV = std::numeric_limits<float>::max();
 static const Vec2ui NO_POS{std::numeric_limits<uint32_t>::max(),
                     std::numeric_limits<uint32_t>::max()};
 static float dist(size_t x, size_t y, const Vec2ui& p) {
-  return sqrtf( (x-float(p.x()))*(x-float(p.x())) + 
-                (y-float(p.y()))*(y-float(p.y())));
+  return sqrtf( (x-float(p.x))*(x-float(p.x)) +
+                (y-float(p.y))*(y-float(p.y)));
 }
 
 Grid2D Grid2D::toSignedDistance(float threshold) const {

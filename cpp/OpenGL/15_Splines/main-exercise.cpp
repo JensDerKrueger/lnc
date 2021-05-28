@@ -74,10 +74,10 @@ public:
       2,-2, 1, 1
     };
     drawPolySegment(p0,p1,m0,m1,g,color);
-    drawPoints({p0.x(),p0.y(),0,1,0,0,1,
-               p0.x()+m0.x(),p0.y()+m0.y(),0,0,0,1,1,
-               p1.x()+m1.x(),p1.y()-m1.y(),0,0,0,1,1,
-               p1.x(),p1.y(),0,1,0,0,1}, 20, true);
+    drawPoints({p0.x,p0.y,0,1,0,0,1,
+               p0.x+m0.x,p0.y+m0.y,0,0,0,1,1,
+               p1.x+m1.x,p1.y-m1.y,0,0,0,1,1,
+               p1.x,p1.y,0,1,0,0,1}, 20, true);
   }
   
   void drawBezierSegmentDeCasteljau(const Vec2& p0, const Vec2& p1, const Vec2& p2, const Vec2& p3, const Vec4& color) {
@@ -92,10 +92,10 @@ public:
      -1, 3,-3, 1
     };
     drawPolySegment(p0,p1,p2,p3,g,color);
-    drawPoints({p0.x(),p0.y(),0,1,0,0,1,
-               p1.x(),p1.y(),0,0,0,1,1,
-               p2.x(),p2.y(),0,0,0,1,1,
-               p3.x(),p3.y(),0,1,0,0,1}, 20, true);
+    drawPoints({p0.x,p0.y,0,1,0,0,1,
+               p1.x,p1.y,0,0,0,1,1,
+               p2.x,p2.y,0,0,0,1,1,
+               p3.x,p3.y,0,1,0,0,1}, 20, true);
   }
   
   void drawBSplineSegment(const Vec2& p0, const Vec2& p1, const Vec2& p2, const Vec2& p3, const Vec4& color) {
@@ -106,10 +106,10 @@ public:
      -1/6.0f, 3/6.0f,-3/6.0f, 1/6.0f
     };
     drawPolySegment(p0,p1,p2,p3,g,color);
-    drawPoints({p0.x(),p0.y(),0,1,0,0,1,
-               p1.x(),p1.y(),0,0,0,1,1,
-               p2.x(),p2.y(),0,0,0,1,1,
-               p3.x(),p3.y(),0,1,0,0,1}, 20, true);
+    drawPoints({p0.x,p0.y,0,1,0,0,1,
+               p1.x,p1.y,0,0,0,1,1,
+               p2.x,p2.y,0,0,0,1,1,
+               p3.x,p3.y,0,1,0,0,1}, 20, true);
   }
   
   

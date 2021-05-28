@@ -24,10 +24,10 @@ release: LFLAGS += -flto
 release: $(TARGET)
 
 ../Utils/libutils.a:
-	cd ../Utils && make
+	cd ../Utils && make $(MAKECMDGOALS)
 
 ../Network/libnetwork.a:
-	cd ../Network && make
+	cd ../Network && make $(MAKECMDGOALS)
 
 $(TARGET): $(OBJ) ../Network/libnetwork.a ../Utils/libutils.a
 	$(CC) $(INCLUDES) $^ $(LFLAGS) $(LIBS) -o $@

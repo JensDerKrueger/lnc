@@ -43,16 +43,16 @@ public:
     if (xPosition < 0 || xPosition > s.width || yPosition < 0 || yPosition > s.height) return;
     imagePos = Vec2ui{uint32_t(float(xPosition)/s.width*distanceImage.width),
                       uint32_t((1.0f-float(yPosition)/s.height)*distanceImage.height)};
-    const float v = data.getValue(imagePos.x(), imagePos.y());
-    data.setValue(imagePos.x(), imagePos.y(), 1.0f);
+    const float v = data.getValue(imagePos.x, imagePos.y);
+    data.setValue(imagePos.x, imagePos.y, 1.0f);
     updateImage();
-    data.setValue(imagePos.x(), imagePos.y(), v);
+    data.setValue(imagePos.x, imagePos.y, v);
   }
     
   virtual void mouseButton(int button, int state, int mods, double xPosition, double yPosition) override {
     if (button == GLFW_MOUSE_BUTTON_LEFT) {
       if (state == GLFW_PRESS) {
-        data.setValue(imagePos.x(), imagePos.y(), 1.0f);
+        data.setValue(imagePos.x, imagePos.y, 1.0f);
         updateImage();
       }
     }

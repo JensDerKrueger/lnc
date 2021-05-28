@@ -43,10 +43,10 @@ std::vector<GLubyte> GradientGenerator::get8BitVector(size_t texSize) const {
             float alpha = (prevIndex == nextIndex) ? 0.5f :  (normIndex-sortedColors[prevIndex].pos)/(sortedColors[nextIndex].pos-sortedColors[prevIndex].pos);
             
             const Vec4 curreColor{prev*(1-alpha)+next*alpha};
-            textureData[p*4+0] = GLubyte(curreColor.r()*255);
-            textureData[p*4+1] = GLubyte(curreColor.g()*255);
-            textureData[p*4+2] = GLubyte(curreColor.b()*255);
-            textureData[p*4+3] = GLubyte(curreColor.a()*255);
+            textureData[p*4+0] = GLubyte(curreColor.r*255);
+            textureData[p*4+1] = GLubyte(curreColor.g*255);
+            textureData[p*4+2] = GLubyte(curreColor.b*255);
+            textureData[p*4+3] = GLubyte(curreColor.a*255);
         }
     }
     

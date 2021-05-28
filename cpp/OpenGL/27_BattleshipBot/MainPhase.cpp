@@ -36,8 +36,8 @@ void MainPhase::run() {
   if (newShotsReceived.size() > shotsReceived.size() && otherRound <= myRound) {
     Vec2ui newShot = newShotsReceived[shotsReceived.size()];
     
-    const bool hit = Cell::Ship == myBoard.getCell(newShot.x(), newShot.y()) ||
-                     Cell::ShipShot == myBoard.getCell(newShot.x(), newShot.y());
+    const bool hit = Cell::Ship == myBoard.getCell(newShot.x, newShot.y) ||
+                     Cell::ShipShot == myBoard.getCell(newShot.x, newShot.y);
     
     ShotResult result = ShotResult::MISS;
     if (hit) {
@@ -51,7 +51,7 @@ void MainPhase::run() {
       otherRound++;
     }
     app->getClient()->sendShotResult(result);
-    myBoard.addShot({newShot.x(), newShot.y()});
+    myBoard.addShot({newShot.x, newShot.y});
     shotsReceived.push_back(newShot);
   }
   
@@ -61,9 +61,9 @@ void MainPhase::run() {
     
     if (newResult == ShotResult::MISS) {
       myRound++;
-      otherBoard.addMiss({pos.x(), pos.y()});
+      otherBoard.addMiss({pos.x, pos.y});
     } else {
-      otherBoard.addHit({pos.x(), pos.y()}, newResult == ShotResult::SUNK);
+      otherBoard.addHit({pos.x, pos.y}, newResult == ShotResult::SUNK);
 
       if (newResult == ShotResult::SUNK) {
         status = Status::SEARCHING;
@@ -90,8 +90,8 @@ void MainPhase::run() {
 }
 
 Vec2ui MainPhase::findNextAim() const {
-  return {uint32_t(alpha * nextShot.x() + (1.0f-alpha) * lastShot.x()),
-          uint32_t(alpha * nextShot.y() + (1.0f-alpha) * lastShot.y())};
+  return {uint32_t(alpha * nextShot.x + (1.0f-alpha) * lastShot.x),
+          uint32_t(alpha * nextShot.y + (1.0f-alpha) * lastShot.y)};
 }
 
 
@@ -103,7 +103,7 @@ void MainPhase::findNextShot() {
     if (Rand::rand01() > 0.7) {
       for (size_t i = 0;i<10;++i) {
         Vec2ui np = app->getRandomNastyPos();
-        if (otherBoard.getCell(np.x(), np.y()) == Cell::Unknown) {
+        if (otherBoard.getCell(np.x, np.y) == Cell::Unknown) {
           nextShot = np;
           return;
         }

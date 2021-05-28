@@ -5,10 +5,10 @@
 #include "Grid2D.h"
 
 Image::Image(const Vec4& color) :
-  Image(1,1,4,{uint8_t(color.x()*255),
-               uint8_t(color.y()*255),
-               uint8_t(color.z()*255),
-               uint8_t(color.w()*255)})
+  Image(1,1,4,{uint8_t(color.x*255),
+               uint8_t(color.y*255),
+               uint8_t(color.z*255),
+               uint8_t(color.w*255)})
 {
 }
 
@@ -36,25 +36,24 @@ Image::Image(uint32_t width,
 void Image::multiply(const Vec4& color) {
   if (componentCount == 4) {
     for (size_t i = 0; i<data.size()/4;i++) {
-      data[i*4+0] = uint8_t(data[i*4+0] * color.x());
-      data[i*4+1] = uint8_t(data[i*4+1] * color.y());
-      data[i*4+2] = uint8_t(data[i*4+2] * color.z());
-      data[i*4+3] = uint8_t(data[i*4+3] * color.w());
+      data[i*4+0] = uint8_t(data[i*4+0] * color.r);
+      data[i*4+1] = uint8_t(data[i*4+1] * color.g);
+      data[i*4+2] = uint8_t(data[i*4+2] * color.b);
+      data[i*4+3] = uint8_t(data[i*4+3] * color.a);
     }
   } else if (componentCount == 3) {
     std::vector<uint8_t> newData((data.size() / 3) * 4);
     
     for (size_t i = 0; i<data.size()/3;i++) {
-      newData[i*4+0] = uint8_t(data[i*3+0] * color.x());
-      newData[i*4+1] = uint8_t(data[i*3+1] * color.y());
-      newData[i*4+2] = uint8_t(data[i*3+2] * color.z());
-      newData[i*4+3] = uint8_t(255 * color.w());
+      newData[i*4+0] = uint8_t(data[i*3+0] * color.r);
+      newData[i*4+1] = uint8_t(data[i*3+1] * color.g);
+      newData[i*4+2] = uint8_t(data[i*3+2] * color.b);
+      newData[i*4+3] = uint8_t(255 * color.a);
     }
     
     data = newData;
     componentCount = 4;
   }
-
 }
 
 void Image::generateAlphaFromLuminance() {
@@ -175,4 +174,84 @@ Image Image::toGrayscale() const {
     }
   }
   return grayScaleImage;
+}
+
+
+Image Image::genTestImage(uint32_t width,
+                          uint32_t height) {
+  
+  const uint32_t partY1 = height/3;
+  const uint32_t partY2 = height*2/3;
+  const uint32_t partX1 = width/3;
+  const uint32_t partX2 = width*2/3;
+  
+  Image result{width,height,4};
+  for (uint32_t y = 0;y<height;++y) {
+    for (uint32_t x = 0;x<width;++x) {
+      if (x<partX2) {
+        uint8_t r = y < partY1;
+        uint8_t g = y >= partY1 && y < partY2;
+        uint8_t b = y >= partY2;
+        if (x>=partX1) {
+          r = 1-r;
+          g = 1-g;
+          b = 1-b;
+        }
+        result.setValue(x,y,0,r*255);
+        result.setValue(x,y,1,g*255);
+        result.setValue(x,y,2,b*255);
+      } else {
+        uint8_t l = uint8_t(255*((y >= partY1)*0.5 + (y >= partY2)*0.5));
+        result.setValue(x,y,0,l);
+        result.setValue(x,y,1,l);
+        result.setValue(x,y,2,l);
+      }
+      result.setValue(x,y,3,255);
+
+      
+    }
+  }
+
+  return result;
+}
+
+uint8_t Image::linear(uint8_t a, uint8_t b, float alpha) const {
+  return a * (1.0f - alpha) + b * alpha;
+}
+
+uint8_t Image::sample(float x, float y, uint32_t component) const {
+  const uint32_t fX = size_t(floor(x * (width-1)));
+  const uint32_t fY = size_t(floor(y * (height-1)));
+  
+  const uint32_t cX = size_t(ceil(x * (width-1)));
+  const uint32_t cY = size_t(ceil(y * (height-1)));
+
+  const std::array<uint8_t, 4> values = {
+    getValue(fX,fY,component),
+    getValue(cX,fY,component),
+    getValue(fX,cY,component),
+    getValue(cX,cY,component)
+  };
+
+  const float alpha = x * (width-1) - fX;
+  const float beta  = y * (height-1) - fY;
+
+  return linear(linear(values[0], values[1], alpha),
+                linear(values[2], values[3], alpha),
+                beta);
+}
+
+Image Image::resample(uint32_t newWidth) const {
+  const uint32_t newHeight = uint32_t(newWidth * float(height)/float(width));
+  Image result{newWidth, newHeight, componentCount};
+
+  for (uint32_t y = 0;y<newHeight;++y) {
+    for (uint32_t x = 0;x<newWidth;++x) {
+      for (uint32_t c = 0;c<componentCount;++c) {
+        result.setValue(x,y,c,sample(x/float(newWidth), y/float(newHeight), c));
+      }
+    }
+  }
+  
+  return result;
 }

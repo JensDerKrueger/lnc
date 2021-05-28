@@ -36,8 +36,8 @@ void BoardPhase::init() {
 std::vector<float> BoardPhase::gridToLines() const {
   std::vector<float> lines;
   
-  const uint32_t w = boardSize.x();
-  const uint32_t h = boardSize.y();
+  const uint32_t w = boardSize.x;
+  const uint32_t h = boardSize.y;
   
   for (uint32_t y = 0;y<h+1;++y) {
     lines.push_back(-1);

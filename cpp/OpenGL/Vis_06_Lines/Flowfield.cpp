@@ -70,13 +70,13 @@ Vec3 Flowfield::linear(const Vec3& a, const Vec3& b, float alpha) {
 }
 
 Vec3 Flowfield::interpolate(const Vec3& pos) {
-  const size_t fX = size_t(floor(pos.x() * (sizeX-1)));
-  const size_t fY = size_t(floor(pos.y() * (sizeY-1)));
-  const size_t fZ = size_t(floor(pos.z() * (sizeZ-1)));
+  const size_t fX = size_t(floor(pos.x * (sizeX-1)));
+  const size_t fY = size_t(floor(pos.y * (sizeY-1)));
+  const size_t fZ = size_t(floor(pos.z * (sizeZ-1)));
   
-  const size_t cX = size_t(ceil(pos.x() * (sizeX-1)));
-  const size_t cY = size_t(ceil(pos.y() * (sizeY-1)));
-  const size_t cZ = size_t(ceil(pos.z() * (sizeZ-1)));
+  const size_t cX = size_t(ceil(pos.x * (sizeX-1)));
+  const size_t cY = size_t(ceil(pos.y * (sizeY-1)));
+  const size_t cZ = size_t(ceil(pos.z * (sizeZ-1)));
 
 
   const std::array<Vec3, 8> values = {
@@ -90,9 +90,9 @@ Vec3 Flowfield::interpolate(const Vec3& pos) {
     getData(cX,cY,cZ)
   };
   
-  const float alpha = pos.x() * (sizeX-1) - fX;
-  const float beta  = pos.y() * (sizeY-1) - fY;
-  const float gamma = pos.z() * (sizeZ-1) - fZ;
+  const float alpha = pos.x * (sizeX-1) - fX;
+  const float beta  = pos.y * (sizeY-1) - fY;
+  const float gamma = pos.z * (sizeZ-1) - fZ;
     
   return linear(linear(linear(values[0], values[1], alpha),
                        linear(values[2], values[3], alpha),

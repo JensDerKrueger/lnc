@@ -38,8 +38,8 @@ public:
     for (size_t i = 0;i<poly.size();++i) {
       const Vec2& start = poly[i];
       const Vec2& end   = poly[(i+1)%poly.size()];
-      if ( (start.y() > point.y()) != (end.y() > point.y()) &&
-           (point.x() > start.x() + (end.x()-start.x()) * (point.y()-start.y())/(end.y()-start.y()))) {
+      if ( (start.y > point.y) != (end.y > point.y) &&
+           (point.x > start.x + (end.x-start.x) * (point.y-start.y)/(end.y-start.y))) {
         test = !test;
       }
     }
@@ -47,7 +47,7 @@ public:
   }
   
   static bool ccw(const Vec2& a, const Vec2& b, const Vec2& c) {
-    return (c.y()-a.y())*(b.x()-a.x()) > (b.y()-a.y())*(c.x()-a.x());
+    return (c.y-a.y)*(b.x-a.x) > (b.y-a.y)*(c.x-a.x);
   }
   
 };
@@ -74,9 +74,9 @@ public:
   }
     
   bool collision(const Vec2& pos) const {
-    Vec4 hPos{pos.x(), pos.y(), 0.0f, 1.0f};
+    Vec4 hPos{pos.x, pos.y, 0.0f, 1.0f};
     hPos = Mat4::inverse(getTransform()) * hPos;
-    return Collision::pointInPolygon(Vec2(hPos.x(),hPos.y()), shape);
+    return Collision::pointInPolygon(Vec2(hPos.x,hPos.y), shape);
   }
 
   void rotate(float angle) {
@@ -93,7 +93,7 @@ public:
   }
   
   virtual Mat4 getTransform() const {
-    return Mat4::rotationZ(rotation)*Mat4::translation(position.x(),position.y(),0.0f)*Mat4::scaling(0.005f);
+    return Mat4::rotationZ(rotation)*Mat4::translation(position.x,position.y,0.0f)*Mat4::scaling(0.005f);
   }
   
   Vec2 getPosition() const {
@@ -129,8 +129,8 @@ protected:
   std::vector<Vec2> getTransformedShape() const {
     std::vector<Vec2> tShape(shape);
     for (size_t i = 0;i<tShape.size();++i) {
-      const Vec4 tPos = getTransform() * Vec4(tShape[i].x(), tShape[i].y(), 0.0f, 1.0f);
-      tShape[i] = Vec2(tPos.x(), tPos.y());
+      const Vec4 tPos = getTransform() * Vec4(tShape[i].x, tShape[i].y, 0.0f, 1.0f);
+      tShape[i] = Vec2(tPos.x, tPos.y);
     }
     return tShape;
   }
@@ -139,14 +139,14 @@ protected:
     std::vector<float> glShape;
     
     for (size_t i = 0;i<pData.size();++i) {
-      glShape.push_back(pData[i].x());
-      glShape.push_back(pData[i].y());
+      glShape.push_back(pData[i].x);
+      glShape.push_back(pData[i].y);
       glShape.push_back(0.0f);
 
-      glShape.push_back(cData[i].x());
-      glShape.push_back(cData[i].y());
-      glShape.push_back(cData[i].z());
-      glShape.push_back(cData[i].w());
+      glShape.push_back(cData[i].x);
+      glShape.push_back(cData[i].y);
+      glShape.push_back(cData[i].z);
+      glShape.push_back(cData[i].w);
     }
     
     app.setDrawTransform(getTransform());
@@ -156,8 +156,8 @@ protected:
   virtual void animateInt(double deltaT, double animationTime) {
     position = position + velocity*float(deltaT);
     velocity = velocity * float(std::pow(1.0f - resistance, deltaT));
-    if (position.x() < -200 || position.x() > 200) position = Vec2(position.x()*-1.0f, position.y());
-    if (position.y() < -200 || position.y() > 200) position = Vec2(position.x(), position.y()*-1.0f);
+    if (position.x < -200 || position.x > 200) position = Vec2(position.x*-1.0f, position.y);
+    if (position.y < -200 || position.y > 200) position = Vec2(position.x, position.y*-1.0f);
   }
   
 };
@@ -264,14 +264,14 @@ public:
       for (size_t i = 0;i<shape.size();++i) {
         const Vec2 point = shape[i] * alpha;
         
-        glShape.push_back(point.x());
-        glShape.push_back(point.y());
+        glShape.push_back(point.x);
+        glShape.push_back(point.y);
         glShape.push_back(0.0f);
         
-        glShape.push_back(colors[i].x());
-        glShape.push_back(colors[i].y());
-        glShape.push_back(colors[i].z());
-        glShape.push_back(colors[i].w());
+        glShape.push_back(colors[i].x);
+        glShape.push_back(colors[i].y);
+        glShape.push_back(colors[i].z);
+        glShape.push_back(colors[i].w);
       }
       
       app.setDrawTransform(getTransform());
@@ -327,23 +327,23 @@ public:
         const Vec2 start = shape[i] * alpha;
         const Vec2 end   = shape[endIndex] + (shape[i] * alpha - shape[i]);
         
-        glShape.push_back(start.x());
-        glShape.push_back(start.y());
+        glShape.push_back(start.x);
+        glShape.push_back(start.y);
         glShape.push_back(0.0f);
         
-        glShape.push_back(colors[i].x());
-        glShape.push_back(colors[i].y());
-        glShape.push_back(colors[i].z());
-        glShape.push_back(colors[i].w());
+        glShape.push_back(colors[i].x);
+        glShape.push_back(colors[i].y);
+        glShape.push_back(colors[i].z);
+        glShape.push_back(colors[i].w);
 
-        glShape.push_back(end.x());
-        glShape.push_back(end.y());
+        glShape.push_back(end.x);
+        glShape.push_back(end.y);
         glShape.push_back(0.0f);
 
-        glShape.push_back(colors[endIndex].x());
-        glShape.push_back(colors[endIndex].y());
-        glShape.push_back(colors[endIndex].z());
-        glShape.push_back(colors[endIndex].w());
+        glShape.push_back(colors[endIndex].x);
+        glShape.push_back(colors[endIndex].y);
+        glShape.push_back(colors[endIndex].z);
+        glShape.push_back(colors[endIndex].w);
 
       }
       

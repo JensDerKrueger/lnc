@@ -140,8 +140,8 @@ struct MousePosMessage : public BasicMessage {
 
   virtual std::string toString() override {
     Encoder e;
-    e.add(mousePos.x());
-    e.add(mousePos.y());
+    e.add(mousePos.x);
+    e.add(mousePos.y);
     return BasicMessage::toString() + e.getEncodedMessage();
   }
 
@@ -175,10 +175,10 @@ struct NewUserMessage : public BasicMessage {
   virtual std::string toString() override {
     Encoder e;
     e.add(name);
-    e.add(color.x());
-    e.add(color.y());
-    e.add(color.z());
-    e.add(color.w());
+    e.add(color.x);
+    e.add(color.y);
+    e.add(color.z);
+    e.add(color.w);
     return BasicMessage::toString() + e.getEncodedMessage();
   }
 };
@@ -256,12 +256,12 @@ struct CanvasUpdateMessage : public BasicMessage {
   
   virtual std::string toString() override {
     Encoder e;
-    e.add(color.x());
-    e.add(color.y());
-    e.add(color.z());
-    e.add(color.w());
-    e.add(pos.x());
-    e.add(pos.y());
+    e.add(color.x);
+    e.add(color.y);
+    e.add(color.z);
+    e.add(color.w);
+    e.add(pos.x);
+    e.add(pos.y);
     return BasicMessage::toString() + e.getEncodedMessage();
   }
 };
@@ -324,12 +324,12 @@ struct InitMessage : public BasicMessage {
     for (size_t i = 0;i<clientInfos.size();++i) {
       e.add(clientInfos[i].id);
       e.add(clientInfos[i].name);
-      e.add(clientInfos[i].color.x());
-      e.add(clientInfos[i].color.y());
-      e.add(clientInfos[i].color.z());
-      e.add(clientInfos[i].color.w());
-      e.add(clientInfos[i].pos.x());
-      e.add(clientInfos[i].pos.y());
+      e.add(clientInfos[i].color.x);
+      e.add(clientInfos[i].color.y);
+      e.add(clientInfos[i].color.z);
+      e.add(clientInfos[i].color.w);
+      e.add(clientInfos[i].pos.x);
+      e.add(clientInfos[i].pos.y);
     }
     return BasicMessage::toString() + e.getEncodedMessage();
   }

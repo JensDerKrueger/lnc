@@ -32,8 +32,8 @@ public:
                    const Mat4& g, float t) {
 
     Vec4 tVec{1,t,t*t,t*t*t};
-    Vec4 pX{p0.x(), p1.x(), p2.x(), p3.x()};
-    Vec4 pY{p0.y(), p1.y(), p2.y(), p3.y()};
+    Vec4 pX{p0.x, p1.x, p2.x, p3.x};
+    Vec4 pY{p0.y, p1.y, p2.y, p3.y};
 
     return {Vec4::dot(tVec, g*pX), Vec4::dot(tVec, g*pY) };
   }
@@ -49,14 +49,14 @@ public:
       // SOLUTION 1:
       Vec2 p = computePoly(p0, p1, p2, p3, g, t);
 
-      curve[i*7+0] = p.x();
-      curve[i*7+1] = p.y();
+      curve[i*7+0] = p.x;
+      curve[i*7+1] = p.y;
       curve[i*7+2] = 0.0f;
 
-      curve[i*7+3] = color.x();
-      curve[i*7+4] = color.y();
-      curve[i*7+5] = color.z();
-      curve[i*7+6] = color.w();
+      curve[i*7+3] = color.x;
+      curve[i*7+4] = color.y;
+      curve[i*7+5] = color.z;
+      curve[i*7+6] = color.w;
     }
     drawLines(curve, LineDrawType::STRIP, 3);
   }
@@ -69,10 +69,10 @@ public:
       2,-2, 1, 1
     };
     drawPolySegment(p0,p1,m0,m1,g,color);
-    drawPoints({p0.x(),p0.y(),0,1,0,0,1,
-               p0.x()+m0.x(),p0.y()+m0.y(),0,0,0,1,1,
-               p1.x()+m1.x(),p1.y()-m1.y(),0,0,0,1,1,
-               p1.x(),p1.y(),0,1,0,0,1}, 20, true);
+    drawPoints({p0.x,p0.y,0,1,0,0,1,
+               p0.x+m0.x,p0.y+m0.y,0,0,0,1,1,
+               p1.x+m1.x,p1.y-m1.y,0,0,0,1,1,
+               p1.x,p1.y,0,1,0,0,1}, 20, true);
   }
 
   Vec2 lerp(const Vec2& a, const Vec2& b, float t) {
@@ -101,14 +101,14 @@ public:
       const float t = float(i) / float(maxLineSegments);
       const Vec2 p = computeDeCasteljau(points, t);
       
-      curve[i * 7 + 0] = p.x();
-      curve[i * 7 + 1] = p.y();
+      curve[i * 7 + 0] = p.x;
+      curve[i * 7 + 1] = p.y;
       curve[i * 7 + 2] = 0.0f;
 
-      curve[i * 7 + 3] = color.x();
-      curve[i * 7 + 4] = color.y();
-      curve[i * 7 + 5] = color.z();
-      curve[i * 7 + 6] = color.w();
+      curve[i * 7 + 3] = color.x;
+      curve[i * 7 + 4] = color.y;
+      curve[i * 7 + 5] = color.z;
+      curve[i * 7 + 6] = color.w;
     }
     drawLines(curve, LineDrawType::STRIP, 3);
   }
@@ -121,10 +121,10 @@ public:
      -1, 3,-3, 1
     };
     drawPolySegment(p0,p1,p2,p3,g,color);
-    drawPoints({p0.x(),p0.y(),0,1,0,0,1,
-               p1.x(),p1.y(),0,0,0,1,1,
-               p2.x(),p2.y(),0,0,0,1,1,
-               p3.x(),p3.y(),0,1,0,0,1}, 20, true);
+    drawPoints({p0.x,p0.y,0,1,0,0,1,
+               p1.x,p1.y,0,0,0,1,1,
+               p2.x,p2.y,0,0,0,1,1,
+               p3.x,p3.y,0,1,0,0,1}, 20, true);
   }
   
   
@@ -136,10 +136,10 @@ public:
      -1/6.0f, 3/6.0f,-3/6.0f, 1/6.0f
     };
     drawPolySegment(p0,p1,p2,p3,g,color);
-    drawPoints({p0.x(),p0.y(),0,1,0,0,1,
-                p1.x(),p1.y(),0,0,0,1,1,
-                p2.x(),p2.y(),0,0,0,1,1,
-                p3.x(),p3.y(),0,1,0,0,1}, 20, true);
+    drawPoints({p0.x,p0.y,0,1,0,0,1,
+                p1.x,p1.y,0,0,0,1,1,
+                p2.x,p2.y,0,0,0,1,1,
+                p3.x,p3.y,0,1,0,0,1}, 20, true);
   }
   
   

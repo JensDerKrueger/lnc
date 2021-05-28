@@ -135,22 +135,22 @@ public:
           l.userID = id;
 
           for (auto& c : clientInfo) {
-            if (c.id == id) c.pos = Vec2(float(l.pos.x()) / image.width, float(l.pos.x()) / image.height);
+            if (c.id == id) c.pos = Vec2(float(l.pos.x) / image.width, float(l.pos.x) / image.height);
           }
 
 
-          if (l.pos.x() < 0 || uint32_t(l.pos.x()) >= image.width) break;
-          if (l.pos.y() < 0 || uint32_t(l.pos.y()) >= image.height) break;
+          if (l.pos.x < 0 || uint32_t(l.pos.x) >= image.width) break;
+          if (l.pos.y < 0 || uint32_t(l.pos.y) >= image.height) break;
           
           if (recordInteraction) {
             recordFile << "paint;" << l.userID << ";" << l.pos << ";" << l.color << "\n";
             recordedEvents++;
           }
           
-          image.setNormalizedValue(l.pos.x(),l.pos.y(),0,l.color.x());
-          image.setNormalizedValue(l.pos.x(),l.pos.y(),1,l.color.y());
-          image.setNormalizedValue(l.pos.x(),l.pos.y(),2,l.color.z());
-          image.setNormalizedValue(l.pos.x(),l.pos.y(),3,l.color.w());
+          image.setNormalizedValue(l.pos.x,l.pos.y,0,l.color.r);
+          image.setNormalizedValue(l.pos.x,l.pos.y,1,l.color.g);
+          image.setNormalizedValue(l.pos.x,l.pos.y,2,l.color.b);
+          image.setNormalizedValue(l.pos.x,l.pos.y,3,l.color.a);
 
           sendMessage(l.toString(), id, true);
           break;

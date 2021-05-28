@@ -24,7 +24,7 @@ struct Volume {
   void normalizeScale() {
     maxSize = std::max(width,std::max(height,depth));
     const Vec3 extend = scale*Vec3{float(width),float(height),float(depth)}/maxSize;
-    const float m = std::max(extend.x(),std::max(extend.y(),extend.z()));
+    const float m = std::max(extend.x,std::max(extend.y,extend.z));
     scale = scale / m;
   }
   
