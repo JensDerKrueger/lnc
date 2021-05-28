@@ -4,13 +4,11 @@
 #include "MosaicMaker.h"
 
 class MyGLApp : public GLApp {
-public:  
-  MosaicMaker mm{"smallImages", "largeImage.bmp", {100,100}, {10,10}};
-  /*
+public:
+//  MosaicMaker mm{"smallImages", "largeImage.bmp", {100,100}, {10,10}};
   MosaicMaker mm{"/Users/lnc/lnc/cpp/OpenGL/34_Mosaic/smallImages",
                  "/Users/lnc/lnc/cpp/OpenGL/34_Mosaic/zapp_girl_small.bmp",
                   {100,100}, {2,2}};
-  */
   FontRenderer fr{"helvetica_neue.bmp", "helvetica_neue.pos"};
   std::shared_ptr<FontEngine> fe{nullptr};
   std::string text;
