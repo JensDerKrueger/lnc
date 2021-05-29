@@ -1,0 +1,2 @@
+﻿  ChatRelayServer.cpp
+C:\programmieren\hans\GtHub\JHKrueger\cpp\OpenGL\29_ChatRelayServer\ChatRelayServer.cpp(95,28): error C4996: 'localtime': This function or variable may be unsafe. Consider using localtime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.

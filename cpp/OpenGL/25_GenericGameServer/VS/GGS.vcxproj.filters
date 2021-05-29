@@ -21,9 +21,15 @@
     <ClCompile Include="..\NetGame.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="..\GGS.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\NetGame.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GGS.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

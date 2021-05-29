@@ -30,4 +30,27 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\backFS.glsl">
+      <Filter>Ressourcendateien</Filter>
+    </None>
+    <None Include="..\cubeVS.glsl">
+      <Filter>Ressourcendateien</Filter>
+    </None>
+    <None Include="..\frontFS.glsl">
+      <Filter>Ressourcendateien</Filter>
+    </None>
+    <None Include="..\bonsai.raw">
+      <Filter>Ressourcendateien</Filter>
+    </None>
+    <None Include="..\Engine.raw">
+      <Filter>Ressourcendateien</Filter>
+    </None>
+    <None Include="..\bonsai.dat">
+      <Filter>Ressourcendateien</Filter>
+    </None>
+    <None Include="..\Engine.dat">
+      <Filter>Ressourcendateien</Filter>
+    </None>
+  </ItemGroup>
 </Project>

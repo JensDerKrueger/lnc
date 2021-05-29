@@ -215,7 +215,6 @@ XCOPY "$(ProjectDir)..\settings.txt" "$(ProjectDir)*.*" /Y</Command>
     <ClCompile Include="..\FinishPhase.cpp" />
     <ClCompile Include="..\GameClient.cpp" />
     <ClCompile Include="..\GameGrid.cpp" />
-    <ClCompile Include="..\GamePhase.cpp" />
     <ClCompile Include="..\InputPhase.cpp" />
     <ClCompile Include="..\main.cpp" />
     <ClCompile Include="..\MainPhase.cpp" />
@@ -236,9 +235,6 @@ XCOPY "$(ProjectDir)..\settings.txt" "$(ProjectDir)*.*" /Y</Command>
     <ClInclude Include="..\MainPhase.h" />
     <ClInclude Include="..\ShipPlacement.h" />
     <ClInclude Include="..\TextPhase.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\Messages.inc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -30,9 +30,6 @@
     <ClCompile Include="..\GameGrid.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="..\GamePhase.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
     <ClCompile Include="..\InputPhase.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
@@ -98,10 +95,5 @@
     <ClInclude Include="..\DialogPhase.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\Messages.inc">
-      <Filter>Headerdateien</Filter>
-    </None>
   </ItemGroup>
 </Project>
