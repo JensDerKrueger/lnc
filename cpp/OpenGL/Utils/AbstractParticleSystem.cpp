@@ -118,7 +118,7 @@ void AbstractParticleSystem::render(const Mat4& v, const Mat4& p) {
     if (getParticleCount() == 0) return;
     
 	prog.enable();
-	prog.setUniform(mvpLocation, v*p);
+	prog.setUniform(mvpLocation, p*v);
     prog.setUniform(ppLocation, Vec2(pointSize,refDepth));
 	prog.setTexture(texLocation, sprite, 0);		
 

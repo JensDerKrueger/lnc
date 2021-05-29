@@ -12,7 +12,7 @@ static std::string fsString{
 "#version 410\n"
 "out vec4 FragColor;\n"
 "void main() {\n"
-"    FragColor = vec4(1.0,1.0,0.0,0.5);\n"
+"    FragColor = vec4(0.3,0.3,0.0,0.5);\n"
 "}\n"};
 
 PlanarMirror::PlanarMirror(const Vec3& a, const Vec3& b, const Vec3& c, const Vec3& d) :

@@ -87,11 +87,11 @@ void MyGLApp::updateMousePos() {
   if (colorChooserMode)
     normPos = (Mat4::inverse(baseTransformation) * Vec4{normPos,0.0f,1.0f}).xy;
   else
-    normPos = (Mat4::inverse(userTransformation*baseTransformation) * Vec4{normPos,0.0f,1.0f}).xy;
+    normPos = (Mat4::inverse(baseTransformation*userTransformation) * Vec4{normPos,0.0f,1.0f}).xy;
 }
 
 void MyGLApp::addTransformation(const Mat4& trafo) {
-  userTransformation = trafo * userTransformation;
+  userTransformation = userTransformation * trafo;
   updateMousePos();
 }
 
@@ -164,9 +164,9 @@ void MyGLApp::mouseWheel(double x_offset, double y_offset, double xPosition, dou
     value = std::clamp<float>(value + float(y_offset)/wheelScale, 0.0f, 1.0);
     fillHSVImage();
   } else {
-    addTransformation(Mat4::translation(-normPos.x, -normPos.y, 0) *
+    addTransformation(Mat4::translation(normPos.x, normPos.y, 0)*
                       Mat4::scaling(1.0f+float(y_offset)/wheelScale) *
-                      Mat4::translation(normPos.x, normPos.y, 0));
+                      Mat4::translation(-normPos.x, -normPos.y, 0));
   }
 }
 
@@ -265,14 +265,15 @@ void MyGLApp::draw() {
       } else if (addressComplete && userName.empty()) {
         responseImage = MyClient::fr.render("Type in your name:");
       }
-      setDrawTransform(Mat4::scaling(1.0f/3.0f) * computeImageTransform({responseImage.width, responseImage.height}) );
+      setDrawTransform(computeImageTransform({responseImage.width, responseImage.height}) * Mat4::scaling(1.0f/3.0f)  );
       drawImage(responseImage);
       return;
     }
   }
   
   if (!client->isValid()) {
-    setDrawTransform(Mat4::scaling(connectingImage[currentImage].width / (connectingImage[0].width * 2.0f)) * computeImageTransform({connectingImage[currentImage].width, connectingImage[currentImage].height}) );
+    setDrawTransform(computeImageTransform({connectingImage[currentImage].width, connectingImage[currentImage].height}) *
+                     Mat4::scaling(connectingImage[currentImage].width / (connectingImage[0].width * 2.0f)));
     drawImage(connectingImage[currentImage]);
     return;
   }
@@ -298,7 +299,7 @@ void MyGLApp::draw() {
   client->unlockData();
   baseTransformation = computeImageTransform(imageSize);
   
-  setDrawTransform(userTransformation*baseTransformation);
+  setDrawTransform(baseTransformation*userTransformation);
   setImageFilter(GL_NEAREST,GL_NEAREST);
   client->lockData();
 
@@ -333,7 +334,12 @@ void MyGLApp::draw() {
   
   if (showLabel) {
     for (const ClientInfoClientSide& m : others) {
-      setDrawTransform( Mat4::translation(1.0f, 1.0f, 0.0f) * Mat4::scaling(1/10.0f) * computeImageTransform({m.image.width, m.image.height}) * Mat4::translation(m.pos.x, m.pos.y, 0.0f) * userTransformation * baseTransformation );
+      setDrawTransform(baseTransformation *
+                       userTransformation *
+                       Mat4::translation(m.pos.x, m.pos.y, 0.0f) *
+                       computeImageTransform({m.image.width, m.image.height})*
+                       Mat4::scaling(1/10.0f) *
+                       Mat4::translation(1.0f, 1.0f, 0.0f));
       drawImage(m.image);
     }
   }
@@ -342,7 +348,7 @@ void MyGLApp::draw() {
   glShape.clear();
   glShape.push_back(normPos.x); glShape.push_back(normPos.y); glShape.push_back(0.0f);
   glShape.push_back(color.r); glShape.push_back(color.g); glShape.push_back(color.b);  glShape.push_back(color.a);
-  setDrawTransform(userTransformation*baseTransformation);
+  setDrawTransform(baseTransformation*userTransformation);
   
   setPointTexture(cursorShape);
   setPointHighlightTexture(cursorHighlight);

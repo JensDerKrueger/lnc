@@ -1,4 +1,4 @@
-#define showOctree
+//#define showOctree
 //#define only2D
 
 #include <thread>
@@ -257,12 +257,12 @@ int main(int argc, char ** argv) {
         simplePS.setPointSize(dim.height/150.0f);
 #else
         const Mat4 p{Mat4::perspective(6.0f, dim.aspect(), 0.0001f, 1000.0f)};
-        const Mat4 m{Mat4::rotationY(45*float(glfwGetTime())/2.0f)*Mat4::rotationX(30*float(glfwGetTime())/2.0f)};
+        const Mat4 m{Mat4::rotationX(30*float(glfwGetTime())/2.0f)*Mat4::rotationY(45*float(glfwGetTime())/2.0f)};
         simplePS.setPointSize(dim.height/80.0f);
 #endif
         const Mat4 v{Mat4::lookAt(lookFromVec,lookAtVec,upVec)};
 
-        simplePS.render(m*v,p);
+        simplePS.render(v*m,p);
 
 #ifdef showOctree
         if (fixedParticles.size() < particleCount) {
@@ -274,7 +274,7 @@ int main(int argc, char ** argv) {
             
             octreeFaceArray.bind();
             prog.enable();
-            prog.setUniform(mvpLocation, m*v*p);
+            prog.setUniform(mvpLocation, p*v*m);
             glDrawArrays(GL_TRIANGLES, 0, GLsizei(trisVertexCount));
 
             octreeLineArray.bind();

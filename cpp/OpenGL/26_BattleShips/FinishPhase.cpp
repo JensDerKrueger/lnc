@@ -9,14 +9,14 @@ terminate{false}
 {
 }
 
-void FinishPhase::prepare(const GameGrid& my, const GameGrid& other, const std::string& enc, size_t status) {  
+void FinishPhase::prepare(const GameGrid& my, const GameGrid& other, const std::string& enc, size_t status) {
   verification = Verification::Unknown;
-  terminate = false;  
+  terminate = false;
   myBoard = my;
   otherBoard = other;
   encOtherBoard = enc;
   
-  title = (status == 1) ? "You win" : "You loose";  
+  title = (status == 1) ? "You win" : "You loose";
   homeTitle = homeTitles[size_t(Rand::rand01() * homeTitles.size())];
   guestTitle = guestTitles[size_t(Rand::rand01() * guestTitles.size())];
 }
@@ -27,7 +27,9 @@ void FinishPhase::drawBoard(const GameGrid& board, Mat4 boardTrans) {
       
       float tX = (x+0.5f)/boardSize.x*2.0f-1.0f;
       float tY = (y+0.5f)/boardSize.y*2.0f-1.0f;
-      app->setDrawTransform(Mat4::scaling(0.9f/boardSize.x,0.9f/boardSize.y,1.0f) * Mat4::translation(tX,tY,0.0f) * boardTrans);
+      app->setDrawTransform(boardTrans *
+                            Mat4::translation(tX,tY,0.0f) *
+                            Mat4::scaling(0.9f/boardSize.x,0.9f/boardSize.y,1.0f));
       
       switch (board.getCell(x,y)) {
         case Cell::Unknown :
@@ -59,12 +61,12 @@ void FinishPhase::drawInternal() {
   app->fe->render(guestTitle, app->getAspect(), 0.1f, {0.5f,0.8f}, Alignment::Center);
   app->fe->render(homeTitle, app->getAspect(), 0.1f, {-0.5f,0.8f}, Alignment::Center);
 
-  Mat4 myBoardTrans = app->computeImageTransform(boardSize) * Mat4::scaling(0.6f) * Mat4::translation(-0.5f,0.0f,0.0f);
+  Mat4 myBoardTrans = Mat4::translation(-0.5f,0.0f,0.0f) * Mat4::scaling(0.6f) * app->computeImageTransform(boardSize);
   app->setDrawTransform(myBoardTrans);
   app->drawLines(gridLines, LineDrawType::LIST, 3);
   drawBoard(myBoard, myBoardTrans);
 
-  Mat4 otherBoardTrans = app->computeImageTransform(boardSize) * Mat4::scaling(0.6f) * Mat4::translation(0.5f,0.0f,0.0f);
+  Mat4 otherBoardTrans =  Mat4::translation(0.5f,0.0f,0.0f) * Mat4::scaling(0.6f) * app->computeImageTransform(boardSize);
   app->setDrawTransform(otherBoardTrans);
   app->drawLines(gridLines, LineDrawType::LIST, 3);
   drawBoard(otherBoard, otherBoardTrans);

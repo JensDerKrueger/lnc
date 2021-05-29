@@ -37,7 +37,7 @@ std::string BitMatcher::intToBin(uint8_t number) const {
 }
 
 void BitMatcher::drawNumber(const std::string& title, uint8_t number, const Vec2& offset) {
-  setDrawTransform(Mat4::scaling(0.3f,0.5f,1.0f) * Mat4::translation(offset.x, offset.y, 0.0f));
+  setDrawTransform(Mat4::translation(offset.x, offset.y, 0.0f) * Mat4::scaling(0.3f,0.5f,1.0f));
   drawRect({0.0f,0.0f,0.2f,1.0f});
     
   fe->render(title, getAspect(), 0.1f, {offset.x, offset.y + 0.35f}, Alignment::Center);
@@ -58,7 +58,7 @@ void BitMatcher::drawCountdown(const Vec2& offset) {
   const float alpha = client.countdown/float(client.challangeLength);
   const Vec4 color = Vec4{0.0f,0.2f,0.0f,1.0f} * alpha + Vec4{1.0f,0.0f,0.0f,1.0f} * (1.0f-alpha);
   
-  setDrawTransform(Mat4::scaling(0.3f,0.35f,1.0f) * Mat4::translation(offset.x, offset.y+0.05f, 0.0f));
+  setDrawTransform(Mat4::translation(offset.x, offset.y+0.05f, 0.0f) * Mat4::scaling(0.3f,0.35f,1.0f));
   drawRect(color);
 
   fe->render("Time Remaining", getAspect(), 0.05f, {offset.x,offset.y+0.3f}, Alignment::Center);
@@ -66,7 +66,7 @@ void BitMatcher::drawCountdown(const Vec2& offset) {
 }
 
 void BitMatcher::drawHighscore(const Vec2& offset) {
-  setDrawTransform(Mat4::scaling(0.4f,0.35f,1.0f) * Mat4::translation(offset.x, offset.y+0.05f, 0.0f));
+  setDrawTransform(Mat4::translation(offset.x, offset.y+0.05f, 0.0f) * Mat4::scaling(0.4f,0.35f,1.0f));
   drawRect({0.0f,0.2f,0.0f,1.0f});
     
   fe->render("Highscore", getAspect(), 0.05f, {offset.x,offset.y+0.3f}, Alignment::Center);
@@ -126,7 +126,7 @@ void OverlayImage::animate(double animationTime) {
 
 void OverlayImage::draw() {
   const Vec2 size = app->fe->getSize(text, app->getAspect(), 0.05f);
-  app->setDrawTransform(Mat4::scaling(1.1f*size.x, 1.1f*size.y, 1.0f) * Mat4::translation(Vec3{position.x,position.y, 0.0f}));
+  app->setDrawTransform(Mat4::translation(Vec3{position.x,position.y, 0.0f}) * Mat4::scaling(1.1f*size.x, 1.1f*size.y, 1.0f));
   app->drawRect(Vec4(color, alpha));
 
   app->fe->render(text, app->getAspect(), 0.05f,  position, Alignment::Center, Vec4(1.0f,1.0f,1.0f,alpha));

@@ -11,8 +11,8 @@ public:
   GLIPApp() : GLApp(512, 512, 4, "Raycaster") {}
 
   virtual void animate(double animationTime) override {
-    const Mat4 m{Mat4::scaling(volumeExtend) * rotation };
-    mvp = m * v * p;
+    const Mat4 m{ rotation * Mat4::scaling(volumeExtend)};
+    mvp = p * v * m;
   }
   
   virtual void init() override {
@@ -115,7 +115,7 @@ public:
     if (leftMouseDown) {
       const Quaternion q = arcball.drag({uint32_t(xPosition),uint32_t(yPosition)});
       arcball.click({uint32_t(xPosition),uint32_t(yPosition)});
-      rotation = rotation * q.computeRotation();
+      rotation = q.computeRotation() * rotation;
     }
   }
   

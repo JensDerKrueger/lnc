@@ -45,7 +45,8 @@ void InputPhase::drawInternal() {
   if (!title.empty()) {
     if (backgroundImage) {
       const Vec2 size = app->fe->getSizeFixedWidth(title, app->getAspect(), 0.6f);
-      app->setDrawTransform(Mat4::scaling(1.1f*size.x, 1.1f*size.y, 1.0f) * Mat4::translation(Vec3{0.0f, 0.8f, 0.0f}));
+      app->setDrawTransform(Mat4::translation(Vec3{0.0f, 0.8f, 0.0f}) *
+                            Mat4::scaling(1.1f*size.x, 1.1f*size.y, 1.0f) );
       app->drawRect(Vec4(0,0,0,0.7f));
     }
     app->fe->renderFixedWidth(title, app->getAspect(), 0.6f, {0.0f, 0.8f}, Alignment::Center);
@@ -53,7 +54,8 @@ void InputPhase::drawInternal() {
 
   Vec2 promptSize = app->fe->getSizeFixedWidth(prompt, app->getAspect(), 0.4f);
   if (backgroundImage) {
-    app->setDrawTransform(Mat4::scaling(promptSize.x+0.01f, 1.1f*promptSize.y, 1.0f) * Mat4::translation(Vec3{0.0f, 0.2f, 0.0f}));
+    app->setDrawTransform(Mat4::translation(Vec3{0.0f, 0.2f, 0.0f}) *
+                          Mat4::scaling(promptSize.x+0.01f, 1.1f*promptSize.y, 1.0f));
     app->drawRect(Vec4(0,0,0,0.7f));
   }
   app->fe->renderFixedWidth(prompt, app->getAspect(), 0.4f, {0.0f, 0.2f}, Alignment::Center);
@@ -67,7 +69,8 @@ void InputPhase::drawInternal() {
     }
 
     if (backgroundImage) {
-      app->setDrawTransform(Mat4::scaling(size.x+0.01f, 1.1f*size.y, 1.0f) * Mat4::translation(Vec3{0.0f, -0.2f, 0.0f}));
+      app->setDrawTransform(Mat4::translation(Vec3{0.0f, -0.2f, 0.0f}) *
+                            Mat4::scaling(size.x+0.01f, 1.1f*size.y, 1.0f));
       app->drawRect(Vec4(0,0,0,0.7f));
     }
     app->fe->render(userInput, app->getAspect(), promptSize.y, {0.0f, -0.2f}, Alignment::Center);

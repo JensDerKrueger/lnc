@@ -234,11 +234,13 @@ void ChatOfLife::animate(double animationTime) {
   current = 1-current;
   
   const Dimensions s = glEnv.getWindowSize();
-  m = Mat4{Mat4::translation({0.0f, 0.0f, 0.8f})*Mat4::rotationX(float(animationTime*15))*
-           Mat4::translation({0.8f, 0.0f, 0.0f})*Mat4::rotationY(float(animationTime*4))};
+  m = Mat4::rotationY(float(animationTime*4)) *
+      Mat4::translation({0.8f, 0.0f, 0.0f}) *
+      Mat4::rotationX(float(animationTime*15)) *
+      Mat4::translation({0.0f, 0.0f, 0.8f});
   const Mat4 v{Mat4::lookAt({0, 0, 5}, {0, 0, 0}, {0, 1, 0})};
   const Mat4 p{Mat4::perspective(45, s.aspect(), 0.0001f, 100)};
-  mvp = m*v*p;
+  mvp = p*v*m;
   
   lightPos = {Mat4::rotationY(float(animationTime*55))*Vec3{0, 0, 1}};
   

@@ -225,13 +225,14 @@ void FontEngine::render(const std::string& text, float winAspect,
   
   for (char c : text) {
     if (activeFontMap.find(c) == activeFontMap.end()) c = '_';
-    activeShader.setUniform("MVP", scale * activeFontMap[c].scale * Mat4::translation(height*activeFontMap[c].width/winAspect,
-                        height*(activeFontMap[c].height-1.0f),
-                        0.0f) * trans);
-
+    activeShader.setUniform("MVP",
+                            trans *
+                            Mat4::translation(height*activeFontMap[c].width/winAspect,height*(activeFontMap[c].height-1.0f),0.0f) *
+                            activeFontMap[c].scale *
+                            scale);
     activeShader.setTexture("raster",activeFontMap[c].tex,0);
     GL(glDrawArrays(GL_TRIANGLES, 0, GLsizei(6)));
-    trans = trans * Mat4::translation(2.0f*height*activeFontMap[c].width/winAspect,0.0f,0.0f);
+    trans = Mat4::translation(2.0f*height*activeFontMap[c].width/winAspect,0.0f,0.0f) * trans;
   }
 }
 
@@ -301,12 +302,14 @@ void FontEngine::renderFixedWidth(const std::string& text, float winAspect, floa
   
   for (char c : text) {
     if (chars.find(c) == chars.end()) c = '_';
-    simpleProg.setUniform("MVP", scale * chars[c].scale * Mat4::translation(width*chars[c].width/totalWidth,
-                        width/totalWidth*winAspect*(chars[c].height-1.0f),
-                        0.0f) * trans);
+    simpleProg.setUniform("MVP", trans *
+                          Mat4::translation(width*chars[c].width/totalWidth, width/totalWidth*winAspect*(chars[c].height-1.0f),0.0f) *
+                          chars[c].scale *
+                          scale);
+
     simpleProg.setTexture("raster",chars[c].tex,0);
     GL(glDrawArrays(GL_TRIANGLES, 0, GLsizei(6)));
-    trans = trans * Mat4::translation(2.0f* width*chars[c].width/totalWidth,0.0f,0.0f);
+    trans = Mat4::translation(2.0f* width*chars[c].width/totalWidth,0.0f,0.0f) * trans;
   }
 }
 

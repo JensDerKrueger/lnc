@@ -78,7 +78,9 @@ void MainPhase::drawBoard(const GameGrid& board, Mat4 boardTrans, Vec2ui aimCoor
       
       const float tX = (x+0.5f)/boardSize.x*2.0f-1.0f;
       const float tY = (y+0.5f)/boardSize.y*2.0f-1.0f;
-      app->setDrawTransform(Mat4::scaling(0.9f/boardSize.x,0.9f/boardSize.y,1.0f) * Mat4::translation(tX,tY,0.0f) * boardTrans);
+      app->setDrawTransform(boardTrans *
+                            Mat4::translation(tX,tY,0.0f) *
+                            Mat4::scaling(0.9f/boardSize.x,0.9f/boardSize.y,1.0f));
       
       switch (board.getCell(x,y)) {
         case Cell::Unknown :
@@ -117,12 +119,12 @@ void MainPhase::drawBoards() {
   app->fe->render(guestTitle, app->getAspect(), 0.07f, {0.5f,0.7f}, Alignment::Center);
   app->fe->render(homeTitle, app->getAspect(), 0.07f, {-0.5f,0.7f}, Alignment::Center);
 
-  const Mat4 myBoardTrans = app->computeImageTransform(boardSize) * Mat4::scaling(0.6f) * Mat4::translation(-0.5f,0.0f,0.0f);
+  const Mat4 myBoardTrans = Mat4::translation(-0.5f,0.0f,0.0f) * Mat4::scaling(0.6f) * app->computeImageTransform(boardSize);
   app->setDrawTransform(myBoardTrans);
   app->drawLines(gridLines, LineDrawType::LIST, 3);
   drawBoard(myBoard, myBoardTrans, app->getClient()->getAim());
   
-  otherBoardTrans = app->computeImageTransform(boardSize) * Mat4::scaling(0.6f) * Mat4::translation(0.5f,0.0f,0.0f);
+  otherBoardTrans = Mat4::translation(0.5f,0.0f,0.0f) * Mat4::scaling(0.6f) * app->computeImageTransform(boardSize);
   app->setDrawTransform(otherBoardTrans);
   app->drawLines(gridLines, LineDrawType::LIST, 3);
   drawBoard(otherBoard, otherBoardTrans, otherCellPos);
@@ -142,11 +144,14 @@ void MainPhase::drawRemainingShips(const Vec3& baseTranslation, const std::strin
     const ShipSize s = ShipPlacement::completePlacement[i];
     const uint32_t blockCount{uint32_t(s)};
     for (uint32_t j = 0;j<blockCount;++j) {
-      app->setDrawTransform(blockScale * trans * Mat4::translation({ ((maxBlockX-blockCount)/2.0f + j+0.5f)*spacing.x,0.0f,0.0f}) * app->computeImageTransform({1,1}) );
+      app->setDrawTransform(app->computeImageTransform({1,1}) *
+                            Mat4::translation({ ((maxBlockX-blockCount)/2.0f + j+0.5f)*spacing.x,0.0f,0.0f}) *
+                            trans *
+                            blockScale);
       app->drawImage(shipCell);
       if (!ships[i]) app->drawImage(shotCell);
     }
-    trans = trans * Mat4::translation({0.0f,-spacing.y,0.0f});
+    trans = Mat4::translation({0.0f,-spacing.y,0.0f}) * trans;
   }
 }
 

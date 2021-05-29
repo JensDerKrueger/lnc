@@ -571,21 +571,21 @@ void render() {
   if (!autoRotation) glfwSetTime(stopT);
   const float animationTime = glfwGetTime();
   
-  const Mat4 m{Mat4::rotationX(animationTime*157)*Mat4::rotationY(animationTime*47)};
+  const Mat4 m{Mat4::rotationY(animationTime*47)*Mat4::rotationX(animationTime*157)};
 
   switch (renderMode) {
     case RENDER_MODE::STANDARD: {
       const Mat4 v{ Mat4::lookAt({ 0, 0, zoom }, { 0, 0, 0 }, { 0, 1, 0 })};
       const Mat4 p{ Mat4::perspective(45, dim.aspect(), 0.1, 100) };
-      renderInternal(dim, Mat4{ m * v * p });
+      renderInternal(dim, Mat4{ p*v*m });
       break;
     }
     case RENDER_MODE::ANAGLYPH: {
       const StereoMatrices sm = Mat4::stereoLookAtAndProjection({ 0, 0, zoom }, { 0, 0, 0 }, { 0, 1, 0 },
                                                                 45, dim.aspect(), 0.1, 100, focalDistance,
                                                                 eyeDistance);
-      renderInternal(dim, Mat4{ m * sm.leftView * sm.leftProj }, leftEyeTexture);
-      renderInternal(dim, Mat4{ m * sm.rightView * sm.rightProj }, rightEyeTexture);
+      renderInternal(dim, Mat4{ sm.leftProj * sm.leftView * m }, leftEyeTexture);
+      renderInternal(dim, Mat4{ sm.rightProj * sm.rightView * m }, rightEyeTexture);
 
       composeStereoImages();
       break;

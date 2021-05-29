@@ -69,7 +69,7 @@ void BoardSetupPhase::drawInternal() {
   app->fe->render("Position Your Fleet (Hit R to rotate / hit U to undo placement)", app->getAspect(), 0.05f, {0.0f,0.9f}, Alignment::Center);
   app->fe->render("You are battling " + app->getOtherName(), app->getAspect(), 0.05f, {0.0f,-0.9f}, Alignment::Center);
 
-  myBoardTrans = app->computeImageTransform(boardSize) * Mat4::scaling(0.8f);
+  myBoardTrans = Mat4::scaling(0.8f) * app->computeImageTransform(boardSize);
 
   app->setDrawTransform(myBoardTrans);
   app->drawLines(gridLines, LineDrawType::LIST, 3);
@@ -84,8 +84,9 @@ void BoardSetupPhase::drawInternal() {
       float tX = (x+0.5f)/boardSize.x*2.0f-1.0f;
       float tY = (y+0.5f)/boardSize.y*2.0f-1.0f;
 
-      app->setDrawTransform(Mat4::scaling(0.9f/boardSize.x,0.9f/boardSize.y,1.0f) *
-                            Mat4::translation(tX,tY,0.0f) * myBoardTrans);
+      app->setDrawTransform(myBoardTrans *
+                            Mat4::translation(tX,tY,0.0f) *
+                            Mat4::scaling(0.9f/boardSize.x,0.9f/boardSize.y,1.0f));
       app->drawImage(emptyCell);
     }
   }
@@ -100,8 +101,9 @@ void BoardSetupPhase::drawInternal() {
         float tX = (x+0.5f)/boardSize.x*2.0f-1.0f;
         float tY = (y+0.5f)/boardSize.y*2.0f-1.0f;
 
-        app->setDrawTransform(Mat4::scaling(1.0f/boardSize.x,1.0f/boardSize.y,1.0f) *
-                              Mat4::translation(tX,tY,0.0f) * myBoardTrans);
+        app->setDrawTransform(myBoardTrans *
+                              Mat4::translation(tX,tY,0.0f)  *
+                              Mat4::scaling(1.0f/boardSize.x,1.0f/boardSize.y,1.0f));
         app->drawImage(shipCell);
       }
     }

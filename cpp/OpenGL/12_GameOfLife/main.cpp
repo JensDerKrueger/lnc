@@ -153,10 +153,13 @@ void renderTorus() {
   GL(glEnable(GL_DEPTH_TEST));
 
   const float t0 = glfwGetTime()/5.0;
-  const Mat4 m{Mat4::translation({0.0f, 0.0f, 0.8f})*Mat4::rotationX(t0*157)*Mat4::translation({0.8f, 0.0f, 0.0f})*Mat4::rotationY(t0*47)};
+  const Mat4 m{Mat4::rotationY(t0*47)*
+               Mat4::translation({0.8f, 0.0f, 0.0f})*
+               Mat4::rotationX(t0*157)*
+               Mat4::translation({0.0f, 0.0f, 0.8f})};
   const Mat4 v{Mat4::lookAt({0, 0, 5}, {0, 0, 0}, {0, 1, 0})};
   const Mat4 p{Mat4::perspective(45, dim.aspect(), 0.0001, 100)};
-  const Mat4 mvp{m*v*p};
+  const Mat4 mvp{p*v*m};
 
   progTorus.enable();
   progTorus.setUniform(progTorus.getUniformLocation("MVP"), mvp);

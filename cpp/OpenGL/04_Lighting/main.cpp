@@ -59,24 +59,28 @@ int main(int argc, char ** argv) {
     glClearDepth(1.0f);
     glClearColor(0.5f, 0.5f, 1.0f, 1.0f);
     do {  
-        const Dimensions dim{gl.getFramebufferSize()};
-    
-        glViewport(0, 0, dim.width, dim.height);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    
-        const Mat4 m{Mat4::translation({0.0f,0.0f,0.2f})*Mat4::rotationX(glfwGetTime()*57)*Mat4::translation({0.2f,0.0f,0.0f})*Mat4::rotationY(glfwGetTime()*177)};
-        const Mat4 v{Mat4::lookAt({0,0,2},{0,0,0},{0,1,0})};
-        const Mat4 p{Mat4::perspective(90, dim.aspect(), 0.0001, 100)};
-        const Mat4 mvp{m*v*p};    
-        prog.enable();
-        prog.setUniform(mvpLocation, mvp);
-        prog.setUniform(mLocation, m);
-        prog.setUniform(mitLocation, Mat4::inverse(m), true);
-        prog.setUniform(lpLocation, {0,1,1});
-                
-        glDrawElements(GL_TRIANGLES, sphere.getIndices().size(), GL_UNSIGNED_INT, (void*)0);
+      const Dimensions dim{gl.getFramebufferSize()};
+  
+      glViewport(0, 0, dim.width, dim.height);
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        gl.endOfFrame();
+      const Mat4 m{Mat4::rotationY(glfwGetTime()*177)*
+                   Mat4::translation({0.2f,0.0f,0.0f})*
+                   Mat4::rotationX(glfwGetTime()*57)*
+                   Mat4::translation({0.0f,0.0f,0.2f})};
+      const Mat4 v{Mat4::lookAt({0,0,2},{0,0,0},{0,1,0})};
+      const Mat4 p{Mat4::perspective(90, dim.aspect(), 0.0001, 100)};
+      const Mat4 mvp{p*v*m};
+    
+      prog.enable();
+      prog.setUniform(mvpLocation, mvp);
+      prog.setUniform(mLocation, m);
+      prog.setUniform(mitLocation, Mat4::inverse(m), true);
+      prog.setUniform(lpLocation, {0,1,1});
+              
+      glDrawElements(GL_TRIANGLES, sphere.getIndices().size(), GL_UNSIGNED_INT, (void*)0);
+
+      gl.endOfFrame();
     } while (!gl.shouldClose());  
   
     return EXIT_SUCCESS;

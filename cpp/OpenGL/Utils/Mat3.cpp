@@ -80,16 +80,18 @@ Mat3 Mat3::operator/ ( float scalar ) const {
               e[8]/scalar};
 }
 
+
 Mat3 Mat3::operator * ( const Mat3& other ) const {
 	Mat3 result;
 	for (int x = 0;x<9;x+=3)
 		for (int y = 0;y<3;y++)
-			result.e[x+y] = other.e[0+x] * e[0+y]+
-                      other.e[1+x] * e[3+y]+
-                      other.e[2+x] * e[6+y];
+			result.e[x+y] = e[0+x] * other.e[0+y]+
+                      e[1+x] * other.e[3+y]+
+                      e[2+x] * other.e[6+y];
 	return result;
 }
 
+ 
 Vec3 Mat3::operator * ( const Vec3& other ) const {
 	return Vec3{(other.x*e[0]+other.y*e[1]+other.z*e[2]),
               (other.x*e[3]+other.y*e[4]+other.z*e[5]),

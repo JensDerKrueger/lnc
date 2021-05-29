@@ -23,10 +23,10 @@ void QVis::load(const std::string& filename) {
     QVisDatLine l{line};
     
     if (l.id == "objectfilename") {
-      if (std::string(p.parent_path().string()).empty())
+      if (p.parent_path().string().empty())
         rawFilename = l.value;
       else
-        rawFilename = std::string(p.parent_path().string()) + "/" + l.value;
+        rawFilename = p.parent_path().string() + "/" + l.value;
     } else if (l.id == "resolution") {
       std::vector<std::string> t = tokenize(l.value);
       if (t.size() != 3) throw QVisFileException{"invalid resolution tag"};

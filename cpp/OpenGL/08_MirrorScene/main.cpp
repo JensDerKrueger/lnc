@@ -21,83 +21,83 @@ bool showFresnelFrame{false};
 bool animate = true;
 float t0{0.0f};
 float viewAngle{0.0f};
-  
+
 static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {  
-    if (key == GLFW_KEY_LEFT && action == GLFW_REPEAT)
-        viewAngle -= 1.0f;
+  if (key == GLFW_KEY_LEFT && action == GLFW_REPEAT)
+    viewAngle -= 1.0f;
 
-    if (key == GLFW_KEY_RIGHT && action == GLFW_REPEAT)
-        viewAngle += 1.0f;
+  if (key == GLFW_KEY_RIGHT && action == GLFW_REPEAT)
+    viewAngle += 1.0f;
 
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, GL_TRUE);
+  if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+    glfwSetWindowShouldClose(window, GL_TRUE);
 
-    if (key == GLFW_KEY_F && action == GLFW_PRESS) {
-        showFresnelFrame = !showFresnelFrame;
-        scene->setShowFresnelFrame(showFresnelFrame);
+  if (key == GLFW_KEY_F && action == GLFW_PRESS) {
+    showFresnelFrame = !showFresnelFrame;
+    scene->setShowFresnelFrame(showFresnelFrame);
+  }
+      
+  if (key == GLFW_KEY_B && action == GLFW_PRESS) {
+    bounce = !bounce;
+    scene->setParticleBounce(bounce);
+  }
+
+  if (key == GLFW_KEY_C && action == GLFW_PRESS) {
+    currentColor = (currentColor + 1)%colors.size();
+    scene->setParticleColors(colors[currentColor]);
+  }
+
+  if (key == GLFW_KEY_G && action == GLFW_PRESS) {
+    currentAcceleration = (currentAcceleration + 1)%accelerations.size();
+    scene->setParticleAcceleration(accelerations[currentAcceleration]);
+  }
+
+  if (key == GLFW_KEY_A && action == GLFW_PRESS) {
+    currentAge = (currentAge + 1)%ages.size();
+    scene->setParticleMaxAge(ages[currentAge]);
+  }
+
+  if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
+    animate = !animate;
+    if (animate) {
+        glfwSetTime(t0);
     }
-        
-    if (key == GLFW_KEY_B && action == GLFW_PRESS) {
-        bounce = !bounce;
-        scene->setParticleBounce(bounce);
-    }
-
-    if (key == GLFW_KEY_C && action == GLFW_PRESS) {
-        currentColor = (currentColor + 1)%colors.size();
-        scene->setParticleColors(colors[currentColor]);
-    }
-
-    if (key == GLFW_KEY_G && action == GLFW_PRESS) {
-        currentAcceleration = (currentAcceleration + 1)%accelerations.size();
-        scene->setParticleAcceleration(accelerations[currentAcceleration]);
-    }
-
-    if (key == GLFW_KEY_A && action == GLFW_PRESS) {
-        currentAge = (currentAge + 1)%ages.size();
-        scene->setParticleMaxAge(ages[currentAge]);        
-    }
-
-    if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
-        animate = !animate;
-        if (animate) {
-            glfwSetTime(t0);
-        }
-    }
+  }
 } 
 
 int main(int argc, char ** argv) {
-    GLEnv gl{640,480,4,"Interactive Late Night Coding Teil 9", true, true, 4, 1, true};
-    gl.setKeyCallback(keyCallback);
+  GLEnv gl{640,480,4,"Interactive Late Night Coding Teil 9", true, true, 4, 1, true};
+  gl.setKeyCallback(keyCallback);
 
-    scene = std::make_unique<Scene>();
+  scene = std::make_unique<Scene>();
 
-    // setup basic OpenGL states that do not change during the frame
-    glEnable(GL_CULL_FACE);
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);    
-    glClearDepth(1.0f);
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        
-    glfwSetTime(0);    
-    
-    do {                
-        const Vec3 lookFromVec{Mat4::rotationY(viewAngle)*Vec3{0,0,5}};
-        const Vec3 lookAtVec{0,0,0};
-        const Vec3 upVec{0,1,0};
-        const Mat4 v{Mat4::lookAt(lookFromVec,lookAtVec,upVec)};
-        
-        // setup viewport and clear buffers
-        const Dimensions dim{gl.getFramebufferSize()};    
-        glViewport(0, 0, dim.width, dim.height);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        const Mat4 p{Mat4::perspective(45, dim.aspect(), 0.0001, 100)};
-
-        scene->render(t0, v, p, dim);
-
-        gl.endOfFrame();        
-        float t1 = glfwGetTime();
-        if (animate) t0 = t1;
-    } while (!gl.shouldClose());  
+  // setup basic OpenGL states that do not change during the frame
+  glEnable(GL_CULL_FACE);
+  glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_LESS);
+  glClearDepth(1.0f);
+  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+      
+  glfwSetTime(0);
   
-    return EXIT_SUCCESS;
+  do {
+    const Vec3 lookFromVec{Mat4::rotationY(viewAngle)*Vec3{0,0,5}};
+    const Vec3 lookAtVec{0,0,0};
+    const Vec3 upVec{0,1,0};
+    const Mat4 v{Mat4::lookAt(lookFromVec,lookAtVec,upVec)};
+    
+    // setup viewport and clear buffers
+    const Dimensions dim{gl.getFramebufferSize()};
+    glViewport(0, 0, dim.width, dim.height);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    const Mat4 p{Mat4::perspective(45, dim.aspect(), 0.0001, 100)};
+
+    scene->render(t0, v, p, dim);
+
+    gl.endOfFrame();
+    float t1 = glfwGetTime();
+    if (animate) t0 = t1;
+  } while (!gl.shouldClose());
+
+  return EXIT_SUCCESS;
 }  

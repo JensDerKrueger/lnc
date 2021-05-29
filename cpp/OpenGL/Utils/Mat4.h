@@ -71,7 +71,6 @@ private:
   std::array<float, 16> e;
   
   static float deg2Rad(const float d);
-  
 };
 
 struct StereoMatrices {

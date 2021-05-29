@@ -64,10 +64,16 @@ public:
     setDrawTransform(windowScale);
     drawImage(background);
 
-    setDrawTransform(Mat4::scaling(0.2f) * Mat4::translation(-0.5f,-0.5f, -0.5f) * Mat4::rotationZ(-angle*3) * windowScale);
+    setDrawTransform(windowScale *
+                     Mat4::rotationZ(-angle*3)  *
+                     Mat4::translation(-0.5f,-0.5f, -0.5f) *
+                     Mat4::scaling(0.2f));
     drawImage(rectGreen);
 
-    setDrawTransform(Mat4::scaling(0.2f) * Mat4::translation( 0.5f, 0.5f, -0.6f) * Mat4::rotationZ(angle*2) * windowScale);
+    setDrawTransform(windowScale *
+                     Mat4::rotationZ(angle*2) *
+                     Mat4::translation( 0.5f, 0.5f, -0.6f) *
+                     Mat4::scaling(0.2f));
     drawImage(rectRed);
   }
 

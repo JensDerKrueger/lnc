@@ -262,7 +262,7 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 	
 	progBackground.enable();
 	progBackground.setUniform(lpLocationBackground, lightPos);
-	progBackground.setUniform(mvpLocationBackground, m*v*p);
+	progBackground.setUniform(mvpLocationBackground, p*v*m);
 	progBackground.setUniform(mLocationBackground, m);
 	progBackground.setUniform(mitLocationBackground, Mat4::inverse(m), true);
 	progBackground.setUniform(invVLocationBackground, Mat4::inverse(v)); 
@@ -274,7 +274,7 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 	pillarArray.bind();
 	progNormalMap.enable();	
 	m = Mat4{Mat4::translation(Vec3{float(width())/2.0f+0.5f,0,-20.0f })};
-	progNormalMap.setUniform(mvpLocationNormalMap, m*v*p);
+	progNormalMap.setUniform(mvpLocationNormalMap, p*v*m);
 	progNormalMap.setUniform(mLocationNormalMap, m);
 	progNormalMap.setUniform(mitLocationNormalMap, Mat4::inverse(m), true);
 	progNormalMap.setUniform(invVLocationNormalMap, Mat4::inverse(v)); 
@@ -286,7 +286,7 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 	glDrawElements(GL_TRIANGLES, GLsizei(brick.getIndices().size()), GL_UNSIGNED_INT, (void*)0);
 
 	m = Mat4::translation(Vec3{-(float(width())/2.0f+0.5f),0,-20.0f });
-	progNormalMap.setUniform(mvpLocationNormalMap, m*v*p);
+	progNormalMap.setUniform(mvpLocationNormalMap, p*v*m);
 	progNormalMap.setUniform(mLocationNormalMap, m);
 	progNormalMap.setUniform(mitLocationNormalMap, Mat4::inverse(m), true);
 	progNormalMap.setUniform(invVLocationNormalMap, Mat4::inverse(v)); 
@@ -309,7 +309,7 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 			if (c.r < 0) continue; // empty spaces
 			
 			const Mat4 m{Mat4::translation(pos2Coord(Vec2(x,y), 20.0f))};
-			progBrick.setUniform(mvpLocationBrick, m*v*p);
+			progBrick.setUniform(mvpLocationBrick, p*v*m);
 			progBrick.setUniform(mLocationBrick, m);
 			progBrick.setUniform(mitLocationBrick, Mat4::inverse(m), true);			
 			progBrick.setUniform(colorBrickLocation, c);
@@ -319,7 +319,7 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 	
 	for (const Vec2& pos : activeTetrominoPos) {
 		const Mat4 m{Mat4::translation(pos2Coord(pos, 20.0f))};
-		progBrick.setUniform(mvpLocationBrick, m*v*p);
+		progBrick.setUniform(mvpLocationBrick, p*v*m);
 		progBrick.setUniform(mLocationBrick, m);
 		progBrick.setUniform(mitLocationBrick, Mat4::inverse(m), true);			
 		progBrick.setUniform(colorBrickLocation, activeTetrominoColor);
@@ -330,7 +330,7 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
     
 		for (const Vec2i& pos : nextTetrominoPos) {
 			const Mat4 m{Mat4::translation(pos2Coord(Vec2(pos+Vec2i(13,17)), 20.0f))};
-			progBrick.setUniform(mvpLocationBrick, m*v*p);
+			progBrick.setUniform(mvpLocationBrick, p*v*m);
 			progBrick.setUniform(mLocationBrick, m);
 			progBrick.setUniform(mitLocationBrick, Mat4::inverse(m), true);			
 			progBrick.setUniform(colorBrickLocation, nextColor);
@@ -346,7 +346,7 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 			
 		for (const Vec2i& pos : targetTetrominoPos) {
 			const Mat4 m{Mat4::translation(pos2Coord(Vec2(pos), 20.0f))};
-			progBrick.setUniform(mvpLocationBrick, m*v*p);
+			progBrick.setUniform(mvpLocationBrick, p*v*m);
 			progBrick.setUniform(mLocationBrick, m);
 			progBrick.setUniform(mitLocationBrick, Mat4::inverse(m), true);			
 			progBrick.setUniform(colorBrickLocation, currentColor);
@@ -363,9 +363,9 @@ void OpenGLRenderer::render(const std::array<Vec2i,4>& tetrominoPos, const Vec3&
 	particleSystem.update(time);
   
   if (gameOver) {
-    m = Mat4::translation(Vec3{-0.5,-0.5,0})*Mat4::scaling(2,2,0);
+    m = Mat4::scaling(2,2,0) * Mat4::translation(Vec3{-0.5,-0.5,0});
     scoreParticleSystem.setPointSize(dim.height/10.0f);
-    scoreParticleSystem.render(m*v,p);
+    scoreParticleSystem.render(v*m,p);
     scoreParticleSystem.update(time);    
   }
 }

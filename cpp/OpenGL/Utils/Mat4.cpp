@@ -93,10 +93,10 @@ Mat4 Mat4::operator * ( const Mat4& other ) const {
 	Mat4 result;
 	for (int x = 0;x<16;x+=4)
 		for (int y = 0;y<4;y++)
-			result.e[x+y] = other.e[0+x] * e[0+y]+
-                      other.e[1+x] * e[4+y]+
-                      other.e[2+x] * e[8+y]+
-                      other.e[3+x] * e[12+y];
+			result.e[x+y] = e[0+x] * other.e[0+y]+
+                      e[1+x] * other.e[4+y]+
+                      e[2+x] * other.e[8+y]+
+                      e[3+x] * other.e[12+y];
 	return result;
 }
 
@@ -413,8 +413,8 @@ StereoMatrices Mat4::stereoLookAtAndProjection(const Vec3& eye, const Vec3& at, 
   result.rightProj = Mat4::perspective(left, right, bottom, top, znear, zfar);
   
   // view matrices
-  result.leftView  = Mat4::lookAt(eye, at, up) * Mat4::translation(-eyeDist/2.0f, 0.0f, 0.0f);
-  result.rightView = Mat4::lookAt(eye, at, up) * Mat4::translation(eyeDist/2.0f, 0.0f, 0.0f);
+  result.leftView  = Mat4::translation(-eyeDist/2.0f, 0.0f, 0.0f) * Mat4::lookAt(eye, at, up);
+  result.rightView = Mat4::translation(eyeDist/2.0f, 0.0f, 0.0f) * Mat4::lookAt(eye, at, up);
   
   return result;
 }

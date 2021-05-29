@@ -372,9 +372,9 @@ int main(int argc, char ** argv) {
         const Mat4 m{};
         
         prog.enable();
-        prog.setUniform(mvpLocation, m*v*p);
-        prog.setUniform(mvitLocation, Mat4::inverse(m*v), true);
-        prog.setUniform(mvLocation, m*v);
+        prog.setUniform(mvpLocation, p*v*m);
+        prog.setUniform(mvitLocation, Mat4::inverse(v*m), true);
+        prog.setUniform(mvLocation, v*m);
         prog.setUniform(lightPosLocation, Vec3{0,0,0});
         prog.setUniform(alphaLocation, 1.0f);
         prog.setUniform(reductionLocation, reduction);
@@ -399,7 +399,7 @@ int main(int argc, char ** argv) {
         glDisable(GL_BLEND);
         glDepthMask(GL_TRUE);
     
-        particleSystem.render(m*v,p);
+        particleSystem.render(v*m,p);
         particleSystem.update(glfwGetTime());
       
         GLEnv::checkGLError("endOfFrame");

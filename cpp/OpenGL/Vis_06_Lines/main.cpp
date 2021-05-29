@@ -91,7 +91,7 @@ public:
   virtual void draw() override {
     GL(glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT));
     setDrawProjection(Mat4::perspective(45, glEnv.getFramebufferSize().aspect(), 0.0001f, 100));
-    setDrawTransform(rotation * Mat4::lookAt({0,0,5},{0,0,0},{0,1,0}));
+    setDrawTransform(Mat4::lookAt({0,0,5},{0,0,0},{0,1,0}) * rotation);
     drawLines(data, LineDrawType::LIST, 1.0f);
   }
   
@@ -109,7 +109,7 @@ public:
     if (leftMouseDown) {
       const Quaternion q = arcball.drag({uint32_t(xPosition),uint32_t(yPosition)});
       arcball.click({uint32_t(xPosition),uint32_t(yPosition)});
-      rotation = rotation * q.computeRotation();
+      rotation = q.computeRotation() * rotation;
     }
   }
   virtual void mouseButton(int button, int state, int mods, double xPosition, double yPosition) override {
