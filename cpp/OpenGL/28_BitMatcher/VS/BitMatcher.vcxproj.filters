@@ -15,21 +15,30 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\main.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
     <ClCompile Include="..\Operator.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="..\BitMatcher.cpp">
+    <ClCompile Include="..\BitMatcherClient.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="..\BitMatcherServer.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mainClient.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mainServer.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\BitMatcher.h">
+    <ClInclude Include="..\Operator.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="..\Operator.h">
+    <ClInclude Include="..\BitMatcherClient.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="..\BitMatcherServer.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

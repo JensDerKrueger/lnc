@@ -106,7 +106,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)Debug;$(SolutionDir)..\..\VS\lib\Win32;$(PlatformTarget)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)bin\$(PlatformTarget)-$(Configuration);$(SolutionDir)..\..\VS\lib\$(PlatformTarget)</AdditionalLibraryDirectories>
       <AdditionalDependencies>network.lib;utils.lib;opengl32.lib;glew32s.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
@@ -134,7 +134,7 @@ XCOPY "$(ProjectDir)..\Client\*.pos" "$(ProjectDir)*.*" /Y</Command>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)Release;$(SolutionDir)..\..\VS\lib\Win32;$(PlatformTarget)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)bin\$(PlatformTarget)-$(Configuration);$(SolutionDir)..\..\VS\lib\$(PlatformTarget)</AdditionalLibraryDirectories>
       <AdditionalDependencies>network.lib;utils.lib;opengl32.lib;glew32s.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
@@ -159,7 +159,7 @@ XCOPY "$(ProjectDir)..\Client\*.pos" "$(ProjectDir)*.*" /Y</Command>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>network.lib;utils.lib;opengl32.lib;glew32s.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)..\..\VS\lib\x64;$(PlatformTarget)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)bin\$(PlatformTarget)-$(Configuration);$(SolutionDir)..\..\VS\lib\$(PlatformTarget)</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
       <Command>XCOPY "$(ProjectDir)..\Client\*.bmp" "$(OutDir)*.*" /Y
@@ -187,7 +187,7 @@ XCOPY "$(ProjectDir)..\Client\*.pos" "$(ProjectDir)*.*" /Y</Command>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>network.lib;utils.lib;opengl32.lib;glew32s.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)..\..\VS\lib\x64;$(PlatformTarget)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)bin\$(PlatformTarget)-$(Configuration);$(SolutionDir)..\..\VS\lib\$(PlatformTarget)</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
       <Command>XCOPY "$(ProjectDir)..\Client\*.bmp" "$(OutDir)*.*" /Y

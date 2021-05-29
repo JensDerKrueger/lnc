@@ -72,27 +72,27 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)..\..\..\VS\include;$(SolutionDir)..\..\..\Utils;$(IncludePath)</IncludePath>
-    <OutDir>$(SolutionDir)bin\$(Platform)-$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)tmp\$(Platform)-$(Configuration)\</IntDir>
+    <IncludePath>$(SolutionDir)..\..\VS\include;$(SolutionDir)..\..\Utils;$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)bin\$(PlatformTarget)-$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)tmp\$(PlatformTarget)-$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)..\..\..\VS\include;$(SolutionDir)..\..\..\Utils;$(IncludePath)</IncludePath>
-    <OutDir>$(SolutionDir)bin\$(Platform)-$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)tmp\$(Platform)-$(Configuration)\</IntDir>
+    <IncludePath>$(SolutionDir)..\..\VS\include;$(SolutionDir)..\..\Utils;$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)bin\$(PlatformTarget)-$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)tmp\$(PlatformTarget)-$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(SolutionDir)..\..\VS\include;$(SolutionDir)..\..\Utils;$(IncludePath)</IncludePath>
-    <OutDir>$(SolutionDir)bin\$(Platform)-$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)tmp\$(Platform)-$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)bin\$(PlatformTarget)-$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)tmp\$(PlatformTarget)-$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(SolutionDir)..\..\VS\include;$(SolutionDir)..\..\Utils;$(IncludePath)</IncludePath>
-    <OutDir>$(SolutionDir)bin\$(Platform)-$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)tmp\$(Platform)-$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)bin\$(PlatformTarget)-$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)tmp\$(PlatformTarget)-$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -105,9 +105,15 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)..\..\..\VS\lib\Win32;$(PlatformTarget)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\..\VS\lib\$(Platform);$(SolutionDir)bin\$(PlatformTarget)-$(Configuration)</AdditionalLibraryDirectories>
       <AdditionalDependencies>utils.lib;opengl32.lib;glew32s.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>XCOPY "$(ProjectDir)..\*.bmp" "$(OutDir)*.*" /Y
+XCOPY "$(ProjectDir)..\*.txt" "$(OutDir)*.*" /Y
+XCOPY "$(ProjectDir)..\*.bmp" "$(ProjectDir)*.*" /Y
+XCOPY "$(ProjectDir)..\*.txt" "$(ProjectDir)*.*" /Y</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -124,9 +130,15 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)..\..\..\VS\lib\Win32;$(PlatformTarget)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\..\VS\lib\$(Platform);$(SolutionDir)bin\$(PlatformTarget)-$(Configuration)</AdditionalLibraryDirectories>
       <AdditionalDependencies>utils.lib;opengl32.lib;glew32s.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>XCOPY "$(ProjectDir)..\*.bmp" "$(OutDir)*.*" /Y
+XCOPY "$(ProjectDir)..\*.txt" "$(OutDir)*.*" /Y
+XCOPY "$(ProjectDir)..\*.bmp" "$(ProjectDir)*.*" /Y
+XCOPY "$(ProjectDir)..\*.txt" "$(ProjectDir)*.*" /Y</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -140,8 +152,14 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>utils.lib;opengl32.lib;glew32s.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)..\..\VS\lib\x64;$(PlatformTarget)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\..\VS\lib\$(Platform);$(SolutionDir)bin\$(PlatformTarget)-$(Configuration)</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>XCOPY "$(ProjectDir)..\*.bmp" "$(OutDir)*.*" /Y
+XCOPY "$(ProjectDir)..\*.txt" "$(OutDir)*.*" /Y
+XCOPY "$(ProjectDir)..\*.bmp" "$(ProjectDir)*.*" /Y
+XCOPY "$(ProjectDir)..\*.txt" "$(ProjectDir)*.*" /Y</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -159,8 +177,14 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>utils.lib;opengl32.lib;glew32s.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)..\..\VS\lib\x64;$(PlatformTarget)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\..\VS\lib\$(Platform);$(SolutionDir)bin\$(PlatformTarget)-$(Configuration)</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>XCOPY "$(ProjectDir)..\*.bmp" "$(OutDir)*.*" /Y
+XCOPY "$(ProjectDir)..\*.txt" "$(OutDir)*.*" /Y
+XCOPY "$(ProjectDir)..\*.bmp" "$(ProjectDir)*.*" /Y
+XCOPY "$(ProjectDir)..\*.txt" "$(ProjectDir)*.*" /Y</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\main.cpp" />
