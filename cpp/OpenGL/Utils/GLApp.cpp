@@ -196,7 +196,7 @@ void GLApp::triangulate(const Vec3& p0,
   const Vec3 cDir = Vec3::normalize(p2-p1);
   const Vec3 nDir = Vec3::normalize(p3-p2);
   
-  const Vec3 viewDir = Vec3::normalize((mvi * Vec4{0,0,1,0}).xyz());
+  const Vec3 viewDir = Vec3::normalize((mvi * Vec4{0,0,1,0}).xyz);
   
   const Vec3 pPerp = Vec3::cross(pDir, viewDir);
   const Vec3 cPerp = Vec3::cross(cDir, viewDir);

@@ -15,7 +15,8 @@ public:
   std::array<T, 3> e;
   struct { T x; T y; T z; };
   struct { T r; T g; T b; };
-
+  Vec2 xy;
+  
   Vec3t() :
     e{0,0,0}
   {}

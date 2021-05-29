@@ -85,7 +85,7 @@ public:
 
   void accelerate(float thrust) {
     Vec4 direction = Mat4::rotationZ(rotation) * Vec4{0.0f,1.0f,0.0,0.0};
-    velocity = velocity + direction.xy() * thrust;
+    velocity = velocity + direction.xy * thrust;
   }
   
   bool collision(const GameObject& pos) const {
@@ -183,7 +183,7 @@ public:
     this->remainingLife = 130;
     this->position = startPos;
     this->rotation = rotation;
-    this->velocity = (Mat4::rotationZ(rotation) * Vec4{0.0f,projectileVelocity,0.0,0.0}).xy();
+    this->velocity = (Mat4::rotationZ(rotation) * Vec4{0.0f,projectileVelocity,0.0,0.0}).xy;
   }
     
   Vec2 getTransformedStart() const {

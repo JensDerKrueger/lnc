@@ -91,7 +91,7 @@ Vec3 ColorConversion::rgbToYuv(const Vec3& other) {
                   0.615f,  -0.515f, -0.100f,  0.0f,
                     0.0f,     0.0f,    0.0f,  1.0f
   };
-  return (c * Vec4(other,1.0f)).xyz();
+  return (c * Vec4(other,1.0f)).xyz;
 }
 
 Vec3 ColorConversion::yuvToRgb(const Vec3& other) {
@@ -100,5 +100,5 @@ Vec3 ColorConversion::yuvToRgb(const Vec3& other) {
                 1.0f,    2.032f,      0.0f,  0.0f,
                 0.0f,      0.0f,      0.0f,  1.0f
   };
-  return (c * Vec4(other,1.0f)).xyz();
+  return (c * Vec4(other,1.0f)).xyz;
 }

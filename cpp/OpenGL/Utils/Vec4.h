@@ -13,6 +13,8 @@ public:
   std::array<T, 4> e;
   struct { T x; T y; T z; T w;};
   struct { T r; T g; T b; T a;};
+  Vec2 xy;
+  Vec3 xyz;
 
   Vec4t():
     e{0,0,0,0}
@@ -48,14 +50,6 @@ public:
   explicit Vec4t(const Vec2t<U>& other, T z, T w) :
     e{other.x, other.y, z, w}
   {}
-  
-  Vec3t<T> xyz() const {
-    return {e[0],e[1],e[2]};
-  }
-  
-  Vec2t<T> xy() const {
-    return {e[0],e[1]};
-  }
 
   friend std::ostream& operator<<(std::ostream &os, const Vec4t& v) {os << v.toString() ; return os;}
   const std::string toString() const {

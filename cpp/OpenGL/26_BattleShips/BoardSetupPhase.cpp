@@ -18,7 +18,7 @@ void BoardSetupPhase::mouseMoveInternal(double xPosition, double yPosition) {
   BoardPhase::mouseMoveInternal(xPosition, yPosition);
     
   const Mat4 invMyBoardTrans = Mat4::inverse(myBoardTrans);
-  const Vec2 normMyBoardPos = ((invMyBoardTrans * Vec4(normPos,0.0f,1.0f)).xy() + Vec2{1.0f,1.0f}) / 2.0f;
+  const Vec2 normMyBoardPos = ((invMyBoardTrans * Vec4(normPos,0.0f,1.0f)).xy + Vec2{1.0f,1.0f}) / 2.0f;
   
   if (normMyBoardPos.x < 0 || normMyBoardPos.x > 1.0 || normMyBoardPos.y < 0 || normMyBoardPos.y > 1.0) {
     myCellPos = Vec2ui(std::numeric_limits<uint32_t>::max(), std::numeric_limits<uint32_t>::max());

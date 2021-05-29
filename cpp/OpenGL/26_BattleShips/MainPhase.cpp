@@ -48,7 +48,7 @@ void MainPhase::mouseMoveInternal(double xPosition, double yPosition) {
   BoardPhase::mouseMoveInternal(xPosition, yPosition);
     
   const Mat4 invOtherBoardTrans = Mat4::inverse(otherBoardTrans);
-  const Vec2 normOtherBoardPos = ((invOtherBoardTrans * Vec4(normPos,0.0f,1.0f)).xy() + Vec2{1.0f,1.0f}) / 2.0f;
+  const Vec2 normOtherBoardPos = ((invOtherBoardTrans * Vec4(normPos,0.0f,1.0f)).xy + Vec2{1.0f,1.0f}) / 2.0f;
   
   if (normOtherBoardPos.x < 0 || normOtherBoardPos.x > 1.0 || normOtherBoardPos.y < 0 || normOtherBoardPos.y > 1.0) {
     otherCellPos = Vec2ui(std::numeric_limits<uint32_t>::max(), std::numeric_limits<uint32_t>::max());
