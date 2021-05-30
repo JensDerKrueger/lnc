@@ -125,7 +125,7 @@ std::string Image::toACIIArt(bool bSmallTable) const {
   std::stringstream ss;
   for (uint32_t y = 0;y<height;y+=4) {
     for (uint32_t x = 0;x<width;x+=4) {
-      const uint8_t v = getLumiValue(x,height-y);
+      const uint8_t v = getLumiValue(x,height-1-y);
       ss << lut[(v*lut.length())/255] << lut[(v*lut.length())/255];
     }
     ss << "\n";
