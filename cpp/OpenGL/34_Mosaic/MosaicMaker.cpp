@@ -59,9 +59,11 @@ void MosaicMaker::updateSmallImageCache() {
       smallImageInfos.push_back(info);
     } catch (...) {
     }
+    std::cout << "." << std::flush;q
   }
   if (smallImageInfos.empty())
     throw MosaicMakerException("Unable to load small images");
+  std::cout << std::endl;
 }
 
 void MosaicMaker::loadLargeImage() {
@@ -152,6 +154,7 @@ void MosaicMaker::generateResultImage() {
   const uint32_t yBricks = largeImage.height/largeImageBlockSize.y;
 
   for (uint32_t y = 0;y<yBricks;++y) {
+    std::cout << (y+1) << "/" << yBricks << std::endl;
     for (uint32_t x = 0;x<xBricks;++x) {
       const std::vector<Vec3t<double>> featureTensor = computeFeatureTensor(x,y);
       const uint32_t minImageDist = minMinImageDist == maxMinImageDist ? maxMinImageDist : Rand::rand<uint32_t>(minMinImageDist,maxMinImageDist);
@@ -191,6 +194,8 @@ void SmallImageInfo::computeFeatureTensor(const Vec2ui& largeImageBlockSize,
                                           const Vec2ui& smallImageResolution) {
   // TODO: remove the assumption that all image are squared
   Image image = BMP::load(filename).resample(smallImageResolution.x);
+  
+  
   if (image.componentCount < 3) throw BMP::BMPException("Too few image componets.");
   hash = MD5::computeMD5(image.data);
     
