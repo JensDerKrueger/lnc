@@ -6,7 +6,7 @@
 
 class MyGLApp : public GLApp {
 public:
-//  MosaicMaker mm{"smallImages", "largeImage.bmp", {100,100}, {10,10}};
+//  MosaicMaker mm{"smallImages", "largeImage.bmp", 100, {10,10}, {4,7}};
   MosaicMaker mm{"/Users/lnc/lnc/cpp/OpenGL/34_Mosaic/smallImages",
                  "/Users/lnc/lnc/cpp/OpenGL/34_Mosaic/jens.bmp",
                  50, {5,5}, {4,7}};
