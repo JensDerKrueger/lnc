@@ -1,5 +1,6 @@
 #include <GLApp.h>
 #include <FontRenderer.h>
+#include <Rand.h>
 
 #include "MosaicMaker.h"
 
@@ -7,18 +8,19 @@ class MyGLApp : public GLApp {
 public:
 //  MosaicMaker mm{"smallImages", "largeImage.bmp", {100,100}, {10,10}};
   MosaicMaker mm{"/Users/lnc/lnc/cpp/OpenGL/34_Mosaic/smallImages",
-                 "/Users/lnc/lnc/cpp/OpenGL/34_Mosaic/zapp_girl_small.bmp",
-                  {100,100}, {2,2}};
+                 "/Users/lnc/lnc/cpp/OpenGL/34_Mosaic/jens.bmp",
+                  {50,50}, {5,5}, 4,7};
   FontRenderer fr{"helvetica_neue.bmp", "helvetica_neue.pos"};
   std::shared_ptr<FontEngine> fe{nullptr};
   std::string text;
   std::shared_ptr<GLTexture2D> result{nullptr};
   
-  
   virtual void init() {
     glEnv.setTitle("Mosaic Maker");
     fe = fr.generateFontEngine();
     mm.generate();
+    BMP::save("result.bmp", mm.getResultImage());
+    
     result = std::make_shared<GLTexture2D>(mm.getResultImage(2048),
                                            GL_LINEAR, GL_LINEAR,
                                            GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);

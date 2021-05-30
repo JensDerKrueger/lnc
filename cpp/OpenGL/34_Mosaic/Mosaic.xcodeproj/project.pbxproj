@@ -31,7 +31,7 @@
 		564FB14F26283C55004F5F08 /* helvetica_neue.pos */ = {isa = PBXFileReference; lastKnownFileType = text; path = helvetica_neue.pos; sourceTree = "<group>"; };
 		564FB15026283C55004F5F08 /* helvetica_neue.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; path = helvetica_neue.bmp; sourceTree = "<group>"; };
 		5677394C25FB7BF000AB2341 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
-		A231F0FF25EAF61A00CBFC23 /* Color */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Color; sourceTree = BUILT_PRODUCTS_DIR; };
+		A231F0FF25EAF61A00CBFC23 /* Mosaic */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Mosaic; sourceTree = BUILT_PRODUCTS_DIR; };
 		A28842EE2659AFA00041B522 /* MosaicMaker.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MosaicMaker.cpp; sourceTree = "<group>"; };
 		A28842EF2659AFA00041B522 /* MosaicMaker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MosaicMaker.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -62,7 +62,7 @@
 		A231F10025EAF61A00CBFC23 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				A231F0FF25EAF61A00CBFC23 /* Color */,
+				A231F0FF25EAF61A00CBFC23 /* Mosaic */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -70,9 +70,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		A231F0FE25EAF61A00CBFC23 /* Color */ = {
+		A231F0FE25EAF61A00CBFC23 /* Mosaic */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A231F10625EAF61A00CBFC23 /* Build configuration list for PBXNativeTarget "Color" */;
+			buildConfigurationList = A231F10625EAF61A00CBFC23 /* Build configuration list for PBXNativeTarget "Mosaic" */;
 			buildPhases = (
 				A231F0FB25EAF61A00CBFC23 /* Sources */,
 				A231F0FC25EAF61A00CBFC23 /* Frameworks */,
@@ -82,9 +82,9 @@
 			);
 			dependencies = (
 			);
-			name = Color;
-			productName = Color;
-			productReference = A231F0FF25EAF61A00CBFC23 /* Color */;
+			name = Mosaic;
+			productName = Mosaic;
+			productReference = A231F0FF25EAF61A00CBFC23 /* Mosaic */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -113,7 +113,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				A231F0FE25EAF61A00CBFC23 /* Color */,
+				A231F0FE25EAF61A00CBFC23 /* Mosaic */,
 			);
 		};
 /* End PBXProject section */
@@ -374,7 +374,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A231F10625EAF61A00CBFC23 /* Build configuration list for PBXNativeTarget "Color" */ = {
+		A231F10625EAF61A00CBFC23 /* Build configuration list for PBXNativeTarget "Mosaic" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A231F10725EAF61A00CBFC23 /* Debug */,

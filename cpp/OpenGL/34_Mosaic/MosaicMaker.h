@@ -20,17 +20,20 @@ class MosaicMakerException : public std::exception {
 
 class SmallImageInfo {
 public:
-  SmallImageInfo(const std::string& filename);
+  SmallImageInfo(const std::string& filename,
+                 const Vec2ui& smallImageResolution,
+                 const Vec2ui& largeImageBlockSize);
   
   std::string filename;
-  Vec3t<double> featureVec;
+  std::vector<Vec3t<double>> featureTensor;
   
   bool operator == ( const SmallImageInfo& other ) const {
     return hash == other.hash;
   }
 
 private:
-  void computeFeatureVector();
+  void computeFeatureTensor(const Vec2ui& largeImageBlockSize,
+                            const Vec2ui& smallImageResolution);
   MD5Hash hash;
 };
 
@@ -39,7 +42,9 @@ public:
   MosaicMaker(const std::string& smallDir,
               const std::string& largeImageFilename,
               const Vec2ui& smallImageResolution,
-              const Vec2ui& largeImageBlockSize);
+              const Vec2ui& largeImageBlockSize,
+              const uint32_t minMinImageDist,
+              const uint32_t maxMinImageDist);
   
   void generate();
   Image getResultImage() const;
@@ -50,6 +55,8 @@ private:
   const std::string largeImageFilename;
   const Vec2ui smallImageResolution;
   const Vec2ui largeImageBlockSize;
+  const uint32_t minMinImageDist;
+  const uint32_t maxMinImageDist;
  
   Image resultImage;
   Image largeImage;
@@ -60,8 +67,8 @@ private:
   void loadLargeImage();
   void generateResultImage();
   
-  Vec3t<double> computeFeatureVec(const uint32_t xBlock, const uint32_t yBlock) const;
-  const SmallImageInfo& findBestSmallImage(const Vec3t<double>& largeImageFeatureVec,
+  std::vector<Vec3t<double>> computeFeatureTensor(const uint32_t xBlock, const uint32_t yBlock) const;
+  const SmallImageInfo& findBestSmallImage(const std::vector<Vec3t<double>>& largeImageFeatureTensor,
                                            const std::vector<SmallImageInfo>& recentBricks) const;
   void placeSmallImageIntoResult(const uint32_t xBlock, const uint32_t yBlock,
                                  const SmallImageInfo& imageInfo);
