@@ -41,10 +41,9 @@ class MosaicMaker {
 public:
   MosaicMaker(const std::string& smallDir,
               const std::string& largeImageFilename,
-              const Vec2ui& smallImageResolution,
+              const uint32_t smallImageWidth,
               const Vec2ui& largeImageBlockSize,
-              const uint32_t minMinImageDist,
-              const uint32_t maxMinImageDist);
+              const Vec2ui& minMaxMinImageDist);
   
   void generate();
   Image getResultImage() const;
@@ -55,8 +54,7 @@ private:
   const std::string largeImageFilename;
   const Vec2ui smallImageResolution;
   const Vec2ui largeImageBlockSize;
-  const uint32_t minMinImageDist;
-  const uint32_t maxMinImageDist;
+  const Vec2ui minMaxMinImageDist;
  
   Image resultImage;
   Image largeImage;

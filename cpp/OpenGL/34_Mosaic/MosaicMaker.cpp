@@ -12,6 +12,7 @@ static std::vector<Vec3t<double>> computeFeatureTensorForImage(const Image& imag
                                                                const Vec2ui& globalStart,
                                                                const Vec2ui& compressionFactor,
                                                                const Vec2ui& blockSize) {
+  
   std::vector<Vec3t<double>> featureTensor(blockSize.x * blockSize.y);
   for (uint32_t yBlock = 0;yBlock<blockSize.y;++yBlock) {
     for (uint32_t xBlock = 0;xBlock<blockSize.x;++xBlock) {
@@ -38,16 +39,14 @@ static std::vector<Vec3t<double>> computeFeatureTensorForImage(const Image& imag
 
 MosaicMaker::MosaicMaker(const std::string& smallDir,
                          const std::string& largeImageFilename,
-                         const Vec2ui& smallImageResolution,
+                         const uint32_t smallImageWidth,
                          const Vec2ui& largeImageBlockSize,
-                         const uint32_t minMinImageDist,
-                         const uint32_t maxMinImageDist) :
+                         const Vec2ui& minMaxMinImageDist) :
 smallDir{smallDir},
 largeImageFilename{largeImageFilename},
-smallImageResolution{smallImageResolution},
+smallImageResolution{smallImageWidth, (smallImageWidth*largeImageBlockSize.y)/largeImageBlockSize.x},
 largeImageBlockSize{largeImageBlockSize},
-minMinImageDist{minMinImageDist},
-maxMinImageDist{maxMinImageDist}
+minMaxMinImageDist{minMaxMinImageDist}
 {
 }
 
@@ -59,7 +58,7 @@ void MosaicMaker::updateSmallImageCache() {
       smallImageInfos.push_back(info);
     } catch (...) {
     }
-    std::cout << "." << std::flush;q
+    std::cout << "." << std::flush;
   }
   if (smallImageInfos.empty())
     throw MosaicMakerException("Unable to load small images");
@@ -108,9 +107,7 @@ void MosaicMaker::placeSmallImageIntoResult(const uint32_t xBlock, const uint32_
                                             const SmallImageInfo& imageInfo) {
   const uint32_t xStart = xBlock*smallImageResolution.x;
   const uint32_t yStart = yBlock*smallImageResolution.y;
-  
-  // TODO: remove the assumption that all image are squared
-  const Image smallImage = BMP::load(imageInfo.filename).resample(smallImageResolution.x);
+  const Image smallImage = BMP::load(imageInfo.filename).cropToAspectAndResample(smallImageResolution.x, smallImageResolution.y);
   
   for (uint32_t y = yStart;y<yStart+smallImageResolution.y;++y) {
     for (uint32_t x = xStart;x<xStart+smallImageResolution.x;++x) {
@@ -157,7 +154,7 @@ void MosaicMaker::generateResultImage() {
     std::cout << (y+1) << "/" << yBricks << std::endl;
     for (uint32_t x = 0;x<xBricks;++x) {
       const std::vector<Vec3t<double>> featureTensor = computeFeatureTensor(x,y);
-      const uint32_t minImageDist = minMinImageDist == maxMinImageDist ? maxMinImageDist : Rand::rand<uint32_t>(minMinImageDist,maxMinImageDist);
+      const uint32_t minImageDist = minMaxMinImageDist[0] == minMaxMinImageDist[1] ? minMaxMinImageDist[0] : Rand::rand<uint32_t>(minMaxMinImageDist[0],minMaxMinImageDist[1]);
       const std::vector<SmallImageInfo> recentBricks = gatherRecentBricks(x,y,minImageDist);
       const SmallImageInfo& imageInfo = findBestSmallImage(featureTensor, recentBricks);
       placeSmallImageIntoResult(x,y,imageInfo);
@@ -192,9 +189,7 @@ SmallImageInfo::SmallImageInfo(const std::string& filename,
 
 void SmallImageInfo::computeFeatureTensor(const Vec2ui& largeImageBlockSize,
                                           const Vec2ui& smallImageResolution) {
-  // TODO: remove the assumption that all image are squared
-  Image image = BMP::load(filename).resample(smallImageResolution.x);
-  
+  Image image = BMP::load(filename).cropToAspectAndResample(smallImageResolution.x, smallImageResolution.y);
   
   if (image.componentCount < 3) throw BMP::BMPException("Too few image componets.");
   hash = MD5::computeMD5(image.data);

@@ -9,7 +9,7 @@ public:
 //  MosaicMaker mm{"smallImages", "largeImage.bmp", {100,100}, {10,10}};
   MosaicMaker mm{"/Users/lnc/lnc/cpp/OpenGL/34_Mosaic/smallImages",
                  "/Users/lnc/lnc/cpp/OpenGL/34_Mosaic/jens.bmp",
-                  {50,50}, {5,5}, 4,7};
+                  50, {5,5}, 4,7};
   FontRenderer fr{"helvetica_neue.bmp", "helvetica_neue.pos"};
   std::shared_ptr<FontEngine> fe{nullptr};
   std::string text;
