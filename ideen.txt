@@ -8,6 +8,7 @@ Pros:
 + Marching Cubes
 + Flowvis
 + GPU Flowvis
++ Mosaic Maker
 - Flowsim
 
 
