@@ -8,7 +8,7 @@ MyGLApp::~MyGLApp() {
 }
 
 Vec3 MyGLApp::convertPosToHSV(float x, float y) {
-  return ColorConversion::hsvToRgb({360*x,y,value});
+  return ColorConversion::hsvToRgb<float>({360*x,y,value});
 }
 
 void MyGLApp::fillHSVImage() {
@@ -114,7 +114,7 @@ void MyGLApp::mouseMove(double xPosition, double yPosition) {
   updateMousePos();
 
   if (colorChooserMode) {
-    if (rightMouseDown) client->setColor( Vec4{ColorConversion::hsvToRgb({360*(normPos.x+1.0f)/2.0f,(normPos.y+1.0f)/2.0f,value}), 1.0f} );
+    if (rightMouseDown) client->setColor( Vec4{ColorConversion::hsvToRgb<float>({360*(normPos.x+1.0f)/2.0f,(normPos.y+1.0f)/2.0f,value}), 1.0f} );
   } else {
   
     if (rightMouseDown) dropPaint();
@@ -139,7 +139,7 @@ void MyGLApp::mouseButton(int button, int state, int mods, double xPosition, dou
   if (colorChooserMode) {
     if (button == GLFW_MOUSE_BUTTON_LEFT) {
       rightMouseDown = (state == GLFW_PRESS);
-      if (rightMouseDown) client->setColor( Vec4{ColorConversion::hsvToRgb({360*(normPos.x+1.0f)/2.0f,(normPos.y+1.0f)/2.0f,value}), 1.0f} );
+      if (rightMouseDown) client->setColor( Vec4{ColorConversion::hsvToRgb<float>({360*(normPos.x+1.0f)/2.0f,(normPos.y+1.0f)/2.0f,value}), 1.0f} );
       colorChooserMode = false;
     }
   } else {
@@ -210,7 +210,7 @@ void MyGLApp::keyboard(int key, int scancode, int action, int mods) {
 
     if (key >= GLFW_KEY_0 && key <= GLFW_KEY_9) {
       if (colorChooserMode) {
-        quickColors[key-GLFW_KEY_0] = Vec4{ColorConversion::hsvToRgb({360*(normPos.x+1.0f)/2.0f,(normPos.y+1.0f)/2.0f,value}), 1.0f};
+        quickColors[key-GLFW_KEY_0] = Vec4{ColorConversion::hsvToRgb<float>({360*(normPos.x+1.0f)/2.0f,(normPos.y+1.0f)/2.0f,value}), 1.0f};
       } else {
         client->setColor(quickColors[key-GLFW_KEY_0]);
       }

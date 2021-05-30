@@ -178,7 +178,7 @@ std::vector<float> PrecomputedParticleSystem::getData() const {
             result.push_back(pos.y);
             result.push_back(pos.z);
             
-            Vec3 c = particleColors[i] == RAINBOW_COLOR ? ColorConversion::hsvToRgb({float(index),1.0,1.0}) : particleColors[i];
+            Vec3 c = particleColors[i] == RAINBOW_COLOR ? ColorConversion::hsvToRgb<float>({float(index),1.0,1.0}) : particleColors[i];
             
             result.push_back(c.x);
             result.push_back(c.y);

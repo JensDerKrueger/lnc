@@ -14,7 +14,7 @@
 MyClient::MyClient(const std::string& address, uint16_t port, const std::string& name) :
   Client{address, port , "", 5000},
   name{name},
-  color{ColorConversion::hsvToRgb({360*Rand::rand01(),0.5f,1.0f}), 1.0f}
+  color{ColorConversion::hsvToRgb<float>({360*Rand::rand01(),0.5f,1.0f}), 1.0f}
 {
 }
 

@@ -43,7 +43,7 @@ public:
             floatParticleData[j*7+1] = data[i+1];
             floatParticleData[j*7+2] = data[i+2];
             
-            Vec3 c = color == RAINBOW_COLOR ? ColorConversion::hsvToRgb({float(i)/data.size()*360,1.0,1.0}) : computeColor(color);
+            Vec3 c = color == RAINBOW_COLOR ? ColorConversion::hsvToRgb<float>({float(i)/data.size()*360,1.0,1.0}) : computeColor(color);
             
             floatParticleData[j*7+3] = c.x;
             floatParticleData[j*7+4] = c.y;
@@ -60,7 +60,7 @@ public:
             floatParticleData[i*7+1] = data[i].y;
             floatParticleData[i*7+2] = data[i].z;
             
-            Vec3 c = color == RAINBOW_COLOR ? ColorConversion::hsvToRgb({float(i)/data.size()*360,1.0,1.0}) : computeColor(color);
+            Vec3 c = color == RAINBOW_COLOR ? ColorConversion::hsvToRgb<float>({float(i)/data.size()*360,1.0,1.0}) : computeColor(color);
             
             floatParticleData[i*7+3] = c.x;
             floatParticleData[i*7+4] = c.y;

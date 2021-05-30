@@ -43,6 +43,8 @@ public:
                             uint32_t height);
 
   Image resample(uint32_t newWidth) const;
+  Image cropToAspectAndResample(uint32_t newWidth, uint32_t newHeight) const;
+  
 private:
   uint8_t linear(uint8_t a, uint8_t b, float alpha) const;
 };
