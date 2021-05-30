@@ -2,6 +2,7 @@ Beginner:
 + Hardwareauswahl
 + History
 + Licht machen
++ Basistransformationen
 - Netzwerke
 
 Pros:
@@ -17,7 +18,6 @@ Pros:
 --------------------------------------------------------
 
 
-- Basistransformationen
 - Suchen & Sortieren
 
 - Snake
