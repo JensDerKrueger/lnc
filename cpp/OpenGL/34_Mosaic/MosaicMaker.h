@@ -43,7 +43,9 @@ public:
               const std::string& largeImageFilename,
               const uint32_t smallImageWidth,
               const Vec2ui& largeImageBlockSize,
-              const Vec2ui& minMaxMinImageDist);
+              const Vec2ui& minMaxMinImageDist = {4,7},
+              const Vec3t<double>& yuvScale = {1.5,1.0,1.0},
+              const double tintScale = 0.5);
   
   void generate();
   Image getResultImage() const;
@@ -55,6 +57,8 @@ private:
   const Vec2ui smallImageResolution;
   const Vec2ui largeImageBlockSize;
   const Vec2ui minMaxMinImageDist;
+  const Vec3t<double> yuvScale;
+  const double tintScale;
  
   Image resultImage;
   Image largeImage;
@@ -69,7 +73,8 @@ private:
   const SmallImageInfo& findBestSmallImage(const std::vector<Vec3t<double>>& largeImageFeatureTensor,
                                            const std::vector<SmallImageInfo>& recentBricks) const;
   void placeSmallImageIntoResult(const uint32_t xBlock, const uint32_t yBlock,
-                                 const SmallImageInfo& imageInfo);
+                                 const SmallImageInfo& imageInfo,
+                                 const std::vector<Vec3t<double>>& largeImageFeatureTensor);
     
   const std::vector<SmallImageInfo> gatherRecentBricks(uint32_t x, uint32_t y, uint32_t dist);
 };

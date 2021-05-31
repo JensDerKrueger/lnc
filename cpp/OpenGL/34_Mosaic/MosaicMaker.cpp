@@ -25,7 +25,7 @@ static std::vector<Vec3t<double>> computeFeatureTensorForImage(const Image& imag
             image.getValue(x,y,1)/255.0,
             image.getValue(x,y,2)/255.0
           };
-          featureVector = featureVector + rgb;
+          featureVector = featureVector + ColorConversion::rgbToYuv(rgb);
         }
       }
       featureVector = featureVector / double(compressionFactor.x * compressionFactor.y);
@@ -41,12 +41,16 @@ MosaicMaker::MosaicMaker(const std::string& smallDir,
                          const std::string& largeImageFilename,
                          const uint32_t smallImageWidth,
                          const Vec2ui& largeImageBlockSize,
-                         const Vec2ui& minMaxMinImageDist) :
+                         const Vec2ui& minMaxMinImageDist,
+                         const Vec3t<double>& yuvScale,
+                         const double tintScale) :
 smallDir{smallDir},
 largeImageFilename{largeImageFilename},
 smallImageResolution{smallImageWidth, (smallImageWidth*largeImageBlockSize.y)/largeImageBlockSize.x},
 largeImageBlockSize{largeImageBlockSize},
-minMaxMinImageDist{minMaxMinImageDist}
+minMaxMinImageDist{minMaxMinImageDist},
+yuvScale(yuvScale),
+tintScale(tintScale)
 {
 }
 
@@ -79,6 +83,8 @@ std::vector<Vec3t<double>> MosaicMaker::computeFeatureTensor(const uint32_t xBlo
   return computeFeatureTensorForImage(largeImage, start, {1,1}, largeImageBlockSize);
 }
 
+
+
 const SmallImageInfo&
 MosaicMaker::findBestSmallImage(const std::vector<Vec3t<double>>& largeImageFeatureTensor,
                                 const std::vector<SmallImageInfo>& recentBricks) const {
@@ -90,8 +96,8 @@ MosaicMaker::findBestSmallImage(const std::vector<Vec3t<double>>& largeImageFeat
 
     double currentDist{0.0};
     for (size_t j=0;j<largeImageFeatureTensor.size();++j) {
-      currentDist += (smallImageInfos[i].featureTensor[j]-
-                      largeImageFeatureTensor[j]).length();
+      currentDist += ((smallImageInfos[i].featureTensor[j]-
+                      largeImageFeatureTensor[j])*yuvScale).length();
     }
     
     if (currentDist < minDist) {
@@ -104,16 +110,26 @@ MosaicMaker::findBestSmallImage(const std::vector<Vec3t<double>>& largeImageFeat
 }
 
 void MosaicMaker::placeSmallImageIntoResult(const uint32_t xBlock, const uint32_t yBlock,
-                                            const SmallImageInfo& imageInfo) {
+                                            const SmallImageInfo& imageInfo,
+                                            const std::vector<Vec3t<double>>& largeImageFeatureTensor) {
   const uint32_t xStart = xBlock*smallImageResolution.x;
   const uint32_t yStart = yBlock*smallImageResolution.y;
   const Image smallImage = BMP::load(imageInfo.filename).cropToAspectAndResample(smallImageResolution.x, smallImageResolution.y);
   
+  Vec3t<double> errorVec{0,0,0};
+  for (size_t j=0;j<largeImageFeatureTensor.size();++j) {
+    errorVec = errorVec + ((imageInfo.featureTensor[j]-largeImageFeatureTensor[j])*yuvScale);
+  }
+  errorVec = ColorConversion::yuvToRgb(errorVec / largeImageFeatureTensor.size()) * tintScale;
+ 
   for (uint32_t y = yStart;y<yStart+smallImageResolution.y;++y) {
     for (uint32_t x = xStart;x<xStart+smallImageResolution.x;++x) {
-      resultImage.setValue(x,y,0,smallImage.getValue(x-xStart,y-yStart,0));
-      resultImage.setValue(x,y,1,smallImage.getValue(x-xStart,y-yStart,1));
-      resultImage.setValue(x,y,2,smallImage.getValue(x-xStart,y-yStart,2));
+      resultImage.setValue(x,y,0, uint8_t(std::clamp<double>(smallImage.getValue(x-xStart,y-yStart,0) -
+                                                             errorVec.r*255, 0, 255)));
+      resultImage.setValue(x,y,1, uint8_t(std::clamp<double>(smallImage.getValue(x-xStart,y-yStart,1) -
+                                                             errorVec.g*255, 0, 255)));
+      resultImage.setValue(x,y,2, uint8_t(std::clamp<double>(smallImage.getValue(x-xStart,y-yStart,2) -
+                                                             errorVec.b*255, 0, 255)));
       resultImage.setValue(x,y,3,255);
     }
   }
@@ -157,7 +173,7 @@ void MosaicMaker::generateResultImage() {
       const uint32_t minImageDist = minMaxMinImageDist[0] == minMaxMinImageDist[1] ? minMaxMinImageDist[0] : Rand::rand<uint32_t>(minMaxMinImageDist[0],minMaxMinImageDist[1]);
       const std::vector<SmallImageInfo> recentBricks = gatherRecentBricks(x,y,minImageDist);
       const SmallImageInfo& imageInfo = findBestSmallImage(featureTensor, recentBricks);
-      placeSmallImageIntoResult(x,y,imageInfo);
+      placeSmallImageIntoResult(x,y,imageInfo, featureTensor);
     }
   }
 }
