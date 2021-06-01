@@ -13,8 +13,8 @@ public:
   std::array<T, 4> e;
   struct { T x; T y; T z; T w;};
   struct { T r; T g; T b; T a;};
-  Vec2 xy;
-  Vec3 xyz;
+  Vec2t<T> xy;
+  Vec3t<T> xyz;
 
   Vec4t():
     e{0,0,0,0}
