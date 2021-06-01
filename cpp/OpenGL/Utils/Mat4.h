@@ -1,4 +1,4 @@
-#pragma once 
+#pragma once
 
 #include <ostream>
 #include <string>
@@ -25,8 +25,8 @@ public:
        0,1,0,0,
        0,0,1,0,
        0,0,0,1}
-{
-}
+  {
+  }
   Mat4t(T m11, T m12, T m13, T m14,
       T m21, T m22, T m23, T m24,
       T m31, T m32, T m33, T m34,
@@ -39,8 +39,8 @@ public:
   
   Mat4t(const std::array<T, 16>& e) :
   e{e}
-{
-}
+  {
+  }
   Mat4t(const Vec3t<T>& e1, T e14,
        const Vec3t<T>& e2, T e24,
        const Vec3t<T>& e3, T e34,
@@ -49,12 +49,12 @@ public:
        e2.x,e2.y,e2.z,e24,
        e3.x,e3.y,e3.z,e34,
        e4.x,e4.y,e4.z,e44)
-{
-}
+  {
+  }
   Mat4t(const Mat4t& other):
   e{other.e}
-{
-}
+  {
+  }
   
   const std::string toString() const{
     std::stringstream s;
@@ -388,7 +388,6 @@ public:
                                            T eyeDist) {
     
     StereoMatrices result;
-      
     T wd2     = znear * tanf(Mat4t::deg2Rad(fovy)/2);
     T nfdl    = znear / focalLength;
     T shift   =   eyeDist * nfdl;
