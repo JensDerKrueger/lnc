@@ -11,7 +11,7 @@ std::vector<DICOMFile> DICOMDirParser::scanFiles(const std::string& directory) c
   std::vector<DICOMFile> files;
   for (auto& p: std::filesystem::directory_iterator(directory)) {
     try {
-      DICOMFile dicomFile{p.path()};
+      DICOMFile dicomFile{p.path().string()};
       files.push_back(dicomFile);
     } catch (const DICOMFileException& e) {
       // std::cout << "Unable to read " << p.path() << " " << e.what() << std::endl;
