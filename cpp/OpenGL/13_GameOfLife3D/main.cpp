@@ -581,7 +581,7 @@ void render() {
       break;
     }
     case RENDER_MODE::ANAGLYPH: {
-      const StereoMatrices sm = Mat4::stereoLookAtAndProjection({ 0, 0, zoom }, { 0, 0, 0 }, { 0, 1, 0 },
+      const Mat4::StereoMatrices sm = Mat4::stereoLookAtAndProjection({ 0, 0, zoom }, { 0, 0, 0 }, { 0, 1, 0 },
                                                                 45, dim.aspect(), 0.1, 100, focalDistance,
                                                                 eyeDistance);
       renderInternal(dim, Mat4{ sm.leftProj * sm.leftView * m }, leftEyeTexture);

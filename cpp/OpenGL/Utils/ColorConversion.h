@@ -86,20 +86,20 @@ namespace ColorConversion {
   }
       
   template <typename T> Vec3t<T> rgbToYuv(const Vec3t<T>& other) {
-    const Mat4 c{   0.299f,   0.587f,  0.114f,  0.0f,
-                   -0.147f,  -0.289f,  0.436f,  0.0f,
-                    0.615f,  -0.515f, -0.100f,  0.0f,
-                      0.0f,     0.0f,    0.0f,  1.0f
+    const Mat4t<T> c{ T(0.299),  T(0.587),  T(0.114),  T(0),
+                      T(-0.147), T(-0.289), T(0.436),  T(0),
+                      T(0.615),  T(-0.515), T(-0.100), T(0),
+                      T(0),      T(0),      T(0),      T(1)
     };
-    return Vec3t<T>((c * Vec4t<float>(Vec3t<float>(other),1.0f)).xyz);
+    return (c * Vec4t<T>(other,1)).xyz;
   }
 
   template <typename T> Vec3t<T> yuvToRgb(const Vec3t<T>& other) {
-    const Mat4 c{ 1.0f,      0.0f,    1.140f,  0.0f,
-                  1.0f,   -0.395f,   -0.581f,  0.0f,
-                  1.0f,    2.032f,      0.0f,  0.0f,
-                  0.0f,      0.0f,      0.0f,  1.0f
+    const Mat4t<T> c{ T(1), T(0),       T(1.140),  T(0),
+                      T(1), T(-0.395),  T(-0.581), T(0),
+                      T(1), T(2.032),   T(0),      T(0),
+                      T(0), T(0),       T(0),      T(1)
     };
-    return Vec3t<T>((c * Vec4t<float>(Vec3t<float>(other),1.0f)).xyz);
+    return (c * Vec4t<T>(other,1)).xyz;
   }
 }
