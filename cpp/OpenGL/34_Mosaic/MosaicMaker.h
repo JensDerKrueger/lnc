@@ -4,6 +4,7 @@
 #include <exception>
 #include <thread>
 #include <mutex>
+#include <fstream>
 
 #include <Vec3.h>
 #include <Vec2.h>
@@ -46,6 +47,35 @@ struct Progress {
   bool complete{false};
 };
 
+class CacheFile {
+public:
+  CacheFile(const std::string& filename);
+  CacheFile(const Vec2ui& smallImageResolution,
+            const Vec2ui& largeImageBlockSize,
+            const size_t maxSmallFiles,
+            const std::string& filename);
+  
+  void addImage(const SmallImageInfo& info, const Image& image);
+  void save();
+  
+  size_t getImageCount() const;
+  SmallImageInfo getImageInfo(size_t i) const;
+  Image getImage(size_t i);
+  
+private:
+  std::fstream file;
+  Vec2ui smallImageResolution;
+  Vec2ui largeImageBlockSize;
+  size_t maxSmallFiles;
+  const std::string filename;
+  std::vector<std::pair<SmallImageInfo, uint64_t>> smallImageInfos;
+  uint64_t offset{0};
+  
+  void load();
+  void create();
+  
+};
+
 class MosaicMaker {
 public:
   MosaicMaker(const std::string& smallDir,
@@ -72,13 +102,13 @@ private:
   const Vec3t<double> yuvScale;
   const double tintScale;
   Progress progress;
+  std::shared_ptr<CacheFile> cacheFile{nullptr};
   
   std::thread computeThread;
   std::mutex progressMutex;
  
   Image resultImage;
   Image largeImage;
-  std::vector<SmallImageInfo> smallImageInfos;
   std::vector<SmallImageInfo> usedImages;
   
   void updateSmallImageCache();
@@ -90,10 +120,10 @@ private:
   void progressComplete();
   
   std::vector<Vec3t<double>> computeFeatureTensor(const uint32_t xBlock, const uint32_t yBlock) const;
-  const SmallImageInfo& findBestSmallImage(const std::vector<Vec3t<double>>& largeImageFeatureTensor,
+  size_t findBestSmallImage(const std::vector<Vec3t<double>>& largeImageFeatureTensor,
                                            const std::vector<SmallImageInfo>& recentBricks) const;
   void placeSmallImageIntoResult(const uint32_t xBlock, const uint32_t yBlock,
-                                 const SmallImageInfo& imageInfo,
+                                 const size_t imageIndex,
                                  const std::vector<Vec3t<double>>& largeImageFeatureTensor);
     
   const std::vector<SmallImageInfo> gatherRecentBricks(uint32_t x, uint32_t y, uint32_t dist);

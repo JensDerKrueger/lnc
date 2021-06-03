@@ -64,8 +64,8 @@ public:
   }
   
 private:
-  MosaicMaker mm{"/Users/krueger/twitch/lnc/cpp/OpenGL/34_Mosaic/smallImages",
-                 "/Users/krueger/twitch/lnc/cpp/OpenGL/34_Mosaic/family.bmp",
+  MosaicMaker mm{"/Users/lnc/lnc/cpp/OpenGL/34_Mosaic/smallImages",
+                 "/Users/lnc/lnc/cpp/OpenGL/34_Mosaic/jens.bmp",
                  200, {20,20}, {4,7}, {1.5,1.0,1.0}, 0.5};
   FontRenderer fr{"helvetica_neue.bmp", "helvetica_neue.pos"};
   std::shared_ptr<FontEngine> fe{nullptr};
