@@ -216,7 +216,7 @@ Image Image::genTestImage(uint32_t width,
 }
 
 uint8_t Image::linear(uint8_t a, uint8_t b, float alpha) const {
-  return a * (1.0f - alpha) + b * alpha;
+  return uint8_t(a * (1.0f - alpha) + b * alpha);
 }
 
 uint8_t Image::sample(float x, float y, uint32_t component) const {
