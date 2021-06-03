@@ -42,6 +42,7 @@ public:
   static Image genTestImage(uint32_t width,
                             uint32_t height);
 
+  Image crop(uint32_t blX, uint32_t blY, uint32_t trX, uint32_t trY) const;
   Image resample(uint32_t newWidth) const;
   Image cropToAspectAndResample(uint32_t newWidth, uint32_t newHeight) const;
   
