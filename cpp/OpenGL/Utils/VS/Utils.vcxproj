@@ -19,9 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\ColorConversion.cpp" />
     <ClCompile Include="..\Image.cpp" />
-    <ClCompile Include="..\Mat3.cpp" />
     <ClCompile Include="..\AbstractParticleSystem.cpp" />
     <ClCompile Include="..\ArcBall.cpp" />
     <ClCompile Include="..\bmp.cpp" />
@@ -39,7 +37,6 @@
     <ClCompile Include="..\GLTexture2D.cpp" />
     <ClCompile Include="..\GLTexture3D.cpp" />
     <ClCompile Include="..\Grid2D.cpp" />
-    <ClCompile Include="..\Mat4.cpp" />
     <ClCompile Include="..\MD5.cpp" />
     <ClCompile Include="..\OBJFile.cpp" />
     <ClCompile Include="..\ParticleSystem.cpp" />
