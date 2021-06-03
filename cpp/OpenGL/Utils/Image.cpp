@@ -290,3 +290,17 @@ Image Image::cropToAspectAndResample(uint32_t newWidth, uint32_t newHeight) cons
 
   return result;
 }
+
+
+Image Image::crop(uint32_t blX, uint32_t blY, uint32_t trX, uint32_t trY) const {
+  size_t i = 0;
+  Image result{trX-blX, trY-blY, componentCount};
+  for (uint32_t y = blY;y<trY;++y) {
+    for (uint32_t x = blX;x<trX;++x) {
+      for (uint32_t c = 0;c<componentCount;++c) {
+        result.data[i++] = getValue(x,y,c);
+      }
+    }
+  }
+  return result;
+}

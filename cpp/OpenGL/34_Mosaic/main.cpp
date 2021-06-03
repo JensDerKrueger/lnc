@@ -6,40 +6,70 @@
 
 class MyGLApp : public GLApp {
 public:
-  MosaicMaker mm{"/Users/lnc/lnc/cpp/OpenGL/34_Mosaic/smallImages",
-                 "/Users/lnc/lnc/cpp/OpenGL/34_Mosaic/jens.bmp",
-                 100, {5,5}, {4,7}, {1.5,1.0,1.0}, 0.5};
-  FontRenderer fr{"helvetica_neue.bmp", "helvetica_neue.pos"};
-  std::shared_ptr<FontEngine> fe{nullptr};
-  std::string text;
-  std::shared_ptr<GLTexture2D> result{nullptr};
-  
-  virtual void init() {
+  virtual void init() override{
     glEnv.setTitle("Mosaic Maker");
     fe = fr.generateFontEngine();
-    mm.generate();
-    BMP::save("result.bmp", mm.getResultImage());
     
-    result = std::make_shared<GLTexture2D>(mm.getResultImage(2048),
-                                           GL_LINEAR, GL_LINEAR,
-                                           GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
+    mm.generateAsync();
     GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
     GL(glBlendEquation(GL_FUNC_ADD));
     GL(glEnable(GL_BLEND));
     GL(glClearColor(0,0,0,0));
   }
   
-  virtual void draw() {
-    GL(glClear(GL_COLOR_BUFFER_BIT));
-    float imageAspect = float(mm.getResultImage().width) /
-                        float(mm.getResultImage().height);    
-    float scale = imageAspect/glEnv.getFramebufferSize().aspect();
-    if (scale < 1)
-      setDrawTransform(Mat4::scaling(scale, 1, 1));
-    else
-      setDrawTransform(Mat4::scaling(1, 1/scale, 1));
-    drawImage(*result);
+  virtual void keyboard(int key, int scancode, int action, int mods) override {
+    if (action == GLFW_PRESS) {
+      switch (key) {
+        case GLFW_KEY_Q :
+          closeWindow();
+          break;
+      }
+    }
   }
+  
+  virtual void animate(double animationTime) override {
+    if (!hasData) {
+      if (mm.getProgress().complete) {
+        BMP::save("result.bmp", mm.getResultImage());
+        
+        result = GLTexture2D(mm.getResultImage(2048),
+                             GL_LINEAR, GL_LINEAR,
+                             GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
+        
+        imageAspect = float(mm.getResultImage().width) /
+                      float(mm.getResultImage().height);
+        hasData = true;
+      }
+    }
+  }
+  
+  virtual void draw() override {
+    GL(glClear(GL_COLOR_BUFFER_BIT));
+    
+    if (hasData) {
+      float scale = imageAspect/glEnv.getFramebufferSize().aspect();
+      if (scale < 1)
+        setDrawTransform(Mat4::scaling(scale, 1, 1));
+      else
+        setDrawTransform(Mat4::scaling(1, 1/scale, 1));
+      drawImage(result);
+    } else {
+      std::stringstream ss;
+      ss << mm.getProgress().stageName << " " << mm.getProgress().currentElement << "/" << mm.getProgress().targetCount;
+      fe->render(ss.str(), glEnv.getFramebufferSize().aspect(), 0.05f, {0,0});
+    }
+  }
+  
+private:
+  MosaicMaker mm{"/Users/krueger/twitch/lnc/cpp/OpenGL/34_Mosaic/smallImages",
+                 "family.bmp",
+                 200, {40,40}, {4,7}, {1.5,1.0,1.0}, 0.5};
+  FontRenderer fr{"helvetica_neue.bmp", "helvetica_neue.pos"};
+  std::shared_ptr<FontEngine> fe{nullptr};
+  GLTexture2D result;
+  float imageAspect;
+  bool hasData{false};
+
 };
 
 #ifdef _WIN32

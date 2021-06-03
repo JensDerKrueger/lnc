@@ -2,6 +2,8 @@
 
 #include <string>
 #include <exception>
+#include <thread>
+#include <mutex>
 
 #include <Vec3.h>
 #include <Vec2.h>
@@ -37,6 +39,13 @@ private:
   MD5Hash hash;
 };
 
+struct Progress {
+  std::string stageName{""};
+  uint32_t currentElement{0};
+  uint32_t targetCount{0};
+  bool complete{false};
+};
+
 class MosaicMaker {
 public:
   MosaicMaker(const std::string& smallDir,
@@ -46,9 +55,12 @@ public:
               const Vec2ui& minMaxMinImageDist = {4,7},
               const Vec3t<double>& yuvScale = {1.5,1.0,1.0},
               const double tintScale = 0.5);
+  ~MosaicMaker();
   
   void generate();
-  Image getResultImage() const;
+  void generateAsync();
+  Progress getProgress();
+  const Image& getResultImage() const;
   Image getResultImage(const uint32_t maxWidth) const;
   
 private:
@@ -59,6 +71,9 @@ private:
   const Vec2ui minMaxMinImageDist;
   const Vec3t<double> yuvScale;
   const double tintScale;
+  Progress progress;
+  
+  std::thread computeThread;
  
   Image resultImage;
   Image largeImage;

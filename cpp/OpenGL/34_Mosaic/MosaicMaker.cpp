@@ -54,16 +54,32 @@ tintScale(tintScale)
 {
 }
 
+MosaicMaker::~MosaicMaker() {
+  computeThread.join();
+}
+
 void MosaicMaker::updateSmallImageCache() {
+  std::vector<std::string> files;
   for (auto& p: std::filesystem::directory_iterator(smallDir)) {
     try {
-      if (p.path().extension() != ".bmp") continue;        
-      SmallImageInfo info{ p.path().string(), smallImageResolution, largeImageBlockSize};
+      if (p.path().extension() != ".bmp") continue;
+      files.push_back(p.path().string());
+    } catch (...) {
+    }
+  }
+
+  progress.targetCount = uint32_t(files.size());
+  progress.currentElement = 1;
+
+  for (const std::string& filename: files) {
+    try {
+      SmallImageInfo info{ filename, smallImageResolution, largeImageBlockSize};
       smallImageInfos.push_back(info);
     } catch (...) {
     }
-    std::cout << "." << std::flush;
+    progress.currentElement++;
   }
+  
   if (smallImageInfos.empty())
     throw MosaicMakerException("Unable to load small images");
   std::cout << std::endl;
@@ -166,8 +182,10 @@ void MosaicMaker::generateResultImage() {
   const uint32_t xBricks = largeImage.width/largeImageBlockSize.x;
   const uint32_t yBricks = largeImage.height/largeImageBlockSize.y;
 
+  progress.targetCount = yBricks;
+  
   for (uint32_t y = 0;y<yBricks;++y) {
-    std::cout << (y+1) << "/" << yBricks << std::endl;
+    progress.currentElement = y+1;
     for (uint32_t x = 0;x<xBricks;++x) {
       const std::vector<Vec3t<double>> featureTensor = computeFeatureTensor(x,y);
       const uint32_t minImageDist = minMaxMinImageDist[0] == minMaxMinImageDist[1] ? minMaxMinImageDist[0] : Rand::rand<uint32_t>(minMaxMinImageDist[0],minMaxMinImageDist[1]);
@@ -179,12 +197,24 @@ void MosaicMaker::generateResultImage() {
 }
 
 void MosaicMaker::generate() {
+  progress.stageName = "Updating Small Image Cache";
   updateSmallImageCache();
+  progress.stageName = "Loading Large Image";
   loadLargeImage();
+  progress.stageName = "Generating result image";
   generateResultImage();
+  progress.complete = true;
 }
 
-Image MosaicMaker::getResultImage() const {
+void MosaicMaker::generateAsync() {
+  computeThread = std::thread(&MosaicMaker::generate, this);
+}
+
+Progress MosaicMaker::getProgress() {
+  return progress;
+}
+
+const Image& MosaicMaker::getResultImage() const {
   return resultImage;
 }
 
