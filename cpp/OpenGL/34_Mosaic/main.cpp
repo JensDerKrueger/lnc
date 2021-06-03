@@ -9,7 +9,6 @@ public:
   virtual void init() override{
     glEnv.setTitle("Mosaic Maker");
     fe = fr.generateFontEngine();
-    
     mm.generateAsync();
     GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
     GL(glBlendEquation(GL_FUNC_ADD));
@@ -55,15 +54,19 @@ public:
       drawImage(result);
     } else {
       std::stringstream ss;
-      ss << mm.getProgress().stageName << " " << mm.getProgress().currentElement << "/" << mm.getProgress().targetCount;
+      if (mm.getProgress().targetCount > 1) {
+        ss << mm.getProgress().stageName << " " << (mm.getProgress().currentElement*100 / mm.getProgress().targetCount) << " %";
+      } else {
+        ss << mm.getProgress().stageName;
+      }
       fe->render(ss.str(), glEnv.getFramebufferSize().aspect(), 0.05f, {0,0});
     }
   }
   
 private:
   MosaicMaker mm{"/Users/krueger/twitch/lnc/cpp/OpenGL/34_Mosaic/smallImages",
-                 "family.bmp",
-                 200, {40,40}, {4,7}, {1.5,1.0,1.0}, 0.5};
+                 "/Users/krueger/twitch/lnc/cpp/OpenGL/34_Mosaic/family.bmp",
+                 200, {20,20}, {4,7}, {1.5,1.0,1.0}, 0.5};
   FontRenderer fr{"helvetica_neue.bmp", "helvetica_neue.pos"};
   std::shared_ptr<FontEngine> fe{nullptr};
   GLTexture2D result;

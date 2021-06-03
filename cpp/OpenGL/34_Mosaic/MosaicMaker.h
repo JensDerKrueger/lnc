@@ -74,6 +74,7 @@ private:
   Progress progress;
   
   std::thread computeThread;
+  std::mutex progressMutex;
  
   Image resultImage;
   Image largeImage;
@@ -83,6 +84,10 @@ private:
   void updateSmallImageCache();
   void loadLargeImage();
   void generateResultImage();
+  void setProgressStage(const std::string& name);
+  void startProgress(uint32_t targetCount);
+  void setProgress(uint32_t element);
+  void progressComplete();
   
   std::vector<Vec3t<double>> computeFeatureTensor(const uint32_t xBlock, const uint32_t yBlock) const;
   const SmallImageInfo& findBestSmallImage(const std::vector<Vec3t<double>>& largeImageFeatureTensor,

@@ -59,6 +59,8 @@ MosaicMaker::~MosaicMaker() {
 }
 
 void MosaicMaker::updateSmallImageCache() {
+  setProgressStage("Updating Small Image Cache");
+
   std::vector<std::string> files;
   for (auto& p: std::filesystem::directory_iterator(smallDir)) {
     try {
@@ -68,16 +70,16 @@ void MosaicMaker::updateSmallImageCache() {
     }
   }
 
-  progress.targetCount = uint32_t(files.size());
-  progress.currentElement = 1;
-
+  startProgress(uint32_t(files.size()));
+  uint32_t element{1};
+  
   for (const std::string& filename: files) {
+    setProgress(element++);
     try {
       SmallImageInfo info{ filename, smallImageResolution, largeImageBlockSize};
       smallImageInfos.push_back(info);
     } catch (...) {
     }
-    progress.currentElement++;
   }
   
   if (smallImageInfos.empty())
@@ -86,6 +88,7 @@ void MosaicMaker::updateSmallImageCache() {
 }
 
 void MosaicMaker::loadLargeImage() {
+  setProgressStage("Loading Large Image");
   try {
     largeImage = BMP::load(largeImageFilename);
   } catch (...) {
@@ -173,6 +176,8 @@ const std::vector<SmallImageInfo> MosaicMaker::gatherRecentBricks(uint32_t x, ui
 }
 
 void MosaicMaker::generateResultImage() {
+  setProgressStage("Generating result image");
+
   const uint32_t largeWidth  = (largeImage.width / largeImageBlockSize.x) *
                                 smallImageResolution.x;
   const uint32_t largeHeight = (largeImage.height / largeImageBlockSize.y) *
@@ -182,10 +187,11 @@ void MosaicMaker::generateResultImage() {
   const uint32_t xBricks = largeImage.width/largeImageBlockSize.x;
   const uint32_t yBricks = largeImage.height/largeImageBlockSize.y;
 
-  progress.targetCount = yBricks;
+  setProgressStage("Filling result image");
+  startProgress(yBricks);
   
   for (uint32_t y = 0;y<yBricks;++y) {
-    progress.currentElement = y+1;
+    setProgress(y+1);
     for (uint32_t x = 0;x<xBricks;++x) {
       const std::vector<Vec3t<double>> featureTensor = computeFeatureTensor(x,y);
       const uint32_t minImageDist = minMaxMinImageDist[0] == minMaxMinImageDist[1] ? minMaxMinImageDist[0] : Rand::rand<uint32_t>(minMaxMinImageDist[0],minMaxMinImageDist[1]);
@@ -197,20 +203,47 @@ void MosaicMaker::generateResultImage() {
 }
 
 void MosaicMaker::generate() {
-  progress.stageName = "Updating Small Image Cache";
-  updateSmallImageCache();
-  progress.stageName = "Loading Large Image";
   loadLargeImage();
-  progress.stageName = "Generating result image";
+  updateSmallImageCache();
   generateResultImage();
-  progress.complete = true;
+
+  progressComplete();
 }
 
 void MosaicMaker::generateAsync() {
   computeThread = std::thread(&MosaicMaker::generate, this);
 }
 
+void MosaicMaker::setProgress(uint32_t element) {
+  const std::scoped_lock<std::mutex> lock(progressMutex);
+  progress.currentElement = element;
+  
+  std::cout << progress.currentElement << "/" << progress.targetCount << std::endl;
+}
+
+void MosaicMaker::startProgress(uint32_t targetCount) {
+  const std::scoped_lock<std::mutex> lock(progressMutex);
+  progress.currentElement = 0;
+  progress.targetCount = targetCount;
+}
+void MosaicMaker::setProgressStage(const std::string& name) {
+  const std::scoped_lock<std::mutex> lock(progressMutex);
+  progress.stageName = name;
+  progress.currentElement = 0;
+  progress.targetCount = 0;
+  
+  std::cout << "Starting " << name << std::endl;
+}
+
+void MosaicMaker::progressComplete() {
+  const std::scoped_lock<std::mutex> lock(progressMutex);
+  progress.complete = true;
+
+  std::cout << "Computation complete" << std::endl;
+}
+
 Progress MosaicMaker::getProgress() {
+  const std::scoped_lock<std::mutex> lock(progressMutex);
   return progress;
 }
 
