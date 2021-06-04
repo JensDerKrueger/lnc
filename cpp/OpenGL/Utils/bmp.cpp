@@ -10,24 +10,26 @@
 #include "bmp.h"
 
 namespace BMP {
-  bool save(const std::string& filename, const Image& source) {
+  bool save(const std::string& filename, const Image& source, bool ignoreSize) {
       return save(filename, source.width, source.height,
-                  source.data, source.componentCount);
+                  source.data, source.componentCount, ignoreSize);
   }
 
   static uint8_t floatToByte(float x) {  return uint8_t(x*255); }
 
   bool save(const std::string& filename, uint32_t w, uint32_t h,
-            const std::vector<float>& data, uint8_t iComponentCount) {
+            const std::vector<float>& data, uint8_t iComponentCount,
+            bool ignoreSize) {
     
     std::vector<uint8_t> byteData(data.size());
     std::transform(data.begin(), data.end(), byteData.begin(), floatToByte);
     
-    return save(filename, w, h, byteData, iComponentCount);
+    return save(filename, w, h, byteData, iComponentCount, ignoreSize);
   }
 
   bool save(const std::string& filename, uint32_t w, uint32_t h,
-            const std::vector<uint8_t>& data, uint8_t iComponentCount) {
+            const std::vector<uint8_t>& data, uint8_t iComponentCount,
+            bool ignoreSize) {
     
     std::ofstream outStream(filename.c_str(), std::ofstream::binary);
     if (!outStream.is_open()) return false;
@@ -35,10 +37,19 @@ namespace BMP {
     // write BMP-Header
     outStream.write((char*)"BM", 2); // all BMP-Files start with "BM"
     uint32_t header[3];
-    int rowPad= 4-((w*8*iComponentCount)%32)/8;
+    int64_t rowPad= 4-((w*8*iComponentCount)%32)/8;
     if (rowPad == 4) rowPad = 0;
-    header[0] = 54+w*h*iComponentCount+rowPad*h;	// filesize = 54 (header) + sizeX * sizeY * numChannels
+    
+    // filesize = 54 (header) + sizeX * sizeY * numChannels
+    size_t filesize = 54+size_t(w)*size_t(h)*size_t(iComponentCount)+size_t(rowPad)*size_t(h);
+    
+    if (!ignoreSize && uint32_t(filesize) != filesize)
+      throw BMPException("File to big for BMP format");
+    
+    header[0] = uint32_t(filesize);
     header[1] = 0;						      // reserved = 0 (4 Bytes)
+    
+    
     header[2] = 54;						      // File offset to Raster Data
     outStream.write((char*)header, 4*3);
     // write BMP-Info-Header
@@ -58,21 +69,23 @@ namespace BMP {
     outStream.write((char*)infoHeader, 4*10);
     
     // data in BMP is stored BGR, so convert scalar BGR
-    std::vector<uint8_t> pData(iComponentCount*w*h);
+    const size_t totalSize = size_t(iComponentCount)*size_t(w)*size_t(h);
+    std::vector<uint8_t> pData(totalSize);
     
+    size_t sourceIndex = 0;
     size_t index = 0;
     for (size_t y = 0;y<h;++y) {
       for (size_t x = 0;x<w;++x) {
         
-        uint8_t r = data[iComponentCount*(x+y*w)+0];
-        uint8_t g = data[iComponentCount*(x+y*w)+1];
-        uint8_t b = data[iComponentCount*(x+y*w)+2];
+        uint8_t r = data[sourceIndex++];
+        uint8_t g = data[sourceIndex++];
+        uint8_t b = data[sourceIndex++];
         
         pData[index++] = b;
         pData[index++] = g;
         pData[index++] = r;
         if (iComponentCount==4) {
-            uint8_t a = data[iComponentCount*(x+y*w)+3];
+            uint8_t a = data[sourceIndex++];
             pData[index++] = a;
         }
       }
@@ -80,12 +93,12 @@ namespace BMP {
     
     // write data (pad if necessary)
     if (rowPad==0) {
-        outStream.write((char*)pData.data(), iComponentCount*w*h);
+        outStream.write((char*)pData.data(), totalSize);
     }
     else {
       uint8_t zeroes[9]={0,0,0,0,0,0,0,0,0};
       for (size_t i=0; i<h; i++) {
-        outStream.write((char*)&(pData[iComponentCount*i*w]), iComponentCount*w);
+        outStream.write((char*)&(pData[iComponentCount*i*w]), size_t(iComponentCount)*size_t(w));
         outStream.write((char*)zeroes, rowPad);
       }
     }

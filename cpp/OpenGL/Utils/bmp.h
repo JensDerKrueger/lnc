@@ -20,14 +20,16 @@ namespace BMP {
       std::string whatStr;
   };
 
-  bool save(const std::string& filename, const Image& source);
+  bool save(const std::string& filename, const Image& source, bool ignoreSize=false);
 
 
   bool save(const std::string& filename, uint32_t w, uint32_t h,
-            const std::vector<uint8_t>& data, uint8_t iComponentCount = 3);
+            const std::vector<uint8_t>& data, uint8_t iComponentCount = 3,
+            bool ignoreSize=false);
 
   bool save(const std::string& filename, uint32_t w, uint32_t h,
-            const std::vector<float>& data, uint8_t iComponentCount = 3);
+            const std::vector<float>& data, uint8_t iComponentCount = 3,
+            bool ignoreSize=false);
 
 
   Image load(const std::string& filename);
