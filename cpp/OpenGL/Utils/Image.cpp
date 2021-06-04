@@ -255,42 +255,42 @@ Image Image::resample(uint32_t newWidth) const {
   return result;
 }
 
-
 Image Image::cropToAspectAndResample(uint32_t newWidth, uint32_t newHeight) const {
   if (newWidth == width && newHeight == height)
     return Image(width, height, componentCount, data);
-  
+
   const float aspect    = float(width)/float(height);
   const float newAspect = float(newWidth)/float(newHeight);
   
-  if (aspect == newAspect)
-    return resample(newWidth);
-
   Image result{newWidth, newHeight, componentCount};
 
   const uint32_t startX = (aspect > newAspect) ? uint32_t(width*((1.0f-newAspect/(aspect))/2.0))  : 0;
   const uint32_t startY = (aspect < newAspect) ? uint32_t(height*((1.0f-aspect/(newAspect))/2.0)) : 0;
-  
-  const float relWidthInImage = (width-2.0f*startX) / width;
-  const float relHeightInImage = (height-2.0f*startY) / height;
-  
-  const float offsetX = startX/float(width);
-  const float offsetY = startY/float(height);
 
+  const uint32_t reduction = (width-2*startX)/newWidth;
+
+  std::vector<uint64_t> values(componentCount);
   for (uint32_t y = 0;y<newHeight;++y) {
-    const float posY = offsetY + (y/float(newHeight)) * relHeightInImage;
     for (uint32_t x = 0;x<newWidth;++x) {
-      const float posX = offsetX + (x/float(newWidth)) * relWidthInImage;
-      
+      std::fill(values.begin(), values.end(), 0);
+      for (uint32_t dy = 0;dy<reduction;++dy) {
+        for (uint32_t dx = 0;dx<reduction;++dx) {
+          const uint32_t sx = uint32_t(startX + x/float(newWidth) * (width-2*startX) + dx);
+          const uint32_t sy = uint32_t(startY + y/float(newHeight)* (height-2*startY) + dy);
+          
+          for (uint32_t c = 0;c<componentCount;++c) {
+            values[c] += getValue(sx,sy,c);
+          }
+        }
+      }
       for (uint32_t c = 0;c<componentCount;++c) {
-        result.setValue(x,y,c,sample(posX, posY, c));
+        result.setValue(x,y,c,values[c]/(reduction*reduction));
       }
     }
   }
 
   return result;
 }
-
 
 Image Image::crop(uint32_t blX, uint32_t blY, uint32_t trX, uint32_t trY) const {
   size_t i = 0;
