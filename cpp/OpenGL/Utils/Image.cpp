@@ -284,7 +284,7 @@ Image Image::cropToAspectAndResample(uint32_t newWidth, uint32_t newHeight) cons
         }
       }
       for (uint32_t c = 0;c<componentCount;++c) {
-        result.setValue(x,y,c,values[c]/(reduction*reduction));
+        result.setValue(x,y,c,uint8_t(values[c]/(reduction*reduction)));
       }
     }
   }
