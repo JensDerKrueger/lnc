@@ -3,13 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31321.278
 MinimumVisualStudioVersion = 10.0.40219.1
+
+
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Quicky", "Quicky.vcxproj", "{6B670E9A-3D92-449C-A46C-6646C20D5866}"
 	ProjectSection(ProjectDependencies) = postProject
 		{164A60B9-00CE-4CDA-94DD-CC3366859398} = {164A60B9-00CE-4CDA-94DD-CC3366859398}
 	EndProjectSection
 EndProject
+
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Utils", "..\..\Utils\VS\Utils.vcxproj", "{164A60B9-00CE-4CDA-94DD-CC3366859398}"
 EndProject
+
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64

@@ -193,10 +193,12 @@ XCOPY "$(ProjectDir)..\*.pos" "$(ProjectDir)*.*" /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\CacheFile.cpp" />
     <ClCompile Include="..\main.cpp" />
     <ClCompile Include="..\MosaicMaker.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\CacheFile.h" />
     <ClInclude Include="..\MosaicMaker.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

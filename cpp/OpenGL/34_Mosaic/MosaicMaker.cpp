@@ -7,34 +7,6 @@
 #include <bmp.h>
 #include <ColorConversion.h>
 
-static std::vector<Vec3t<double>> computeFeatureTensorForImage(const Image& image,
-                                                               const Vec2ui& globalStart,
-                                                               const Vec2ui& compressionFactor,
-                                                               const Vec2ui& blockSize) {
-  
-  std::vector<Vec3t<double>> featureTensor(blockSize.x * blockSize.y);
-  for (uint32_t yBlock = 0;yBlock<blockSize.y;++yBlock) {
-    for (uint32_t xBlock = 0;xBlock<blockSize.x;++xBlock) {
-      const Vec2ui start = globalStart + Vec2ui(xBlock, yBlock) * compressionFactor;
-      Vec3t<double> featureVector{0,0,0};
-      for (uint32_t y = start.y;y<start.y+compressionFactor.y;++y) {
-        for (uint32_t x = start.x;x<start.x+compressionFactor.x;++x) {
-          const Vec3t<double> rgb{
-            image.getValue(x,y,0)/255.0,
-            image.getValue(x,y,1)/255.0,
-            image.getValue(x,y,2)/255.0
-          };
-          featureVector = featureVector + ColorConversion::rgbToYuv(rgb);
-        }
-      }
-      featureVector = featureVector / double(compressionFactor.x * compressionFactor.y);
-      featureTensor[xBlock+yBlock*blockSize.x] = featureVector;
-    }
-  }
-  return featureTensor;
-}
-
-
 MosaicMaker::MosaicMaker(const std::string& smallDir,
                          const std::string& largeImageFilename,
                          const uint32_t smallImageWidth,
@@ -56,12 +28,15 @@ MosaicMaker::~MosaicMaker() {
   computeThread.join();
 }
 
+
 void MosaicMaker::updateSmallImageCache() {
   
   const std::string cacheFilename{smallDir+"/cache.data"};
   try {
     cacheFile = std::make_shared<CacheFile>(cacheFilename);
-    return;
+    if (cacheFile->getSmallImageResolution() == smallImageResolution &&
+        cacheFile->getLargeImageBlockSize() == largeImageBlockSize) return;
+    cacheFile = nullptr;    
   } catch (...) {
   }
   
@@ -76,25 +51,33 @@ void MosaicMaker::updateSmallImageCache() {
     }
   }
 
-  cacheFile = std::make_shared<CacheFile>(smallImageResolution, largeImageBlockSize, files.size(), cacheFilename);
+  try {
+    CacheFileGenerator gen(smallImageResolution, largeImageBlockSize, files.size(), cacheFilename);
 
-  
-  startProgress(uint32_t(files.size()));
-  uint32_t element{1};
-  
-  for (const std::string& filename: files) {
-    setProgress(element++);
-    try {
-      SmallImageInfo info{filename, smallImageResolution, largeImageBlockSize};
-    // TODO  cacheFile.add(info, image);
-    } catch (...) {
+    startProgress(uint32_t(files.size()));
+    uint32_t element{1};
+    
+    for (const std::string& filename: files) {
+      setProgress(element++);
+      try {
+        gen.addImage(filename);
+      } catch (...) {
+      }
     }
+    
+    if (gen.getImageCount() == 1)
+      throw MosaicMakerException("No small images found");
+    
+  } catch (...) {
+    throw MosaicMakerException("Unable to create image database");
   }
-  
-  if (cacheFile->getImageCount() == 0)
-    throw MosaicMakerException("Unable to load small images");
 
-  cacheFile->save();
+  try {
+    cacheFile = std::make_shared<CacheFile>(cacheFilename);
+  } catch (...) {
+    throw MosaicMakerException("Unable to load image database");
+  }
+
 
 }
 
@@ -115,17 +98,17 @@ std::vector<Vec3t<double>> MosaicMaker::computeFeatureTensor(const uint32_t xBlo
 
 
 size_t MosaicMaker::findBestSmallImage(const std::vector<Vec3t<double>>& largeImageFeatureTensor,
-                                       const std::vector<SmallImageInfo>& recentBricks) const {
+                                       const std::vector<size_t>& recentBricks) const {
   size_t minElementIndex = 0;
   double minDist = std::numeric_limits<double>::max();
   for (size_t i=0;i<cacheFile->getImageCount();++i) {
-    if (std::find(recentBricks.begin(), recentBricks.end(), cacheFile->getImageInfo(i)) != recentBricks.end())
+    if (std::find(recentBricks.begin(), recentBricks.end(), i) != recentBricks.end())
       continue;
 
     double currentDist{0.0};
+    const std::vector<Vec3t<double>> featureTensor = cacheFile->getFeatureTensor(i);
     for (size_t j=0;j<largeImageFeatureTensor.size();++j) {
-      currentDist += ((cacheFile->getImageInfo(i).featureTensor[j]-
-                      largeImageFeatureTensor[j])*yuvScale).length();
+      currentDist += ((featureTensor[j]-largeImageFeatureTensor[j])*yuvScale).length();
     }
     
     if (currentDist < minDist) {
@@ -144,11 +127,11 @@ void MosaicMaker::placeSmallImageIntoResult(const uint32_t xBlock, const uint32_
   const uint32_t yStart = yBlock*smallImageResolution.y;
    
   const Image smallImage = cacheFile->getImage(imageIndex);
-  const SmallImageInfo imageInfo = cacheFile->getImageInfo(imageIndex);
+  const std::vector<Vec3t<double>> featureTensor = cacheFile->getFeatureTensor(imageIndex);
   
   Vec3t<double> errorVec{0,0,0};
   for (size_t j=0;j<largeImageFeatureTensor.size();++j) {
-    errorVec = errorVec + ((imageInfo.featureTensor[j]-largeImageFeatureTensor[j])*yuvScale);
+    errorVec = errorVec + ((featureTensor[j]-largeImageFeatureTensor[j])*yuvScale);
   }
   errorVec = ColorConversion::yuvToRgb(errorVec / largeImageFeatureTensor.size()) * tintScale;
  
@@ -164,14 +147,14 @@ void MosaicMaker::placeSmallImageIntoResult(const uint32_t xBlock, const uint32_
     }
   }
   
-  usedImages.push_back(imageInfo);
+  usedImages.push_back(imageIndex);
 }
 
-const std::vector<SmallImageInfo> MosaicMaker::gatherRecentBricks(uint32_t x, uint32_t y,
+const std::vector<size_t> MosaicMaker::gatherRecentBricks(uint32_t x, uint32_t y,
                                                                   uint32_t dist) {
   
   const uint32_t xBricks = largeImage.width/largeImageBlockSize.x;
-  std::vector<SmallImageInfo> result;
+  std::vector<size_t> result;
   const int64_t currentIndex = int64_t(x + y * xBricks);
   
   for (int64_t dy = -int64_t(dist);dy<=0;++dy) {
@@ -206,7 +189,7 @@ void MosaicMaker::generateResultImage() {
     for (uint32_t x = 0;x<xBricks;++x) {
       const std::vector<Vec3t<double>> featureTensor = computeFeatureTensor(x,y);
       const uint32_t minImageDist = minMaxMinImageDist[0] == minMaxMinImageDist[1] ? minMaxMinImageDist[0] : Rand::rand<uint32_t>(minMaxMinImageDist[0],minMaxMinImageDist[1]);
-      const std::vector<SmallImageInfo> recentBricks = gatherRecentBricks(x,y,minImageDist);
+      const std::vector<size_t> recentBricks = gatherRecentBricks(x,y,minImageDist);
       const size_t index = findBestSmallImage(featureTensor, recentBricks);
       placeSmallImageIntoResult(x,y, index, featureTensor);
     }
@@ -262,104 +245,4 @@ Image MosaicMaker::getResultImage(const uint32_t maxWidth) const {
     return resultImage.resample(maxWidth);
   else
     return resultImage;
-}
-
-SmallImageInfo::SmallImageInfo(const std::string& filename,
-                               const Vec2ui& smallImageResolution,
-                               const Vec2ui& largeImageBlockSize) :
-  filename{filename}
-{
-  computeFeatureTensor(largeImageBlockSize, smallImageResolution);
-}
-
-void SmallImageInfo::computeFeatureTensor(const Vec2ui& largeImageBlockSize,
-                                          const Vec2ui& smallImageResolution) {
-  Image image = BMP::load(filename).cropToAspectAndResample(smallImageResolution.x, smallImageResolution.y);
-  
-  if (image.componentCount < 3) throw BMP::BMPException("Too few image componets.");
-  hash = MD5::computeMD5(image.data);
-    
-  const Vec2ui compressionFactor = smallImageResolution/largeImageBlockSize;
-  featureTensor = computeFeatureTensorForImage(image, {0,0}, compressionFactor, largeImageBlockSize);
-}
-
-
-CacheFile::CacheFile(const std::string& filename) :
-filename(filename)
-{
-  load();
-}
-
-CacheFile::CacheFile(const Vec2ui& smallImageResolution,
-                     const Vec2ui& largeImageBlockSize,
-                     const size_t maxSmallFiles,
-                     const std::string& filename) :
-smallImageResolution(smallImageResolution),
-largeImageBlockSize(largeImageBlockSize),
-maxSmallFiles(maxSmallFiles),
-filename(filename)
-{
-  create();
-}
-
-void CacheFile::addImage(const SmallImageInfo& info, const Image& image) {
-  smallImageInfos.push_back(std::make_pair(info, offset));
-  const size_t imageSize = smallImageResolution.x*smallImageResolution.y*3;
-  file.write((char*)image.data.data(), std::streamsize(imageSize));
-  offset += imageSize;
-}
-
-void CacheFile::save() {
-  // TODO: write vector to file
-  
-  file.flush();
-}
-
-size_t CacheFile::getImageCount() const {
-  return smallImageInfos.size();
-}
-
-SmallImageInfo CacheFile::getImageInfo(size_t i) const {
-  return smallImageInfos[i].first;
-}
-
-Image CacheFile::getImage(size_t i) {
-  const uint64_t offset = smallImageInfos[i].second;
-  file.seekg(std::streamoff(offset), std::ios_base::beg);
-  Image image{smallImageResolution.x, smallImageResolution.y, 3};
-  if(!file.read((char*)image.data.data(), smallImageResolution.x*smallImageResolution.y*3))
-    throw MosaicMakerException("Unable to read cached image data");
-  return image;
-}
-
-void CacheFile::load() {
-  std::fstream stream(filename, std::ios::in | std::ios::out | std::ios::binary);
-  if (!stream.is_open())
-    throw MosaicMakerException("Unable to open cache file");
-  
-  // load header
-  if(!file.read((char*)&(smallImageResolution.x), sizeof(smallImageResolution.x)))
-    throw MosaicMakerException("Unable to read cached image data");
-  if(!file.read((char*)&(smallImageResolution.y), sizeof(smallImageResolution.y)))
-    throw MosaicMakerException("Unable to read cached image data");
-  if(!file.read((char*)&(largeImageBlockSize.x), sizeof(largeImageBlockSize.x)))
-    throw MosaicMakerException("Unable to read cached image data");
-  if(!file.read((char*)&(largeImageBlockSize.y), sizeof(largeImageBlockSize.y)))
-    throw MosaicMakerException("Unable to read cached image data");
-  uint64_t temp;
-  if(!file.read((char*)&temp, sizeof(uint64_t)))
-    throw MosaicMakerException("Unable to read cached image data");
-  if (temp <= std::numeric_limits<size_t>::max())
-    maxSmallFiles = temp;
-  else
-    throw MosaicMakerException("Unable to read cached image data");
-  
-  // load smallImageInfos
-}
-
-void CacheFile::create() {
-  // TODO:
-  // open file
-  // store parameters in header
-  // init offset
 }

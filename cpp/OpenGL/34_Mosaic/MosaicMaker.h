@@ -11,6 +11,8 @@
 #include <Image.h>
 #include <MD5.h>
 
+#include "CacheFile.h"
+
 class MosaicMakerException : public std::exception {
   public:
     MosaicMakerException(const std::string& whatStr) : whatStr(whatStr) {}
@@ -21,59 +23,11 @@ class MosaicMakerException : public std::exception {
     std::string whatStr;
 };
 
-class SmallImageInfo {
-public:
-  SmallImageInfo(const std::string& filename,
-                 const Vec2ui& smallImageResolution,
-                 const Vec2ui& largeImageBlockSize);
-  
-  std::string filename;
-  std::vector<Vec3t<double>> featureTensor;
-  
-  bool operator == ( const SmallImageInfo& other ) const {
-    return hash == other.hash;
-  }
-
-private:
-  void computeFeatureTensor(const Vec2ui& largeImageBlockSize,
-                            const Vec2ui& smallImageResolution);
-  MD5Hash hash;
-};
-
 struct Progress {
   std::string stageName{""};
   uint32_t currentElement{0};
   uint32_t targetCount{0};
   bool complete{false};
-};
-
-class CacheFile {
-public:
-  CacheFile(const std::string& filename);
-  CacheFile(const Vec2ui& smallImageResolution,
-            const Vec2ui& largeImageBlockSize,
-            const size_t maxSmallFiles,
-            const std::string& filename);
-  
-  void addImage(const SmallImageInfo& info, const Image& image);
-  void save();
-  
-  size_t getImageCount() const;
-  SmallImageInfo getImageInfo(size_t i) const;
-  Image getImage(size_t i);
-  
-private:
-  std::fstream file;
-  Vec2ui smallImageResolution;
-  Vec2ui largeImageBlockSize;
-  size_t maxSmallFiles;
-  const std::string filename;
-  std::vector<std::pair<SmallImageInfo, uint64_t>> smallImageInfos;
-  uint64_t offset{0};
-  
-  void load();
-  void create();
-  
 };
 
 class MosaicMaker {
@@ -109,7 +63,7 @@ private:
  
   Image resultImage;
   Image largeImage;
-  std::vector<SmallImageInfo> usedImages;
+  std::vector<size_t> usedImages;
   
   void updateSmallImageCache();
   void loadLargeImage();
@@ -121,10 +75,10 @@ private:
   
   std::vector<Vec3t<double>> computeFeatureTensor(const uint32_t xBlock, const uint32_t yBlock) const;
   size_t findBestSmallImage(const std::vector<Vec3t<double>>& largeImageFeatureTensor,
-                                           const std::vector<SmallImageInfo>& recentBricks) const;
+                            const std::vector<size_t>& recentBricks) const;
   void placeSmallImageIntoResult(const uint32_t xBlock, const uint32_t yBlock,
                                  const size_t imageIndex,
                                  const std::vector<Vec3t<double>>& largeImageFeatureTensor);
     
-  const std::vector<SmallImageInfo> gatherRecentBricks(uint32_t x, uint32_t y, uint32_t dist);
+  const std::vector<size_t> gatherRecentBricks(uint32_t x, uint32_t y, uint32_t dist);
 };

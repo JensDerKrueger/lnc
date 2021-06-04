@@ -13,7 +13,7 @@ else
 	INCLUDES=-I. -I../Utils -I /opt/homebrew/include -I ../../openmp/include
 endif
 
-SRC = MosaicMaker.cpp main.cpp
+SRC = CacheFile.cpp MosaicMaker.cpp main.cpp
 OBJ = $(SRC:.cpp=.o)
 TARGET = mosaic
 
@@ -27,7 +27,6 @@ release: $(TARGET)
 
 $(TARGET): $(OBJ) ../Utils/libutils.a
 	$(CC) $(INCLUDES) $^ $(LFLAGS) $(LIBS) -o $@
-
 
 %.o: %.cpp
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@

@@ -21,9 +21,15 @@
     <ClCompile Include="..\MosaicMaker.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="..\CacheFile.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\MosaicMaker.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CacheFile.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

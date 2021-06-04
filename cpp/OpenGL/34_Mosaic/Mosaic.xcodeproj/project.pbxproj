@@ -10,6 +10,7 @@
 		564FB15126283C55004F5F08 /* helvetica_neue.pos in CopyFiles */ = {isa = PBXBuildFile; fileRef = 564FB14F26283C55004F5F08 /* helvetica_neue.pos */; };
 		564FB15226283C55004F5F08 /* helvetica_neue.bmp in CopyFiles */ = {isa = PBXBuildFile; fileRef = 564FB15026283C55004F5F08 /* helvetica_neue.bmp */; };
 		5677395325FB7BF000AB2341 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5677394C25FB7BF000AB2341 /* main.cpp */; };
+		567CB0EC2669A2EC00433C48 /* CacheFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 567CB0EA2669A2EC00433C48 /* CacheFile.cpp */; };
 		A28842F02659AFA00041B522 /* MosaicMaker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A28842EE2659AFA00041B522 /* MosaicMaker.cpp */; };
 /* End PBXBuildFile section */
 
@@ -31,6 +32,8 @@
 		564FB14F26283C55004F5F08 /* helvetica_neue.pos */ = {isa = PBXFileReference; lastKnownFileType = text; path = helvetica_neue.pos; sourceTree = "<group>"; };
 		564FB15026283C55004F5F08 /* helvetica_neue.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; path = helvetica_neue.bmp; sourceTree = "<group>"; };
 		5677394C25FB7BF000AB2341 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		567CB0EA2669A2EC00433C48 /* CacheFile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CacheFile.cpp; sourceTree = "<group>"; };
+		567CB0EB2669A2EC00433C48 /* CacheFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CacheFile.h; sourceTree = "<group>"; };
 		A231F0FF25EAF61A00CBFC23 /* Mosaic */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Mosaic; sourceTree = BUILT_PRODUCTS_DIR; };
 		A28842EE2659AFA00041B522 /* MosaicMaker.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MosaicMaker.cpp; sourceTree = "<group>"; };
 		A28842EF2659AFA00041B522 /* MosaicMaker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MosaicMaker.h; sourceTree = "<group>"; };
@@ -52,6 +55,8 @@
 			children = (
 				A28842EE2659AFA00041B522 /* MosaicMaker.cpp */,
 				A28842EF2659AFA00041B522 /* MosaicMaker.h */,
+				567CB0EA2669A2EC00433C48 /* CacheFile.cpp */,
+				567CB0EB2669A2EC00433C48 /* CacheFile.h */,
 				564FB15026283C55004F5F08 /* helvetica_neue.bmp */,
 				564FB14F26283C55004F5F08 /* helvetica_neue.pos */,
 				5677394C25FB7BF000AB2341 /* main.cpp */,
@@ -123,6 +128,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				567CB0EC2669A2EC00433C48 /* CacheFile.cpp in Sources */,
 				A28842F02659AFA00041B522 /* MosaicMaker.cpp in Sources */,
 				5677395325FB7BF000AB2341 /* main.cpp in Sources */,
 			);
@@ -289,7 +295,6 @@
 				GCC_WARN_UNUSED_LABEL = YES;
 				GCC_WARN_UNUSED_PARAMETER = NO;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				ONLY_ACTIVE_ARCH = YES;
 				HEADER_SEARCH_PATHS = (
 					../Network,
 					../Utils,
@@ -305,6 +310,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 11.1;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-lglfw",
 					"-lGLEW",
