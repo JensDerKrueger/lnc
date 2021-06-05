@@ -31,7 +31,7 @@ void SHA1::update(const std::string &s)
 void SHA1::update(std::istream &is)
 {
     std::string rest_of_buffer;
-    read(is, rest_of_buffer, BLOCK_BYTES - buffer.size());
+    read(is, rest_of_buffer, int(BLOCK_BYTES - buffer.size()));
     buffer += rest_of_buffer;
  
     while (is)
@@ -238,11 +238,12 @@ void SHA1::buffer_to_block(const std::string &buffer, uint32 block[BLOCK_BYTES])
 }
  
  
-void SHA1::read(std::istream &is, std::string &s, int max)
+void SHA1::read(std::istream &is, std::string &s, int maxVal)
 {
-    char sbuf[max];
-    is.read(sbuf, max);
+    char* sbuf = new char[maxVal];
+    is.read(sbuf, maxVal);
     s.assign(sbuf, is.gcount());
+    delete [] sbuf;
 }
  
  
@@ -268,5 +269,7 @@ std::string sha1(const std::string &string)
         -- Bruce Guenter <bruce@untroubled.org>
     Translation to simpler C++ Code
         -- Volker Grabsch <vog@notjusthosting.com>
+    Minor fixes
+        -- Jens Krueger <jens.krueger@uni-due.de>
 */
  
