@@ -1,14 +1,15 @@
 #include <iostream>
+#include <charconv>
 
 #include <Server.h>
 #include <StringTools.h>
 #include <SHA1.h>
 
 
-class MyClientConnection : public BaseClientConnection {
+class MyClientConnection : public HttpClientConnection {
 public:
   MyClientConnection(TCPSocket* connectionSocket, uint32_t id, const std::string& key, uint32_t timeout) :
-  BaseClientConnection(connectionSocket, id, key, timeout) {}
+  HttpClientConnection(connectionSocket, id, key, timeout) {}
   virtual ~MyClientConnection() {}
   
 protected:
@@ -16,13 +17,17 @@ protected:
   std::vector<int8_t> receivedBytes;
   virtual std::string handleIncommingData(int8_t* data, uint32_t bytes) override {
     if (handshakeComplete) {
-      
+      for (size_t i = 0;i<bytes;++i) {
+        std::cout << int(((uint8_t*)data)[i]) << " ";
+      }
+      std::cout << std::endl;
     } else {
+      if (receivedBytes.size() > 1024*1204) receivedBytes.clear();
       receivedBytes.insert(receivedBytes.end(), data, data+bytes);
       if (receivedBytes.size() > 3) {
         for (uint32_t i = 0;i<receivedBytes.size()-3;++i) {
-          if ((int)receivedBytes[i] == 13 && (int)receivedBytes[i+1] == 10 &&
-              (int)receivedBytes[i+2] == 13 && (int)receivedBytes[i+3] == 10) {
+          if (receivedBytes[i] == 13 && receivedBytes[i+1] == 10 &&
+              receivedBytes[i+2] == 13 && receivedBytes[i+3] == 10) {
             std::stringstream ss;
             if (i > 0) {
               for (uint32_t j = 0;j<i;++j) {
@@ -45,19 +50,24 @@ protected:
 
 private:
   
- 
   void handleHandshake(const std::string& initialMessage) {
-    std::vector<std::string> lines = tokenize(initialMessage, "\r\n");
+    HTTPRequest request = parseHTTPRequest(initialMessage);
+
+    if (request.name == "GET" &&
+        toLower(request.parameters["upgrade"]) == "websocket" &&
+        toLower(request.parameters["connection"]) == "upgrade") {
+
+      const std::string challengeResponse = base64_encode(sha1(request.parameters["sec-websocket-key"] + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"));
     
-    for (const std::string& line: lines) {
-      std::cout << "->" << line << "<-" << std::endl;
+      std::stringstream ss;
+      ss << "HTTP/1.1 101 Switching Protocols" << CRLF()
+         << "Upgrade: websocket" << CRLF()
+         << "Connection: Upgrade" << CRLF()
+         << "Sec-WebSocket-Accept: " << challengeResponse << CRLF()
+         << CRLF();
       
-      std::vector<std::string> values = tokenize(line, ":");
-      if (values.size() != 2) continue;
-      
-      if ("sec-websocket-key" == toLower(values[0])) {
-        std::cout << "  ->" << trim(values[1]) << "<-" << std::endl;
-      }
+      sendString(ss.str());
+      handshakeComplete = true;
     }
   }
   
@@ -89,6 +99,4 @@ int main(int argc, char ** argv) {
   
   return EXIT_SUCCESS;
 }
-
-// 258EAFA5-E914-47DA-95CA-C5AB0DC85B11
 
