@@ -1,6 +1,7 @@
 #pragma once
 
 #include <queue>
+#include <map>
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -41,12 +42,19 @@ private:
 };
 
 
+struct HTTPRequest {
+  std::string name{""};
+  std::string target{""};
+  std::string version{""};
+  std::map<std::string, std::string> parameters;
+};
+
 class HttpClientConnection : public BaseClientConnection {
 public:
   HttpClientConnection(TCPSocket* connectionSocket, uint32_t id, const std::string& key, uint32_t timeout);
   virtual ~HttpClientConnection() {}
 
-  static std::vector<std::pair<std::string,std::string>> parseHTTPRequest(const std::string& initialMessage);
+  static HTTPRequest parseHTTPRequest(const std::string& initialMessage);
 
 protected:
   std::vector<int8_t> receivedBytes;
@@ -54,7 +62,8 @@ protected:
   virtual std::string handleIncommingData(int8_t* data, uint32_t bytes) override;
   virtual void sendMessage(std::string message) override;
 
-  
+  static std::string CRLF() {return std::string(1,char(13)) + std::string(1,char(10));}
+  void sendString(const std::string& message);
 };
 
 class SizedClientConnection : public BaseClientConnection {

@@ -229,35 +229,30 @@ std::string HttpClientConnection::handleIncommingData(int8_t* data, uint32_t byt
   return "";
 }
 
-std::vector<std::pair<std::string,std::string>> HttpClientConnection::parseHTTPRequest(const std::string& initialMessage) {
+
+HTTPRequest HttpClientConnection::parseHTTPRequest(const std::string& initialMessage) {
   std::vector<std::string> lines = tokenize(initialMessage, "\r\n");
-  std::vector<std::pair<std::string,std::string>> result;
-  for (const std::string& line: lines) {
-    std::vector<std::string> values = tokenize(line, ":");
-    if (values.size() == 1) {
-      result.push_back(std::make_pair<std::string,std::string>(trim(toLower(values[0])),""));
-    } else if (values.size() == 2) {
-      result.push_back(std::make_pair<std::string,std::string>(trim(toLower(values[0])),
-                                                               trim(values[2])));
+  
+  if (lines.empty()) return {};
+  
+  HTTPRequest result;
+  std::vector<std::string> values = tokenize(lines[0], " ");
+  if (values.size() != 3) return {};
+  
+  result.name = trim(values[0]);
+  result.target = trim(values[1]);
+  result.version = trim(values[2]);
+      
+  for (size_t i = 1;i<lines.size();++i) {
+    std::vector<std::string> values = tokenize(lines[i], ":");
+    if (values.size() == 2) {
+      result.parameters[trim(toLower(values[0]))] = trim(values[1]);
     }
   }
   return result;
 }
 
-void HttpClientConnection::sendMessage(std::string message) {
-  
-  std::stringstream ss;
-  
-  // write header
-  ss << "HTTP/1.1 200 OK\n\r"
-     << "Server: LNC-Server\n\r"
-     << "Accept-Ranges: bytes\n\r"
-     << "Content-Type: text/plain\n\r\n\r";
-  
-  ss << message;
-
-  message = ss.str();
-  
+void HttpClientConnection::sendString(const std::string& message) {
   uint32_t currentBytes = 0;
   uint32_t totalBytes = 0;
 
@@ -272,6 +267,17 @@ void HttpClientConnection::sendMessage(std::string message) {
     }
   } catch (SocketException const&  ) {
   }
+}
   
+void HttpClientConnection::sendMessage(std::string message) {
+  
+  std::stringstream ss;
+  ss << "HTTP/1.1 200 OK" << CRLF()
+     << "Server: LNC-Server" << CRLF()
+     << "Accept-Ranges: bytes" << CRLF()
+     << "Content-Type: text/plain" << CRLF() << CRLF();
+  ss << message;
+
+  sendString(ss.str());
   connectionSocket->Close();
 }
