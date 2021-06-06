@@ -41,14 +41,11 @@ std::map<std::string,std::string> ChatRelayServer::parseParameters(const std::st
 }
 
 void ChatRelayServer::handleClientMessage(uint32_t id, const std::string& message) {
-  Tokenizer t{message, ' '};
-  try {
-    std::string command = t.nextString();
-    std::string parameter = t.nextString();
-    
-    if (command == "GET") {
-      std::map<std::string,std::string> p = parseParameters(parameter);
-      
+  HTTPRequest request = HttpClientConnection::parseHTTPRequest(message);
+  
+  if (request.name == "GET") {
+    try {
+      std::map<std::string,std::string> p = parseParameters(request.target);
       const std::string channel = p["chan"];
       const std::string name    = p["name"];
       const std::string text    = p["text"];
@@ -62,11 +59,10 @@ void ChatRelayServer::handleClientMessage(uint32_t id, const std::string& messag
       } else {
         sendMessage("Name Missing from message");
       }
-      return;
+    } catch (const MessageException& ) {
     }
-  } catch (const MessageException& ) {
   }
-  sendMessage("Something went wrong with the message:" + message, id);
+  sendMessage("Invalid message:" + message, id);
 }
 
 
