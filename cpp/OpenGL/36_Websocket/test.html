@@ -4,12 +4,16 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title>Websocket Test</title>
     <script type="text/javascript">
+      function getUpdateData() {
+	return "hallo";
+      }
+
       const socket = new WebSocket('ws://localhost:8899');
       socket.onopen = function () {
         setInterval(function() {
         if (socket.bufferedAmount == 0)
           socket.send(getUpdateData());
-        }, 50);
+        }, 2000);
       };
     </script>
   </head>
