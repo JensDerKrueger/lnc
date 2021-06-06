@@ -4,10 +4,12 @@
 #include <exception>
 #include <fstream>
 #include <vector>
+#include <map>
 
 #include <Vec3.h>
 #include <Vec2.h>
 #include <Image.h>
+#include <MD5.h>
 
 std::vector<Vec3t<double>> computeFeatureTensorForImage(const Image& image,
                                                         const Vec2ui& globalStart,
@@ -27,14 +29,14 @@ class CacheFileException : public std::exception {
 struct CacheFileEntry {
   CacheFileEntry(std::ifstream& file, uint32_t tensorLength);
   
-  CacheFileEntry(const std::string& imageFilename,
+  CacheFileEntry(const Image& image,
                  std::ofstream& file,
                  const Vec2ui& smallImageResolution,
                  const Vec2ui& largeImageBlockSize,
                  uint64_t offset);
   
   void save(std::ofstream& file) const;
-  
+      
   std::vector<Vec3t<double>> featureTensor;
   uint64_t offset;
   uint64_t size;
@@ -82,6 +84,7 @@ public:
   
 private:
   std::ofstream file;
+  std::map<MD5Hash, bool> hashes;
   
   const Vec2ui& smallImageResolution;
   const Vec2ui& largeImageBlockSize;

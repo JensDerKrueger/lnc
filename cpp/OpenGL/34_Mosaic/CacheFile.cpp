@@ -139,7 +139,14 @@ CacheFileGenerator::~CacheFileGenerator() {
 }
   
 void CacheFileGenerator::addImage(const std::string& filename) {
-  cacheFileEntries.push_back(CacheFileEntry{filename, file, smallImageResolution, largeImageBlockSize, offset});
+  const Image image = BMP::load(filename).cropToAspectAndResample(smallImageResolution.x, smallImageResolution.y);
+  const MD5Hash hash = MD5::computeMD5(image.data);
+  if (hashes.find(hash) != hashes.end()) return;
+  
+  const CacheFileEntry e{image, file, smallImageResolution, largeImageBlockSize, offset};
+  
+  hashes[hash] = true;;
+  cacheFileEntries.push_back(e);
   offset += cacheFileEntries.back().size;
 }
 
@@ -161,14 +168,13 @@ CacheFileEntry::CacheFileEntry(std::ifstream& file, uint32_t tensorLength) {
   }
 }
 
-CacheFileEntry::CacheFileEntry(const std::string& imageFilename,
+CacheFileEntry::CacheFileEntry(const Image& image,
                                std::ofstream& file,
                                const Vec2ui& smallImageResolution,
                                const Vec2ui& largeImageBlockSize,
                                uint64_t offset) :
   offset{offset}
 {
-  Image image = BMP::load(imageFilename).cropToAspectAndResample(smallImageResolution.x, smallImageResolution.y);
   if (image.componentCount < 3) throw BMP::BMPException("Too few image componets.");
   
   const Vec2ui compressionFactor = smallImageResolution/largeImageBlockSize;
