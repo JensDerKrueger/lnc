@@ -48,7 +48,22 @@ void SHA1::update(std::istream &is)
  * Add padding and return the message digest.
  */
  
-std::string SHA1::final()
+std::string SHA1::finalStr() {
+
+  /* Hex std::string */
+  std::vector<uint8_t> buffer = final();
+  std::ostringstream result;
+
+  for (size_t i = 0; i < buffer.size(); i++)
+  {
+    result << std::hex << std::setfill('0') << std::setw(2);
+    result << int(buffer[i]);
+  }
+  
+  return result.str();
+}
+ 
+std::vector<uint8_t> SHA1::final()
 {
     /* Total number of hashed bits */
     uint64 total_bits = (transforms*BLOCK_BYTES + buffer.size()) * 8;
@@ -79,26 +94,26 @@ std::string SHA1::final()
     transform(block);
  
     /* Hex std::string */
-    std::ostringstream result;
-    for (unsigned int i = 0; i < DIGEST_INTS; i++)
-    {
-        result << std::hex << std::setfill('0') << std::setw(8);
-        result << (digest[i] & 0xffffffff);
+    std::vector<uint8_t> result;
+    for (unsigned int i = 0; i < DIGEST_INTS; i++) {
+      result.push_back( uint8_t(digest[i] >> 24) );
+      result.push_back( uint8_t(digest[i] >> 16) );
+      result.push_back( uint8_t(digest[i] >> 8) );
+      result.push_back( uint8_t(digest[i]) );
     }
  
     /* Reset for next run */
     reset();
  
-    return result.str();
+    return result;
 }
- 
  
 std::string SHA1::from_file(const std::string &filename)
 {
     std::ifstream stream(filename.c_str(), std::ios::binary);
     SHA1 checksum;
     checksum.update(stream);
-    return checksum.final();
+    return checksum.finalStr();
 }
  
  
@@ -247,12 +262,19 @@ void SHA1::read(std::istream &is, std::string &s, int maxVal)
 }
  
  
-std::string sha1(const std::string &string)
+std::string sha1Str(const std::string &string)
 {
     SHA1 checksum;
     checksum.update(string);
-    return checksum.final();
+    return checksum.finalStr();
 }
+
+std::vector<uint8_t> sha1(const std::string &string) {
+  SHA1 checksum;
+  checksum.update(string);
+  return checksum.final();
+}
+
 
 /*
     sha1.cpp - source code of
@@ -269,7 +291,7 @@ std::string sha1(const std::string &string)
         -- Bruce Guenter <bruce@untroubled.org>
     Translation to simpler C++ Code
         -- Volker Grabsch <vog@notjusthosting.com>
-    Minor fixes
+    Minor fixes and additions
         -- Jens Krueger <jens.krueger@uni-due.de>
 */
  
