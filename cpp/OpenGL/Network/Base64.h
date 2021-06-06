@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 
+std::string base64_encode(std::vector<uint8_t> buf);
 std::string base64_encode(uint8_t const* buf, size_t bufLen);
 void base64_decode(const std::string& encoded_string, std::vector<uint8_t>& result);
 
@@ -13,6 +14,7 @@ std::string base64_decode(const std::string& encoded_string);
 std::string base64url_encode(uint8_t const* buf, size_t bufLen);
 void base64url_decode(const std::string& encoded_string, std::vector<uint8_t>& result);
 
+std::string base64url_encode(std::vector<uint8_t> buf);
 std::string base64url_encode(const std::string& str);
 std::string base64url_decode(const std::string& encoded_string);
 

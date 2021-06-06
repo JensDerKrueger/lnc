@@ -4,7 +4,7 @@
   #define STR_LENGTH length
   #define STR_FIND indexOf
 #else
-  #define STR_LENGTH size 
+  #define STR_LENGTH size
   #define STR_FIND find
 #endif
 
@@ -17,6 +17,10 @@ static const std::string base64_chars =
 
 static inline bool is_base64(uint8_t c) {
   return (isalnum(c) || (c == '+') || (c == '/'));
+}
+
+std::string base64_encode(std::vector<uint8_t> buf) {
+  return base64_encode(buf.data(), buf.size());
 }
 
 std::string base64_encode(uint8_t const* buf, size_t bufLen) {
@@ -203,6 +207,10 @@ std::string base64_decode(const std::string& encoded_string) {
   base64_decode(encoded_string, decoded);
   decoded.push_back(0);
   return std::string((char*)decoded.data());
+}
+
+std::string base64url_encode(std::vector<uint8_t> buf) {
+  return base64url_encode(buf.data(), buf.size());
 }
 
 std::string base64url_encode(const std::string& str) {
