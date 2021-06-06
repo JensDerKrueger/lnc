@@ -43,3 +43,11 @@ std::vector<std::string> tokenize(const std::string& input, const std::string& d
   free(cstring);
   return result;
 }
+
+bool endsWith(std::string_view str, std::string_view suffix) {
+    return str.size() >= suffix.size() && 0 == str.compare(str.size()-suffix.size(), suffix.size(), suffix);
+}
+
+bool startsWith(std::string_view str, std::string_view prefix) {
+    return str.size() >= prefix.size() && 0 == str.compare(0, prefix.size(), prefix);
+}
