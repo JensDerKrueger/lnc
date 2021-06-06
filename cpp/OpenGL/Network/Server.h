@@ -45,13 +45,16 @@ class HttpClientConnection : public BaseClientConnection {
 public:
   HttpClientConnection(TCPSocket* connectionSocket, uint32_t id, const std::string& key, uint32_t timeout);
   virtual ~HttpClientConnection() {}
-  
+
+  static std::vector<std::pair<std::string,std::string>> parseHTTPRequest(const std::string& initialMessage);
+
 protected:
-  std::vector<int8_t> recievedBytes;
+  std::vector<int8_t> receivedBytes;
   
   virtual std::string handleIncommingData(int8_t* data, uint32_t bytes) override;
   virtual void sendMessage(std::string message) override;
 
+  
 };
 
 class SizedClientConnection : public BaseClientConnection {
@@ -67,7 +70,7 @@ protected:
   
 private:
   uint32_t messageLength{0};
-  std::vector<int8_t> recievedBytes;
+  std::vector<int8_t> receivedBytes;
   std::unique_ptr<AESCrypt> crypt;
   std::unique_ptr<AESCrypt> sendCrypt;
 

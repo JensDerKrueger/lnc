@@ -1,5 +1,7 @@
 #include "Server.h"
 
+#include <StringTools.h>
+
 BaseClientConnection::BaseClientConnection(TCPSocket* connectionSocket, uint32_t id, const std::string& key, uint32_t timeout) :
   connectionSocket(connectionSocket),
   id(id),
@@ -113,22 +115,22 @@ void SizedClientConnection::sendMessage(std::string message) {
 }
 
 std::string SizedClientConnection::handleIncommingData(int8_t* data, uint32_t bytes) {
-  recievedBytes.insert(recievedBytes.end(), data, data+bytes);
+  receivedBytes.insert(receivedBytes.end(), data, data+bytes);
 
   if (messageLength == 0) {
-    if (recievedBytes.size() >= 4) {
-      messageLength = *((uint32_t*)recievedBytes.data());
+    if (receivedBytes.size() >= 4) {
+      messageLength = *((uint32_t*)receivedBytes.data());
     } else {
       return "";
     }
   }
   
-  if (recievedBytes.size() >= messageLength+4) {
+  if (receivedBytes.size() >= messageLength+4) {
     std::ostringstream os;
     for (size_t i = 4;i<messageLength+4;++i) {
-      os << recievedBytes[i];
+      os << receivedBytes[i];
     }
-    recievedBytes.erase(recievedBytes.begin(), recievedBytes.begin() + messageLength+4);
+    receivedBytes.erase(receivedBytes.begin(), receivedBytes.begin() + messageLength+4);
     messageLength = 0;
     
     if (key.empty()) {
@@ -206,23 +208,40 @@ HttpClientConnection::HttpClientConnection(TCPSocket* connectionSocket, uint32_t
 }
   
 std::string HttpClientConnection::handleIncommingData(int8_t* data, uint32_t bytes) {
-  recievedBytes.insert(recievedBytes.end(), data, data+bytes);
-  if (recievedBytes.size() > 3) {
-    for (uint32_t i = 0;i<recievedBytes.size()-3;++i) {
-      if ((int)recievedBytes[i] == 13 && (int)recievedBytes[i+1] == 10 &&
-          (int)recievedBytes[i+2] == 13 && (int)recievedBytes[i+3] == 10) {
+  if (receivedBytes.size() > 1024*1204) receivedBytes.clear();
+
+  receivedBytes.insert(receivedBytes.end(), data, data+bytes);
+  if (receivedBytes.size() > 3) {
+    for (uint32_t i = 0;i<receivedBytes.size()-3;++i) {
+      if ((int)receivedBytes[i] == 13 && (int)receivedBytes[i+1] == 10 &&
+          (int)receivedBytes[i+2] == 13 && (int)receivedBytes[i+3] == 10) {
         std::stringstream ss;
         if (i > 0) {
           for (uint32_t j = 0;j<i;++j) {
-            ss << recievedBytes[j];
+            ss << receivedBytes[j];
           }
         }
-        recievedBytes.erase(recievedBytes.begin(), recievedBytes.begin()+long(i+4));
+        receivedBytes.erase(receivedBytes.begin(), receivedBytes.begin()+long(i+4));
         return ss.str();
       }
     }
   }
   return "";
+}
+
+std::vector<std::pair<std::string,std::string>> HttpClientConnection::parseHTTPRequest(const std::string& initialMessage) {
+  std::vector<std::string> lines = tokenize(initialMessage, "\r\n");
+  std::vector<std::pair<std::string,std::string>> result;
+  for (const std::string& line: lines) {
+    std::vector<std::string> values = tokenize(line, ":");
+    if (values.size() == 1) {
+      result.push_back(std::make_pair<std::string,std::string>(trim(toLower(values[0])),""));
+    } else if (values.size() == 2) {
+      result.push_back(std::make_pair<std::string,std::string>(trim(toLower(values[0])),
+                                                               trim(values[2])));
+    }
+  }
+  return result;
 }
 
 void HttpClientConnection::sendMessage(std::string message) {
