@@ -18,7 +18,7 @@ protected:
   virtual std::string handleIncommingData(int8_t* data, uint32_t bytes) override {
     if (handshakeComplete) {
       for (size_t i = 0;i<bytes;++i) {
-        std::cout << int(((uint8_t*)data)[i]) << " ";
+        std::cout << std::bitset<8>((uint8_t) data[i]) << " ";
       }
       std::cout << std::endl;
     } else {
