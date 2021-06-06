@@ -96,6 +96,9 @@
     <ClCompile Include="..\SHA1.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="..\StringTools.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\AbstractParticleSystem.h">
@@ -219,6 +222,9 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="..\SHA2.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="..\StringTools.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>
