@@ -10,10 +10,18 @@
 
       const socket = new WebSocket('ws://localhost:8899');
       socket.onopen = function () {
+        console.log("Connection open");
         setInterval(function() {
-        if (socket.bufferedAmount == 0)
-          socket.send(getUpdateData());
+          if (socket.bufferedAmount == 0)
+            socket.send(getUpdateData());
         }, 2000);
+      };
+      socket.onmessage = function(msg) {
+        console.log( "Received Message: " + msg.data);
+      };
+      
+      socket.onclose = function() {
+        console.log("Connection closed");
       };
     </script>
   </head>
