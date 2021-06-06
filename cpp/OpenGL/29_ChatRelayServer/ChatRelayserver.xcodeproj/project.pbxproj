@@ -193,22 +193,16 @@
 				HEADER_SEARCH_PATHS = (
 					../Network,
 					../Utils,
-					/usr/local/Cellar/glew/2.1.0_1/include,
-					/usr/local/Cellar/glfw/3.3.2/include,
 				);
 				LIBRARY_SEARCH_PATHS = (
 					../Network,
 					../Utils,
-					/usr/local/Cellar/glfw/3.3.2/lib/,
-					/usr/local/Cellar/glew/2.1.0_1/lib/,
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.1;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
-					"-lglfw",
-					"-lGLEW",
 					"-framework",
 					OpenGL,
 					"-L../Utils",
@@ -284,21 +278,15 @@
 				HEADER_SEARCH_PATHS = (
 					../Network,
 					../Utils,
-					/usr/local/Cellar/glew/2.1.0_1/include,
-					/usr/local/Cellar/glfw/3.3.2/include,
 				);
 				LIBRARY_SEARCH_PATHS = (
 					../Network,
 					../Utils,
-					/usr/local/Cellar/glfw/3.3.2/lib/,
-					/usr/local/Cellar/glew/2.1.0_1/lib/,
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.1;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = (
-					"-lglfw",
-					"-lGLEW",
 					"-framework",
 					OpenGL,
 					"-L../Utils",
