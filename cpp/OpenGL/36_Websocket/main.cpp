@@ -1,5 +1,6 @@
 #include <iostream>
 #include <charconv>
+#include <array>
 
 #include <Server.h>
 #include <StringTools.h>
@@ -14,7 +15,7 @@ public:
   
 protected:
   bool handshakeComplete{false};
-  std::vector<int8_t> receivedBytes;
+  std::vector<uint8_t> receivedBytes;
   
   virtual std::string handleIncommingData(int8_t* data, uint32_t bytes) override {
     if (handshakeComplete) {
@@ -67,15 +68,73 @@ private:
     }
   }
   
-  std::string handleFrame() {
-    // TODO
-    for (size_t i = 0;i<receivedBytes.size();++i) {
-      std::cout << std::bitset<8>((uint8_t) receivedBytes[i]) << " ";
+  void unmask(size_t nextByte, size_t payloadLength, const std::array<uint8_t, 4>& mask) {
+    for (size_t i = 0;i<payloadLength;++i) {
+      receivedBytes[i+nextByte] = receivedBytes[i+nextByte] ^ mask[i%4];
     }
-    std::cout << std::endl;
+  }
+  
+  std::string handleFrame() {
+    if (receivedBytes.size() < 6) {
+      return "";
+    }
     
-    receivedBytes.clear();
-    return "";
+    const std::bitset<8> firstByte{receivedBytes[0]};
+    const std::bitset<8> secondByte{receivedBytes[1]};
+    
+    const bool finalFragment{firstByte[7]};
+    const bool isMasked{secondByte[7]};
+    const uint8_t opcode = receivedBytes[0] & 0b00001111;
+
+    if (!isMasked) {
+      connectionSocket->Close();
+      return "";
+    }
+    
+    // TODO: implement!
+    if (opcode != 1) {
+      std::cout << "no implemented yet" << std::endl;
+      connectionSocket->Close();
+      return "";
+    }
+    
+    size_t nextByte{2};
+    uint64_t payloadLength = receivedBytes[1] & 0b01111111;
+    
+    if (payloadLength == 126) {
+      payloadLength = ((uint64_t)receivedBytes[2] << 8) | (uint64_t)receivedBytes[3];
+      nextByte += 2;
+    } else if (payloadLength == 127) {
+      payloadLength = ((uint64_t)receivedBytes[2] << 56) | ((uint64_t)receivedBytes[3] << 48) |
+                      ((uint64_t)receivedBytes[4] << 40) | ((uint64_t)receivedBytes[5] << 32) |
+                      ((uint64_t)receivedBytes[6] << 24) | ((uint64_t)receivedBytes[7] << 16) |
+                      ((uint64_t)receivedBytes[8] << 8)  | (uint64_t)receivedBytes[9];
+      nextByte += 8;
+    }
+    
+    if (payloadLength > std::numeric_limits<size_t>::max() - (nextByte+4)) {
+      connectionSocket->Close();
+      return "";
+    }
+        
+    if (receivedBytes.size() < nextByte+4+payloadLength) {
+      return "";
+    }
+    
+    const std::array<uint8_t, 4> mask{
+      receivedBytes[nextByte+0],
+      receivedBytes[nextByte+1],
+      receivedBytes[nextByte+2],
+      receivedBytes[nextByte+3]
+    };
+    nextByte += 4;
+    
+    unmask(nextByte, payloadLength, mask);
+    
+    std::string result{receivedBytes.begin()+long(nextByte), receivedBytes.begin()+long(nextByte+payloadLength)};
+    receivedBytes.erase(receivedBytes.begin(), receivedBytes.begin()+long(nextByte+payloadLength));
+    
+    return result;
   }
 
   std::string genFrame(const std::string& message) {
@@ -97,7 +156,7 @@ public:
     
   }
   virtual void handleClientMessage(uint32_t id, const std::string& message) override {
-    std::cout << message << std::flush;
+    std::cout << message << std::endl;
   }
 };
 
