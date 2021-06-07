@@ -5,29 +5,33 @@
     <title>Websocket Test</title>
     <script type="text/javascript">
       function getUpdateData() {
-	return "hallo";
+        return "Hallo Welt";
       }
 
       const socket = new WebSocket('ws://localhost:8899');
+      
       socket.onopen = function () {
-        console.log("Connection open");
+        document.getElementById("status").innerHTML += "Connection open<br>";
         setInterval(function() {
           if (socket.bufferedAmount == 0)
             socket.send(getUpdateData());
         }, 2000);
       };
+      
       socket.onmessage = function(msg) {
-        console.log( "Received Message: " + msg.data);
+        document.getElementById("status").innerHTML += "Received Message: " + msg.data +"<br>";
       };
       
       socket.onclose = function() {
-        console.log("Connection closed");
+        document.getElementById("status").innerHTML += "Connection closed" +"<br>";
       };
     </script>
   </head>
 
   <body>
-   <H1>Test</H1>
+    <H1>Test</H1>
+    <p id="status"></p>
+  
   </body>
 </html>
 
