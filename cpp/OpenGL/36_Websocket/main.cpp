@@ -15,12 +15,11 @@ public:
 protected:
   bool handshakeComplete{false};
   std::vector<int8_t> receivedBytes;
+  
   virtual std::string handleIncommingData(int8_t* data, uint32_t bytes) override {
     if (handshakeComplete) {
-      for (size_t i = 0;i<bytes;++i) {
-        std::cout << std::bitset<8>((uint8_t) data[i]) << " ";
-      }
-      std::cout << std::endl;
+      receivedBytes.insert(receivedBytes.end(), data, data+bytes);
+      return handleFrame();
     } else {
       if (receivedBytes.size() > 1024*1204) receivedBytes.clear();
       receivedBytes.insert(receivedBytes.end(), data, data+bytes);
@@ -41,35 +40,49 @@ protected:
         }
       }
     }
-    
     return "";
   }
   
   virtual void sendMessage(std::string message) override {
+    HttpClientConnection::sendString(genFrame(message));
+    HttpClientConnection::sendString(message);
   }
 
 private:
   
   void handleHandshake(const std::string& initialMessage) {
     HTTPRequest request = parseHTTPRequest(initialMessage);
-
     if (request.name == "GET" &&
         toLower(request.parameters["upgrade"]) == "websocket" &&
         toLower(request.parameters["connection"]) == "upgrade") {
-
       const std::string challengeResponse = base64_encode(sha1(request.parameters["sec-websocket-key"] + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"));
-    
       std::stringstream ss;
       ss << "HTTP/1.1 101 Switching Protocols" << CRLF()
          << "Upgrade: websocket" << CRLF()
          << "Connection: Upgrade" << CRLF()
          << "Sec-WebSocket-Accept: " << challengeResponse << CRLF()
          << CRLF();
-      
       sendString(ss.str());
       handshakeComplete = true;
     }
   }
+  
+  std::string handleFrame() {
+    // TODO
+    for (size_t i = 0;i<receivedBytes.size();++i) {
+      std::cout << std::bitset<8>((uint8_t) receivedBytes[i]) << " ";
+    }
+    std::cout << std::endl;
+    
+    receivedBytes.clear();
+    return "";
+  }
+
+  std::string genFrame(const std::string& message) {
+    // TODO
+    return "";
+  }
+
   
 };
 
