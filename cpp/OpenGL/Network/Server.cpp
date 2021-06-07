@@ -231,7 +231,7 @@ std::string HttpClientConnection::handleIncommingData(int8_t* data, uint32_t byt
 
 
 HTTPRequest HttpClientConnection::parseHTTPRequest(const std::string& initialMessage) {
-  std::vector<std::string> lines = tokenize(initialMessage, "\r\n");
+  std::vector<std::string> lines = tokenize(initialMessage, CRLF());
   
   if (lines.empty()) return {};
   
