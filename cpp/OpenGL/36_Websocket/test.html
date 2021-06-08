@@ -4,8 +4,10 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title>Websocket Test</title>
     <script type="text/javascript">
+      var toggle = 0;
       function getUpdateData() {
-        return "Hallo Welt";
+        toggle = 1-toggle
+        return toggle==0 ? new Uint8Array(10) : "Hallo Welt"
       }
 
       const socket = new WebSocket('ws://localhost:8899');
