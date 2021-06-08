@@ -69,7 +69,7 @@ std::vector<uint8_t> SHA1::final()
     uint64 total_bits = (transforms*BLOCK_BYTES + buffer.size()) * 8;
  
     /* Padding */
-    buffer += 0x80;
+    buffer += (char)0x80;
     unsigned int orig_size = buffer.size();
     while (buffer.size() < BLOCK_BYTES)
     {
