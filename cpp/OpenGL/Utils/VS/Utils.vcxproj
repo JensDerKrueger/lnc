@@ -45,7 +45,6 @@
     <ClCompile Include="..\Rand.cpp" />
     <ClCompile Include="..\SHA1.cpp" />
     <ClCompile Include="..\SHA2.cpp" />
-    <ClCompile Include="..\StringTools.cpp" />
     <ClCompile Include="..\Tesselation.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -80,7 +79,6 @@
     <ClInclude Include="..\Rand.h" />
     <ClInclude Include="..\SHA1.h" />
     <ClInclude Include="..\SHA2.h" />
-    <ClInclude Include="..\StringTools.h" />
     <ClInclude Include="..\Tesselation.h" />
     <ClInclude Include="..\Vec2.h" />
     <ClInclude Include="..\Vec3.h" />
