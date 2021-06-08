@@ -15,9 +15,12 @@ public:
   
 protected:
   bool handshakeComplete{false};
+  bool fragmentedData{false};
+  bool isBinary{false};
   std::vector<uint8_t> receivedBytes;
+  std::vector<uint8_t> fragmentedBytes;
   
-  virtual std::string handleIncommingData(int8_t* data, uint32_t bytes) override {
+  virtual DataResult handleIncommingData(int8_t* data, uint32_t bytes) override {
     if (handshakeComplete) {
       receivedBytes.insert(receivedBytes.end(), data, data+bytes);
       return handleFrame();
@@ -36,12 +39,12 @@ protected:
             }
             receivedBytes.erase(receivedBytes.begin(), receivedBytes.begin()+long(i+4));
             handleHandshake(ss.str());
-            return "";
+            return DataResult::NO_DATA;
           }
         }
       }
     }
-    return "";
+    return DataResult::NO_DATA;
   }
   
   virtual void sendMessage(std::string message) override {
@@ -74,9 +77,49 @@ private:
     }
   }
   
-  std::string handleFrame() {
+  DataResult generateResult(bool finalFragment, size_t nextByte, uint64_t payloadLength) {
+    DataResult result;
+    if (!finalFragment) {
+      if (fragmentedBytes.size() > std::numeric_limits<size_t>::max() - payloadLength) {
+        connectionSocket->Close();
+        return DataResult::NO_DATA;
+      }
+      fragmentedData = true;
+      fragmentedBytes.insert(fragmentedBytes.end(), receivedBytes.begin()+long(nextByte), receivedBytes.begin()+long(nextByte+payloadLength));
+      result = DataResult::NO_DATA;
+    } else {
+      if (fragmentedData) {
+        if (fragmentedBytes.size() > std::numeric_limits<size_t>::max() - payloadLength) {
+          connectionSocket->Close();
+          return DataResult::NO_DATA;
+        }
+        fragmentedBytes.insert(fragmentedBytes.end(), receivedBytes.begin()+long(nextByte), receivedBytes.begin()+long(nextByte+payloadLength));
+        if (isBinary) {
+          binData = std::vector<uint8_t>{receivedBytes.begin()+long(nextByte), receivedBytes.begin()+long(nextByte+payloadLength)};
+          result = DataResult::BINARY_DATA;
+        } else {
+          strData = std::string{fragmentedBytes.begin(), fragmentedBytes.end()};
+          result = DataResult::STRING_DATA;
+        }
+        fragmentedData = false;
+        fragmentedBytes.clear();
+      } else {
+        if (isBinary) {
+          binData = std::vector<uint8_t>{receivedBytes.begin()+long(nextByte), receivedBytes.begin()+long(nextByte+payloadLength)};
+          result = DataResult::BINARY_DATA;
+        } else {
+          strData = std::string{receivedBytes.begin()+long(nextByte), receivedBytes.begin()+long(nextByte+payloadLength)};
+          result = DataResult::STRING_DATA;
+        }
+      }
+    }
+    receivedBytes.erase(receivedBytes.begin(), receivedBytes.begin()+long(nextByte+payloadLength));
+    return result;
+  }
+  
+  DataResult handleFrame() {
     if (receivedBytes.size() < 6) {
-      return "";
+      return DataResult::NO_DATA;
     }
     
     const std::bitset<8> firstByte{receivedBytes[0]};
@@ -88,19 +131,17 @@ private:
 
     if (!isMasked) {
       connectionSocket->Close();
-      return "";
+      return DataResult::NO_DATA;
     }
-    
-    // TODO: implement!
-    if (opcode != 1) {
-      std::cout << "no implemented yet" << std::endl;
-      connectionSocket->Close();
-      return "";
+
+    switch (opcode) {
+      case 0x0 : break;
+      case 0x1 : isBinary = false; break;
+      case 0x2 : isBinary = true; break;
     }
     
     size_t nextByte{2};
     uint64_t payloadLength = receivedBytes[1] & 0b01111111;
-    
     if (payloadLength == 126) {
       payloadLength = ((uint64_t)receivedBytes[2] << 8) | (uint64_t)receivedBytes[3];
       nextByte += 2;
@@ -114,14 +155,14 @@ private:
     
     if (payloadLength > std::numeric_limits<size_t>::max() - (nextByte+4)) {
       connectionSocket->Close();
-      return "";
+      return DataResult::NO_DATA;
     }
         
     if (receivedBytes.size() < nextByte+4+payloadLength) {
-      return "";
+      return DataResult::NO_DATA;
     }
     
-    const std::array<uint8_t, 4> mask{
+    const std::array<uint8_t, 4> mask {
       receivedBytes[nextByte+0],
       receivedBytes[nextByte+1],
       receivedBytes[nextByte+2],
@@ -130,11 +171,7 @@ private:
     nextByte += 4;
     
     unmask(nextByte, payloadLength, mask);
-    
-    std::string result{receivedBytes.begin()+long(nextByte), receivedBytes.begin()+long(nextByte+payloadLength)};
-    receivedBytes.erase(receivedBytes.begin(), receivedBytes.begin()+long(nextByte+payloadLength));
-    
-    return result;
+    return generateResult(finalFragment, nextByte, payloadLength);
   }
 
   std::string genFrame(const std::string& message) {
@@ -156,8 +193,17 @@ public:
     
   }
   virtual void handleClientMessage(uint32_t id, const std::string& message) override {
-    std::cout << message << std::endl;
+    std::cout << "Str: " << message << std::endl;
   }
+
+  virtual void handleClientMessage(uint32_t id, const std::vector<uint8_t>& message) override {
+    std::cout << "Bin: " << std::hex;
+    for (size_t i = 0;i<message.size();++i) {
+      std::cout << int(message[i]) << " ";
+    }
+    std::cout << std::dec << std::endl;
+  }
+
 };
 
 

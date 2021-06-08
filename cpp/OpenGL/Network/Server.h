@@ -8,6 +8,14 @@
 
 #include "NetCommon.h"
 
+#undef NO_DATA
+
+enum class DataResult {
+  NO_DATA,
+  STRING_DATA,
+  BINARY_DATA
+};
+
 class BaseClientConnection {
 public:
   BaseClientConnection(TCPSocket* connectionSocket, uint32_t id, const std::string& key, uint32_t timeout);
@@ -16,11 +24,14 @@ public:
   bool isConnected();
   uint32_t getID() const {return id;}
 
-  virtual std::string checkData();
+  virtual DataResult checkData();
   void enqueueMessage(const std::string& m);
   
   std::string getPeerAddress() const;
   uint16_t getPeerPort() const;
+
+  std::string strData;
+  std::vector<uint8_t> binData;
 
 protected:
   TCPSocket* connectionSocket;
@@ -28,7 +39,8 @@ protected:
   std::string key;
   uint32_t timeout;
 
-  virtual std::string handleIncommingData(int8_t* data, uint32_t bytes) = 0;
+
+  virtual DataResult handleIncommingData(int8_t* data, uint32_t bytes) = 0;
   virtual void sendMessage(std::string message) = 0;
   
 private:
@@ -59,7 +71,7 @@ public:
 protected:
   std::vector<int8_t> receivedBytes;
   
-  virtual std::string handleIncommingData(int8_t* data, uint32_t bytes) override;
+  virtual DataResult handleIncommingData(int8_t* data, uint32_t bytes) override;
   virtual void sendMessage(std::string message) override;
 
   static std::string CRLF() {return std::string(1,char(13)) + std::string(1,char(10));}
@@ -71,10 +83,10 @@ public:
   SizedClientConnection(TCPSocket* connectionSocket, uint32_t id, const std::string& key, uint32_t timeout);
   virtual ~SizedClientConnection() {}
 
-  virtual std::string checkData() override;
+  virtual DataResult checkData() override;
   
 protected:
-  virtual std::string handleIncommingData(int8_t* data, uint32_t bytes) override;
+  virtual DataResult handleIncommingData(int8_t* data, uint32_t bytes) override;
   virtual void sendMessage(std::string message) override;
   
 private:
@@ -101,6 +113,9 @@ public:
   
   virtual void handleClientConnection(uint32_t id, const std::string& address, uint16_t port) {};
   virtual void handleClientMessage(uint32_t id, const std::string& message) = 0;
+  virtual void handleClientMessage(uint32_t id, const std::vector<uint8_t>& message) {
+    handleClientMessage(id, std::string(message.begin(),message.end()));
+  }
   virtual void handleClientDisconnection(uint32_t id) {};
   
   void sendMessage(const std::string& message, uint32_t id=0, bool invertID=false);
@@ -113,7 +128,7 @@ private:
   uint32_t timeout;
   uint32_t lastClientId{0};
   std::string key;
-  
+    
   bool ok{false};
   bool starting{true};
   bool continueRunning{true};
@@ -202,11 +217,21 @@ void Server<T>::clientFunc() {
       }
       
       try {
-        std::string message = clientConnections[i]->checkData();
-        if (!message.empty()) {
+        DataResult message = clientConnections[i]->checkData();
+        if (message != DataResult::NO_DATA) {
           clientVecMutex.unlock();
-          handleClientMessage(clientConnections[i]->getID(), message);
-          clientVecMutex.lock();
+          switch (message) {
+            case DataResult::STRING_DATA:
+              handleClientMessage(clientConnections[i]->getID(), std::move(clientConnections[i]->strData));
+              break;
+            case DataResult::BINARY_DATA:
+              handleClientMessage(clientConnections[i]->getID(), std::move(clientConnections[i]->binData));
+              break;
+            case DataResult::NO_DATA:
+              // never hit, silnce warning
+              break;
+            clientVecMutex.lock();
+          }
         }
       } catch (SocketException const& ) {
         removeClient(i);

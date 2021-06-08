@@ -1,6 +1,6 @@
 #include "Server.h"
 
-#include <StringTools.h>
+#include "StringTools.h"
 
 BaseClientConnection::BaseClientConnection(TCPSocket* connectionSocket, uint32_t id, const std::string& key, uint32_t timeout) :
   connectionSocket(connectionSocket),
@@ -57,13 +57,13 @@ void BaseClientConnection::sendFunc() {
   }
 }
 
-std::string BaseClientConnection::checkData() {
+DataResult BaseClientConnection::checkData() {
   int8_t data[2048];
   const uint32_t bytes = connectionSocket->ReceiveData(data, 2048, 1);
   if (bytes > 0) {
     return handleIncommingData(data, bytes);
   }
-  return "";
+  return DataResult::NO_DATA;
 }
 
 std::string BaseClientConnection::getPeerAddress() const {
@@ -88,14 +88,14 @@ SizedClientConnection::SizedClientConnection(TCPSocket* connectionSocket, uint32
 {
 }
 
-std::string SizedClientConnection::checkData() {
+DataResult SizedClientConnection::checkData() {
   int8_t data[2048];
   const uint32_t maxSize = std::min<uint32_t>(std::max<uint32_t>(4,messageLength),2048);
   const uint32_t bytes = connectionSocket->ReceiveData(data, maxSize, 1);
   if (bytes > 0) {
     return handleIncommingData(data, bytes);
   }
-  return "";
+  return DataResult::NO_DATA;
 }
 
 void SizedClientConnection::sendMessage(std::string message) {
@@ -114,14 +114,14 @@ void SizedClientConnection::sendMessage(std::string message) {
   sendRawMessage(message);
 }
 
-std::string SizedClientConnection::handleIncommingData(int8_t* data, uint32_t bytes) {
+DataResult SizedClientConnection::handleIncommingData(int8_t* data, uint32_t bytes) {
   receivedBytes.insert(receivedBytes.end(), data, data+bytes);
 
   if (messageLength == 0) {
     if (receivedBytes.size() >= 4) {
       messageLength = *((uint32_t*)receivedBytes.data());
     } else {
-      return "";
+      return DataResult::NO_DATA;
     }
   }
   
@@ -134,20 +134,22 @@ std::string SizedClientConnection::handleIncommingData(int8_t* data, uint32_t by
     messageLength = 0;
     
     if (key.empty()) {
-      return os.str();
+      strData = os.str();
+      return DataResult::STRING_DATA;
     } else {
       if (crypt) {
-        return crypt->decryptString(os.str());
+        strData = crypt->decryptString(os.str());
+        return DataResult::STRING_DATA;
       } else {
         AESCrypt tempCrypt("1234567890123456",key);
         const std::string firstMessage = tempCrypt.decryptString(os.str());
         const std::string iv = getIVFromHandshake(firstMessage, key);
         crypt = std::make_unique<AESCrypt>(iv,key);
-        return "";
+        return DataResult::NO_DATA;
       }
     }
   }
-  return "";
+  return DataResult::NO_DATA;
 }
 
 void SizedClientConnection::sendRawMessage(const int8_t* rawData, uint32_t size) {
@@ -207,7 +209,7 @@ HttpClientConnection::HttpClientConnection(TCPSocket* connectionSocket, uint32_t
 {
 }
   
-std::string HttpClientConnection::handleIncommingData(int8_t* data, uint32_t bytes) {
+DataResult HttpClientConnection::handleIncommingData(int8_t* data, uint32_t bytes) {
   if (receivedBytes.size() > 1024*1204) receivedBytes.clear();
 
   receivedBytes.insert(receivedBytes.end(), data, data+bytes);
@@ -222,11 +224,12 @@ std::string HttpClientConnection::handleIncommingData(int8_t* data, uint32_t byt
           }
         }
         receivedBytes.erase(receivedBytes.begin(), receivedBytes.begin()+long(i+4));
-        return ss.str();
+        strData = ss.str();
+        return DataResult::STRING_DATA;
       }
     }
   }
-  return "";
+  return DataResult::NO_DATA;
 }
 
 
