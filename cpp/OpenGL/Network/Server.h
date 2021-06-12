@@ -39,7 +39,6 @@ protected:
   std::string key;
   uint32_t timeout;
 
-
   virtual DataResult handleIncommingData(int8_t* data, uint32_t bytes) = 0;
   virtual void sendMessage(std::string message) = 0;
   

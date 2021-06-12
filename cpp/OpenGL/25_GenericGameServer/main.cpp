@@ -42,6 +42,12 @@ int main(int argc, char ** argv) {
       std::cout << "(? for help) >";
       std::cin >> user;
       
+      if (std::cin.eof()) {
+        std::cout << "Caught Ctrl-D (EOF) resetting input. To terminate the server press 'q'." << std::endl;
+        std::cin.clear();
+        std::cin.ignore();
+      }
+      
       switch (user[0]) {
         case '?' :
           std::cout << "? : help\n";
