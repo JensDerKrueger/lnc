@@ -87,7 +87,7 @@ private:
     DataResult result;
     if (!finalFragment) {
       if (fragmentedBytes.size() > std::numeric_limits<size_t>::max() - payloadLength) {
-        connectionSocket->Close();
+        closeConnection(1009);
         return DataResult::NO_DATA;
       }
       fragmentedData = true;
@@ -96,7 +96,7 @@ private:
     } else {
       if (fragmentedData) {
         if (fragmentedBytes.size() > std::numeric_limits<size_t>::max() - payloadLength) {
-          connectionSocket->Close();
+          closeConnection(1009);
           return DataResult::NO_DATA;
         }
         fragmentedBytes.insert(fragmentedBytes.end(), receivedBytes.begin()+long(nextByte), receivedBytes.begin()+long(nextByte+payloadLength));
@@ -136,7 +136,7 @@ private:
     const uint8_t opcode = receivedBytes[0] & 0b00001111;
 
     if (!isMasked) {
-      connectionSocket->Close();
+      closeConnection(1002);
       return DataResult::NO_DATA;
     }
 
@@ -161,8 +161,15 @@ private:
       nextByte += 8;
     }
     
+    if (payloadLength > 1024*1024*1024) {
+      closeConnection(1009);
+      return DataResult::NO_DATA;
+    }
+    
+    // this code is here just for safety reasons, normally the previous line
+    // will bail on large frames already
     if (payloadLength > std::numeric_limits<size_t>::max() - (nextByte+4)) {
-      connectionSocket->Close();
+      closeConnection(1009);
       return DataResult::NO_DATA;
     }
         
@@ -220,6 +227,10 @@ private:
     return genFrame(message.size(), 0x02);
   }
 
+  void closeConnection(uint16_t reason) {
+    // TODO send closing frame
+    connectionSocket->Close();
+  }
   
 };
 
@@ -230,7 +241,7 @@ public:
   {
   }
   
-  virtual ~EchoServer() {    
+  virtual ~EchoServer() {
   }
   
   virtual void handleClientMessage(uint32_t id, const std::string& message) override {
@@ -244,7 +255,7 @@ public:
       std::cout << int(message[i]) << " ";
     }
     std::cout << std::dec << std::endl;
-    sendMessage({message}, id);
+    sendMessage(message, id);
   }
 };
 
@@ -253,10 +264,7 @@ int main(int argc, char ** argv) {
   EchoServer s(8899);
   s.start();
   
-  
-  
   while (true) {
-    
   }
   
   return EXIT_SUCCESS;
