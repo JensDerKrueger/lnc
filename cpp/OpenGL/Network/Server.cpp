@@ -90,7 +90,7 @@ SizedClientConnection::SizedClientConnection(TCPSocket* connectionSocket, uint32
 
 DataResult SizedClientConnection::checkData() {
   int8_t data[2048];
-  const uint32_t maxSize = std::min<uint32_t>(std::max<uint32_t>(4,messageLength),2048);
+  const uint32_t maxSize = std::clamp<uint32_t>(messageLength, 4, 2048);
   const uint32_t bytes = connectionSocket->ReceiveData(data, maxSize, 1);
   if (bytes > 0) {
     return handleIncommingData(data, bytes);
