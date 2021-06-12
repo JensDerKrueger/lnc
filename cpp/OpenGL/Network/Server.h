@@ -5,6 +5,7 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include <variant>
 
 #include "NetCommon.h"
 
@@ -26,7 +27,8 @@ public:
 
   virtual DataResult checkData();
   void enqueueMessage(const std::string& m);
-  
+  void enqueueMessage(const std::vector<uint8_t>& m);
+
   std::string getPeerAddress() const;
   uint16_t getPeerPort() const;
 
@@ -41,11 +43,12 @@ protected:
 
 
   virtual DataResult handleIncommingData(int8_t* data, uint32_t bytes) = 0;
-  virtual void sendMessage(std::string message) = 0;
+  virtual void sendMessage(const std::string& message) = 0;
+  virtual void sendMessage(const std::vector<uint8_t>& message) = 0;
   
 private:
   std::mutex messageQueueLock;
-  std::queue<std::string> messageQueue;
+  std::queue<std::variant<std::string, std::vector<uint8_t>>> messageQueue;
 
   bool continueRunning{true};
   std::thread sendThread;
@@ -72,10 +75,14 @@ protected:
   std::vector<int8_t> receivedBytes;
   
   virtual DataResult handleIncommingData(int8_t* data, uint32_t bytes) override;
-  virtual void sendMessage(std::string message) override;
+  virtual void sendMessage(const std::string& message) override;
+  virtual void sendMessage(const std::vector<uint8_t>& message) override {
+    throw MessageException("Can't send binary data");
+  }
 
   static std::string CRLF() {return std::string(1,char(13)) + std::string(1,char(10));}
   void sendString(const std::string& message);
+  void sendData(const std::vector<uint8_t>& message);
 };
 
 class SizedClientConnection : public BaseClientConnection {
@@ -87,7 +94,11 @@ public:
   
 protected:
   virtual DataResult handleIncommingData(int8_t* data, uint32_t bytes) override;
-  virtual void sendMessage(std::string message) override;
+  virtual void sendMessage(const std::string& message) override;
+  virtual void sendMessage(const std::vector<uint8_t>& message) override {
+    throw MessageException("Binary transfer not implemented yet.");
+  }
+
   
 private:
   uint32_t messageLength{0};
@@ -119,6 +130,7 @@ public:
   virtual void handleClientDisconnection(uint32_t id) {};
   
   void sendMessage(const std::string& message, uint32_t id=0, bool invertID=false);
+  void sendMessage(const std::vector<uint8_t>& message, uint32_t id=0, bool invertID=false);
   void closeConnection(uint32_t id);
   
   std::vector<uint32_t> getValidIDs();
@@ -180,6 +192,20 @@ void Server<T>::shutdownServer() {
   }
   ok = false;
 }
+
+template <class T>
+void Server<T>::sendMessage(const std::vector<uint8_t>& message, uint32_t id, bool invertID) {
+  clientVecMutex.lock();
+  for (size_t i = 0;i<clientConnections.size();++i) {
+    if (id == 0 ||
+        (!invertID && clientConnections[i]->getID() == id) ||
+        (invertID && clientConnections[i]->getID() != id)) {
+      clientConnections[i]->enqueueMessage(message);
+    }
+  }
+  clientVecMutex.unlock();
+}
+
 
 template <class T>
 void Server<T>::sendMessage(const std::string& message, uint32_t id, bool invertID) {
