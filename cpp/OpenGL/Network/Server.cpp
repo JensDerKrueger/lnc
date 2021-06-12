@@ -35,15 +35,32 @@ void BaseClientConnection::enqueueMessage(const std::string& m) {
   messageQueueLock.unlock();
 }
 
+void BaseClientConnection::enqueueMessage(const std::vector<uint8_t>& m) {
+  messageQueueLock.lock();
+  messageQueue.push(m);
+  messageQueueLock.unlock();
+}
+
 void BaseClientConnection::sendFunc() {
   while (continueRunning) {
     try {
       if (!messageQueue.empty()) {
         messageQueueLock.lock();
-        std::string front = messageQueue.front();
-        messageQueue.pop();
-        messageQueueLock.unlock();
-        sendMessage(front);
+        
+        const auto& frontElement = messageQueue.front();
+        
+        if (std::holds_alternative<std::string>(frontElement)) {
+          const std::string front = std::get<std::string>(frontElement);
+          messageQueue.pop();
+          messageQueueLock.unlock();
+          sendMessage(front);
+        } else {
+          const std::vector<uint8_t> front = std::get<std::vector<uint8_t>>(frontElement);
+          messageQueue.pop();
+          messageQueueLock.unlock();
+          sendMessage(front);
+        }
+        
       } else {
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
       }
@@ -98,20 +115,19 @@ DataResult SizedClientConnection::checkData() {
   return DataResult::NO_DATA;
 }
 
-void SizedClientConnection::sendMessage(std::string message) {
+void SizedClientConnection::sendMessage(const std::string& message) {
   if (!key.empty()) {
-    if (sendCrypt) {
-      message = sendCrypt->encryptString(message);
-    } else {
+    if (!sendCrypt) {
       AESCrypt tempCrypt("1234567890123456",key);
       std::string iv = AESCrypt::genIVString();
       std::string initMessage = tempCrypt.encryptString(genHandshake(iv, key));
       sendCrypt = std::make_unique<AESCrypt>(iv,key);
       sendRawMessage(initMessage);
-      message = sendCrypt->encryptString(message);
     }
+    sendRawMessage(sendCrypt->encryptString(message));
+  } else {
+    sendRawMessage(message);
   }
-  sendRawMessage(message);
 }
 
 DataResult SizedClientConnection::handleIncommingData(int8_t* data, uint32_t bytes) {
@@ -255,6 +271,23 @@ HTTPRequest HttpClientConnection::parseHTTPRequest(const std::string& initialMes
   return result;
 }
 
+void HttpClientConnection::sendData(const std::vector<uint8_t>& message) {
+  uint32_t currentBytes = 0;
+  uint32_t totalBytes = 0;
+
+  try {
+    do {
+      currentBytes = connectionSocket->SendData((int8_t*)(message.data()) + totalBytes, uint32_t(message.size())-totalBytes, timeout);
+      totalBytes += currentBytes;
+    } while (currentBytes > 0 && totalBytes < message.size());
+
+    if (currentBytes == 0 && totalBytes < message.size()) {
+      std::cerr << "lost data while trying to send " << message.size() << " (actually send:" << totalBytes << ", timeout:" <<  timeout << ")" << std::endl;
+    }
+  } catch (SocketException const&  ) {
+  }
+}
+
 void HttpClientConnection::sendString(const std::string& message) {
   uint32_t currentBytes = 0;
   uint32_t totalBytes = 0;
@@ -272,7 +305,7 @@ void HttpClientConnection::sendString(const std::string& message) {
   }
 }
   
-void HttpClientConnection::sendMessage(std::string message) {
+void HttpClientConnection::sendMessage(const std::string& message) {
   
   std::stringstream ss;
   ss << "HTTP/1.1 200 OK" << CRLF()

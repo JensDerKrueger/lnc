@@ -20,8 +20,13 @@
         }, 2000);
       };
       
-      socket.onmessage = function(msg) {
-        document.getElementById("status").innerHTML += "Received Message: " + msg.data +"<br>";
+      socket.onmessage = async function(msg) {
+        if (typeof msg.data === "string")
+          document.getElementById("status").innerHTML += "Received String Message: " + msg.data +"<br>";
+        else
+          document.getElementById("status").innerHTML += "Received Binary Message: ->" + await msg.data.text() +" <- <br>";
+        
+        console.log(msg.data);
       };
       
       socket.onclose = function() {

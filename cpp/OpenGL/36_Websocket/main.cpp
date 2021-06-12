@@ -47,11 +47,17 @@ protected:
     return DataResult::NO_DATA;
   }
   
-  virtual void sendMessage(std::string message) override {
-    HttpClientConnection::sendString(genFrame(message));
+  virtual void sendMessage(const std::string& message) override {
+    HttpClientConnection::sendData(genFrame(message));
     HttpClientConnection::sendString(message);
   }
 
+  virtual void sendMessage(const std::vector<uint8_t>& message) override {
+    HttpClientConnection::sendData(genFrame(message));
+    HttpClientConnection::sendData(message);
+  }
+
+  
 private:
   
   void handleHandshake(const std::string& initialMessage) {
@@ -81,7 +87,7 @@ private:
     DataResult result;
     if (!finalFragment) {
       if (fragmentedBytes.size() > std::numeric_limits<size_t>::max() - payloadLength) {
-        connectionSocket->Close();
+        closeConnection(1009);
         return DataResult::NO_DATA;
       }
       fragmentedData = true;
@@ -90,7 +96,7 @@ private:
     } else {
       if (fragmentedData) {
         if (fragmentedBytes.size() > std::numeric_limits<size_t>::max() - payloadLength) {
-          connectionSocket->Close();
+          closeConnection(1009);
           return DataResult::NO_DATA;
         }
         fragmentedBytes.insert(fragmentedBytes.end(), receivedBytes.begin()+long(nextByte), receivedBytes.begin()+long(nextByte+payloadLength));
@@ -130,7 +136,7 @@ private:
     const uint8_t opcode = receivedBytes[0] & 0b00001111;
 
     if (!isMasked) {
-      connectionSocket->Close();
+      closeConnection(1002);
       return DataResult::NO_DATA;
     }
 
@@ -142,6 +148,8 @@ private:
     
     size_t nextByte{2};
     uint64_t payloadLength = receivedBytes[1] & 0b01111111;
+    
+    // TODO: endianess conversion
     if (payloadLength == 126) {
       payloadLength = ((uint64_t)receivedBytes[2] << 8) | (uint64_t)receivedBytes[3];
       nextByte += 2;
@@ -153,8 +161,15 @@ private:
       nextByte += 8;
     }
     
+    if (payloadLength > 1024*1024*1024) {
+      closeConnection(1009);
+      return DataResult::NO_DATA;
+    }
+    
+    // this code is here just for safety reasons, normally the previous line
+    // will bail on large frames already
     if (payloadLength > std::numeric_limits<size_t>::max() - (nextByte+4)) {
-      connectionSocket->Close();
+      closeConnection(1009);
       return DataResult::NO_DATA;
     }
         
@@ -174,11 +189,48 @@ private:
     return generateResult(finalFragment, nextByte, payloadLength);
   }
 
-  std::string genFrame(const std::string& message) {
-    // TODO
-    return "";
+  std::vector<uint8_t> genFrame(uint64_t s, uint8_t code) {
+    std::vector<uint8_t> frame(2);
+    
+    frame[0] = 1 << 7 |
+               0 << 6 |
+               0 << 5 |
+               0 << 4 |
+               (code & 0b00001111);
+
+    if (s < 126) {
+      frame[1] = 0 << 7 |
+                 uint8_t(s & 0b0111111);
+    } else {
+      frame.push_back(uint8_t(s & 0b0000000000000000000000000000000000000000000000001111111100000000));
+      frame.push_back(uint8_t(s & 0b0000000000000000000000000000000000000000000000000000000011111111));
+      if (s <= 1 << 16) {
+        frame[1] = 0 << 7 | 126;
+      } else {
+        frame[1] = 0 << 7 | 127;
+        frame.push_back(uint8_t(s & 0b1111111100000000000000000000000000000000000000000000000000000000));
+        frame.push_back(uint8_t(s & 0b0000000011111111000000000000000000000000000000000000000000000000));
+        frame.push_back(uint8_t(s & 0b0000000000000000111111110000000000000000000000000000000000000000));
+        frame.push_back(uint8_t(s & 0b0000000000000000000000001111111100000000000000000000000000000000));
+        frame.push_back(uint8_t(s & 0b0000000000000000000000000000000011111111000000000000000000000000));
+        frame.push_back(uint8_t(s & 0b0000000000000000000000000000000000000000111111110000000000000000));
+      }
+    }
+    return frame;
   }
 
+  std::vector<uint8_t> genFrame(const std::string& message) {
+    return genFrame(message.length(), 0x01);
+  }
+
+  std::vector<uint8_t> genFrame(const std::vector<uint8_t>& message) {
+    return genFrame(message.size(), 0x02);
+  }
+
+  void closeConnection(uint16_t reason) {
+    // TODO send closing frame
+    connectionSocket->Close();
+  }
   
 };
 
@@ -190,10 +242,11 @@ public:
   }
   
   virtual ~EchoServer() {
-    
   }
+  
   virtual void handleClientMessage(uint32_t id, const std::string& message) override {
     std::cout << "Str: " << message << std::endl;
+    sendMessage(message, id);
   }
 
   virtual void handleClientMessage(uint32_t id, const std::vector<uint8_t>& message) override {
@@ -202,8 +255,8 @@ public:
       std::cout << int(message[i]) << " ";
     }
     std::cout << std::dec << std::endl;
+    sendMessage(message, id);
   }
-
 };
 
 
@@ -212,7 +265,6 @@ int main(int argc, char ** argv) {
   s.start();
   
   while (true) {
-    
   }
   
   return EXIT_SUCCESS;
