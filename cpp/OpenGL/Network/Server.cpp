@@ -487,6 +487,8 @@ DataResult WebSocketConnection::handleFrame() {
     case 0x2 : isBinary = true; break;
   }
   
+  // TODO: handle ping, pong and close opcodes
+  
   size_t nextByte{2};
   uint64_t payloadLength = receivedBytes[1] & 0b01111111;
   
