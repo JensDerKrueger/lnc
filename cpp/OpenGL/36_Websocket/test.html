@@ -4,42 +4,116 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title>WebSocket Test</title>
     <script type="text/javascript">
-      var toggle = 0;
-      function getUpdateData() {
-        toggle = 1-toggle
-        return toggle==0 ? new Uint8Array([65, 66, 67, 68, 69]) : "Hallo Welt"
+      var mouseX, mouseY, mouseDown=false;
+      var h = 0;
+      var canvas, ctx;
+      const socket = new WebSocket('ws://localhost:8899');
+
+      function HSVtoRGB(h, s, v) {
+        var r, g, b, i, f, p, q, t;
+        i = Math.floor(h * 6);
+        f = h * 6 - i;
+        p = v * (1 - s);
+        q = v * (1 - f * s);
+        t = v * (1 - (1 - f) * s);
+        switch (i % 6) {
+          case 0: r = v, g = t, b = p; break;
+          case 1: r = q, g = v, b = p; break;
+          case 2: r = p, g = v, b = t; break;
+          case 3: r = p, g = q, b = v; break;
+          case 4: r = t, g = p, b = v; break;
+          case 5: r = v, g = p, b = q; break;
+        }
+        return {
+          r: Math.round(r * 255),
+          g: Math.round(g * 255),
+          b: Math.round(b * 255)
+        };
+      }
+      
+      function init() {
+        canvas = document.getElementById("drawArea");
+        canvas.onmousemove = handleMouseMove;
+        canvas.onmousedown = handleMouseDown;
+        canvas.onmouseup   = handleMouseUp;
+        
+        ctx = canvas.getContext("2d");
+        ctx.globalCompositeOperation = "source-over";
+        
+        ctx.fillStyle = "rgba(0,0,255,0.1)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
       }
 
-      const socket = new WebSocket('ws://localhost:8899');
+      function dropPaint() {
+        var rgb = HSVtoRGB(h/1000,1.0,1.0);
+        h = (h + 1) % 1000;
+        
+        if(socket.readyState == 1)
+          socket.send(new Uint16Array([mouseX, mouseY, rgb.r, rgb.g, rgb.b]));
+      }
       
+      function handleMouseDown(event) {
+        if (event.button === 0) {
+          mouseDown = true;
+          dropPaint();
+        }
+      }
+
+      function handleMouseUp(event) {
+        if (event.button === 0)
+          mouseDown = false;
+      }
+
+      function handleMouseMove(event) {
+        mouseX = event.offsetX;
+        mouseY = event.offsetY;
+        
+        if (mouseDown) dropPaint();
+      }
+            
       socket.onopen = function () {
         document.getElementById("status").innerHTML += "Connection open<br>";
-        setInterval(function() {
-          if (socket.bufferedAmount == 0)
-            socket.send(getUpdateData());
-        }, 2000);
       };
       
-      socket.onmessage = async function(msg) {
+      socket.onmessage = function (msg) {
         if (typeof msg.data === "string")
           document.getElementById("status").innerHTML += "Received String Message: " + msg.data +"<br>";
-        else
-          document.getElementById("status").innerHTML += "Received Binary Message: ->" + await msg.data.text() +" <- <br>";
-        
-        console.log(msg.data);
+        else {
+          var reader = new FileReader();
+          reader.readAsArrayBuffer(msg.data);
+          reader.addEventListener("loadend", function(e) {
+              var buffer = new Uint16Array(e.target.result);
+              
+              var sprite = ctx.createImageData(10, 10);
+              for (var y = 0; y < sprite.height; ++y) {
+                for (var x = 0; x < sprite.width; ++x) {
+                  var i = (x+y*sprite.width)*4;
+                  sprite.data[i + 0] = buffer[2];
+                  sprite.data[i + 1] = buffer[3];
+                  sprite.data[i + 2] = buffer[4];
+                  sprite.data[i + 3] = 255;
+                }
+              }
+
+              ctx.putImageData(sprite, buffer[0], buffer[1]);
+          });
+          
+          
+        }
       };
-      
+
       socket.onclose = function() {
         document.getElementById("status").innerHTML += "Connection closed" +"<br>";
       };
     </script>
   </head>
 
-  <body>
+  <body onload="init();">
     <H1>Test</H1>
+    <canvas id="drawArea" width="500" height="500"></canvas>
     <p id="status"></p>
-  
   </body>
 </html>
+
 
 
