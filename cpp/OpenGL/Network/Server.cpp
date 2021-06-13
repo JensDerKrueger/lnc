@@ -1,6 +1,30 @@
 #include "Server.h"
 
 #include "StringTools.h"
+#include "SHA1.h"
+
+
+static bool isBigEndian(void) {
+  union {
+    int i;
+    char c[sizeof(int32_t)];
+  } tmp;
+  tmp.i=0x1020;
+  return tmp.c[0]!=0x20;
+}
+
+template <typename T> T swapEndian(T u) {
+  static_assert (CHAR_BIT == 8, "CHAR_BIT != 8");
+  union {
+    T u;
+    unsigned char u8[sizeof(T)];
+  } source, dest;
+
+  source.u = u;
+  for (size_t k = 0; k < sizeof(T); k++)
+    dest.u8[k] = source.u8[sizeof(T) - k - 1];
+  return dest.u;
+}
 
 BaseClientConnection::BaseClientConnection(TCPSocket* connectionSocket, uint32_t id, const std::string& key, uint32_t timeout) :
   connectionSocket(connectionSocket),
@@ -46,8 +70,8 @@ void BaseClientConnection::sendFunc() {
     try {
       if (!messageQueue.empty()) {
         messageQueueLock.lock();
-        
-        const auto& frontElement = messageQueue.front();
+                
+        const auto frontElement = std::move(messageQueue.front());
         
         if (std::holds_alternative<std::string>(frontElement)) {
           const std::string front = std::get<std::string>(frontElement);
@@ -60,7 +84,6 @@ void BaseClientConnection::sendFunc() {
           messageQueueLock.unlock();
           sendMessage(front);
         }
-        
       } else {
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
       }
@@ -316,4 +339,234 @@ void HttpClientConnection::sendMessage(const std::string& message) {
 
   sendString(ss.str());
   connectionSocket->Close();
+}
+
+
+WebSocketConnection::WebSocketConnection(TCPSocket* connectionSocket, uint32_t id, const std::string& key, uint32_t timeout) :
+  HttpClientConnection(connectionSocket, id, key, timeout)
+{
+}
+
+WebSocketConnection::~WebSocketConnection() {
+  closeWebsocket(CloseReason::NormalClosure);
+}
+
+DataResult WebSocketConnection::handleIncommingData(int8_t* data, uint32_t bytes) {
+  if (handshakeComplete) {
+    receivedBytes.insert(receivedBytes.end(), data, data+bytes);
+    return handleFrame();
+  } else {
+    if (receivedBytes.size() > 1024*1204) receivedBytes.clear();
+    receivedBytes.insert(receivedBytes.end(), data, data+bytes);
+    if (receivedBytes.size() > 3) {
+      for (uint32_t i = 0;i<receivedBytes.size()-3;++i) {
+        if (receivedBytes[i] == 13 && receivedBytes[i+1] == 10 &&
+            receivedBytes[i+2] == 13 && receivedBytes[i+3] == 10) {
+          std::stringstream ss;
+          if (i > 0) {
+            for (uint32_t j = 0;j<i;++j) {
+              ss << receivedBytes[j];
+            }
+          }
+          receivedBytes.erase(receivedBytes.begin(), receivedBytes.begin()+long(i+4));
+          handleHandshake(ss.str());
+          return DataResult::NO_DATA;
+        }
+      }
+    }
+  }
+  return DataResult::NO_DATA;
+}
+
+void WebSocketConnection::sendMessage(const std::string& message) {
+  HttpClientConnection::sendData(genFrame(message));
+  HttpClientConnection::sendString(message);
+}
+
+void WebSocketConnection::sendMessage(const std::vector<uint8_t>& message) {
+  HttpClientConnection::sendData(genFrame(message));
+  HttpClientConnection::sendData(message);
+}
+
+void WebSocketConnection::closeWebsocket(CloseReason reason) {
+  const uint16_t iReason = (isBigEndian()) ? swapEndian(uint16_t(reason)) : uint16_t(reason);
+  
+  HttpClientConnection::sendData(genFrame(2,0x8));
+  std::vector<uint8_t> data{
+    uint8_t(iReason & 0b111111100000000),
+    uint8_t(iReason & 0b000000001111111)
+  };
+  HttpClientConnection::sendData(data);
+  connectionSocket->Close();
+}
+
+
+void WebSocketConnection::handleHandshake(const std::string& initialMessage) {
+  HTTPRequest request = parseHTTPRequest(initialMessage);
+  if (request.name == "GET" &&
+      toLower(request.parameters["upgrade"]) == "websocket" &&
+      toLower(request.parameters["connection"]) == "upgrade") {
+    const std::string challengeResponse = base64_encode(sha1(request.parameters["sec-websocket-key"] + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"));
+    std::stringstream ss;
+    ss << "HTTP/1.1 101 Switching Protocols" << CRLF()
+       << "Upgrade: websocket" << CRLF()
+       << "Connection: Upgrade" << CRLF()
+       << "Sec-WebSocket-Accept: " << challengeResponse << CRLF()
+       << CRLF();
+    sendString(ss.str());
+    handshakeComplete = true;
+  }
+}
+
+void WebSocketConnection::unmask(size_t nextByte, size_t payloadLength, const std::array<uint8_t, 4>& mask) {
+  for (size_t i = 0;i<payloadLength;++i) {
+    receivedBytes[i+nextByte] = receivedBytes[i+nextByte] ^ mask[i%4];
+  }
+}
+
+DataResult WebSocketConnection::generateResult(bool finalFragment, size_t nextByte, uint64_t payloadLength) {
+  DataResult result;
+  if (!finalFragment) {
+    if (fragmentedBytes.size() > std::numeric_limits<size_t>::max() - payloadLength) {
+      closeWebsocket(CloseReason::MessageTooBig);
+      return DataResult::NO_DATA;
+    }
+    fragmentedData = true;
+    fragmentedBytes.insert(fragmentedBytes.end(), receivedBytes.begin()+long(nextByte), receivedBytes.begin()+long(nextByte+payloadLength));
+    result = DataResult::NO_DATA;
+  } else {
+    if (fragmentedData) {
+      if (fragmentedBytes.size() > std::numeric_limits<size_t>::max() - payloadLength) {
+        closeWebsocket(CloseReason::MessageTooBig);
+        return DataResult::NO_DATA;
+      }
+      fragmentedBytes.insert(fragmentedBytes.end(), receivedBytes.begin()+long(nextByte), receivedBytes.begin()+long(nextByte+payloadLength));
+      if (isBinary) {
+        binData = std::vector<uint8_t>{receivedBytes.begin()+long(nextByte), receivedBytes.begin()+long(nextByte+payloadLength)};
+        result = DataResult::BINARY_DATA;
+      } else {
+        strData = std::string{fragmentedBytes.begin(), fragmentedBytes.end()};
+        result = DataResult::STRING_DATA;
+      }
+      fragmentedData = false;
+      fragmentedBytes.clear();
+    } else {
+      if (isBinary) {
+        binData = std::vector<uint8_t>{receivedBytes.begin()+long(nextByte), receivedBytes.begin()+long(nextByte+payloadLength)};
+        result = DataResult::BINARY_DATA;
+      } else {
+        strData = std::string{receivedBytes.begin()+long(nextByte), receivedBytes.begin()+long(nextByte+payloadLength)};
+        result = DataResult::STRING_DATA;
+      }
+    }
+  }
+  receivedBytes.erase(receivedBytes.begin(), receivedBytes.begin()+long(nextByte+payloadLength));
+  return result;
+}
+
+DataResult WebSocketConnection::handleFrame() {
+  if (receivedBytes.size() < 6) {
+    return DataResult::NO_DATA;
+  }
+  
+  const std::bitset<8> firstByte{receivedBytes[0]};
+  const std::bitset<8> secondByte{receivedBytes[1]};
+  
+  const bool finalFragment{firstByte[7]};
+  const bool isMasked{secondByte[7]};
+  const uint8_t opcode = receivedBytes[0] & 0b00001111;
+
+  if (!isMasked) {
+    closeWebsocket(CloseReason::ProtocolError);
+    return DataResult::NO_DATA;
+  }
+
+  switch (opcode) {
+    case 0x0 : break;
+    case 0x1 : isBinary = false; break;
+    case 0x2 : isBinary = true; break;
+  }
+  
+  size_t nextByte{2};
+  uint64_t payloadLength = receivedBytes[1] & 0b01111111;
+  
+  if (payloadLength == 126) {
+    payloadLength = ((uint64_t)receivedBytes[2] << 8) | (uint64_t)receivedBytes[3];
+    nextByte += 2;
+  } else if (payloadLength == 127) {
+    payloadLength = ((uint64_t)receivedBytes[2] << 56) | ((uint64_t)receivedBytes[3] << 48) |
+                    ((uint64_t)receivedBytes[4] << 40) | ((uint64_t)receivedBytes[5] << 32) |
+                    ((uint64_t)receivedBytes[6] << 24) | ((uint64_t)receivedBytes[7] << 16) |
+                    ((uint64_t)receivedBytes[8] << 8)  | (uint64_t)receivedBytes[9];
+    nextByte += 8;
+  }
+  
+  if (isBigEndian()) payloadLength = swapEndian(payloadLength);
+  
+  if (payloadLength > 1024*1024*1024) {
+    closeWebsocket(CloseReason::MessageTooBig);
+    return DataResult::NO_DATA;
+  }
+  
+  // this code is here just for safety reasons, normally the previous line
+  // will bail on large frames already
+  if (payloadLength > std::numeric_limits<size_t>::max() - (nextByte+4)) {
+    closeWebsocket(CloseReason::MessageTooBig);
+    return DataResult::NO_DATA;
+  }
+      
+  if (receivedBytes.size() < nextByte+4+payloadLength) {
+    return DataResult::NO_DATA;
+  }
+  
+  const std::array<uint8_t, 4> mask {
+    receivedBytes[nextByte+0],
+    receivedBytes[nextByte+1],
+    receivedBytes[nextByte+2],
+    receivedBytes[nextByte+3]
+  };
+  nextByte += 4;
+  
+  unmask(nextByte, payloadLength, mask);
+  return generateResult(finalFragment, nextByte, payloadLength);
+}
+
+std::vector<uint8_t> WebSocketConnection::genFrame(uint64_t s, uint8_t code) {
+  if (isBigEndian()) s = swapEndian(s);
+  
+  std::vector<uint8_t> frame(2);
+  
+  frame[0] = 1 << 7 |
+             0 << 6 |
+             0 << 5 |
+             0 << 4 |
+             (code & 0b00001111);
+
+  if (s < 126) {
+    frame[1] = 0 << 7 |
+               uint8_t(s & 0b0111111);
+  } else {
+    frame.push_back(uint8_t(s & 0b0000000000000000000000000000000000000000000000001111111100000000));
+    frame.push_back(uint8_t(s & 0b0000000000000000000000000000000000000000000000000000000011111111));
+    if (s <= 1 << 16) {
+      frame[1] = 0 << 7 | 126;
+    } else {
+      frame[1] = 0 << 7 | 127;
+      frame.push_back(uint8_t(s & 0b1111111100000000000000000000000000000000000000000000000000000000));
+      frame.push_back(uint8_t(s & 0b0000000011111111000000000000000000000000000000000000000000000000));
+      frame.push_back(uint8_t(s & 0b0000000000000000111111110000000000000000000000000000000000000000));
+      frame.push_back(uint8_t(s & 0b0000000000000000000000001111111100000000000000000000000000000000));
+      frame.push_back(uint8_t(s & 0b0000000000000000000000000000000011111111000000000000000000000000));
+      frame.push_back(uint8_t(s & 0b0000000000000000000000000000000000000000111111110000000000000000));
+    }
+  }
+  return frame;
+}
+
+std::vector<uint8_t> WebSocketConnection::genFrame(const std::string& message) {
+  return genFrame(message.length(), 0x01);
+}
+
+std::vector<uint8_t> WebSocketConnection::genFrame(const std::vector<uint8_t>& message) {
+  return genFrame(message.size(), 0x02);
 }

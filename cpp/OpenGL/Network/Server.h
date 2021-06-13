@@ -111,6 +111,53 @@ private:
   std::vector<uint8_t> intToVec(uint32_t i) const;
 };
 
+  
+class WebSocketConnection : public HttpClientConnection {
+public:
+  enum class CloseReason {
+    NormalClosure = 1000,
+    GoingAway = 1001,
+    ProtocolError = 1002,
+    UnsupportedData = 1003,
+    NoStatusRcvd = 1005,
+    AbnormalClosure = 1006,
+    InvalidFramePayloadData = 1007,
+    PolicyViolation = 1008,
+    MessageTooBig = 1009,
+    MandatoryExt = 1010,
+    InternalServerError = 1011,
+    TLSHandshake = 1015
+  };
+
+  WebSocketConnection(TCPSocket* connectionSocket, uint32_t id, const std::string& key, uint32_t timeout);
+  virtual ~WebSocketConnection();
+  
+protected:
+  bool handshakeComplete{false};
+  bool fragmentedData{false};
+  bool isBinary{false};
+  std::vector<uint8_t> receivedBytes;
+  std::vector<uint8_t> fragmentedBytes;
+  
+  virtual DataResult handleIncommingData(int8_t* data, uint32_t bytes) override;
+  virtual void sendMessage(const std::string& message) override;
+  virtual void sendMessage(const std::vector<uint8_t>& message) override;
+
+
+  
+private:
+  void handleHandshake(const std::string& initialMessage);
+  void unmask(size_t nextByte, size_t payloadLength, const std::array<uint8_t, 4>& mask);
+  DataResult generateResult(bool finalFragment, size_t nextByte, uint64_t payloadLength);
+  DataResult handleFrame();
+  static std::vector<uint8_t> genFrame(uint64_t s, uint8_t code);
+  static std::vector<uint8_t> genFrame(const std::string& message);
+  static std::vector<uint8_t> genFrame(const std::vector<uint8_t>& message);
+  virtual void closeWebsocket(CloseReason reason);
+
+};
+
+
 template <class T = SizedClientConnection>
 class Server {
 public:
