@@ -2,12 +2,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>Websocket Test</title>
+    <title>WebSocket Test</title>
     <script type="text/javascript">
       var toggle = 0;
       function getUpdateData() {
         toggle = 1-toggle
-        return toggle==0 ? new Uint8Array(10) : "Hallo Welt"
+        return toggle==0 ? new Uint8Array([65, 66, 67, 68, 69]) : "Hallo Welt"
       }
 
       const socket = new WebSocket('ws://localhost:8899');
