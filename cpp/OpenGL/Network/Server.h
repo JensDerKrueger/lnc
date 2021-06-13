@@ -14,7 +14,8 @@
 enum class DataResult {
   NO_DATA,
   STRING_DATA,
-  BINARY_DATA
+  BINARY_DATA,
+  PROTOCOL_DATA
 };
 
 class BaseClientConnection {
@@ -34,6 +35,7 @@ public:
 
   std::string strData;
   std::vector<uint8_t> binData;
+  uint32_t protocolDataID;
 
 protected:
   TCPSocket* connectionSocket;
@@ -133,6 +135,7 @@ public:
   virtual ~WebSocketConnection();
   
 protected:
+  uint8_t currentOpcode;
   bool handshakeComplete{false};
   bool fragmentedData{false};
   bool isBinary{false};
@@ -143,8 +146,6 @@ protected:
   virtual void sendMessage(const std::string& message) override;
   virtual void sendMessage(const std::vector<uint8_t>& message) override;
 
-
-  
 private:
   void handleHandshake(const std::string& initialMessage);
   void unmask(size_t nextByte, size_t payloadLength, const std::array<uint8_t, 4>& mask);
@@ -154,6 +155,9 @@ private:
   static std::vector<uint8_t> genFrame(const std::string& message);
   static std::vector<uint8_t> genFrame(const std::vector<uint8_t>& message);
   virtual void closeWebsocket(CloseReason reason);
+  
+  void sendPong();
+  CloseReason extractReason();
 
 };
 
@@ -173,6 +177,8 @@ public:
   virtual void handleClientMessage(uint32_t id, const std::vector<uint8_t>& message) {
     handleClientMessage(id, std::string(message.begin(),message.end()));
   }
+  virtual void handleProtocolMessage(uint32_t id, uint32_t messageID, const std::vector<uint8_t>& message) {}
+
   virtual void handleClientDisconnection(uint32_t id) {};
   
   void sendMessage(const std::string& message, uint32_t id=0, bool invertID=false);
@@ -298,6 +304,9 @@ void Server<T>::clientFunc() {
               break;
             case DataResult::BINARY_DATA:
               handleClientMessage(clientConnections[i]->getID(), std::move(clientConnections[i]->binData));
+              break;
+            case DataResult::PROTOCOL_DATA:
+              handleProtocolMessage(clientConnections[i]->getID(), clientConnections[i]->protocolDataID, std::move(clientConnections[i]->binData));
               break;
             case DataResult::NO_DATA:
               // never hit, silnce warning

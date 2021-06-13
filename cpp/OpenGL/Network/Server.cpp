@@ -329,18 +329,18 @@ void HttpClientConnection::sendString(const std::string& message) {
 }
   
 void HttpClientConnection::sendMessage(const std::string& message) {
-  
   std::stringstream ss;
   ss << "HTTP/1.1 200 OK" << CRLF()
      << "Server: LNC-Server" << CRLF()
      << "Accept-Ranges: bytes" << CRLF()
      << "Content-Type: text/plain" << CRLF() << CRLF();
   ss << message;
-
   sendString(ss.str());
-  connectionSocket->Close();
+  try {
+    connectionSocket->Close();
+  } catch (SocketException const&  ) {
+  }
 }
-
 
 WebSocketConnection::WebSocketConnection(TCPSocket* connectionSocket, uint32_t id, const std::string& key, uint32_t timeout) :
   HttpClientConnection(connectionSocket, id, key, timeout)
@@ -397,9 +397,11 @@ void WebSocketConnection::closeWebsocket(CloseReason reason) {
     uint8_t(iReason & 0b000000001111111)
   };
   HttpClientConnection::sendData(data);
-  connectionSocket->Close();
+  try {
+    connectionSocket->Close();
+  } catch (SocketException const&  ) {
+  }
 }
-
 
 void WebSocketConnection::handleHandshake(const std::string& initialMessage) {
   HTTPRequest request = parseHTTPRequest(initialMessage);
@@ -459,10 +461,41 @@ DataResult WebSocketConnection::generateResult(bool finalFragment, size_t nextBy
         result = DataResult::STRING_DATA;
       }
     }
+    
+    switch (currentOpcode) {
+      case 0x8:
+        closeWebsocket(extractReason());
+        protocolDataID = 0x8;
+        result = DataResult::PROTOCOL_DATA;
+        break;
+      case 0x9:
+        sendPong();
+        protocolDataID =0x9;
+        result = DataResult::PROTOCOL_DATA;
+        break;
+      case 0xA:
+        protocolDataID =0xA;
+        result = DataResult::PROTOCOL_DATA;
+        break;
+      default:
+        break;
+    }
+
   }
   receivedBytes.erase(receivedBytes.begin(), receivedBytes.begin()+long(nextByte+payloadLength));
   return result;
 }
+
+WebSocketConnection::CloseReason WebSocketConnection::extractReason() {
+  // TODO: extract reason from binData;
+  return CloseReason::NormalClosure;
+}
+
+void WebSocketConnection::sendPong() {
+  HttpClientConnection::sendData(genFrame(binData.size(), 0x0A));
+  HttpClientConnection::sendData(binData);
+}
+
 
 DataResult WebSocketConnection::handleFrame() {
   if (receivedBytes.size() < 6) {
@@ -481,13 +514,10 @@ DataResult WebSocketConnection::handleFrame() {
     return DataResult::NO_DATA;
   }
 
-  switch (opcode) {
-    case 0x0 : break;
-    case 0x1 : isBinary = false; break;
-    case 0x2 : isBinary = true; break;
+  if (opcode != 0) {
+    currentOpcode = opcode;
+    isBinary = (opcode != 0x1);
   }
-  
-  // TODO: handle ping, pong and close opcodes
   
   size_t nextByte{2};
   uint64_t payloadLength = receivedBytes[1] & 0b01111111;
