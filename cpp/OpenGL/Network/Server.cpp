@@ -1,3 +1,7 @@
+#include <algorithm>
+#include <bitset>
+#include <climits>
+
 #include "Server.h"
 
 #include "StringTools.h"
