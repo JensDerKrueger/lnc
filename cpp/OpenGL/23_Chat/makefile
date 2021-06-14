@@ -3,12 +3,12 @@ OSTYPE := $(shell uname)
 
 ifeq ($(OSTYPE),Linux)
 	CFLAGS=-c -Wall -std=c++17 -Wunreachable-code -fopenmp
-	LFLAGS=-fopenmp
+	LFLAGS=-fopenmp -L../Network -lnetwork -L../Utils -lutils
 	LIBS=
-	INCLUDES=-I. -I../Network
+	INCLUDES=-I. -I../Network -I../Utils
 else
 	CFLAGS=-c -Wall -std=c++17 -Wunreachable-code -Xclang -fopenmp
-	LFLAGS=-L../Network -lnetwork
+	LFLAGS=-L../Network -lnetwork -L../Utils -lutils
 	LIBS=-lomp -L ../../openmp/lib -L /opt/homebrew/lib
 	INCLUDES=-I. -I ../../openmp/include -I /opt/homebrew/include -I../Network
 endif
