@@ -582,20 +582,21 @@ std::vector<uint8_t> WebSocketConnection::genFrame(uint64_t s, uint8_t code) {
     frame[1] = 0 << 7 |
                uint8_t(s & 0b01111111);
   } else {
-    frame.push_back(uint8_t(s & 0b0000000000000000000000000000000000000000000000001111111100000000));
-    frame.push_back(uint8_t(s & 0b0000000000000000000000000000000000000000000000000000000011111111));
+    frame.push_back(uint8_t((s >> 8) & 0xFF));
+    frame.push_back(uint8_t((s >> 0) & 0xFF));
     if (s <= 1 << 16) {
       frame[1] = 0 << 7 | 126;
     } else {
       frame[1] = 0 << 7 | 127;
-      frame.push_back(uint8_t(s & 0b1111111100000000000000000000000000000000000000000000000000000000));
-      frame.push_back(uint8_t(s & 0b0000000011111111000000000000000000000000000000000000000000000000));
-      frame.push_back(uint8_t(s & 0b0000000000000000111111110000000000000000000000000000000000000000));
-      frame.push_back(uint8_t(s & 0b0000000000000000000000001111111100000000000000000000000000000000));
-      frame.push_back(uint8_t(s & 0b0000000000000000000000000000000011111111000000000000000000000000));
-      frame.push_back(uint8_t(s & 0b0000000000000000000000000000000000000000111111110000000000000000));
+      frame.push_back(uint8_t((s >> 56) & 0xFF));
+      frame.push_back(uint8_t((s >> 48) & 0xFF));
+      frame.push_back(uint8_t((s >> 40) & 0xFF));
+      frame.push_back(uint8_t((s >> 32) & 0xFF));
+      frame.push_back(uint8_t((s >> 24) & 0xFF));
+      frame.push_back(uint8_t((s >> 16) & 0xFF));
     }
   }
+  
   return frame;
 }
 
