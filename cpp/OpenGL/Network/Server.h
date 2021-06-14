@@ -248,7 +248,7 @@ void Server<T>::shutdownServer() {
 
 template <class T>
 void Server<T>::sendMessage(const std::vector<uint8_t>& message, uint32_t id, bool invertID) {
-  clientVecMutex.lock();
+  const std::scoped_lock<std::mutex> lock(clientVecMutex);
   for (size_t i = 0;i<clientConnections.size();++i) {
     if (id == 0 ||
         (!invertID && clientConnections[i]->getID() == id) ||
@@ -256,13 +256,12 @@ void Server<T>::sendMessage(const std::vector<uint8_t>& message, uint32_t id, bo
       clientConnections[i]->enqueueMessage(message);
     }
   }
-  clientVecMutex.unlock();
 }
 
 
 template <class T>
 void Server<T>::sendMessage(const std::string& message, uint32_t id, bool invertID) {
-  clientVecMutex.lock();
+  const std::scoped_lock<std::mutex> lock(clientVecMutex);
   for (size_t i = 0;i<clientConnections.size();++i) {
     if (id == 0 ||
         (!invertID && clientConnections[i]->getID() == id) ||
@@ -270,7 +269,6 @@ void Server<T>::sendMessage(const std::string& message, uint32_t id, bool invert
       clientConnections[i]->enqueueMessage(message);
     }
   }
-  clientVecMutex.unlock();
 }
 
 template <class T>
@@ -295,10 +293,16 @@ void Server<T>::clientFunc() {
       } catch (const SocketException&) {
       }
       
+      DataResult message = DataResult::NO_DATA;
       try {
         DataResult message = clientConnections[i]->checkData();
+      } catch (SocketException const& ) {
+        removeClient(i);
+        continue;
+      }
+      clientVecMutex.unlock();
+      try {
         if (message != DataResult::NO_DATA) {
-          clientVecMutex.unlock();
           switch (message) {
             case DataResult::STRING_DATA:
               handleClientMessage(clientConnections[i]->getID(), std::move(clientConnections[i]->strData));
@@ -312,7 +316,6 @@ void Server<T>::clientFunc() {
             case DataResult::NO_DATA:
               // never hit, silnce warning
               break;
-            clientVecMutex.lock();
           }
         }
       } catch (SocketException const& ) {
@@ -323,7 +326,7 @@ void Server<T>::clientFunc() {
         removeClient(i);
         continue;
       }
-      
+      clientVecMutex.lock();
       if (!continueRunning) break;
     }
     clientVecMutex.unlock();
@@ -409,7 +412,6 @@ void Server<T>::serverFunc() {
 template <class T>
 std::vector<uint32_t> Server<T>::getValidIDs() {
   const std::scoped_lock<std::mutex> lock(clientVecMutex);
-
   std::vector<uint32_t> ids(clientConnections.size());
   for (size_t i = 0;i<clientConnections.size();++i) {
     ids[i] = uint32_t(clientConnections[i]->getID());
@@ -419,13 +421,11 @@ std::vector<uint32_t> Server<T>::getValidIDs() {
 
 template <class T>
 void Server<T>::closeConnection(uint32_t id) {
-  clientVecMutex.lock();
+  const std::scoped_lock<std::mutex> lock(clientVecMutex);
   for (size_t i = 0;i<clientConnections.size();++i) {
     if (clientConnections[i]->getID() == id) {
       clientConnections.erase(clientConnections.begin() + long(i));
-      clientVecMutex.unlock();
       return;
     }
   }
-  clientVecMutex.unlock();
 }
