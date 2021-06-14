@@ -534,6 +534,10 @@ DataResult WebSocketConnection::handleFrame() {
     payloadLength = ((uint64_t)receivedBytes[2] << 8) | (uint64_t)receivedBytes[3];
     nextByte += 2;
   } else if (payloadLength == 127) {
+    if (receivedBytes.size() < 10) {
+      return DataResult::NO_DATA;
+    }
+
     payloadLength = ((uint64_t)receivedBytes[2] << 56) | ((uint64_t)receivedBytes[3] << 48) |
                     ((uint64_t)receivedBytes[4] << 40) | ((uint64_t)receivedBytes[5] << 32) |
                     ((uint64_t)receivedBytes[6] << 24) | ((uint64_t)receivedBytes[7] << 16) |
