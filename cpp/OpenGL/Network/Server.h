@@ -199,7 +199,7 @@ private:
   bool continueRunning{true};
   std::thread connectionThread;
   std::thread clientThread;
-  std::recursive_mutex clientVecMutex;
+  std::mutex clientVecMutex;
    
   std::shared_ptr<TCPServer> serverSocket;
   std::vector<std::shared_ptr<T>> clientConnections;
@@ -273,6 +273,7 @@ void Server<T>::sendMessage(const std::string& message, uint32_t id, bool invert
 
 template <class T>
 void Server<T>::removeClient(size_t i) {
+  const std::scoped_lock<std::mutex> lock(clientVecMutex);
   const uint32_t cid = clientConnections[i]->getID();
   clientConnections.erase(clientConnections.begin() + long(i));
   handleClientDisconnection(cid);
@@ -281,7 +282,6 @@ void Server<T>::removeClient(size_t i) {
 template <class T>
 void Server<T>::clientFunc() {
   while (continueRunning) {
-    clientVecMutex.lock();
     for (size_t i = 0;i<clientConnections.size();++i) {
       
       // remove clients that have disconnected
@@ -295,12 +295,12 @@ void Server<T>::clientFunc() {
       
       DataResult message = DataResult::NO_DATA;
       try {
-        DataResult message = clientConnections[i]->checkData();
+        message = clientConnections[i]->checkData();
       } catch (SocketException const& ) {
         removeClient(i);
         continue;
       }
-      clientVecMutex.unlock();
+
       try {
         if (message != DataResult::NO_DATA) {
           switch (message) {
@@ -326,10 +326,8 @@ void Server<T>::clientFunc() {
         removeClient(i);
         continue;
       }
-      clientVecMutex.lock();
       if (!continueRunning) break;
     }
-    clientVecMutex.unlock();
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
   }
 }
@@ -394,14 +392,14 @@ void Server<T>::serverFunc() {
           continue;
         }
 
-        clientVecMutex.lock();
         ++lastClientId;
+        clientVecMutex.lock();
         clientConnections.push_back(std::make_shared<T>(connectionSocket, lastClientId, key, timeout));
+        clientVecMutex.unlock();
         try {
           handleClientConnection(lastClientId, connectionSocket->GetPeerAddress(), connectionSocket->GetPeerPort());
         } catch (SocketException const& ) {
         }
-        clientVecMutex.unlock();
       } catch (SocketException const& ) {
       }
     }
