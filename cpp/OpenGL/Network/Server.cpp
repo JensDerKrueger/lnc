@@ -1,11 +1,12 @@
 #include <algorithm>
 #include <bitset>
 #include <climits>
+#include <array>
 
 #include "Server.h"
 
 #include "StringTools.h"
-#include "SHA1.h"
+#include <SHA1.h>
 
 constexpr uint64_t MAX_PAYLOAD_SIZE = 1024*1024*1024;
 
