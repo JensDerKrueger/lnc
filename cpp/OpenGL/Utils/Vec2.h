@@ -32,7 +32,6 @@ public:
     e{T(other.x), T(other.y)}
   {}
 
-
   const std::string toString() const {
     std::stringstream s;
     s << "[" << e[0] << ", " << e[1] << "]";
@@ -87,8 +86,6 @@ public:
     return e[0]*e[0]+e[1]*e[1];
   }
 
-  friend std::ostream& operator<<(std::ostream &os, const Vec2t& v) {os << v.toString() ; return os;}
-
   operator T*(void) {return e.data();}
   operator const T*(void) const  {return e.data();}
           
@@ -102,6 +99,12 @@ public:
   }
 		
 };
+
+template <typename T>
+std::ostream & operator<<(std::ostream & os, const Vec2t<T> & v) {
+   os << v.toString();
+   return os;
+}
 
 typedef Vec2t<float> Vec2;
 typedef Vec2t<int32_t> Vec2i;

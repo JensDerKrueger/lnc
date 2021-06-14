@@ -51,7 +51,6 @@ public:
     e{other.x, other.y, z, w}
   {}
 
-  friend std::ostream& operator<<(std::ostream &os, const Vec4t& v) {os << v.toString() ; return os;}
   const std::string toString() const {
     std::stringstream s;
     s << "[" << e[0] << ", " << e[1] << ", " << e[2] << ", " << e[3] << "]";
@@ -144,6 +143,11 @@ public:
   }
 };
 
+template <typename T>
+std::ostream & operator<<(std::ostream & os, const Vec4t<T> & v) {
+   os << v.toString();
+   return os;
+}
 typedef Vec4t<float> Vec4;
 typedef Vec4t<int32_t> Vec4i;
 typedef Vec4t<uint32_t> Vec4ui;

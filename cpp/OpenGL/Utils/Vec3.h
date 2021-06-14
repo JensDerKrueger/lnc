@@ -43,8 +43,6 @@ public:
     e{T(other.x), T(other.y), z}
   {}
   
-  friend std::ostream& operator<<(std::ostream &os, const Vec3t& v) {os << v.toString() ; return os;}
-  
   const std::string toString() const {
     std::stringstream s;
     s << "[" << e[0] << ", " << e[1] << ", " << e[2] << "]";
@@ -183,9 +181,13 @@ public:
     const float r = sqrt(1.0f - z*z);
     return {r*cosf(a), r*sinf(a), z};
   }
-  
-  		
 };
+
+template <typename T>
+std::ostream & operator<<(std::ostream & os, const Vec3t<T> & v) {
+   os << v.toString();
+   return os;
+}
 
 typedef Vec3t<float> Vec3;
 typedef Vec3t<int32_t> Vec3i;
