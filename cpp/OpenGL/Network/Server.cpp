@@ -34,7 +34,8 @@ BaseClientConnection::BaseClientConnection(TCPSocket* connectionSocket, uint32_t
   connectionSocket(connectionSocket),
   id(id),
   key(key),
-  timeout(timeout)
+  timeout(timeout),
+  lastResult{DataResult::NO_DATA}
 {
   sendThread = std::thread(&SizedClientConnection::sendFunc, this);
 }
@@ -104,10 +105,12 @@ void BaseClientConnection::sendFunc() {
 DataResult BaseClientConnection::checkData() {
   int8_t data[2048];
   const uint32_t bytes = connectionSocket->ReceiveData(data, 2048, 1);
-  if (bytes > 0) {
-    return handleIncommingData(data, bytes);
+  if (bytes > 0 || lastResult != DataResult::NO_DATA) {
+    lastResult = handleIncommingData(data, bytes);
+  } else {
+    lastResult = DataResult::NO_DATA;
   }
-  return DataResult::NO_DATA;
+  return lastResult;
 }
 
 std::string BaseClientConnection::getPeerAddress() const {
@@ -158,7 +161,7 @@ void SizedClientConnection::sendMessage(const std::string& message) {
 }
 
 DataResult SizedClientConnection::handleIncommingData(int8_t* data, uint32_t bytes) {
-  receivedBytes.insert(receivedBytes.end(), data, data+bytes);
+  if (bytes > 0) receivedBytes.insert(receivedBytes.end(), data, data+bytes);
 
   if (messageLength == 0) {
     if (receivedBytes.size() >= 4) {
@@ -356,12 +359,13 @@ WebSocketConnection::~WebSocketConnection() {
 }
 
 DataResult WebSocketConnection::handleIncommingData(int8_t* data, uint32_t bytes) {
+  if (receivedBytes.size() > 1024*1204) receivedBytes.clear();
+
   if (handshakeComplete) {
-    receivedBytes.insert(receivedBytes.end(), data, data+bytes);
+    if (bytes > 0) receivedBytes.insert(receivedBytes.end(), data, data+bytes);
     return handleFrame();
   } else {
-    if (receivedBytes.size() > 1024*1204) receivedBytes.clear();
-    receivedBytes.insert(receivedBytes.end(), data, data+bytes);
+    if (bytes > 0) receivedBytes.insert(receivedBytes.end(), data, data+bytes);
     if (receivedBytes.size() > 3) {
       for (uint32_t i = 0;i<receivedBytes.size()-3;++i) {
         if (receivedBytes[i] == 13 && receivedBytes[i+1] == 10 &&

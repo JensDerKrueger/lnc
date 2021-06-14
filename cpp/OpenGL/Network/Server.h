@@ -42,6 +42,7 @@ protected:
   uint32_t id;
   std::string key;
   uint32_t timeout;
+  DataResult lastResult;
 
   virtual DataResult handleIncommingData(int8_t* data, uint32_t bytes) = 0;
   virtual void sendMessage(const std::string& message) = 0;
