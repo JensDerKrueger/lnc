@@ -4,14 +4,80 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title>WebSocket Test</title>
     <script type="text/javascript">
+      
+      function deserializeMessage(buffer) {
+        if (buffer instanceof Uint16Array && buffer.length > 0) {
+          let type = buffer[0];
+          let payloadBuffer = buffer.slice(1);
+          switch (type) {
+            case 0 :
+              return InitMessage.deserialize(payloadBuffer);;
+            case 1 :
+              return PaintMessage.deserialize(payloadBuffer);;
+            default:
+              throw new Error("invalid message type");
+          };
+        } else {
+          throw new Error("invalid message buffer");
+        }
+      }
+            
+      class PaintMessage {
+        constructor(posX, posY, r, g, b) {
+          this.posX = posX;
+          this.posY = posY;
+          this.r = r;
+          this.g = g;
+          this.b = b;
+        }
+        
+        serialize() {
+          return new Uint16Array([1,this.posX, this.posY, this.r, this.g, this.b]);
+        }
+        
+        static deserialize(buffer) {
+          if (buffer.length === 5) {
+            return new PaintMessage(buffer[0], buffer[1], buffer[2], buffer[3], buffer[4]);
+          } else {
+            throw new Error("invalid message length");
+          }
+        }
+      };
+      
+      class InitMessage {
+        constructor(imageData) {
+          this.imageData = imageData;
+        }
+        
+        serialize() {
+          buffer = Uint8Array(2+this.imageData.length);
+          buffer[0] = 0;
+          buffer[1] = 0;
+          for (let i = 0;i<this.imageData.length;++i) {
+            buffer[i+2] = this.imageData[i];
+          }
+          return buffer;
+        }
+        
+        static deserialize(buffer, requiredWidth, requiredHeight) {
+          if (buffer.length === requiredWidth*requiredHeight*4) {
+            // TODO
+            return new InitMessage(buffer);
+          } else {
+            throw new Error("invalid message length");
+          }
+        }
+      };
+      
+      
       var mouseX, mouseY, mouseDown=false;
       var h = 0;
       var canvas, ctx;
-      const socket = new WebSocket('ws://134.91.11.186:2000');
-      //const socket = new WebSocket('ws://localhost:2000');
+      //const socket = new WebSocket('ws://134.91.11.186:2000');
+      const socket = new WebSocket('ws://localhost:2000');
 
       function HSVtoRGB(h, s, v) {
-        var r, g, b, i, f, p, q, t;
+        let r, g, b, i, f, p, q, t;
         i = Math.floor(h * 6);
         f = h * 6 - i;
         p = v * (1 - s);
@@ -46,11 +112,13 @@
       }
 
       function dropPaint() {
-        var rgb = HSVtoRGB(h/1000,1.0,1.0);
+        let rgb = HSVtoRGB(h/1000,1.0,1.0);
         h = (h + 1) % 1000;
         
+        let p = new PaintMessage();
+        
         if(socket.readyState == 1)
-          socket.send(new Uint16Array([mouseX, mouseY, rgb.r, rgb.g, rgb.b]));
+          socket.send(new PaintMessage(mouseX, mouseY, rgb.r, rgb.g, rgb.b).serialize());
       }
       
       function handleMouseDown(event) {
@@ -80,23 +148,34 @@
         if (typeof msg.data === "string")
           document.getElementById("status").innerHTML += "Received String Message: " + msg.data +"<br>";
         else {
-          var reader = new FileReader();
+          let reader = new FileReader();
           reader.readAsArrayBuffer(msg.data);
           reader.addEventListener("loadend", function(e) {
-              var buffer = new Uint16Array(e.target.result);
-              
-              var sprite = ctx.createImageData(10, 10);
-              for (var y = 0; y < sprite.height; ++y) {
-                for (var x = 0; x < sprite.width; ++x) {
-                  var i = (x+y*sprite.width)*4;
-                  sprite.data[i + 0] = buffer[2];
-                  sprite.data[i + 1] = buffer[3];
-                  sprite.data[i + 2] = buffer[4];
-                  sprite.data[i + 3] = 255;
+            let buffer = new Uint16Array(e.target.result);
+            try {
+              let message = deserializeMessage(buffer);
+              switch (message.constructor) {
+                case PaintMessage: {
+                    let sprite = ctx.createImageData(10, 10);
+                    for (let y = 0; y < sprite.height; ++y) {
+                      for (let x = 0; x < sprite.width; ++x) {
+                        let i = (x+y*sprite.width)*4;
+                        sprite.data[i + 0] = message.r;
+                        sprite.data[i + 1] = message.g;
+                        sprite.data[i + 2] = message.b;
+                        sprite.data[i + 3] = 255;
+                      }
+                    }
+                    ctx.putImageData(sprite, message.posX, message.posY);
+                  }
+                  break;
+                case InitMessage: {
+                  // TODO
                 }
+                break;
               }
-
-              ctx.putImageData(sprite, buffer[0], buffer[1]);
+            } catch (e) {
+            }
           });
           
           
@@ -118,3 +197,4 @@
 
 
 
+        
