@@ -576,7 +576,7 @@ std::vector<uint8_t> WebSocketConnection::genFrame(uint64_t s, uint8_t code) {
 
   if (s < 126) {
     frame[1] = 0 << 7 |
-               uint8_t(s & 0b0111111);
+               uint8_t(s & 0b01111111);
   } else {
     frame.push_back(uint8_t(s & 0b0000000000000000000000000000000000000000000000001111111100000000));
     frame.push_back(uint8_t(s & 0b0000000000000000000000000000000000000000000000000000000011111111));
