@@ -7,6 +7,7 @@
 #include "StringTools.h"
 #include "SHA1.h"
 
+constexpr uint64_t MAX_PAYLOAD_SIZE = 1024*1024*1024;
 
 static bool isBigEndian(void) {
   union {
@@ -256,7 +257,9 @@ HttpClientConnection::HttpClientConnection(TCPSocket* connectionSocket, uint32_t
 }
   
 DataResult HttpClientConnection::handleIncommingData(int8_t* data, uint32_t bytes) {
-  if (receivedBytes.size() > 1024*1204) receivedBytes.clear();
+  if (receivedBytes.size() > MAX_PAYLOAD_SIZE) {
+    receivedBytes.clear();
+  }
 
   receivedBytes.insert(receivedBytes.end(), data, data+bytes);
   if (receivedBytes.size() > 3) {
@@ -359,7 +362,10 @@ WebSocketConnection::~WebSocketConnection() {
 }
 
 DataResult WebSocketConnection::handleIncommingData(int8_t* data, uint32_t bytes) {
-  if (receivedBytes.size() > 1024*1204) receivedBytes.clear();
+  if (receivedBytes.size() > MAX_PAYLOAD_SIZE) {
+    closeWebsocket(CloseReason::MessageTooBig);
+    return DataResult::NO_DATA;
+  }
 
   if (handshakeComplete) {
     if (bytes > 0) receivedBytes.insert(receivedBytes.end(), data, data+bytes);
@@ -452,7 +458,7 @@ DataResult WebSocketConnection::generateResult(bool finalFragment, size_t nextBy
       }
       fragmentedBytes.insert(fragmentedBytes.end(), receivedBytes.begin()+long(nextByte), receivedBytes.begin()+long(nextByte+payloadLength));
       if (isBinary) {
-        binData = std::vector<uint8_t>{receivedBytes.begin()+long(nextByte), receivedBytes.begin()+long(nextByte+payloadLength)};
+        binData = std::move(fragmentedBytes);
         result = DataResult::BINARY_DATA;
       } else {
         strData = std::string{fragmentedBytes.begin(), fragmentedBytes.end()};
@@ -474,7 +480,7 @@ DataResult WebSocketConnection::generateResult(bool finalFragment, size_t nextBy
       case 0x8:
         closeWebsocket(extractReason());
         protocolDataID = 0x8;
-        result = DataResult::PROTOCOL_DATA;
+        return DataResult::PROTOCOL_DATA;
         break;
       case 0x9:
         sendPong();
@@ -547,7 +553,7 @@ DataResult WebSocketConnection::handleFrame() {
   
   if (isBigEndian()) payloadLength = swapEndian(payloadLength);
   
-  if (payloadLength > 1024*1024*1024) {
+  if (payloadLength > MAX_PAYLOAD_SIZE) {
     closeWebsocket(CloseReason::MessageTooBig);
     return DataResult::NO_DATA;
   }
