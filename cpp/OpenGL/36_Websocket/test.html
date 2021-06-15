@@ -10,7 +10,7 @@
           let type = buffer[0];
           switch (type) {
             case 0 :
-              return InitMessage.deserialize(buffer);
+              return InitMessage.deserialize(buffer,500,500);
             case 1 :
               return PaintMessage.deserialize(buffer);
             default:
@@ -44,7 +44,9 @@
       };
       
       class InitMessage {
-        constructor(imageData) {
+        constructor(imageData, width, height) {
+          this.width = width;
+          this.height = height;
           this.imageData = imageData;
         }
         
@@ -58,9 +60,8 @@
         }
         
         static deserialize(buffer, requiredWidth, requiredHeight) {
-          if (buffer.length === requiredWidth*requiredHeight*4) {
-            // TODO
-            return new InitMessage(buffer);
+          if (buffer.length === requiredWidth*requiredHeight*4+1) {
+            return new InitMessage(buffer.slice(1),requiredWidth,requiredHeight);
           } else {
             throw new Error("invalid message length");
           }
@@ -72,8 +73,7 @@
       var mouseX, mouseY, mouseDown=false;
       var h = 0;
       var canvas, ctx;
-      //const socket = new WebSocket('ws://134.91.11.186:2000');
-      const socket = new WebSocket('ws://localhost:2000');
+      var socket;
 
       function HSVtoRGB(h, s, v) {
         let r, g, b, i, f, p, q, t;
@@ -108,6 +108,60 @@
         
         ctx.fillStyle = "rgba(0,0,255,0.1)";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        //socket = new WebSocket('ws://134.91.11.186:2000');
+        //socket = new WebSocket('ws://134.91.11.162:2000');
+        socket = new WebSocket('ws://localhost:2000');
+        
+        socket.onopen = function () {
+          document.getElementById("status").innerHTML += "Connection open<br>";
+        };
+        
+        socket.onmessage = function (msg) {
+          if (typeof msg.data === "string")
+            document.getElementById("status").innerHTML += "Received String Message: " + msg.data +"<br>";
+          else {
+            let reader = new FileReader();
+            reader.readAsArrayBuffer(msg.data);
+            reader.addEventListener("loadend", function(e) {
+              let buffer = new Uint8Array(e.target.result);
+              try {
+                let message = deserializeMessage(buffer);
+                switch (message.constructor) {
+                  case PaintMessage: {
+                    let sprite = ctx.createImageData(10, 10);
+                    for (let y = 0; y < sprite.height; ++y) {
+                      for (let x = 0; x < sprite.width; ++x) {
+                        let i = (x+y*sprite.width)*4;
+                        sprite.data[i + 0] = message.r;
+                        sprite.data[i + 1] = message.g;
+                        sprite.data[i + 2] = message.b;
+                        sprite.data[i + 3] = 255;
+                      }
+                    }
+                    ctx.putImageData(sprite, message.posX, message.posY);
+                  }
+                    break;
+                  case InitMessage: {
+                    let sprite = ctx.createImageData(message.width, message.height);
+                    for (let i = 0;i<sprite.data.length;++i) {
+                      sprite.data[i] = message.imageData[i];
+                    }
+                    ctx.putImageData(sprite, 0, 0);
+                  }
+                    break;
+                }
+              } catch (e) {
+                console.log(e)
+              }
+            });
+          }
+        };
+        
+        socket.onclose = function() {
+          document.getElementById("status").innerHTML += "Connection closed" +"<br>";
+        };
+        
       }
 
       function dropPaint() {
@@ -139,51 +193,6 @@
         if (mouseDown) dropPaint();
       }
             
-      socket.onopen = function () {
-        document.getElementById("status").innerHTML += "Connection open<br>";
-      };
-      
-      socket.onmessage = function (msg) {
-        if (typeof msg.data === "string")
-          document.getElementById("status").innerHTML += "Received String Message: " + msg.data +"<br>";
-        else {
-          let reader = new FileReader();
-          reader.readAsArrayBuffer(msg.data);
-          reader.addEventListener("loadend", function(e) {
-            let buffer = new Uint8Array(e.target.result);
-            try {
-              let message = deserializeMessage(buffer);
-              switch (message.constructor) {
-                case PaintMessage: {
-                    let sprite = ctx.createImageData(10, 10);
-                    for (let y = 0; y < sprite.height; ++y) {
-                      for (let x = 0; x < sprite.width; ++x) {
-                        let i = (x+y*sprite.width)*4;
-                        sprite.data[i + 0] = message.r;
-                        sprite.data[i + 1] = message.g;
-                        sprite.data[i + 2] = message.b;
-                        sprite.data[i + 3] = 255;
-                      }
-                    }
-                    ctx.putImageData(sprite, message.posX, message.posY);
-                  }
-                  break;
-                case InitMessage: {
-                  // TODO
-                }
-                break;
-              }
-            } catch (e) {
-            }
-          });
-          
-          
-        }
-      };
-
-      socket.onclose = function() {
-        document.getElementById("status").innerHTML += "Connection closed" +"<br>";
-      };
     </script>
   </head>
 
