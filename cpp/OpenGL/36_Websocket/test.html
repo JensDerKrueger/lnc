@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>WebSocket Test</title>
+    <title>WebSocket Multiuser Painter</title>
     <script type="text/javascript">
       
       function deserializeMessage(buffer) {
@@ -22,21 +22,23 @@
       }
             
       class PaintMessage {
-        constructor(posX, posY, r, g, b) {
+        constructor(posX, posY, r, g, b, size) {
           this.posX = posX;
           this.posY = posY;
           this.r = r;
           this.g = g;
           this.b = b;
+          this.size = size;
         }
         
         serialize() {
-          return new Uint8Array([1, (this.posX >> 8) & 0xff, this.posX & 0xff, (this.posY >> 8) & 0xff, this.posY & 0xff, this.r, this.g, this.b]);
+          return new Uint8Array([1, (this.posX >> 8) & 0xff, this.posX & 0xff, (this.posY >> 8) & 0xff, this.posY & 0xff, this.r, this.g, this.b,
+                                (this.size >> 8) & 0xff, this.size & 0xff]);
         }
-        
+                
         static deserialize(buffer) {
-          if (buffer.length === 8) {
-            return new PaintMessage((buffer[1] << 8) + buffer[2], (buffer[3] << 8) + buffer[4], buffer[5], buffer[6], buffer[7]);
+          if (buffer.length === 10) {
+            return new PaintMessage((buffer[1] << 8) + buffer[2], (buffer[3] << 8) + buffer[4], buffer[5], buffer[6], buffer[7], (buffer[8] << 8) + buffer[9]);
           } else {
             throw new Error("invalid message length");
           }
@@ -51,26 +53,32 @@
         }
         
         serialize() {
-          buffer = Uint8Array(1+this.imageData.length);
+          buffer = Uint8Array(5+this.imageData.length);
           buffer[0] = 0;
+          buffer[1] = (this.width >> 8) & 0xff;
+          buffer[2] = this.width & 0xff;
+          buffer[3] = (this.height >> 8) & 0xff;
+          buffer[4] = this.height & 0xff;
           for (let i = 0;i<this.imageData.length;++i) {
-            buffer[i+1] = this.imageData[i];
+            buffer[i+5] = this.imageData[i];
           }
           return buffer;
         }
         
-        static deserialize(buffer, requiredWidth, requiredHeight) {
-          if (buffer.length === requiredWidth*requiredHeight*4+1) {
-            return new InitMessage(buffer.slice(1),requiredWidth,requiredHeight);
-          } else {
+        static deserialize(buffer) {
+          if (buffer.length < 5) {
             throw new Error("invalid message length");
           }
+          
+          let width  = (buffer[1] << 8) + buffer[2];
+          let height = (buffer[3] << 8) + buffer[4];
+          
+          return new InitMessage(buffer.slice(5),width,height);
         }
       };
       
-      
-      
       var mouseX, mouseY, mouseDown=false;
+      var brushSize = 10;
       var h = 0;
       var canvas, ctx;
       var socket;
@@ -103,15 +111,21 @@
         canvas.onmousedown = handleMouseDown;
         canvas.onmouseup   = handleMouseUp;
         
+        canvas.addEventListener("wheel", event => {
+          const delta = Math.sign(event.deltaY);
+          event.preventDefault();
+          brushSize = Math.min(Math.max(brushSize-delta, 1), 20);
+        });
+        
         ctx = canvas.getContext("2d");
         ctx.globalCompositeOperation = "source-over";
         
         ctx.fillStyle = "rgba(0,0,255,0.1)";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         
-        //socket = new WebSocket('ws://134.91.11.186:2000');
+        socket = new WebSocket('ws://134.91.11.186:2000');
         //socket = new WebSocket('ws://134.91.11.162:2000');
-        socket = new WebSocket('ws://localhost:2000');
+        //socket = new WebSocket('ws://localhost:2000');
         
         socket.onopen = function () {
           document.getElementById("status").innerHTML += "Connection open<br>";
@@ -129,7 +143,7 @@
                 let message = deserializeMessage(buffer);
                 switch (message.constructor) {
                   case PaintMessage: {
-                    let sprite = ctx.createImageData(10, 10);
+                    let sprite = ctx.createImageData(brushSize, brushSize);
                     for (let y = 0; y < sprite.height; ++y) {
                       for (let x = 0; x < sprite.width; ++x) {
                         let i = (x+y*sprite.width)*4;
@@ -143,11 +157,12 @@
                   }
                     break;
                   case InitMessage: {
-                    let sprite = ctx.createImageData(message.width, message.height);
-                    for (let i = 0;i<sprite.data.length;++i) {
-                      sprite.data[i] = message.imageData[i];
+                    let initialImageData = ctx.createImageData(message.width, message.height);
+                    for (let i = 0;i<initialImageData.data.length;++i) {
+                      initialImageData.data[i] = message.imageData[i];
                     }
-                    ctx.putImageData(sprite, 0, 0);
+                    console.log(message.width, message.height);
+                    ctx.putImageData(initialImageData, 0, 0);
                   }
                     break;
                 }
@@ -167,11 +182,8 @@
       function dropPaint() {
         let rgb = HSVtoRGB(h/1000,1.0,1.0);
         h = (h + 1) % 1000;
-        
-        let p = new PaintMessage();
-        
         if(socket.readyState == 1)
-          socket.send(new PaintMessage(mouseX, mouseY, rgb.r, rgb.g, rgb.b).serialize());
+          socket.send(new PaintMessage(mouseX, mouseY, rgb.r, rgb.g, rgb.b, brushSize).serialize());
       }
       
       function handleMouseDown(event) {
@@ -189,16 +201,16 @@
       function handleMouseMove(event) {
         mouseX = event.offsetX;
         mouseY = event.offsetY;
-        
         if (mouseDown) dropPaint();
       }
-            
     </script>
   </head>
 
-  <body onload="init();">
-    <H1>Test</H1>
-    <canvas id="drawArea" width="500" height="500"></canvas>
+  <body onload="init();" style="background-color:#BBBBBB;">
+    <center>
+    <H1>WebSocket Multiuser Painter</H1>
+    <canvas id="drawArea" width="1000" height="1000"></canvas>
     <p id="status"></p>
+    </center>
   </body>
 </html>

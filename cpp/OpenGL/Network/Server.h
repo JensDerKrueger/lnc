@@ -277,9 +277,10 @@ void Server<T>::sendMessage(const std::string& message, uint32_t id, bool invert
 
 template <class T>
 void Server<T>::removeClient(size_t i) {
-  const std::scoped_lock<std::mutex> lock(clientVecMutex);
+  clientVecMutex.lock();
   const uint32_t cid = clientConnections[i]->getID();
   clientConnections.erase(clientConnections.begin() + long(i));
+  clientVecMutex.unlock();
   handleClientDisconnection(cid);
 }
 
@@ -367,7 +368,6 @@ void Server<T>::serverFunc() {
     
     // accept connections
     while (continueRunning) {
-
       try {
         TCPSocket* connectionSocket{nullptr};
         while (connectionSocket == nullptr && continueRunning) {
