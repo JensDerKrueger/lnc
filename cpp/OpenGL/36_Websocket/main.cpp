@@ -13,10 +13,10 @@ public:
   EchoServer(uint16_t port) :
   Server(port)
   {
+    imageMessage.resize(canvasWidth*canvasHeight*4+1);
   }
   
   virtual ~EchoServer() {
-    imageMessage.resize(canvasWidth*canvasHeight*4+1);
   }
   
   virtual void handleClientMessage(uint32_t id, const std::string& message) override {
