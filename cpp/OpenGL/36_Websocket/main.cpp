@@ -32,20 +32,24 @@ public:
   }
 
   virtual void handleClientConnection(uint32_t id, const std::string& address, uint16_t port) override {
-    
     std::cout << "New client (id:" << id << ") connected from " << address << std::endl;
-    std::cout << "A total of " << getValidIDs().size() << " clinents are currently connected." << std::endl;
+    printStats();
     sendMessage(imageMessage,id);
   }
 
   virtual void handleClientDisconnection(uint32_t id) override {
     std::cout << "Client (id:" << id << ") disconnected" << std::endl;
+    printStats();
   }
   
   virtual void handleProtocolMessage(uint32_t id, uint32_t messageID, const std::vector<uint8_t>& message) override {
     std::cout << "Protocol Message 0x" << std::hex << messageID << std::dec << " form id " << id << std::endl;
   }
 
+  virtual void printStats() {
+    std::cout << "A total of " << getValidIDs().size() << " clients are currently connected." << std::endl;
+  }
+  
   virtual void handleError(const std::string& message) override {
     std::cerr << "Error: " << message << std::endl;
   }
