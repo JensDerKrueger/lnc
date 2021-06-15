@@ -382,7 +382,8 @@ void HttpClientConnection::sendMessage(const std::string& message) {
 }
 
 WebSocketConnection::WebSocketConnection(TCPSocket* connectionSocket, uint32_t id, const std::string& key, uint32_t timeout, ErrorFunction errorFunction) :
-  HttpClientConnection(connectionSocket, id, key, timeout, errorFunction)
+  HttpClientConnection(connectionSocket, id, key, timeout, errorFunction),
+  currentOpcode(0x0)
 {
   handshakeComplete = false;
 }
@@ -538,7 +539,7 @@ DataResult WebSocketConnection::generateResult(bool finalFragment, size_t nextBy
 
 uint16_t WebSocketConnection::extractReasonCode() {
   if (binData.size() >= 2) {
-    return (binData[0] >> 8) + binData[1];
+    return (uint16_t(binData[0]) >> 8) + binData[1];
   } else {
     return uint16_t(CloseReason::NormalClosure);
   }
