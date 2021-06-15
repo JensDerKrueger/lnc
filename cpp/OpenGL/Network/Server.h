@@ -286,6 +286,7 @@ void Server<T>::removeClient(size_t i) {
 template <class T>
 void Server<T>::clientFunc() {
   while (continueRunning) {
+    bool idle{true};
     for (size_t i = 0;i<clientConnections.size();++i) {
       
       // remove clients that have disconnected
@@ -307,6 +308,7 @@ void Server<T>::clientFunc() {
 
       try {
         if (message != DataResult::NO_DATA) {
+          idle = false;
           switch (message) {
             case DataResult::STRING_DATA:
               handleClientMessage(clientConnections[i]->getID(), std::move(clientConnections[i]->strData));
@@ -334,7 +336,7 @@ void Server<T>::clientFunc() {
       }
       if (!continueRunning) break;
     }
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    if (idle) std::this_thread::sleep_for(std::chrono::milliseconds(1));
   }
 }
 
