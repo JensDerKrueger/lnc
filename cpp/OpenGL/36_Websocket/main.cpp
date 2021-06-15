@@ -39,7 +39,6 @@ public:
 
   virtual void handleClientDisconnection(uint32_t id) override {
     std::cout << "Client (id:" << id << ") disconnected" << std::endl;
-    printStats();
   }
   
   virtual void handleProtocolMessage(uint32_t id, uint32_t messageID, const std::vector<uint8_t>& message) override {
