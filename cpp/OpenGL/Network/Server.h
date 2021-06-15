@@ -6,6 +6,7 @@
 #include <sstream>
 #include <fstream>
 #include <variant>
+#include <functional>
 
 #include "NetCommon.h"
 
@@ -18,9 +19,11 @@ enum class DataResult {
   PROTOCOL_DATA
 };
 
+typedef std::function<void(const std::string&)> ErrorFunction;
+
 class BaseClientConnection {
 public:
-  BaseClientConnection(TCPSocket* connectionSocket, uint32_t id, const std::string& key, uint32_t timeout);
+  BaseClientConnection(TCPSocket* connectionSocket, uint32_t id, const std::string& key, uint32_t timeout, ErrorFunction errorFunction);
   virtual ~BaseClientConnection();
   
   bool isConnected();
@@ -32,7 +35,7 @@ public:
 
   std::string getPeerAddress() const;
   uint16_t getPeerPort() const;
-
+  
   std::string strData;
   std::vector<uint8_t> binData;
   uint32_t protocolDataID;
@@ -43,6 +46,9 @@ protected:
   std::string key;
   uint32_t timeout;
   DataResult lastResult;
+  bool handshakeComplete{false};
+  
+  ErrorFunction errorFunction;
 
   virtual DataResult handleIncommingData(int8_t* data, uint32_t bytes) = 0;
   virtual void sendMessage(const std::string& message) = 0;
@@ -58,7 +64,6 @@ private:
   void sendFunc();
 };
 
-
 struct HTTPRequest {
   std::string name{""};
   std::string target{""};
@@ -68,7 +73,7 @@ struct HTTPRequest {
 
 class HttpClientConnection : public BaseClientConnection {
 public:
-  HttpClientConnection(TCPSocket* connectionSocket, uint32_t id, const std::string& key, uint32_t timeout);
+  HttpClientConnection(TCPSocket* connectionSocket, uint32_t id, const std::string& key, uint32_t timeout, ErrorFunction errorFunction);
   virtual ~HttpClientConnection() {}
 
   static HTTPRequest parseHTTPRequest(const std::string& initialMessage);
@@ -79,7 +84,7 @@ protected:
   virtual DataResult handleIncommingData(int8_t* data, uint32_t bytes) override;
   virtual void sendMessage(const std::string& message) override;
   virtual void sendMessage(const std::vector<uint8_t>& message) override {
-    throw MessageException("Can't send binary data");
+    sendMessage(base64_encode(message));
   }
 
   static std::string CRLF() {return std::string(1,char(13)) + std::string(1,char(10));}
@@ -89,7 +94,7 @@ protected:
 
 class SizedClientConnection : public BaseClientConnection {
 public:
-  SizedClientConnection(TCPSocket* connectionSocket, uint32_t id, const std::string& key, uint32_t timeout);
+  SizedClientConnection(TCPSocket* connectionSocket, uint32_t id, const std::string& key, uint32_t timeout, ErrorFunction errorFunction);
   virtual ~SizedClientConnection() {}
 
   virtual DataResult checkData() override;
@@ -98,9 +103,8 @@ protected:
   virtual DataResult handleIncommingData(int8_t* data, uint32_t bytes) override;
   virtual void sendMessage(const std::string& message) override;
   virtual void sendMessage(const std::vector<uint8_t>& message) override {
-    throw MessageException("Binary transfer not implemented yet.");
+    sendMessage(base64_encode(message));
   }
-
   
 private:
   uint32_t messageLength{0};
@@ -132,12 +136,11 @@ public:
     TLSHandshake = 1015
   };
 
-  WebSocketConnection(TCPSocket* connectionSocket, uint32_t id, const std::string& key, uint32_t timeout);
+  WebSocketConnection(TCPSocket* connectionSocket, uint32_t id, const std::string& key, uint32_t timeout, ErrorFunction errorFunction);
   virtual ~WebSocketConnection();
   
 protected:
   uint8_t currentOpcode;
-  bool handshakeComplete{false};
   bool fragmentedData{false};
   bool isBinary{false};
   std::vector<uint8_t> receivedBytes;
@@ -155,10 +158,11 @@ private:
   static std::vector<uint8_t> genFrame(uint64_t s, uint8_t code);
   static std::vector<uint8_t> genFrame(const std::string& message);
   static std::vector<uint8_t> genFrame(const std::vector<uint8_t>& message);
-  virtual void closeWebsocket(CloseReason reason);
+  void closeWebsocket(CloseReason reason);
+  void closeWebsocket(uint16_t reasonCode);
   
   void sendPong();
-  CloseReason extractReason();
+  uint16_t extractReasonCode();
 
 };
 
@@ -180,7 +184,8 @@ public:
   }
   virtual void handleProtocolMessage(uint32_t id, uint32_t messageID, const std::vector<uint8_t>& message) {}
 
-  virtual void handleClientDisconnection(uint32_t id) {};
+  virtual void handleClientDisconnection(uint32_t id) {}
+  virtual void handleError(const std::string& message) {}
   
   void sendMessage(const std::string& message, uint32_t id=0, bool invertID=false);
   void sendMessage(const std::vector<uint8_t>& message, uint32_t id=0, bool invertID=false);
@@ -211,7 +216,6 @@ private:
   void removeClient(size_t i);
     
 };
-
 
 template <class T>
 Server<T>::Server(uint16_t port, const std::string& key, uint32_t timeout) :
@@ -322,7 +326,9 @@ void Server<T>::clientFunc() {
         removeClient(i);
         continue;
       } catch (AESException const& e) {
-        std::cerr << "encryption error: " << e.what() << std::endl;
+        std::stringstream ss;
+        ss << "encryption error: " << e.what() << std::endl;
+        handleError(ss.str());
         removeClient(i);
         continue;
       }
@@ -347,10 +353,9 @@ void Server<T>::serverFunc() {
       serverSocket->Listen();
       serverSocket->GetLocalPort();
     } catch (SocketException const& e) {
-
       std::stringstream ss;
       ss << "SocketException: " << e.what() << " (" << e.where() << " returned with error code " << e.withErrorCode() << ")";
-      std::cerr << ss.str() << std::endl;
+      handleError(ss.str());
 
       shutdownServer();
       return;
@@ -394,7 +399,9 @@ void Server<T>::serverFunc() {
 
         ++lastClientId;
         clientVecMutex.lock();
-        clientConnections.push_back(std::make_shared<T>(connectionSocket, lastClientId, key, timeout));
+        
+        auto delegate = std::bind(&Server::handleError, this, std::placeholders::_1);
+        clientConnections.push_back(std::make_shared<T>(connectionSocket, lastClientId, key, timeout, delegate));
         clientVecMutex.unlock();
         try {
           handleClientConnection(lastClientId, connectionSocket->GetPeerAddress(), connectionSocket->GetPeerPort());

@@ -32,14 +32,16 @@ template <typename T> T swapEndian(T u) {
   return dest.u;
 }
 
-BaseClientConnection::BaseClientConnection(TCPSocket* connectionSocket, uint32_t id, const std::string& key, uint32_t timeout) :
+BaseClientConnection::BaseClientConnection(TCPSocket* connectionSocket, uint32_t id, const std::string& key,
+                                           uint32_t timeout, ErrorFunction errorFunction) :
   connectionSocket(connectionSocket),
   id(id),
   key(key),
   timeout(timeout),
-  lastResult{DataResult::NO_DATA}
+  lastResult{DataResult::NO_DATA},
+  errorFunction{errorFunction}
 {
-  sendThread = std::thread(&SizedClientConnection::sendFunc, this);
+  sendThread = std::thread(&BaseClientConnection::sendFunc, this);
 }
 
 BaseClientConnection::~BaseClientConnection() {
@@ -74,32 +76,50 @@ void BaseClientConnection::enqueueMessage(const std::vector<uint8_t>& m) {
 
 void BaseClientConnection::sendFunc() {
   while (continueRunning) {
-    try {
-      if (!messageQueue.empty()) {
-        messageQueueLock.lock();
-                
-        const auto frontElement = std::move(messageQueue.front());
-        
-        if (std::holds_alternative<std::string>(frontElement)) {
-          const std::string front = std::get<std::string>(frontElement);
-          messageQueue.pop();
-          messageQueueLock.unlock();
+    if (!messageQueue.empty() && handshakeComplete) {
+      
+      messageQueueLock.lock();
+              
+      const auto frontElement = std::move(messageQueue.front());
+      
+      if (std::holds_alternative<std::string>(frontElement)) {
+        const std::string front = std::get<std::string>(frontElement);
+        messageQueue.pop();
+        messageQueueLock.unlock();
+        try {
           sendMessage(front);
-        } else {
-          const std::vector<uint8_t> front = std::get<std::vector<uint8_t>>(frontElement);
-          messageQueue.pop();
-          messageQueueLock.unlock();
-          sendMessage(front);
+        } catch (SocketException const& e) {
+          std::stringstream ss;
+          ss << "sendFunc SocketException: " << e.what();
+          errorFunction(ss.str());
+          continue;
+        } catch (AESException const& e) {
+          std::stringstream ss;
+          ss << "encryption error: " << e.what();
+          errorFunction(ss.str());
+          continue;
         }
+
       } else {
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        const std::vector<uint8_t> front = std::get<std::vector<uint8_t>>(frontElement);
+        messageQueue.pop();
+        messageQueueLock.unlock();
+        try {
+          sendMessage(front);
+        } catch (SocketException const& e) {
+          std::stringstream ss;
+          ss << "sendFunc SocketException: " << e.what();
+          errorFunction(ss.str());
+          continue;
+        } catch (AESException const& e) {
+          std::stringstream ss;
+          ss << "encryption error: " << e.what();
+          errorFunction(ss.str());
+          continue;
+        }
       }
-    } catch (SocketException const& e) {
-      std::cerr << "sendFunc SocketException: " << e.what() << std::endl;
-      continue;
-    } catch (AESException const& e) {
-      std::cerr << "encryption error: " << e.what() << std::endl;
-      continue;
+    } else {
+      std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
   }
 }
@@ -130,11 +150,12 @@ uint16_t BaseClientConnection::getPeerPort() const {
   }
 }
 
-SizedClientConnection::SizedClientConnection(TCPSocket* connectionSocket, uint32_t id, const std::string& key, uint32_t timeout) :
-  BaseClientConnection(connectionSocket, id, key, timeout),
+SizedClientConnection::SizedClientConnection(TCPSocket* connectionSocket, uint32_t id, const std::string& key, uint32_t timeout, ErrorFunction errorFunction) :
+  BaseClientConnection(connectionSocket, id, key, timeout, errorFunction),
   crypt(nullptr),
   sendCrypt(nullptr)
 {
+  handshakeComplete = true;
 }
 
 DataResult SizedClientConnection::checkData() {
@@ -211,7 +232,9 @@ void SizedClientConnection::sendRawMessage(const int8_t* rawData, uint32_t size)
     } while (currentBytes > 0 && totalBytes < size);
 
     if (currentBytes == 0 && totalBytes < size) {
-      std::cerr << "lost data while trying to send " << size << " (actually send:" << totalBytes << ", timeout:" <<  timeout << ")" << std::endl;
+      std::stringstream ss;
+      ss << "lost data while trying to send " << size << " (actually send:" << totalBytes << ", timeout:" <<  timeout << ")";
+      errorFunction(ss.str());
     }
   } catch (SocketException const&  ) {
   }
@@ -229,7 +252,7 @@ std::vector<uint8_t> SizedClientConnection::intToVec(uint32_t i) const {
 void SizedClientConnection::sendRawMessage(std::vector<int8_t> rawData) {
   uint32_t l = uint32_t(rawData.size());
   if (l != rawData.size()) {
-    std::cerr << "lost data truncating long message" << std::endl;
+    errorFunction("lost data truncating long message");
   }
   
   std::vector<uint8_t> data = intToVec(l);
@@ -242,7 +265,7 @@ void SizedClientConnection::sendRawMessage(std::vector<int8_t> rawData) {
 void SizedClientConnection::sendRawMessage(std::string message) {
   const uint32_t l = uint32_t(message.length());
   if (l != message.length()) {
-    std::cerr << "lost data truncating long message" << std::endl;
+    errorFunction("lost data truncating long message");
   }
 
   std::vector<uint8_t> data = intToVec(l);
@@ -252,9 +275,10 @@ void SizedClientConnection::sendRawMessage(std::string message) {
 }
 
 
-HttpClientConnection::HttpClientConnection(TCPSocket* connectionSocket, uint32_t id, const std::string& key, uint32_t timeout) :
-  BaseClientConnection(connectionSocket, id, key, timeout)
+HttpClientConnection::HttpClientConnection(TCPSocket* connectionSocket, uint32_t id, const std::string& key, uint32_t timeout, ErrorFunction errorFunction) :
+  BaseClientConnection(connectionSocket, id, key, timeout, errorFunction)
 {
+  handshakeComplete = true;
 }
   
 DataResult HttpClientConnection::handleIncommingData(int8_t* data, uint32_t bytes) {
@@ -316,7 +340,9 @@ void HttpClientConnection::sendData(const std::vector<uint8_t>& message) {
     } while (currentBytes > 0 && totalBytes < message.size());
 
     if (currentBytes == 0 && totalBytes < message.size()) {
-      std::cerr << "lost data while trying to send " << message.size() << " (actually send:" << totalBytes << ", timeout:" <<  timeout << ")" << std::endl;
+      std::stringstream ss;
+      ss << "lost data while trying to send " << message.size() << " (actually send:" << totalBytes << ", timeout:" <<  timeout << ")";
+      errorFunction(ss.str());
     }
   } catch (SocketException const&  ) {
   }
@@ -333,7 +359,9 @@ void HttpClientConnection::sendString(const std::string& message) {
     } while (currentBytes > 0 && totalBytes < message.length());
 
     if (currentBytes == 0 && totalBytes < message.length()) {
-      std::cerr << "lost data while trying to send " << message.length() << " (actually send:" << totalBytes << ", timeout:" <<  timeout << ")" << std::endl;
+      std::stringstream ss;
+      ss << "lost data while trying to send " << message.length() << " (actually send:" << totalBytes << ", timeout:" <<  timeout << ")";
+      errorFunction(ss.str());
     }
   } catch (SocketException const&  ) {
   }
@@ -353,9 +381,10 @@ void HttpClientConnection::sendMessage(const std::string& message) {
   }
 }
 
-WebSocketConnection::WebSocketConnection(TCPSocket* connectionSocket, uint32_t id, const std::string& key, uint32_t timeout) :
-  HttpClientConnection(connectionSocket, id, key, timeout)
+WebSocketConnection::WebSocketConnection(TCPSocket* connectionSocket, uint32_t id, const std::string& key, uint32_t timeout, ErrorFunction errorFunction) :
+  HttpClientConnection(connectionSocket, id, key, timeout, errorFunction)
 {
+  handshakeComplete = false;
 }
 
 WebSocketConnection::~WebSocketConnection() {
@@ -403,19 +432,23 @@ void WebSocketConnection::sendMessage(const std::vector<uint8_t>& message) {
   HttpClientConnection::sendData(message);
 }
 
-void WebSocketConnection::closeWebsocket(CloseReason reason) {
-  const uint16_t iReason = (isBigEndian()) ? swapEndian(uint16_t(reason)) : uint16_t(reason);
+void WebSocketConnection::closeWebsocket(uint16_t reasonCode) {
+  const uint16_t iReason = (isBigEndian()) ? swapEndian(reasonCode) : reasonCode;
   
   HttpClientConnection::sendData(genFrame(2,0x8));
   std::vector<uint8_t> data{
-    uint8_t(iReason & 0b111111100000000),
-    uint8_t(iReason & 0b000000001111111)
+    uint8_t((iReason >> 8) & 0xFF),
+    uint8_t((iReason >> 0) & 0xFF)
   };
   HttpClientConnection::sendData(data);
   try {
     connectionSocket->Close();
   } catch (SocketException const&  ) {
   }
+}
+
+void WebSocketConnection::closeWebsocket(CloseReason reason) {
+  closeWebsocket(uint16_t(reason));
 }
 
 void WebSocketConnection::handleHandshake(const std::string& initialMessage) {
@@ -445,6 +478,7 @@ DataResult WebSocketConnection::generateResult(bool finalFragment, size_t nextBy
   DataResult result;
   if (!finalFragment) {
     if (fragmentedBytes.size() > std::numeric_limits<size_t>::max() - payloadLength) {
+      errorFunction("Message too big");
       closeWebsocket(CloseReason::MessageTooBig);
       return DataResult::NO_DATA;
     }
@@ -454,6 +488,7 @@ DataResult WebSocketConnection::generateResult(bool finalFragment, size_t nextBy
   } else {
     if (fragmentedData) {
       if (fragmentedBytes.size() > std::numeric_limits<size_t>::max() - payloadLength) {
+        errorFunction("Message too big");
         closeWebsocket(CloseReason::MessageTooBig);
         return DataResult::NO_DATA;
       }
@@ -479,7 +514,7 @@ DataResult WebSocketConnection::generateResult(bool finalFragment, size_t nextBy
     
     switch (currentOpcode) {
       case 0x8:
-        closeWebsocket(extractReason());
+        closeWebsocket(extractReasonCode());
         protocolDataID = 0x8;
         return DataResult::PROTOCOL_DATA;
         break;
@@ -501,9 +536,12 @@ DataResult WebSocketConnection::generateResult(bool finalFragment, size_t nextBy
   return result;
 }
 
-WebSocketConnection::CloseReason WebSocketConnection::extractReason() {
-  // TODO: extract reason from binData;
-  return CloseReason::NormalClosure;
+uint16_t WebSocketConnection::extractReasonCode() {
+  if (binData.size() >= 2) {
+    return (binData[0] >> 8) + binData[1];
+  } else {
+    return uint16_t(CloseReason::NormalClosure);
+  }
 }
 
 void WebSocketConnection::sendPong() {
@@ -525,6 +563,7 @@ DataResult WebSocketConnection::handleFrame() {
   const uint8_t opcode = receivedBytes[0] & 0b00001111;
 
   if (!isMasked) {
+    errorFunction("ProtocolError");
     closeWebsocket(CloseReason::ProtocolError);
     return DataResult::NO_DATA;
   }
@@ -555,6 +594,7 @@ DataResult WebSocketConnection::handleFrame() {
   if (isBigEndian()) payloadLength = swapEndian(payloadLength);
   
   if (payloadLength > MAX_PAYLOAD_SIZE) {
+    errorFunction("Message too big");
     closeWebsocket(CloseReason::MessageTooBig);
     return DataResult::NO_DATA;
   }
@@ -562,6 +602,7 @@ DataResult WebSocketConnection::handleFrame() {
   // this code is here just for safety reasons, normally the previous line
   // will bail on large frames already
   if (payloadLength > std::numeric_limits<size_t>::max() - (nextByte+4)) {
+    errorFunction("Message too big");
     closeWebsocket(CloseReason::MessageTooBig);
     return DataResult::NO_DATA;
   }
@@ -597,9 +638,7 @@ std::vector<uint8_t> WebSocketConnection::genFrame(uint64_t s, uint8_t code) {
     frame[1] = 0 << 7 |
                uint8_t(s & 0b01111111);
   } else {
-    frame.push_back(uint8_t((s >> 8) & 0xFF));
-    frame.push_back(uint8_t((s >> 0) & 0xFF));
-    if (s <= 1 << 16) {
+    if (s <= (1 << 16)) {
       frame[1] = 0 << 7 | 126;
     } else {
       frame[1] = 0 << 7 | 127;
@@ -610,6 +649,8 @@ std::vector<uint8_t> WebSocketConnection::genFrame(uint64_t s, uint8_t code) {
       frame.push_back(uint8_t((s >> 24) & 0xFF));
       frame.push_back(uint8_t((s >> 16) & 0xFF));
     }
+    frame.push_back(uint8_t((s >> 8) & 0xFF));
+    frame.push_back(uint8_t((s >> 0) & 0xFF));
   }
   
   return frame;
