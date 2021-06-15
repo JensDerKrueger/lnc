@@ -455,8 +455,7 @@ void WebSocketConnection::closeWebsocket(CloseReason reason) {
 void WebSocketConnection::handleHandshake(const std::string& initialMessage) {
   HTTPRequest request = parseHTTPRequest(initialMessage);
   if (request.name == "GET" &&
-      toLower(request.parameters["upgrade"]) == "websocket" &&
-      toLower(request.parameters["connection"]) == "upgrade") {
+      toLower(request.parameters["upgrade"]) == "websocket") {
     const std::string challengeResponse = base64_encode(sha1(request.parameters["sec-websocket-key"] + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"));
     std::stringstream ss;
     ss << "HTTP/1.1 101 Switching Protocols" << CRLF()
