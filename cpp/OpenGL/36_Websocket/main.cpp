@@ -1,6 +1,12 @@
 #include <iostream>
+#include <vector>
+#include <string>
 #include <thread>
+
 #include <Server.h>
+
+constexpr const uint16_t canvasWidth = 500;
+constexpr const uint16_t canvasHeight = 500;
 
 class EchoServer : public Server<WebSocketConnection> {
 public:
@@ -10,10 +16,11 @@ public:
   }
   
   virtual ~EchoServer() {
+    imageMessage.resize(canvasWidth*canvasHeight*4+1);
   }
   
   virtual void handleClientMessage(uint32_t id, const std::string& message) override {
-    sendMessage(message);
+    std::cerr << "Error: Client (id:" << id << ") send a string message" << std::endl;
   }
 
   virtual void handleClientMessage(uint32_t id, const std::vector<uint8_t>& message) override {
@@ -21,21 +28,18 @@ public:
   }
 
   virtual void handleClientConnection(uint32_t id, const std::string& address, uint16_t port) override {
-    const uint16_t canvasWidth = 500;
-    const uint16_t canvasHeight = 500;
     
     std::cout << "New client (id:" << id << ") connected from " << address << std::endl;
     
-    std::vector<uint8_t> message(canvasWidth*canvasHeight*4+1);
-    message[0] = 0;
+    imageMessage[0] = 0;
     for (size_t i = 0;i<canvasWidth*canvasHeight;++i) {
-      message[1+i*4+0] = 200;
-      message[1+i*4+1] = 255;
-      message[1+i*4+2] = 200;
-      message[1+i*4+3] = 255;
+      imageMessage[1+i*4+0] = 200;
+      imageMessage[1+i*4+1] = 255;
+      imageMessage[1+i*4+2] = 200;
+      imageMessage[1+i*4+3] = 255;
     }
     
-    sendMessage(message,id);
+    sendMessage(imageMessage,id);
   }
 
   virtual void handleClientDisconnection(uint32_t id) override {
@@ -50,6 +54,9 @@ public:
     std::cerr << "Error: " << message << std::endl;
   }
   
+private:
+  
+  std::vector<uint8_t> imageMessage;
 };
 
 
