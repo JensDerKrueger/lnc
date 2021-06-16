@@ -2,36 +2,80 @@
 #include <vector>
 #include <string>
 #include <thread>
+#include <future>
+#include <chrono>
 
 #include <Server.h>
+#include <bmp.h>
+
+typedef std::chrono::high_resolution_clock Clock;
+std::chrono::time_point<Clock> restorePointTime = Clock::now();
 
 constexpr const uint16_t canvasWidth  = 1000;
 constexpr const uint16_t canvasHeight = 1000;
+constexpr const uint8_t  layer        = 1;
 
 class EchoServer : public Server<WebSocketConnection> {
 public:
   EchoServer(uint16_t port) :
   Server(port)
   {
-    imageMessage.resize(canvasWidth*canvasHeight*4+5);
+    imageMessage.resize(size_t(canvasWidth)*size_t(canvasHeight)*4*size_t(layer)+5);
     imageMessage[0] = 0;
     imageMessage[1] = (canvasWidth >> 8) & 0xff;
     imageMessage[2] = canvasWidth & 0xff;
     imageMessage[3] = (canvasHeight >> 8) & 0xff;
     imageMessage[4] = canvasHeight & 0xff;
-    
-    std::fill(imageMessage.begin()+5, imageMessage.end(), 255);
+     
+    loadPaintLayer("paint.bmp");
   }
   
   virtual ~EchoServer() {
+    savePaintLayer("paint.bmp");
   }
   
+  void savePaintLayer(const std::string& filename) {
+    std::cout << "Saving paint" << std::endl;
+    imageLock.lock();
+    std::vector<uint8_t> data{imageMessage.begin()+long(5), imageMessage.begin()+long(5+size_t(canvasWidth)*size_t(canvasHeight)*4)};
+    imageLock.unlock();
+
+    try {
+      BMP::save(filename, Image(canvasWidth, canvasHeight, 4, data));
+      std::cout << "Paint saved" << std::endl;
+    } catch (...) {
+      std::cerr << "Paint could not be saved" << std::endl;
+    }
+  }
+
+  void loadPaintLayer(const std::string& filename) {
+    std::cout << "Loading paint" << std::endl;
+    try {
+      Image p = BMP::load(filename);
+      if (canvasWidth == p.width && canvasHeight == p.height && 4 == p.componentCount) {
+
+        for (size_t i = 0;i<size_t(canvasWidth)*size_t(canvasHeight)*4;++i) {
+          imageMessage[5+i] = p.data[i];
+        }
+        
+        std::cout << "Paint Loaded" << std::endl;
+      } else {
+        throw BMP::BMPException("Invalid Image dimensions");
+      }
+    } catch (...) {
+      std::fill(imageMessage.begin()+5, imageMessage.end(), 255);
+      std::cerr << "Paint could not be loaded" << std::endl;
+    }
+  }
+
   virtual void handleClientMessage(uint32_t id, const std::string& message) override {
     std::cerr << "Error: Client (id:" << id << ") send a string message" << std::endl;
   }
 
   virtual void handleClientMessage(uint32_t id, const std::vector<uint8_t>& message) override {
+    imageLock.lock();
     paint(message);
+    imageLock.unlock();
     sendMessage(message);
   }
 
@@ -89,24 +133,56 @@ private:
       }
     }
   }
+  
+private:
+  std::mutex imageLock;
+
 };
 
 
+static std::string getAnswer() {
+  std::string answer;
+  std::cout << "> " << std::flush;
+  std::cin >> answer;
+  return answer;
+}
+
 int main(int argc, char ** argv) {
-  EchoServer s(2000);
-  s.start();
+  EchoServer server(2000);
+  server.start();
 
   std::cout << "Starting ";
-  while (s.isStarting()) {
+  while (server.isStarting()) {
     std::cout << "." << std::flush;
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
 
-  std::cout << "\nRunning" << std::endl;;
-  while (s.isOK()) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+  if (server.isOK()) {
+    std::cout << "\nRunning" << std::endl;
+
+    std::string answer;
+    std::future<std::string> future = std::async(getAnswer);
+    
+    do {
+      std::chrono::milliseconds timeout(10);
+      if (future.wait_for(timeout) == std::future_status::ready) {
+        answer = future.get();
+        if (answer != "q") future = std::async(getAnswer);
+      }
+      
+      auto currentTime = Clock::now();
+      if (std::chrono::duration_cast<std::chrono::minutes>(currentTime-restorePointTime).count() > 60) {
+        restorePointTime = currentTime;
+        server.savePaintLayer("paint.bmp");
+      }
+      
+    } while (answer != "q");
+    std::cout << "Shutting down server ..." << std::endl;
+    return EXIT_SUCCESS;
+  } else {
+    std::cerr << "Unable to start server" << std::endl;
+    return EXIT_FAILURE;
   }
   
-  return EXIT_SUCCESS;
 }
 
