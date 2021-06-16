@@ -105,6 +105,41 @@
         };
       }
       
+      function processBuffer(buffer) {
+        try {
+          let message = deserializeMessage(buffer);
+          switch (message.constructor) {
+            case PaintMessage: {
+              let sprite = ctx.createImageData(brushSize, brushSize);
+              for (let y = 0; y < sprite.height; ++y) {
+                for (let x = 0; x < sprite.width; ++x) {
+                  let i = (x+y*sprite.width)*4;
+                  sprite.data[i + 0] = message.r;
+                  sprite.data[i + 1] = message.g;
+                  sprite.data[i + 2] = message.b;
+                  sprite.data[i + 3] = 255;
+                }
+              }
+              ctx.putImageData(sprite, message.posX, message.posY);
+              break;
+            }
+            case InitMessage: {
+              let initialImageData = ctx.createImageData(message.width, message.height);
+              for (let i = 0;i<initialImageData.data.length;++i) {
+                initialImageData.data[i] = message.imageData[i];
+              }
+              console.log(message.width, message.height);
+              ctx.putImageData(initialImageData, 0, 0);
+              document.getElementById("title").innerHTML = "WebSocket Multiuser Painter";
+              break;
+            }
+          }
+        } catch (e) {
+          console.log(e)
+        }
+      }
+      
+      
       function init() {
         canvas = document.getElementById("drawArea");
         canvas.onmousemove = handleMouseMove;
@@ -138,37 +173,7 @@
             let reader = new FileReader();
             reader.readAsArrayBuffer(msg.data);
             reader.addEventListener("loadend", function(e) {
-              let buffer = new Uint8Array(e.target.result);
-              try {
-                let message = deserializeMessage(buffer);
-                switch (message.constructor) {
-                  case PaintMessage: {
-                    let sprite = ctx.createImageData(brushSize, brushSize);
-                    for (let y = 0; y < sprite.height; ++y) {
-                      for (let x = 0; x < sprite.width; ++x) {
-                        let i = (x+y*sprite.width)*4;
-                        sprite.data[i + 0] = message.r;
-                        sprite.data[i + 1] = message.g;
-                        sprite.data[i + 2] = message.b;
-                        sprite.data[i + 3] = 255;
-                      }
-                    }
-                    ctx.putImageData(sprite, message.posX, message.posY);
-                  }
-                    break;
-                  case InitMessage: {
-                    let initialImageData = ctx.createImageData(message.width, message.height);
-                    for (let i = 0;i<initialImageData.data.length;++i) {
-                      initialImageData.data[i] = message.imageData[i];
-                    }
-                    console.log(message.width, message.height);
-                    ctx.putImageData(initialImageData, 0, 0);
-                  }
-                    break;
-                }
-              } catch (e) {
-                console.log(e)
-              }
+              processBuffer(new Uint8Array(e.target.result))
             });
           }
         };
@@ -208,7 +213,7 @@
 
   <body onload="init();" style="background-color:#BBBBBB;">
     <center>
-    <H1>WebSocket Multiuser Painter</H1>
+    <h1 id="title">Connecting to Paint-Server</h1>
     <canvas id="drawArea" width="1000" height="1000"></canvas>
     <p id="status"></p>
     </center>
