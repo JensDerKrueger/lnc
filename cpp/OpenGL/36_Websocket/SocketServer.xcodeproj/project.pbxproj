@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		5677395325FB7BF000AB2341 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5677394C25FB7BF000AB2341 /* main.cpp */; };
+		568552BD267AB379003398DF /* EchoServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 568552BC267AB379003398DF /* EchoServer.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -24,6 +25,8 @@
 
 /* Begin PBXFileReference section */
 		5677394C25FB7BF000AB2341 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		568552BB267AB379003398DF /* EchoServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EchoServer.h; sourceTree = "<group>"; };
+		568552BC267AB379003398DF /* EchoServer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EchoServer.cpp; sourceTree = "<group>"; };
 		A231F0FF25EAF61A00CBFC23 /* SocketServer */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = SocketServer; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -41,6 +44,8 @@
 		A231F0F625EAF61A00CBFC23 = {
 			isa = PBXGroup;
 			children = (
+				568552BC267AB379003398DF /* EchoServer.cpp */,
+				568552BB267AB379003398DF /* EchoServer.h */,
 				5677394C25FB7BF000AB2341 /* main.cpp */,
 				A231F10025EAF61A00CBFC23 /* Products */,
 			);
@@ -111,6 +116,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5677395325FB7BF000AB2341 /* main.cpp in Sources */,
+				568552BD267AB379003398DF /* EchoServer.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

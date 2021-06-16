@@ -204,6 +204,7 @@ XCOPY "$(ProjectDir)..\*.pos" "$(ProjectDir)*.*" /Y
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\EchoServer.cpp" />
     <ClCompile Include="..\main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -222,6 +223,9 @@ XCOPY "$(ProjectDir)..\*.pos" "$(ProjectDir)*.*" /Y
     <Image Include="..\BrickNormal.bmp" />
     <Image Include="..\helvetica_neue.bmp" />
     <Image Include="..\start.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\EchoServer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
