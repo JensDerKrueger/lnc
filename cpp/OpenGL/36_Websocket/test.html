@@ -158,8 +158,8 @@
         ctx.fillStyle = "rgba(0,0,255,0.1)";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         
-        socket = new WebSocket('ws://134.91.11.186:2000');
-        //socket = new WebSocket('ws://134.91.11.162:2000');
+        //socket = new WebSocket('ws://134.91.11.186:2000');
+        socket = new WebSocket('ws://134.91.11.162:2000');
         //socket = new WebSocket('ws://localhost:2000');
         
         socket.onopen = function () {
