@@ -10,7 +10,7 @@
           let type = buffer[0];
           switch (type) {
             case 0 :
-              return InitMessage.deserialize(buffer,500,500);
+              return InitMessage.deserialize(buffer);
             case 1 :
               return PaintMessage.deserialize(buffer);
             default:
@@ -46,34 +46,23 @@
       };
       
       class InitMessage {
-        constructor(imageData, width, height) {
+        constructor(imageData, width, height, layerCount) {
           this.width = width;
           this.height = height;
           this.imageData = imageData;
+          this.layerCount = layerCount;
         }
-        
-        serialize() {
-          buffer = Uint8Array(5+this.imageData.length);
-          buffer[0] = 0;
-          buffer[1] = (this.width >> 8) & 0xff;
-          buffer[2] = this.width & 0xff;
-          buffer[3] = (this.height >> 8) & 0xff;
-          buffer[4] = this.height & 0xff;
-          for (let i = 0;i<this.imageData.length;++i) {
-            buffer[i+5] = this.imageData[i];
-          }
-          return buffer;
-        }
-        
+                
         static deserialize(buffer) {
-          if (buffer.length < 5) {
+          if (buffer.length < 6) {
             throw new Error("invalid message length");
           }
           
           let width  = (buffer[1] << 8) + buffer[2];
           let height = (buffer[3] << 8) + buffer[4];
+          let layerCount = buffer[5];
           
-          return new InitMessage(buffer.slice(5),width,height);
+          return new InitMessage(buffer.slice(6),width,height,layerCount);
         }
       };
       
@@ -105,6 +94,14 @@
         };
       }
       
+      function over(source, destination) {
+        const alpha = destination[3]/255.0;
+        return {r : source[0] * (1-alpha) + destination[0] * alpha,
+                g : source[1] * (1-alpha) + destination[1] * alpha,
+                b : source[2] * (1-alpha) + destination[2] * alpha,
+                a : 255};
+      }
+      
       function processBuffer(buffer) {
         try {
           let message = deserializeMessage(buffer);
@@ -125,9 +122,23 @@
             }
             case InitMessage: {
               let initialImageData = ctx.createImageData(message.width, message.height);
-              for (let i = 0;i<initialImageData.data.length;++i) {
-                initialImageData.data[i] = message.imageData[i];
+              
+              for (let l = 0;l<message.layerCount;++l) {
+                const offset = l * message.width*message.height*4;
+                for (let i = 0;i<message.width*message.height*4;i+=4) {
+                  const currentColor = [initialImageData.data[i+0],
+                                        initialImageData.data[i+1],
+                                        initialImageData.data[i+2],
+                                        initialImageData.data[i+3]];
+                  const color = over(currentColor,
+                                     message.imageData.slice(offset+i,offset+i+4));
+                  initialImageData.data[i+0] = color.r;
+                  initialImageData.data[i+1] = color.g;
+                  initialImageData.data[i+2] = color.b;
+                  initialImageData.data[i+3] = color.a;
+                }
               }
+
               canvas.width = message.width
               canvas.height = message.height
               ctx.putImageData(initialImageData, 0, 0);
@@ -228,3 +239,4 @@
     </center>
   </body>
 </html>
+        
