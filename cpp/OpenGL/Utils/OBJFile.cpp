@@ -1,6 +1,6 @@
 #include <fstream>
 #include <algorithm>
-
+#include <cctype> //std::isspace
 #include "OBJFile.h"
 
 OBJFile::OBJFile(const std::string& filename, bool normalize) {
