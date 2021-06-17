@@ -22,18 +22,18 @@
       }
             
       class PaintMessage {
-        constructor(posX, posY, r, g, b, size) {
+        constructor(posX, posY, r, g, b, brushSize) {
           this.posX = posX;
           this.posY = posY;
           this.r = r;
           this.g = g;
           this.b = b;
-          this.size = size;
+          this.brushSize = brushSize;
         }
         
         serialize() {
           return new Uint8Array([1, (this.posX >> 8) & 0xff, this.posX & 0xff, (this.posY >> 8) & 0xff, this.posY & 0xff, this.r, this.g, this.b,
-                                (this.size >> 8) & 0xff, this.size & 0xff]);
+                                (this.brushSize >> 8) & 0xff, this.brushSize & 0xff]);
         }
                 
         static deserialize(buffer) {
@@ -110,7 +110,7 @@
           let message = deserializeMessage(buffer);
           switch (message.constructor) {
             case PaintMessage: {
-              let sprite = ctx.createImageData(brushSize, brushSize);
+              let sprite = ctx.createImageData(message.brushSize, message.brushSize);
               for (let y = 0; y < sprite.height; ++y) {
                 for (let x = 0; x < sprite.width; ++x) {
                   let i = (x+y*sprite.width)*4;
@@ -128,7 +128,8 @@
               for (let i = 0;i<initialImageData.data.length;++i) {
                 initialImageData.data[i] = message.imageData[i];
               }
-              console.log(message.width, message.height);
+              canvas.width = message.width
+              canvas.height = message.height
               ctx.putImageData(initialImageData, 0, 0);
               document.getElementById("title").innerHTML = "WebSocket Multiuser Painter";
               break;
@@ -146,6 +147,14 @@
         canvas.onmousedown = handleMouseDown;
         canvas.onmouseup   = handleMouseUp;
         
+        canvas.addEventListener("touchmove", event => {
+          var rect = event.target.getBoundingClientRect();
+          mouseX = event.touches[0].clientX - rect.left;
+          mouseY = event.touches[0].clientY - rect.top;
+          event.preventDefault();
+          dropPaint();
+        });
+  
         canvas.addEventListener("wheel", event => {
           const delta = Math.sign(event.deltaY);
           event.preventDefault();
@@ -158,8 +167,8 @@
         ctx.fillStyle = "rgba(0,0,255,0.1)";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         
-        //socket = new WebSocket('ws://134.91.11.186:2000');
-        socket = new WebSocket('ws://134.91.11.162:2000');
+        socket = new WebSocket('ws://134.91.11.186:2000');
+        //socket = new WebSocket('ws://134.91.11.162:2000');
         //socket = new WebSocket('ws://localhost:2000');
         
         socket.onopen = function () {
