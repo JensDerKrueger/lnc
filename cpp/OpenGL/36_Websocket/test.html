@@ -156,7 +156,7 @@
         });
   
         canvas.addEventListener("wheel", event => {
-          const delta = Math.sign(event.deltaY);
+          const delta = 0.1 * Math.sign(event.deltaY);
           event.preventDefault();
           brushSize = Math.min(Math.max(brushSize-delta, 1), 20);
         });
@@ -197,7 +197,7 @@
         let rgb = HSVtoRGB(h/1000,1.0,1.0);
         h = (h + 1) % 1000;
         if(socket.readyState == 1)
-          socket.send(new PaintMessage(mouseX, mouseY, rgb.r, rgb.g, rgb.b, brushSize).serialize());
+          socket.send(new PaintMessage(mouseX, mouseY, rgb.r, rgb.g, rgb.b, Math.round(brushSize)).serialize());
       }
       
       function handleMouseDown(event) {

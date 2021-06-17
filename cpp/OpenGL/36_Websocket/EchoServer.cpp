@@ -17,7 +17,7 @@ layerCount(layerCount)
 }
   
 EchoServer::~EchoServer() {
-   savePaintLayer("paint.bmp");
+  savePaintLayer("paint.bmp");
 }
   
 void EchoServer::savePaintLayer(const std::string& filename) {
@@ -58,11 +58,34 @@ void EchoServer::handleClientMessage(uint32_t id, const std::string& message) {
   std::cerr << "Error: Client (id:" << id << ") send a string message" << std::endl;
 }
 
+std::vector<uint8_t> EchoServer::fixPaintMessage(const std::vector<uint8_t> &message) {
+  
+  if (message.size() != 10 || message[0] != 1) {
+    throw EchoServerException("Not a valid paint message");
+  }
+  
+  std::vector<uint8_t> forwardedMessage = message;
+  const uint16_t brushCenterPosX = std::clamp<uint16_t>(to16Bit(forwardedMessage, 1), 0, canvasWidth-1);
+  const uint16_t brushCenterPosY = std::clamp<uint16_t>(to16Bit(forwardedMessage, 3), 0, canvasHeight-1);
+  const uint16_t brushSize = std::clamp<uint16_t>(to16Bit(forwardedMessage, 8),1,20);
+  forwardedMessage[1] = (brushCenterPosX >> 8) & 0xff;
+  forwardedMessage[2] = brushCenterPosX & 0xff;
+  forwardedMessage[3] = (brushCenterPosY >> 8) & 0xff;
+  forwardedMessage[4] = brushCenterPosY & 0xff;
+  forwardedMessage[8] = (brushSize >> 8) & 0xff;
+  forwardedMessage[9] = brushSize & 0xff;
+  return forwardedMessage;
+}
+
 void EchoServer::handleClientMessage(uint32_t id, const std::vector<uint8_t>& message) {
   imageLock.lock();
   paint(message);
   imageLock.unlock();
-  sendMessage(message);
+  try {
+    sendMessage(fixPaintMessage(message));
+  } catch (const EchoServerException& e) {
+    std::cout << "Client id" << id << " is trying to fool us with " << e.what() << std::endl;
+  }
 }
 
 void EchoServer::handleClientConnection(uint32_t id, const std::string& address, uint16_t port) {
@@ -93,7 +116,7 @@ uint16_t EchoServer::to16Bit(const std::vector<uint8_t>& message, size_t index) 
 }
   
 void EchoServer::paint(const std::vector<uint8_t>& message) {
-  if (message.size() == 10 || message[0] == 1) {
+  if (message.size() == 10 && message[0] == 1) {
     const uint16_t brushCenterPosX = to16Bit(message, 1);
     const uint16_t brushCenterPosY = to16Bit(message, 3);
     const uint8_t r = message[5];
@@ -116,4 +139,3 @@ void EchoServer::paint(const std::vector<uint8_t>& message) {
     }
   }
 }
-
