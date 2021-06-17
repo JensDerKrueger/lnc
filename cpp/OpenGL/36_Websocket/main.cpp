@@ -15,7 +15,7 @@ int main(int argc, char ** argv) {
   typedef std::chrono::high_resolution_clock Clock;
   std::chrono::time_point<Clock> restorePointTime = Clock::now();
 
-  EchoServer server(2000,800,800,1);
+  EchoServer server(2000,800,800,{"layer1.bmp", "paint.bmp"});
   server.start();
 
   std::cout << "Starting ";
@@ -39,7 +39,7 @@ int main(int argc, char ** argv) {
       auto currentTime = Clock::now();
       if (std::chrono::duration_cast<std::chrono::minutes>(currentTime-restorePointTime).count() > 60) {
         restorePointTime = currentTime;
-        server.savePaintLayer("paint.bmp");
+        server.savePaintLayers();
       }
       
     } while (answer != "q");
