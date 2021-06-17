@@ -1,47 +1,92 @@
 #include "EchoServer.h"
 
-EchoServer::EchoServer(uint16_t port, uint16_t canvasWidth, uint16_t canvasHeight, uint8_t layerCount) :
+EchoServer::EchoServer(uint16_t port, uint16_t canvasWidth, uint16_t canvasHeight,
+                       const std::vector<std::string>& layerImages) :
 Server(port),
 canvasWidth(canvasWidth),
 canvasHeight(canvasHeight),
-layerCount(layerCount)
+layerImages(layerImages)
 {
-  imageMessage.resize(size_t(canvasWidth)*size_t(canvasHeight)*4*size_t(layerCount)+5);
+
+  if (layerImages.size() > 255) {
+    throw EchoServerException("Too many layers");
+  }
+  
+  imageMessage.resize(initMessageHeaderSize() + initMessageLayerSize() * layerImages.size());
   imageMessage[0] = 0;
   imageMessage[1] = (canvasWidth >> 8) & 0xff;
   imageMessage[2] = canvasWidth & 0xff;
   imageMessage[3] = (canvasHeight >> 8) & 0xff;
   imageMessage[4] = canvasHeight & 0xff;
+  imageMessage[5] = uint8_t(layerImages.size());
    
-  loadPaintLayer("paint.bmp");
+  for (size_t layerIndex = 0;layerIndex<layerImages.size();layerIndex++) {
+    loadPaintLayer(layerIndex);
+  }  
 }
   
 EchoServer::~EchoServer() {
-  savePaintLayer("paint.bmp");
+  savePaintLayers();
 }
+ 
+void EchoServer::savePaintLayers() {
+  for (size_t layerIndex = 0;layerIndex<layerImages.size();layerIndex++) {
+    savePaintLayer(layerIndex);
+  }
+}
+
+size_t EchoServer::initMessageHeaderSize() const {
+  return 6;
+}
+
+size_t EchoServer::initMessageLayerSize() const {
+  return size_t(canvasWidth) * size_t(canvasHeight) * 4;
+}
+
+void EchoServer::savePaintLayer(size_t layerIndex) {
+  const std::string filename = layerImages[layerIndex];
   
-void EchoServer::savePaintLayer(const std::string& filename) {
-  std::cout << "Saving paint" << std::endl;
+  std::cout << "Saving layer" << std::endl;
   imageLock.lock();
-  std::vector<uint8_t> data{imageMessage.begin()+long(5), imageMessage.begin()+long(5+size_t(canvasWidth)*size_t(canvasHeight)*4)};
+  
+  const long layerOffset = long(initMessageHeaderSize() + initMessageLayerSize() * layerIndex);
+  std::vector<uint8_t> data{imageMessage.begin()+layerOffset,
+                            imageMessage.begin()+layerOffset+long(initMessageLayerSize())};
   imageLock.unlock();
 
   try {
-    BMP::save(filename, Image(canvasWidth, canvasHeight, 4, data));
+    const Image i = Image(canvasWidth, canvasHeight, 4, data);
+    BMP::save(filename, i.flipHorizontal());
     std::cout << "Paint saved" << std::endl;
   } catch (...) {
     std::cerr << "Paint could not be saved" << std::endl;
   }
 }
 
-void EchoServer::loadPaintLayer(const std::string& filename) {
-  std::cout << "Loading paint" << std::endl;
+void EchoServer::loadPaintLayer(size_t layerIndex) {
+  const std::string filename = layerImages[layerIndex];
+  
+  std::cout << "Loading layer" << std::endl;
+
+  const size_t layerOffset = initMessageHeaderSize() + initMessageLayerSize() * layerIndex;
+
   try {
     Image p = BMP::load(filename);
-    if (canvasWidth == p.width && canvasHeight == p.height && 4 == p.componentCount) {
+    p = p.flipHorizontal();
+    
+    if (canvasWidth == p.width && canvasHeight == p.height && (3 == p.componentCount || 4 == p.componentCount)) {
 
-      for (size_t i = 0;i<size_t(canvasWidth)*size_t(canvasHeight)*4;++i) {
-        imageMessage[5+i] = p.data[i];
+      if (4 == p.componentCount) {
+        for (size_t i = 0;i<initMessageLayerSize();++i) {
+          imageMessage[layerOffset+i] = p.data[i];
+        }
+      } else {
+        for (size_t i = 0;i<initMessageLayerSize()/4;i++) {
+          imageMessage[layerOffset+i*4+0] = p.data[i*3+0];
+          imageMessage[layerOffset+i*4+1] = p.data[i*3+1];
+          imageMessage[layerOffset+i*4+2] = p.data[i*3+2];
+          imageMessage[layerOffset+i*4+3] = 255;
+        }
       }
       
       std::cout << "Paint Loaded" << std::endl;
@@ -49,7 +94,7 @@ void EchoServer::loadPaintLayer(const std::string& filename) {
       throw BMP::BMPException("Invalid Image dimensions");
     }
   } catch (...) {
-    std::fill(imageMessage.begin()+5, imageMessage.end(), 255);
+    std::fill(imageMessage.begin()+long(layerOffset), imageMessage.begin()+long(layerOffset+initMessageLayerSize()), 0);
     std::cerr << "Paint could not be loaded" << std::endl;
   }
 }
@@ -123,13 +168,12 @@ void EchoServer::paint(const std::vector<uint8_t>& message) {
     const uint8_t g = message[6];
     const uint8_t b = message[7];
     const uint16_t brushSize = std::clamp<uint16_t>(to16Bit(message, 8),1,20);
-    for (int32_t y = 0;y<brushSize;++y) {
-      for (int32_t x = 0;x<brushSize;++x) {
-        const int32_t posX = brushCenterPosX+x;
-        const int32_t posY = brushCenterPosY+y;
-        if (posX >= 0 && posX < canvasWidth &&
-            posY >= 0 && posY < canvasHeight) {
-          const size_t serialPos = size_t((posX + posY * canvasWidth)*4+5);
+    for (uint32_t y = 0;y<brushSize;++y) {
+      for (uint32_t x = 0;x<brushSize;++x) {
+        const uint32_t posX = brushCenterPosX+x;
+        const uint32_t posY = brushCenterPosY+y;
+        if (posX < canvasWidth && posY < canvasHeight) {
+          const size_t serialPos = size_t(posX + posY * canvasWidth)*4+ (canvasWidth*canvasHeight*4*(layerImages.size()-1)) + 6;
           imageMessage[serialPos+0] = r;
           imageMessage[serialPos+1] = g;
           imageMessage[serialPos+2] = b;

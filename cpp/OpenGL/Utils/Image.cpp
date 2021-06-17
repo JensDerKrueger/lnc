@@ -304,3 +304,28 @@ Image Image::crop(uint32_t blX, uint32_t blY, uint32_t trX, uint32_t trY) const 
   }
   return result;
 }
+
+
+Image Image::flipHorizontal() const {
+  Image result{width, height, componentCount};
+  for (uint32_t y = 0;y<height;++y) {
+    for (uint32_t x = 0;x<width;++x) {
+      for (uint32_t c = 0;c<componentCount;++c) {
+        result.setValue(x,height-y-1,c,getValue(x,y,c));
+      }
+    }
+  }
+  return result;
+}
+
+Image Image::flipVertical() const {
+  Image result{width, height, componentCount};
+  for (uint32_t y = 0;y<height;++y) {
+    for (uint32_t x = 0;x<width;++x) {
+      for (uint32_t c = 0;c<componentCount;++c) {
+        result.setValue(width-x-1,y,c,getValue(x,y,c));
+      }
+    }
+  }
+  return result;
+}
