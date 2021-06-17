@@ -7,13 +7,9 @@
 #include <Server.h>
 #include <bmp.h>
 
-constexpr const uint16_t canvasWidth  = 1000;
-constexpr const uint16_t canvasHeight = 1000;
-constexpr const uint8_t  layer        = 1;
-
 class EchoServer : public Server<WebSocketConnection> {
 public:
-  EchoServer(uint16_t port);
+  EchoServer(uint16_t port, uint16_t canvasWidth, uint16_t canvasHeight, uint8_t layerCount);
   virtual ~EchoServer();
   
   void savePaintLayer(const std::string& filename);
@@ -30,6 +26,9 @@ protected:
 private:
   std::vector<uint8_t> imageMessage;
   std::mutex imageLock;
+  uint16_t canvasWidth;
+  uint16_t canvasHeight;
+  uint8_t  layerCount;
 
   virtual void printStats();
   static uint16_t to16Bit(const std::vector<uint8_t>& message, size_t index);

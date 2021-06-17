@@ -1,9 +1,12 @@
 #include "EchoServer.h"
 
-EchoServer::EchoServer(uint16_t port) :
-Server(port)
+EchoServer::EchoServer(uint16_t port, uint16_t canvasWidth, uint16_t canvasHeight, uint8_t layerCount) :
+Server(port),
+canvasWidth(canvasWidth),
+canvasHeight(canvasHeight),
+layerCount(layerCount)
 {
-  imageMessage.resize(size_t(canvasWidth)*size_t(canvasHeight)*4*size_t(layer)+5);
+  imageMessage.resize(size_t(canvasWidth)*size_t(canvasHeight)*4*size_t(layerCount)+5);
   imageMessage[0] = 0;
   imageMessage[1] = (canvasWidth >> 8) & 0xff;
   imageMessage[2] = canvasWidth & 0xff;

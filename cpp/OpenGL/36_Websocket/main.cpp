@@ -15,7 +15,7 @@ int main(int argc, char ** argv) {
   typedef std::chrono::high_resolution_clock Clock;
   std::chrono::time_point<Clock> restorePointTime = Clock::now();
 
-  EchoServer server(2000);
+  EchoServer server(2000,800,800,1);
   server.start();
 
   std::cout << "Starting ";
