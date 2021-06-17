@@ -45,6 +45,8 @@ public:
   Image crop(uint32_t blX, uint32_t blY, uint32_t trX, uint32_t trY) const;
   Image resample(uint32_t newWidth) const;
   Image cropToAspectAndResample(uint32_t newWidth, uint32_t newHeight) const;
+  Image flipHorizontal() const;
+  Image flipVertical() const;
   
 private:
   uint8_t linear(uint8_t a, uint8_t b, float alpha) const;
