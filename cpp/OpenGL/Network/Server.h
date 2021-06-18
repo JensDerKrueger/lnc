@@ -213,7 +213,7 @@ private:
   void clientFunc();
   void serverFunc();
     
-  void removeClient(size_t i);
+  void removeClient(std::shared_ptr<T>& client);
     
 };
 
@@ -276,35 +276,38 @@ void Server<T>::sendMessage(const std::string& message, uint32_t id, bool invert
 }
 
 template <class T>
-void Server<T>::removeClient(size_t i) {
+void Server<T>::removeClient(std::shared_ptr<T>& client) {
   clientVecMutex.lock();
-  const uint32_t cid = clientConnections[i]->getID();
-  clientConnections.erase(clientConnections.begin() + long(i));
+  for (size_t i = 0;i<clientConnections.size();++i) {
+    if (clientConnections[i] == client) {
+      const uint32_t cid = clientConnections[i]->getID();
+      clientConnections.erase(clientConnections.begin() + long(i));
+      client = nullptr;
+      clientVecMutex.unlock();
+      handleClientDisconnection(cid);
+      return;
+    }
+  }
   clientVecMutex.unlock();
-  handleClientDisconnection(cid);
 }
 
 template <class T>
 void Server<T>::clientFunc() {
   while (continueRunning) {
     bool idle{true};
-    for (size_t i = 0;i<clientConnections.size();++i) {
-      
-      // remove clients that have disconnected
-      try {
-        if (!clientConnections[i]->isConnected()) {
-          removeClient(i);
-          continue;
-        }
-      } catch (const SocketException&) {
+    size_t i = 0;
+    do {
+      clientVecMutex.lock();
+      if (i >= clientConnections.size()) {
+        clientVecMutex.unlock();
+        break;
       }
-      
-      
+      std::shared_ptr<T> client = clientConnections[i++];
+      clientVecMutex.unlock();
+
       try {
-		const std::shared_ptr<T>& client = clientConnections[i];
-		const DataResult message = client->checkData();
-        
-		if (message != DataResult::NO_DATA) {
+        const DataResult message = client->checkData();
+        if (message != DataResult::NO_DATA) {
           idle = false;
           switch (message) {
             case DataResult::STRING_DATA:
@@ -322,17 +325,16 @@ void Server<T>::clientFunc() {
           }
         }
       } catch (SocketException const& ) {
-        removeClient(i);
+        removeClient(client);
         continue;
       } catch (AESException const& e) {
         std::stringstream ss;
         ss << "encryption error: " << e.what() << std::endl;
         handleError(ss.str());
-        removeClient(i);
+        removeClient(client);
         continue;
       }
-      if (!continueRunning) break;
-    }
+    } while (continueRunning);
     if (idle) std::this_thread::sleep_for(std::chrono::milliseconds(1));
   }
 }
@@ -396,8 +398,7 @@ void Server<T>::serverFunc() {
         }
 
         ++lastClientId;
-        clientVecMutex.lock();
-        
+        clientVecMutex.lock();        
         auto delegate = std::bind(&Server::handleError, this, std::placeholders::_1);
         clientConnections.push_back(std::make_shared<T>(connectionSocket, lastClientId, key, timeout, delegate));
         clientVecMutex.unlock();
