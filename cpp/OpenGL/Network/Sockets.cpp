@@ -1,5 +1,5 @@
 #include "Sockets.h"
-#include <iostream>
+
 #ifdef _WIN32
   #define DETECTED_OS_WINDOWS
 #elif defined(macintosh) || (defined(__MACH__) && defined(__APPLE__))
@@ -261,11 +261,7 @@ bool Socket::IsBound() const
 void Socket::Bind(const NetworkAddress & address)
 {
   if (bind(m_Socket, &address.GetNativeAddress(), sizeof(sockaddr)) == SOCKET_ERROR) throw SocketException("Could not bind socket.", "bind", GetError());
-	
-  std::string boundAdress;
-  uint16_t boundPort=0;
-  address.GetAddress(boundAdress, boundPort);
-  std::cout << "Bound to: " << boundAdress.c_str() << ":" << boundPort << "\n";
+
   // below applies for listen sockets
   // we may need to consider this and reimplement Bind for ListenSocket
   // use getsockname here to determine address and port assigned to socket (should be any address, 0.0.0.0)
