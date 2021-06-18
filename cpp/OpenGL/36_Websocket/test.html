@@ -169,7 +169,7 @@
         });
   
         canvas.addEventListener("wheel", event => {
-          const delta = 0.1 * Math.sign(event.deltaY);
+          const delta = 0.4 * Math.sign(event.deltaY);
           event.preventDefault();
           brushSize = Math.min(Math.max(brushSize-delta, 1), 20);
         });
@@ -226,8 +226,10 @@
       }
 
       function handleMouseMove(event) {
-        mouseX = event.offsetX;
-        mouseY = event.offsetY;
+        var rect = event.target.getBoundingClientRect();
+        mouseX = event.clientX - rect.left;
+        mouseY = event.clientY - rect.top;
+        event.preventDefault();
         if (mouseDown) dropPaint();
       }
     </script>
