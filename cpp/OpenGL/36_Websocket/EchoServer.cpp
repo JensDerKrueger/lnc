@@ -46,7 +46,7 @@ size_t EchoServer::initMessageLayerSize() const {
 void EchoServer::savePaintLayer(size_t layerIndex) {
   const std::string filename = layerImages[layerIndex];
   
-  std::cout << "Saving layer" << std::endl;
+  std::cout << "Saving layer " << filename << std::flush;
   imageLock.lock();
   
   const long layerOffset = long(initMessageHeaderSize() + initMessageLayerSize() * layerIndex);
@@ -57,16 +57,16 @@ void EchoServer::savePaintLayer(size_t layerIndex) {
   try {
     const Image i = Image(canvasWidth, canvasHeight, 4, data);
     BMP::save(filename, i.flipHorizontal());
-    std::cout << "Paint saved" << std::endl;
+    std::cout << " done." << std::endl;
   } catch (...) {
-    std::cerr << "Paint could not be saved" << std::endl;
+    std::cerr << " FAILED." << std::endl;
   }
 }
 
 void EchoServer::loadPaintLayer(size_t layerIndex) {
   const std::string filename = layerImages[layerIndex];
   
-  std::cout << "Loading layer" << std::endl;
+  std::cout << "Loading layer " << filename <<std::flush;
 
   const size_t layerOffset = initMessageHeaderSize() + initMessageLayerSize() * layerIndex;
 
@@ -89,13 +89,13 @@ void EchoServer::loadPaintLayer(size_t layerIndex) {
         }
       }
       
-      std::cout << "Paint Loaded" << std::endl;
+      std::cout << " done." << std::endl;
     } else {
       throw BMP::BMPException("Invalid Image dimensions");
     }
   } catch (...) {
     std::fill(imageMessage.begin()+long(layerOffset), imageMessage.begin()+long(layerOffset+initMessageLayerSize()), 0);
-    std::cerr << "Paint could not be loaded" << std::endl;
+    std::cerr << " failed. Created new empty layer instead." << std::endl;
   }
 }
 
@@ -105,7 +105,7 @@ void EchoServer::handleClientMessage(uint32_t id, const std::string& message) {
 
 std::vector<uint8_t> EchoServer::fixPaintMessage(const std::vector<uint8_t> &message) {
   
-  if (message.size() != 10 || message[0] != 1) {
+  if (message.size() != 11 || message[0] != 1 || message[10] >= layerImages.size()) {
     throw EchoServerException("Not a valid paint message");
   }
   
@@ -161,19 +161,20 @@ uint16_t EchoServer::to16Bit(const std::vector<uint8_t>& message, size_t index) 
 }
   
 void EchoServer::paint(const std::vector<uint8_t>& message) {
-  if (message.size() == 10 && message[0] == 1) {
+  if (message.size() == 11 && message[0] == 1 && message[10] < layerImages.size()) {
     const uint16_t brushCenterPosX = to16Bit(message, 1);
     const uint16_t brushCenterPosY = to16Bit(message, 3);
     const uint8_t r = message[5];
     const uint8_t g = message[6];
     const uint8_t b = message[7];
     const uint16_t brushSize = std::clamp<uint16_t>(to16Bit(message, 8),1,20);
+    const uint8_t target = message[10];
     for (uint32_t y = 0;y<brushSize;++y) {
       for (uint32_t x = 0;x<brushSize;++x) {
         const uint32_t posX = brushCenterPosX+x;
         const uint32_t posY = brushCenterPosY+y;
         if (posX < canvasWidth && posY < canvasHeight) {
-          const size_t serialPos = size_t(posX + posY * canvasWidth)*4+ (canvasWidth*canvasHeight*4*(layerImages.size()-1)) + 6;
+          const size_t serialPos = size_t(posX + posY * canvasWidth)*4+ (canvasWidth*canvasHeight*4*target) + 6;
           imageMessage[serialPos+0] = r;
           imageMessage[serialPos+1] = g;
           imageMessage[serialPos+2] = b;

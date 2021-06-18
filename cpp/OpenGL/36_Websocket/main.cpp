@@ -15,7 +15,7 @@ int main(int argc, char ** argv) {
   typedef std::chrono::high_resolution_clock Clock;
   std::chrono::time_point<Clock> restorePointTime = Clock::now();
 
-  EchoServer server(2000,800,800,{"layer1.bmp", "paint.bmp"});
+  EchoServer server(2000,800,800,{"dungeon.bmp", "mist.bmp", "paint.bmp"});
   server.start();
 
   std::cout << "Starting ";
