@@ -1,0 +1,83 @@
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <title>WebSocket Multiuser Painter</title>
+  <script type="text/javascript">
+
+  var socket;
+
+  //https://stackoverflow.com/questions/951021/what-is-the-javascript-version-of-sleep
+  //"neueste art", na von mir aus.
+    function sleep(ms) {
+      console.log("sleep " + ms +"ms");
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async function init() {
+      
+      const nMax=500;
+      
+      for (var i = 0; i < nMax; i++) {
+        try{
+        //socket = new WebSocket('ws://134.91.11.186:2000');
+        //socket = new WebSocket('ws://134.91.11.162:2000');
+        socket = new WebSocket('ws://localhost:2000');
+
+        if( (i+1)>=nMax)
+        {
+          //detail vom firefox: solange firefox.exe im taskmanager existiert
+          //versucht diese alle new Websockets nachzuholen, selbst wenn der browsertab schon zu ist.
+          //bei reload schickt es keinen socket close.
+          document.location.reload(true); 
+        }
+
+        socket.onopen = function () {
+          document.getElementById("status").innerHTML += "Connection open<br>";
+        };
+
+        socket.onmessage = function (msg) {
+          if (typeof msg.data === "string")
+            document.getElementById("status").innerHTML += "Received String Message: " + msg.data + "<br>";
+          else {
+            // let reader = new FileReader();
+            // reader.readAsArrayBuffer(msg.data);
+            // reader.addEventListener("loadend", function (e) {
+            //   processBuffer(new Uint8Array(e.target.result))
+            // });
+          }
+        };
+
+        socket.onclose = function () {
+          document.getElementById("status").innerHTML += "Connection closed" + "<br>";
+        };
+
+        await sleep(50);
+        console.log("about to close");
+        await socket.close();
+        socket = null;
+        }
+        catch(e)
+        {
+          console.log(e);
+        }
+      
+      }
+      
+    }
+
+   
+  </script>
+</head>
+
+<body onload="init();" style="background-color:#BBBBBB;">
+  <center>
+    <h1 id="title">Connecting to Paint-Server</h1>
+    <canvas id="drawArea" width="1000" height="1000"></canvas>
+    <p id="status"></p>
+  </center>
+</body>
+
+</html>
