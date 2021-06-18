@@ -70,7 +70,7 @@ void BaseClientConnection::enqueueMessage(const std::string& m) {
 
 void BaseClientConnection::enqueueMessage(const std::vector<uint8_t>& m) {
   messageQueueLock.lock();
-  messageQueue.push(m);
+  messageQueue.push(m); //-> msvc-build + /GS wirft hier _gs_security-exception .. leider nur manchmal, grund noch unbekannt
   messageQueueLock.unlock();
 }
 
@@ -87,7 +87,10 @@ void BaseClientConnection::sendFunc() {
         messageQueue.pop();
         messageQueueLock.unlock();
         try {
-          sendMessage(front);
+			if (continueRunning) //dtor - join.
+			{
+				sendMessage(front);
+			}
         } catch (SocketException const& e) {
           std::stringstream ss;
           ss << "sendFunc SocketException: " << e.what();
@@ -105,7 +108,10 @@ void BaseClientConnection::sendFunc() {
         messageQueue.pop();
         messageQueueLock.unlock();
         try {
-          sendMessage(front);
+			if (continueRunning) //dtor - join.
+			{ 
+				sendMessage(front);
+			}
         } catch (SocketException const& e) {
           std::stringstream ss;
           ss << "sendFunc SocketException: " << e.what();
@@ -319,7 +325,7 @@ HTTPRequest HttpClientConnection::parseHTTPRequest(const std::string& initialMes
   result.name = trim(values[0]);
   result.target = trim(values[1]);
   result.version = trim(values[2]);
-      
+  //CHECK: Value könnte doppelpunkte enthalten?    
   for (size_t i = 1;i<lines.size();++i) {
     std::vector<std::string> values = tokenize(lines[i], ":");
     if (values.size() == 2) {

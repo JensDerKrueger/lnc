@@ -299,29 +299,25 @@ void Server<T>::clientFunc() {
       } catch (const SocketException&) {
       }
       
-      DataResult message = DataResult::NO_DATA;
+      
       try {
-        message = clientConnections[i]->checkData();
-      } catch (SocketException const& ) {
-        removeClient(i);
-        continue;
-      }
-
-      try {
-        if (message != DataResult::NO_DATA) {
+		const std::shared_ptr<T>& client = clientConnections[i];
+		const DataResult message = client->checkData();
+        
+		if (message != DataResult::NO_DATA) {
           idle = false;
           switch (message) {
             case DataResult::STRING_DATA:
-              handleClientMessage(clientConnections[i]->getID(), std::move(clientConnections[i]->strData));
+              handleClientMessage(client->getID(), std::move(client->strData));
               break;
             case DataResult::BINARY_DATA:
-              handleClientMessage(clientConnections[i]->getID(), std::move(clientConnections[i]->binData));
+              handleClientMessage(client->getID(), std::move(client->binData));
               break;
             case DataResult::PROTOCOL_DATA:
-              handleProtocolMessage(clientConnections[i]->getID(), clientConnections[i]->protocolDataID, std::move(clientConnections[i]->binData));
+              handleProtocolMessage(client->getID(), client->protocolDataID, std::move(client->binData));
               break;
             case DataResult::NO_DATA:
-              // never hit, silnce warning
+              // never hit, silence warning
               break;
           }
         }

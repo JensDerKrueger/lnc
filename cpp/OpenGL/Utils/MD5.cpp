@@ -1,7 +1,7 @@
 #include "MD5.h"
 #include <memory.h>
 #include <fstream>
-
+#include <algorithm> //std::min
 #define MD5_INIT_STATE_0 0x67452301
 #define MD5_INIT_STATE_1 0xefcdab89
 #define MD5_INIT_STATE_2 0x98badcfe
