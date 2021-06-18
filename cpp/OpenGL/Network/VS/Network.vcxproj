@@ -54,7 +54,6 @@
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
@@ -67,7 +66,6 @@
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -91,25 +89,25 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)bin\$(PlatformTarget)-$(Configuration)\</OutDir>
-    <IntDir>tmp\$(PlatformTarget)-$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)tmp\$(TargetName)\$(PlatformTarget)-$(Configuration)\</IntDir>
     <IncludePath>$(SolutionDir)..\..\Utils;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)bin\$(PlatformTarget)-$(Configuration)\</OutDir>
-    <IntDir>tmp\$(PlatformTarget)-$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)tmp\$(TargetName)\$(PlatformTarget)-$(Configuration)\</IntDir>
     <IncludePath>$(SolutionDir)..\..\Utils;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)bin\$(PlatformTarget)-$(Configuration)\</OutDir>
-    <IntDir>tmp\$(PlatformTarget)-$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)tmp\$(TargetName)\$(PlatformTarget)-$(Configuration)\</IntDir>
     <IncludePath>$(SolutionDir)..\..\Utils;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)bin\$(PlatformTarget)-$(Configuration)\</OutDir>
-    <IntDir>tmp\$(PlatformTarget)-$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)tmp\$(TargetName)\$(PlatformTarget)-$(Configuration)\</IntDir>
     <IncludePath>$(SolutionDir)..\..\Utils;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -123,6 +121,7 @@
       </PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>../../VS/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -147,6 +146,7 @@
       </PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>../../VS/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -171,6 +171,7 @@
       </PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>../../VS/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -195,6 +196,7 @@
       </PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>../../VS/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>
