@@ -43,6 +43,7 @@ private:
   virtual void printStats();
   static uint16_t to16Bit(const std::vector<uint8_t>& message, size_t index);
   void paint(const std::vector<uint8_t>& message);
+  void clear(const std::vector<uint8_t>& message);
   std::vector<uint8_t> fixPaintMessage(const std::vector<uint8_t> &message);
 
   void savePaintLayer(size_t layerIndex);

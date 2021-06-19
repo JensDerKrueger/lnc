@@ -74,7 +74,8 @@ void EchoServer::loadPaintLayer(size_t layerIndex) {
     Image p = BMP::load(filename);
     p = p.flipHorizontal();
     
-    if (canvasWidth == p.width && canvasHeight == p.height && (3 == p.componentCount || 4 == p.componentCount)) {
+    if (canvasWidth == p.width && canvasHeight == p.height &&
+        (3 == p.componentCount || 4 == p.componentCount)) {
 
       if (4 == p.componentCount) {
         for (size_t i = 0;i<initMessageLayerSize();++i) {
@@ -105,31 +106,49 @@ void EchoServer::handleClientMessage(uint32_t id, const std::string& message) {
 
 std::vector<uint8_t> EchoServer::fixPaintMessage(const std::vector<uint8_t> &message) {
   
-  if (message.size() != 11 || message[0] != 1 || message[10] >= layerImages.size()) {
+  if (message.size() != 12 || message[0] != 1 || message[11] >= layerImages.size()) {
     throw EchoServerException("Not a valid paint message");
   }
   
   std::vector<uint8_t> forwardedMessage = message;
   const uint16_t brushCenterPosX = std::clamp<uint16_t>(to16Bit(forwardedMessage, 1), 0, canvasWidth-1);
   const uint16_t brushCenterPosY = std::clamp<uint16_t>(to16Bit(forwardedMessage, 3), 0, canvasHeight-1);
-  const uint16_t brushSize = std::clamp<uint16_t>(to16Bit(forwardedMessage, 8),1,20);
+  const uint16_t brushSize = std::clamp<uint16_t>(to16Bit(forwardedMessage, 9),1,200);
   forwardedMessage[1] = (brushCenterPosX >> 8) & 0xff;
   forwardedMessage[2] = brushCenterPosX & 0xff;
   forwardedMessage[3] = (brushCenterPosY >> 8) & 0xff;
   forwardedMessage[4] = brushCenterPosY & 0xff;
-  forwardedMessage[8] = (brushSize >> 8) & 0xff;
-  forwardedMessage[9] = brushSize & 0xff;
+  forwardedMessage[9] = (brushSize >> 8) & 0xff;
+  forwardedMessage[10] = brushSize & 0xff;
   return forwardedMessage;
 }
 
 void EchoServer::handleClientMessage(uint32_t id, const std::vector<uint8_t>& message) {
-  imageLock.lock();
-  paint(message);
-  imageLock.unlock();
-  try {
-    sendMessage(fixPaintMessage(message));
-  } catch (const EchoServerException& e) {
-    std::cout << "Client id" << id << " is trying to fool us with " << e.what() << std::endl;
+  if (message.empty()) return;
+
+  switch (message[0]) {
+    case 1 :
+      imageLock.lock();
+      paint(message);
+      imageLock.unlock();
+      try {
+        sendMessage(fixPaintMessage(message));
+      } catch (const EchoServerException& e) {
+        std::cout << "Client " << id << " is sending invalid data '"
+                  << e.what() << "'"<< std::endl;
+      }
+      break;
+    case 2 :
+      imageLock.lock();
+      clear(message);
+      imageLock.unlock();
+      try {
+        sendMessage(message);
+      } catch (const EchoServerException& e) {
+        std::cout << "Client " << id << " is sending invalid data '"
+                  << e.what() << "'"<< std::endl;
+      }
+      break;
   }
 }
 
@@ -159,26 +178,44 @@ void EchoServer::printStats() {
 uint16_t EchoServer::to16Bit(const std::vector<uint8_t>& message, size_t index) {
   return uint16_t(uint16_t(message[index]) << 8) | message[index+1];
 }
-  
+
+void EchoServer::clear(const std::vector<uint8_t>& message) {
+  if (message.size() == 6 && message[0] == 2 && message[5] < layerImages.size()) {
+    const uint8_t r = message[1];
+    const uint8_t g = message[2];
+    const uint8_t b = message[3];
+    const uint8_t a = message[4];
+    const uint8_t target = message[5];
+    for (uint32_t i = 0;i<canvasHeight*canvasWidth;++i) {
+      const size_t serialPos = size_t(i)*4+(initMessageLayerSize()*target) + initMessageHeaderSize();
+      imageMessage[serialPos+0] = r;
+      imageMessage[serialPos+1] = g;
+      imageMessage[serialPos+2] = b;
+      imageMessage[serialPos+3] = a;
+    }
+  }
+}
+
 void EchoServer::paint(const std::vector<uint8_t>& message) {
-  if (message.size() == 11 && message[0] == 1 && message[10] < layerImages.size()) {
+  if (message.size() == 12 && message[0] == 1 && message[11] < layerImages.size()) {
     const uint16_t brushCenterPosX = to16Bit(message, 1);
     const uint16_t brushCenterPosY = to16Bit(message, 3);
     const uint8_t r = message[5];
     const uint8_t g = message[6];
     const uint8_t b = message[7];
-    const uint16_t brushSize = std::clamp<uint16_t>(to16Bit(message, 8),1,20);
-    const uint8_t target = message[10];
+    const uint8_t a = message[8];
+    const uint16_t brushSize = std::clamp<uint16_t>(to16Bit(message, 9),1,20);
+    const uint8_t target = message[11];
     for (uint32_t y = 0;y<brushSize;++y) {
       for (uint32_t x = 0;x<brushSize;++x) {
         const uint32_t posX = brushCenterPosX+x;
         const uint32_t posY = brushCenterPosY+y;
         if (posX < canvasWidth && posY < canvasHeight) {
-          const size_t serialPos = size_t(posX + posY * canvasWidth)*4+ (canvasWidth*canvasHeight*4*target) + 6;
+          const size_t serialPos = size_t(posX + posY * canvasWidth)*4+(initMessageLayerSize()*target) + initMessageHeaderSize();
           imageMessage[serialPos+0] = r;
           imageMessage[serialPos+1] = g;
           imageMessage[serialPos+2] = b;
-          imageMessage[serialPos+3] = 255;
+          imageMessage[serialPos+3] = a;
         }
       }
     }

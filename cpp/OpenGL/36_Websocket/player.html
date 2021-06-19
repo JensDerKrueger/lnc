@@ -139,9 +139,7 @@
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         for (let l = 0;l<hiddenCanvases.length;++l) {
           let c = hiddenCanvases[l];
-          ctx.globalAlpha = 0.8;
           ctx.drawImage(c, 0,0, canvas.width, canvas.height);
-          ctx.globalAlpha = 1.0;
         }
       }
       
@@ -183,7 +181,7 @@
                 layerCtx.putImageData(initialImageData, 0, 0);
               }
               compose();
-              document.getElementById("title").innerHTML = "Dungeon Master UI";
+              document.getElementById("title").innerHTML = "D&D Map Explorer";
               break;
             }
             case ClearMessage: {
@@ -244,22 +242,7 @@
           v = this.value/100;
           applyColor();
         }
-        
-        let layerSlider = document.getElementById("layerSlider");
-        layerSlider.oninput = function() {
-          currentTarget = this.value;
-        }
-        
-        
-        window.onkeydown= function(event){
-          if (event.keyCode === 8) {  // backspace
-            eraseLayer();
-          };
-          if (event.keyCode === 46) {  // del
-            overrideLayer();
-          };
-        };
-        
+                
         
         hueSlider.value = Math.round(Math.random() * 100);
         satSlider.value = 100;
@@ -374,7 +357,6 @@
       <input type="range" min="0" max="100" value="1" class="slider" id="hueSlider">
       <input type="range" min="0" max="100" value="100" class="slider" id="satSlider">
       <input type="range" min="0" max="100" value="100" class="slider" id="valueSlider">
-      <input type="range" min="1" max="2" value="2" class="slider" id="layerSlider">
     </div>
     <canvas id="drawArea" width="800" height="600"></canvas>
     <p id="status"></p>

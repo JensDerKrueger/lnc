@@ -2,6 +2,8 @@
 #include <future>
 #include <chrono>
 
+#include <bmp.h>
+
 #include "EchoServer.h"
 
 static std::string getAnswer() {
@@ -15,7 +17,9 @@ int main(int argc, char ** argv) {
   typedef std::chrono::high_resolution_clock Clock;
   std::chrono::time_point<Clock> restorePointTime = Clock::now();
 
-  EchoServer server(2000,800,800,{"dungeon.bmp", "mist.bmp", "paint.bmp"});
+  const Image background = BMP::load("dungeon.bmp");
+  EchoServer server(2000,uint16_t(background.width),uint16_t(background.height),
+                    {"dungeon.bmp", "mist.bmp", "paint.bmp"});
   server.start();
 
   std::cout << "Starting ";
