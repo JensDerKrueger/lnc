@@ -17,9 +17,17 @@ int main(int argc, char ** argv) {
   typedef std::chrono::high_resolution_clock Clock;
   std::chrono::time_point<Clock> restorePointTime = Clock::now();
 
-  const Image background = BMP::load("dungeon.bmp");
-  EchoServer server(2000,uint16_t(background.width),uint16_t(background.height),
-                    {"dungeon.bmp", "mist.bmp", "paint.bmp"});
+  uint16_t width, height;
+  try {
+    const Image background = BMP::load("dungeon.bmp");
+    width = uint16_t(background.width);
+    height = uint16_t(background.height);
+  } catch (...) {
+    width = 800;
+    height = 600;
+  }
+  
+  EchoServer server(2000,width,height, {"dungeon.bmp", "mist.bmp", "paint.bmp"});
   server.start();
 
   std::cout << "Starting ";
