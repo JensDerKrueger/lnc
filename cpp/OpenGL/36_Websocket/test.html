@@ -69,10 +69,14 @@
       
       var mouseX, mouseY, mouseDown=false;
       var brushSize = 10;
-      var currentTarget = 0;
+      var currentTarget = 2;
       var h = 0;
       var canvas, ctx;
       var socket;
+      var serverWidth;
+      var serverHeight;
+      
+      var hiddenCanvases = [];
 
       function HSVtoRGB(h, s, v) {
         let r, g, b, i, f, p, q, t;
@@ -96,20 +100,28 @@
         };
       }
       
-      function over(source, destination) {
-        const alpha = destination[3]/255.0;
-        return {r : source[0] * (1-alpha) + destination[0] * alpha,
-                g : source[1] * (1-alpha) + destination[1] * alpha,
-                b : source[2] * (1-alpha) + destination[2] * alpha,
-                a : 255};
+      function createCanvas(width, height) {
+        let c = document.createElement('canvas');
+        c.setAttribute('width', width);
+        c.setAttribute('height', height);
+        return c;
       }
       
+      function compose() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (let l = 0;l<hiddenCanvases.length;++l) {
+          let c = hiddenCanvases[l];
+          ctx.drawImage(c, 0,0, canvas.width, canvas.height);
+        }
+      }
+        
       function processBuffer(buffer) {
         try {
           let message = deserializeMessage(buffer);
           switch (message.constructor) {
             case PaintMessage: {
-              let sprite = ctx.createImageData(message.brushSize, message.brushSize);
+              let layerCtx = hiddenCanvases[message.target].getContext('2d');
+              let sprite = layerCtx.createImageData(message.brushSize, message.brushSize);
               for (let y = 0; y < sprite.height; ++y) {
                 for (let x = 0; x < sprite.width; ++x) {
                   let i = (x+y*sprite.width)*4;
@@ -119,31 +131,28 @@
                   sprite.data[i + 3] = 255;
                 }
               }
-              ctx.putImageData(sprite, message.posX, message.posY);
+              layerCtx.putImageData(sprite, message.posX, message.posY);
+              compose();
               break;
             }
             case InitMessage: {
-              let initialImageData = ctx.createImageData(message.width, message.height);
+              hiddenCanvases = [];
+              serverWidth = message.width;
+              serverHeight = message.height;
               
               for (let l = 0;l<message.layerCount;++l) {
+                hiddenCanvases.push(createCanvas(message.width,message.height));
+                let layerCtx = hiddenCanvases[hiddenCanvases.length-1].getContext('2d');
+                let initialImageData = layerCtx.createImageData(message.width, message.height);
                 const offset = l * message.width*message.height*4;
-                for (let i = 0;i<message.width*message.height*4;i+=4) {
-                  const currentColor = [initialImageData.data[i+0],
-                                        initialImageData.data[i+1],
-                                        initialImageData.data[i+2],
-                                        initialImageData.data[i+3]];
-                  const color = over(currentColor,
-                                     message.imageData.slice(offset+i,offset+i+4));
-                  initialImageData.data[i+0] = color.r;
-                  initialImageData.data[i+1] = color.g;
-                  initialImageData.data[i+2] = color.b;
-                  initialImageData.data[i+3] = color.a;
+                
+                for (let i = 0;i<message.width*message.height*4;i++) {
+                  initialImageData.data[i] = message.imageData[i+offset];
                 }
-              }
 
-              canvas.width = message.width
-              canvas.height = message.height
-              ctx.putImageData(initialImageData, 0, 0);
+                layerCtx.putImageData(initialImageData, 0, 0);
+              }
+              compose();
               document.getElementById("title").innerHTML = "WebSocket Multiuser Painter";
               break;
             }
@@ -210,7 +219,9 @@
         let rgb = HSVtoRGB(h/1000,1.0,1.0);
         h = (h + 1) % 1000;
         if(socket.readyState == 1)
-          socket.send(new PaintMessage(mouseX, mouseY, rgb.r, rgb.g, rgb.b, Math.round(brushSize), currentTarget).serialize());
+          socket.send(new PaintMessage(serverWidth * mouseX/canvas.width,
+                                       serverHeight * mouseY/canvas.height,
+                                       rgb.r, rgb.g, rgb.b, Math.round(brushSize), currentTarget).serialize());
       }
       
       function handleMouseDown(event) {
