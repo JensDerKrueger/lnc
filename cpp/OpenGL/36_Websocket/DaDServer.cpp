@@ -107,13 +107,14 @@ void DaDServer::handleClientMessage(uint32_t id, const std::string& message) {
 }
 
 void DaDServer::handleClientConnection(uint32_t id, const std::string& address, uint16_t port) {
-  std::cout << "New client (id:" << id << ") connected from " << address << std::endl;
+  std::cout << "Player " << id << " joinded from " << address << std::endl;
   printStats();
+  const std::scoped_lock<std::mutex> lock(imageLock);
   sendMessage(imageMessage,id);
 }
 
 void DaDServer::handleClientDisconnection(uint32_t id) {
-  std::cout << "Client (id:" << id << ") disconnected" << std::endl;
+  std::cout << "Player " << id << " left the game from realm " << realmMapping[id] << std::endl;
   realmMapping.erase(id);
   printStats();
 }
@@ -127,7 +128,7 @@ void DaDServer::handleError(const std::string& message) {
 }
 
 void DaDServer::printStats() {
-  std::cout << "A total of " << getValidIDs().size() << " clients are currently connected." << std::endl;
+  std::cout << "A total of " << getValidIDs().size() << " players are currently connected." << std::endl;
 }
   
 void DaDServer::handleClientMessage(uint32_t id, const std::vector<uint8_t>& message) {
@@ -236,5 +237,10 @@ void DaDServer::handlePos(BinaryDecoder& dec, uint32_t realmID, uint32_t id) {
 
 
 void DaDServer::activeRealm(uint32_t realmID, uint32_t id) {
-  
+  if (realmMapping[id] != realmID) {
+    realmMapping[id] = realmID;
+    const std::scoped_lock<std::mutex> lock(imageLock);
+    sendMessage(imageMessage,id);
+    std::cout << "Player " << id << " switched to realm " << realmMapping[id] << std::endl;
+  }
 }

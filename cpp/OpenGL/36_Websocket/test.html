@@ -106,6 +106,15 @@
       }
       
       function init() {
+        let realmText = document.getElementById("realmText");
+        realmText.value = activeRealm;
+
+        let submitRealm = document.getElementById("submitRealm");
+        submitRealm.onclick = function() {
+          let realmText = document.getElementById("realmText");
+          activeRealm = realmText.value;
+        }
+        
         let hueSlider = document.getElementById("hueSlider");
         hueSlider.oninput = function() {
           h = this.value/100;
@@ -256,6 +265,8 @@
     <center>
     <h1 id="title">Connecting to Paint-Server</h1>
     <div id="hueLabel">
+      <input id="realmText" type="text">
+      <input type="button" value="Change Realm" id="submitRealm"/>
       <input type="range" min="0" max="100" value="1" class="slider" id="hueSlider">
       <input type="range" min="0" max="100" value="100" class="slider" id="satSlider">
       <input type="range" min="0" max="100" value="100" class="slider" id="valueSlider">
