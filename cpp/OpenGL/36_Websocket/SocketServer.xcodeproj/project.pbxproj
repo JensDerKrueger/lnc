@@ -8,7 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		5677395325FB7BF000AB2341 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5677394C25FB7BF000AB2341 /* main.cpp */; };
-		568552BD267AB379003398DF /* EchoServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 568552BC267AB379003398DF /* EchoServer.cpp */; };
+		568552BD267AB379003398DF /* DaDServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 568552BC267AB379003398DF /* DaDServer.cpp */; };
+		56BE3166267FC2AA00D38677 /* Realm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 56BE3165267FC2AA00D38677 /* Realm.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,8 +26,10 @@
 
 /* Begin PBXFileReference section */
 		5677394C25FB7BF000AB2341 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
-		568552BB267AB379003398DF /* EchoServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EchoServer.h; sourceTree = "<group>"; };
-		568552BC267AB379003398DF /* EchoServer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EchoServer.cpp; sourceTree = "<group>"; };
+		568552BB267AB379003398DF /* DaDServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DaDServer.h; sourceTree = "<group>"; };
+		568552BC267AB379003398DF /* DaDServer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DaDServer.cpp; sourceTree = "<group>"; };
+		56BE3164267FC2AA00D38677 /* Realm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Realm.h; sourceTree = "<group>"; };
+		56BE3165267FC2AA00D38677 /* Realm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Realm.cpp; sourceTree = "<group>"; };
 		A231F0FF25EAF61A00CBFC23 /* SocketServer */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = SocketServer; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -44,8 +47,10 @@
 		A231F0F625EAF61A00CBFC23 = {
 			isa = PBXGroup;
 			children = (
-				568552BC267AB379003398DF /* EchoServer.cpp */,
-				568552BB267AB379003398DF /* EchoServer.h */,
+				568552BC267AB379003398DF /* DaDServer.cpp */,
+				568552BB267AB379003398DF /* DaDServer.h */,
+				56BE3165267FC2AA00D38677 /* Realm.cpp */,
+				56BE3164267FC2AA00D38677 /* Realm.h */,
 				5677394C25FB7BF000AB2341 /* main.cpp */,
 				A231F10025EAF61A00CBFC23 /* Products */,
 			);
@@ -116,7 +121,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				5677395325FB7BF000AB2341 /* main.cpp in Sources */,
-				568552BD267AB379003398DF /* EchoServer.cpp in Sources */,
+				568552BD267AB379003398DF /* DaDServer.cpp in Sources */,
+				56BE3166267FC2AA00D38677 /* Realm.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

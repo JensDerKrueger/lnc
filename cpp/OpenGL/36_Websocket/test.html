@@ -3,139 +3,20 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title>WebSocket Multiuser Painter</title>
+    <script type="text/javascript" src="dad.js"></script>
     <script type="text/javascript">
-      
-      function deserializeMessage(buffer) {
-        if (buffer instanceof Uint8Array && buffer.length > 0) {
-          let type = buffer[0];
-          switch (type) {
-            case 0 :
-              return InitMessage.deserialize(buffer);
-            case 1 :
-              return PaintMessage.deserialize(buffer);
-            case 2 :
-              return ClearMessage.deserialize(buffer);
-            default:
-              throw new Error("invalid message type");
-          };
-        } else {
-          throw new Error("invalid message buffer");
-        }
-      }
-            
-      class PaintMessage {
-        constructor(posX, posY, r, g, b, a, brushSize, target) {
-          this.posX = posX;
-          this.posY = posY;
-          this.r = r;
-          this.g = g;
-          this.b = b;
-          this.a = a;
-          this.brushSize = brushSize;
-          this.target = target;
-        }
-        
-        serialize() {
-          return new Uint8Array([1, (this.posX >> 8) & 0xff, this.posX & 0xff, (this.posY >> 8) & 0xff, this.posY & 0xff, this.r, this.g, this.b, this.a,
-                                (this.brushSize >> 8) & 0xff, this.brushSize & 0xff, this.target] );
-        }
-                
-        static deserialize(buffer) {
-          if (buffer.length === 12) {
-            return new PaintMessage((buffer[1] << 8) + buffer[2], (buffer[3] << 8) + buffer[4], buffer[5], buffer[6], buffer[7], buffer[8], (buffer[9] << 8) + buffer[10], buffer[11]);
-          } else {
-            throw new Error("invalid message length");
-          }
-        }
-      };
-      
-      class ClearMessage {
-        constructor(r, g, b, a, target) {
-          this.r = r;
-          this.g = g;
-          this.b = b;
-          this.a = a;
-          this.target = target;
-        }
-        
-        serialize() {
-          return new Uint8Array([2, this.r, this.g, this.b, this.a, this.target] );
-        }
-        
-        static deserialize(buffer) {
-          if (buffer.length === 6) {
-            return new ClearMessage(buffer[1], buffer[2], buffer[3], buffer[4], buffer[5]);
-          } else {
-            throw new Error("invalid message length");
-          }
-        }
-      };
-      
-      class InitMessage {
-        constructor(imageData, width, height, layerCount) {
-          this.width = width;
-          this.height = height;
-          this.imageData = imageData;
-          this.layerCount = layerCount;
-        }
-                
-        static deserialize(buffer) {
-          if (buffer.length < 6) {
-            throw new Error("invalid message length");
-          }
-          
-          let width  = (buffer[1] << 8) + buffer[2];
-          let height = (buffer[3] << 8) + buffer[4];
-          let layerCount = buffer[5];
-          
-          return new InitMessage(buffer.slice(6),width,height,layerCount);
-        }
-      };
-      
       var mouseX, mouseY, leftMouseDown=false, rightMouseDown=false;
-      var brushSize = 10;
-      var currentTarget = 2;
       var canvas, ctx;
-      var socket;
-      var serverWidth;
-      var serverHeight;
-      var h,s,v;
-      var color = {r:255,g:0,b:0,a:255};
-      const eraser = {r:0,g:0,b:0,a:0};
-      
-      var hiddenCanvases = [];
-
-      function HSVtoRGB(h, s, v) {
-        let r, g, b, i, f, p, q, t;
-        i = Math.floor(h * 6);
-        f = h * 6 - i;
-        p = v * (1 - s);
-        q = v * (1 - f * s);
-        t = v * (1 - (1 - f) * s);
-        switch (i % 6) {
-          case 0: r = v, g = t, b = p; break;
-          case 1: r = q, g = v, b = p; break;
-          case 2: r = p, g = v, b = t; break;
-          case 3: r = p, g = q, b = v; break;
-          case 4: r = t, g = p, b = v; break;
-          case 5: r = v, g = p, b = q; break;
-        }
-        return {
-          r: Math.round(r * 255),
-          g: Math.round(g * 255),
-          b: Math.round(b * 255),
-          a: 255
-        };
-      }
-      
-      function createCanvas(width, height) {
-        let c = document.createElement('canvas');
-        c.setAttribute('width', width);
-        c.setAttribute('height', height);
-        return c;
-      }
-      
+            
       function compose() {
+        if (hiddenCanvases.length == 0) return;
+        
+        canvas.width  = window.innerWidth-20;
+        if (Math.round(100.0 * canvas.width / canvas.height) != 
+            Math.round(100.0 * hiddenCanvases[0].width / hiddenCanvases[0].height))  {
+          canvas.height = canvas.width * hiddenCanvases[0].height / hiddenCanvases[0].width;
+        }
+        
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         for (let l = 0;l<hiddenCanvases.length;++l) {
           let c = hiddenCanvases[l];
@@ -208,10 +89,6 @@
         }
       }
       
-      function rgb(r, g, b){
-        return ["rgb(",r,",",g,",",b,")"].join("");
-      }
-      
       function overrideLayer(){
         if(socket.readyState == 1)
           socket.send(new ClearMessage(color.r, color.g, color.b, color.a, currentTarget).serialize());
@@ -250,8 +127,16 @@
           currentTarget = this.value;
         }
         
+        let brushSizeSlider = document.getElementById("brushSizeSlider");
+        brushSizeSlider.oninput = function() {
+          brushSize = this.value;
+        }
         
-        window.onkeydown= function(event){
+        window.addEventListener('resize', function(event) {
+          compose();
+        }, true);
+        
+        window.onkeydown = function(event){
           if (event.keyCode === 8) {  // backspace
             eraseLayer();
           };
@@ -259,7 +144,6 @@
             overrideLayer();
           };
         };
-        
         
         hueSlider.value = Math.round(Math.random() * 100);
         satSlider.value = 100;
@@ -276,7 +160,6 @@
         canvas.onmouseup     = handleMouseUp;
         canvas.oncontextmenu = handleContextMenu;
         
-        
         canvas.addEventListener("touchmove", event => {
           var rect = event.target.getBoundingClientRect();
           mouseX = event.touches[0].clientX - rect.left;
@@ -285,11 +168,13 @@
           dropPaint(color);
         });
   
+/*
         canvas.addEventListener("wheel", event => {
           const delta = 0.4 * Math.sign(event.deltaY);
           event.preventDefault();
           brushSize = Math.min(Math.max(brushSize-delta, 1), 200);
         });
+*/
         
         ctx = canvas.getContext("2d");
         ctx.globalCompositeOperation = "source-over";
@@ -297,9 +182,9 @@
         ctx.fillStyle = "rgba(0,0,255,0.1)";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         
-        socket = new WebSocket('ws://134.91.11.186:2000');
+        //socket = new WebSocket('ws://134.91.11.186:2000');
         //socket = new WebSocket('ws://134.91.11.162:2000');
-        //socket = new WebSocket('ws://localhost:2000');
+        socket = new WebSocket('ws://localhost:2000');
         
         socket.onopen = function () {
           document.getElementById("status").innerHTML += "Connection open<br>";
@@ -374,6 +259,7 @@
       <input type="range" min="0" max="100" value="1" class="slider" id="hueSlider">
       <input type="range" min="0" max="100" value="100" class="slider" id="satSlider">
       <input type="range" min="0" max="100" value="100" class="slider" id="valueSlider">
+      <input type="range" min="1" max="100" value="50" class="slider" id="brushSizeSlider">
       <input type="range" min="1" max="2" value="2" class="slider" id="layerSlider">
     </div>
     <canvas id="drawArea" width="800" height="600"></canvas>

@@ -3,13 +3,16 @@
 #include <vector>
 #include <string>
 #include <thread>
+#include <map>
 
 #include <Server.h>
 #include <bmp.h>
 
-class EchoServerException : public std::exception {
+#include "Realm.h"
+
+class DaDServerException : public std::exception {
   public:
-  EchoServerException(const std::string& whatStr) : whatStr(whatStr) {}
+  DaDServerException(const std::string& whatStr) : whatStr(whatStr) {}
     virtual const char* what() const throw() {
       return whatStr.c_str();
     }
@@ -18,11 +21,11 @@ class EchoServerException : public std::exception {
 };
 
 
-class EchoServer : public Server<WebSocketConnection> {
+class DaDServer : public Server<WebSocketConnection> {
 public:
-  EchoServer(uint16_t port, uint16_t canvasWidth, uint16_t canvasHeight,
+  DaDServer(uint16_t port, uint16_t canvasWidth, uint16_t canvasHeight,
              const std::vector<std::string>& layerImages);
-  virtual ~EchoServer();
+  virtual ~DaDServer();
   void savePaintLayers();
 
 protected:
@@ -39,18 +42,20 @@ private:
   uint16_t canvasWidth;
   uint16_t canvasHeight;
   std::vector<std::string> layerImages;
+  
+  std::map<uint32_t, uint32_t> realmMapping;
 
   virtual void printStats();
-  static uint16_t to16Bit(const std::vector<uint8_t>& message, size_t index);
-  void paint(const std::vector<uint8_t>& message);
-  void clear(const std::vector<uint8_t>& message);
-  std::vector<uint8_t> fixPaintMessage(const std::vector<uint8_t> &message);
+  void handlePaint(BinaryDecoder& dec, uint32_t realmID, uint32_t id);
+  void handleClear(BinaryDecoder& dec, uint32_t realmID, uint32_t id);
+  void handlePos(BinaryDecoder& dec, uint32_t realmID, uint32_t id);
+  void activeRealm(uint32_t realmID, uint32_t id);
 
   void savePaintLayer(size_t layerIndex);
   void loadPaintLayer(size_t layerIndex);
 
   size_t initMessageHeaderSize() const;
-  size_t initMessageLayerSize() const;
+  size_t initMessageLayerSize() const;  
 };
 
 

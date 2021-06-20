@@ -4,7 +4,7 @@
 
 #include <bmp.h>
 
-#include "EchoServer.h"
+#include "DaDServer.h"
 
 static std::string getAnswer() {
   std::string answer;
@@ -27,7 +27,7 @@ int main(int argc, char ** argv) {
     height = 600;
   }
   
-  EchoServer server(2000,width,height, {"dungeon.bmp", "mist.bmp", "paint.bmp"});
+  DaDServer server(2000,width,height, {"dungeon.bmp", "mist.bmp", "paint.bmp"});
   server.start();
 
   std::cout << "Starting ";
