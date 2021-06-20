@@ -13,7 +13,7 @@ else
 	INCLUDES=-I. -I../Utils -I ../../openmp/include -I /opt/homebrew/include -I../Network
 endif
 
-SRC = EchoServer.cpp main.cpp
+SRC = Realm.cpp DaDServer.cpp main.cpp
 OBJ = $(SRC:.cpp=.o)
 TARGET = socketServer
 
