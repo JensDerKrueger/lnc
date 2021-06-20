@@ -51,7 +51,7 @@ struct BasicMessage {
   virtual ~BasicMessage() {}
   
   virtual std::string toString() {
-    Encoder coder;
+    StringEncoder coder;
     coder.add("game");
     coder.add(int(pt));
     coder.add(userID);
@@ -97,7 +97,7 @@ struct PairedMessage : public BasicMessage {
   virtual ~PairedMessage() {}
   
   virtual std::string toString() override {
-    Encoder coder;
+    StringEncoder coder;
     coder.add(name);
     coder.add(level);
     return BasicMessage::toString() + coder.getEncodedMessage();
@@ -145,7 +145,7 @@ struct ConnectMessage : public BasicMessage {
   virtual ~ConnectMessage() {}
   
   virtual std::string toString() override {
-    Encoder coder;
+    StringEncoder coder;
     coder.add(name);
     coder.add(uint32_t(gameID));
     coder.add(level);
@@ -172,7 +172,7 @@ struct GameMessage : public BasicMessage {
   virtual ~GameMessage() {}
   
   virtual std::string toString() override {
-    Encoder coder;
+    StringEncoder coder;
     coder.add(payload);
     return BasicMessage::toString() + coder.getEncodedMessage();
   }

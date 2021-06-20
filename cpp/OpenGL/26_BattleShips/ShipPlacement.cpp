@@ -102,7 +102,7 @@ std::string ShipPlacement::toEncryptedString(const std::string& password) const 
 }
 
 std::string ShipPlacement::toString() const {
-  Encoder e;
+  StringEncoder e;
   e.add("ShipPlacement");
   e.add(gridSize.x);
   e.add(gridSize.y);

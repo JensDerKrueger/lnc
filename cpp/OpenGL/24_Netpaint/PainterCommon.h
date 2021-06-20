@@ -109,7 +109,7 @@ struct BasicMessage {
   virtual ~BasicMessage() {}
   
   virtual std::string toString() {
-    Encoder e;
+    StringEncoder e;
     e.add("painter");
     e.add(uint32_t(pt));
     e.add(userID);
@@ -139,7 +139,7 @@ struct MousePosMessage : public BasicMessage {
   virtual ~MousePosMessage() {}
 
   virtual std::string toString() override {
-    Encoder e;
+    StringEncoder e;
     e.add(mousePos.x);
     e.add(mousePos.y);
     return BasicMessage::toString() + e.getEncodedMessage();
@@ -173,7 +173,7 @@ struct NewUserMessage : public BasicMessage {
   virtual ~NewUserMessage() {}
   
   virtual std::string toString() override {
-    Encoder e;
+    StringEncoder e;
     e.add(name);
     e.add(color.x);
     e.add(color.y);
@@ -203,7 +203,7 @@ struct ConnectMessage : public NewUserMessage {
   virtual ~ConnectMessage() {}
   
   virtual std::string toString() override {
-    Encoder e;
+    StringEncoder e;
     e.add(fastCursorUpdates);
     return NewUserMessage::toString() + e.getEncodedMessage();
   }
@@ -255,7 +255,7 @@ struct CanvasUpdateMessage : public BasicMessage {
   virtual ~CanvasUpdateMessage() {}
   
   virtual std::string toString() override {
-    Encoder e;
+    StringEncoder e;
     e.add(color.x);
     e.add(color.y);
     e.add(color.z);
@@ -312,7 +312,7 @@ struct InitMessage : public BasicMessage {
   virtual ~InitMessage() {}
   
   virtual std::string toString() override {
-    Encoder e;
+    StringEncoder e;
     
     e.add(image.width);
     e.add(image.height);

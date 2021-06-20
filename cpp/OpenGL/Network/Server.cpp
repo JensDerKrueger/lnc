@@ -10,28 +10,6 @@
 
 constexpr uint64_t MAX_PAYLOAD_SIZE = 1024*1024*1024;
 
-static bool isBigEndian(void) {
-  union {
-    int i;
-    char c[sizeof(int32_t)];
-  } tmp;
-  tmp.i=0x1020;
-  return tmp.c[0]!=0x20;
-}
-
-template <typename T> T swapEndian(T u) {
-  static_assert (CHAR_BIT == 8, "CHAR_BIT != 8");
-  union {
-    T u;
-    unsigned char u8[sizeof(T)];
-  } source, dest;
-
-  source.u = u;
-  for (size_t k = 0; k < sizeof(T); k++)
-    dest.u8[k] = source.u8[sizeof(T) - k - 1];
-  return dest.u;
-}
-
 BaseClientConnection::BaseClientConnection(TCPSocket* connectionSocket, uint32_t id, const std::string& key,
                                            uint32_t timeout, ErrorFunction errorFunction) :
   connectionSocket(connectionSocket),

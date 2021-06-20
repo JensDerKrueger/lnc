@@ -102,7 +102,7 @@ public:
   }
   
   virtual void handleNewConnection() override {
-    Encoder e;
+    StringEncoder e;
     e.add({"name",name});
     sendMessage(e.getEncodedMessage());
   }
@@ -134,7 +134,7 @@ int main(int argc, char ** argv) {
         if (message == "q") {
           break;
         } else {
-          Encoder e;
+          StringEncoder e;
           e.add({"message",message});
           c.sendMessage(e.getEncodedMessage());
         }

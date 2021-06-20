@@ -221,7 +221,7 @@ void FrontendServer::updateHighscore(const std::vector<HighScoreEntry>& scores) 
 }
 
 void FrontendServer::updateState() {
-  Encoder e{char(1)};
+  StringEncoder e{char(1)};
   e.add(0);
   e.add(lastCountdown);
   e.add(lastCurrent);
@@ -231,7 +231,7 @@ void FrontendServer::updateState() {
 }
 
 void FrontendServer::newInput(const std::string& name, uint8_t current, uint8_t next, const std::string& opText) {
-  Encoder e{char(1)};
+  StringEncoder e{char(1)};
   e.add(1);
   e.add(name);
   e.add(current);
@@ -241,7 +241,7 @@ void FrontendServer::newInput(const std::string& name, uint8_t current, uint8_t 
 }
 
 void FrontendServer::updateHighscore() {
-  Encoder e{char(1)};
+  StringEncoder e{char(1)};
   e.add(2);
   e.add(uint32_t(highscore.size()));
   for (size_t i = 0;i<highscore.size();++i) {

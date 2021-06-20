@@ -77,7 +77,7 @@ FrontendServer::FrontendServer(uint16_t port) :
 }
 
 void FrontendServer::newInput(const std::string& name, const std::string& text) {
-  Encoder e{char(1)};
+  StringEncoder e{char(1)};
   e.add(name);
   e.add(text);
   sendMessage(e.getEncodedMessage());

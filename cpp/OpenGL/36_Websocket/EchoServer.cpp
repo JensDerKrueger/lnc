@@ -13,12 +13,14 @@ layerImages(layerImages)
   }
   
   imageMessage.resize(initMessageHeaderSize() + initMessageLayerSize() * layerImages.size());
-  imageMessage[0] = 0;
-  imageMessage[1] = (canvasWidth >> 8) & 0xff;
-  imageMessage[2] = canvasWidth & 0xff;
-  imageMessage[3] = (canvasHeight >> 8) & 0xff;
-  imageMessage[4] = canvasHeight & 0xff;
-  imageMessage[5] = uint8_t(layerImages.size());
+  
+  BinaryEncoder enc;
+  enc.add(uint8_t(0));
+  enc.add(canvasWidth);
+  enc.add(canvasHeight);
+  enc.add(uint8_t(layerImages.size()));
+  imageMessage = enc.getEncodedMessage();
+  imageMessage.resize(initMessageHeaderSize() + initMessageLayerSize() * layerImages.size(), 0);
    
   for (size_t layerIndex = 0;layerIndex<layerImages.size();layerIndex++) {
     loadPaintLayer(layerIndex);
@@ -105,22 +107,34 @@ void EchoServer::handleClientMessage(uint32_t id, const std::string& message) {
 }
 
 std::vector<uint8_t> EchoServer::fixPaintMessage(const std::vector<uint8_t> &message) {
-  
-  if (message.size() != 12 || message[0] != 1 || message[11] >= layerImages.size()) {
+  try {
+    BinaryDecoder dec(message);
+    uint8_t id = dec.nextUint8();
+    uint16_t posX = std::clamp<uint16_t>(dec.nextUint16(), 0, canvasWidth-1);
+    uint16_t posY = std::clamp<uint16_t>(dec.nextUint16(), 0, canvasWidth-1);
+    uint8_t r = dec.nextUint8();
+    uint8_t g = dec.nextUint8();
+    uint8_t b = dec.nextUint8();
+    uint8_t a = dec.nextUint8();
+    uint16_t size = std::clamp<uint16_t>(dec.nextUint16(),1,200);
+    uint8_t target = dec.nextUint8();
+
+    if (id != 1 || target >= layerImages.size()) throw EchoServerException("Not a valid paint message");
+
+    BinaryEncoder enc;
+    enc.add(id);
+    enc.add(posX);
+    enc.add(posY);
+    enc.add(r);
+    enc.add(g);
+    enc.add(b);
+    enc.add(a);
+    enc.add(size);
+    enc.add(target);
+    return enc.getEncodedMessage();
+  } catch (...) {
     throw EchoServerException("Not a valid paint message");
   }
-  
-  std::vector<uint8_t> forwardedMessage = message;
-  const uint16_t brushCenterPosX = std::clamp<uint16_t>(to16Bit(forwardedMessage, 1), 0, canvasWidth-1);
-  const uint16_t brushCenterPosY = std::clamp<uint16_t>(to16Bit(forwardedMessage, 3), 0, canvasHeight-1);
-  const uint16_t brushSize = std::clamp<uint16_t>(to16Bit(forwardedMessage, 9),1,200);
-  forwardedMessage[1] = (brushCenterPosX >> 8) & 0xff;
-  forwardedMessage[2] = brushCenterPosX & 0xff;
-  forwardedMessage[3] = (brushCenterPosY >> 8) & 0xff;
-  forwardedMessage[4] = brushCenterPosY & 0xff;
-  forwardedMessage[9] = (brushSize >> 8) & 0xff;
-  forwardedMessage[10] = brushSize & 0xff;
-  return forwardedMessage;
 }
 
 void EchoServer::handleClientMessage(uint32_t id, const std::vector<uint8_t>& message) {
@@ -180,12 +194,18 @@ uint16_t EchoServer::to16Bit(const std::vector<uint8_t>& message, size_t index) 
 }
 
 void EchoServer::clear(const std::vector<uint8_t>& message) {
-  if (message.size() == 6 && message[0] == 2 && message[5] < layerImages.size()) {
-    const uint8_t r = message[1];
-    const uint8_t g = message[2];
-    const uint8_t b = message[3];
-    const uint8_t a = message[4];
-    const uint8_t target = message[5];
+  
+  try {
+    BinaryDecoder dec(message);
+    uint8_t id = dec.nextUint8();
+    uint8_t r = dec.nextUint8();
+    uint8_t g = dec.nextUint8();
+    uint8_t b = dec.nextUint8();
+    uint8_t a = dec.nextUint8();
+    uint8_t target = dec.nextUint8();
+    
+    if (id != 2 || target >= layerImages.size()) return;
+  
     for (uint32_t i = 0;i<canvasHeight*canvasWidth;++i) {
       const size_t serialPos = size_t(i)*4+(initMessageLayerSize()*target) + initMessageHeaderSize();
       imageMessage[serialPos+0] = r;
@@ -193,31 +213,36 @@ void EchoServer::clear(const std::vector<uint8_t>& message) {
       imageMessage[serialPos+2] = b;
       imageMessage[serialPos+3] = a;
     }
-  }
+  } catch (...) {}
 }
 
 void EchoServer::paint(const std::vector<uint8_t>& message) {
-  if (message.size() == 12 && message[0] == 1 && message[11] < layerImages.size()) {
-    const uint16_t brushCenterPosX = to16Bit(message, 1);
-    const uint16_t brushCenterPosY = to16Bit(message, 3);
-    const uint8_t r = message[5];
-    const uint8_t g = message[6];
-    const uint8_t b = message[7];
-    const uint8_t a = message[8];
-    const uint16_t brushSize = std::clamp<uint16_t>(to16Bit(message, 9),1,20);
-    const uint8_t target = message[11];
-    for (uint32_t y = 0;y<brushSize;++y) {
-      for (uint32_t x = 0;x<brushSize;++x) {
-        const uint32_t posX = brushCenterPosX+x;
-        const uint32_t posY = brushCenterPosY+y;
-        if (posX < canvasWidth && posY < canvasHeight) {
-          const size_t serialPos = size_t(posX + posY * canvasWidth)*4+(initMessageLayerSize()*target) + initMessageHeaderSize();
-          imageMessage[serialPos+0] = r;
-          imageMessage[serialPos+1] = g;
-          imageMessage[serialPos+2] = b;
-          imageMessage[serialPos+3] = a;
+  
+  try {
+    BinaryDecoder dec(message);
+    uint8_t id = dec.nextUint8();
+    uint16_t brushCenterPosX = std::clamp<uint16_t>(dec.nextUint16(), 0, canvasWidth-1);
+    uint16_t brushCenterPosY = std::clamp<uint16_t>(dec.nextUint16(), 0, canvasWidth-1);
+    uint8_t r = dec.nextUint8();
+    uint8_t g = dec.nextUint8();
+    uint8_t b = dec.nextUint8();
+    uint8_t a = dec.nextUint8();
+    uint16_t brushSize = std::clamp<uint16_t>(dec.nextUint16(),1,200);
+    uint8_t target = dec.nextUint8();
+  
+    if (id != 1 || target >= layerImages.size()) return;
+      for (uint32_t y = 0;y<brushSize;++y) {
+        for (uint32_t x = 0;x<brushSize;++x) {
+          const uint32_t posX = brushCenterPosX+x;
+          const uint32_t posY = brushCenterPosY+y;
+          if (posX < canvasWidth && posY < canvasHeight) {
+            const size_t serialPos = size_t(posX + posY * canvasWidth)*4+(initMessageLayerSize()*target) + initMessageHeaderSize();
+            imageMessage[serialPos+0] = r;
+            imageMessage[serialPos+1] = g;
+            imageMessage[serialPos+2] = b;
+            imageMessage[serialPos+3] = a;
+          }
         }
       }
-    }
-  }
+  } catch (...) {}
 }

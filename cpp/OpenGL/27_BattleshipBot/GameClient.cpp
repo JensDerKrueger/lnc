@@ -104,7 +104,7 @@ void GameClient::sendEncryptedShipPlacement(const std::string& sp) {
 }
 
 void GameClient::sendGameMessage(GameMessageType mt, const std::vector<std::string>& data) {
-  Encoder e{char(2)};
+  StringEncoder e{char(2)};
   e.add(uint32_t(mt));
   e.add(data);
   GameMessage m;
@@ -142,7 +142,7 @@ void GameClient::shootAt(const Vec2ui& pos) {
   const std::scoped_lock<std::mutex> lock(shotsMutex);
   shotsFired.push_back(pos);
   
-  Encoder e{char(2)};
+  StringEncoder e{char(2)};
   e.add(uint32_t(GameMessageType::Shot));
   e.add(pos.x);
   e.add(pos.y);
@@ -155,7 +155,7 @@ void GameClient::aimAt(const Vec2ui& pos) {
   if (lastAim == pos) return;
   lastAim = pos;
   
-  Encoder e{char(2)};
+  StringEncoder e{char(2)};
   e.add(uint32_t(GameMessageType::Aim));
   e.add(pos.x);
   e.add(pos.y);
@@ -165,7 +165,7 @@ void GameClient::aimAt(const Vec2ui& pos) {
 }
 
 void GameClient::sendShotResult(const ShotResult& r) {
-  Encoder e{char(2)};
+  StringEncoder e{char(2)};
   e.add(uint32_t(GameMessageType::ShotResult));
   e.add(uint8_t(r));
   GameMessage m;
@@ -188,7 +188,7 @@ void GameClient::readyForNewPlayer() {
 }
 
 void GameClient::sendChatMessage(const std::string& msg) {
-  Encoder e{char(2)};
+  StringEncoder e{char(2)};
   e.add(uint32_t(GameMessageType::ChatMessage));
   e.add(msg);
   GameMessage m;
