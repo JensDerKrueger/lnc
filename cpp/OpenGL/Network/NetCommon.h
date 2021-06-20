@@ -62,6 +62,7 @@ private:
 
 class Encoder {
 public:
+  virtual ~Encoder() {}
   virtual void add(const char msg[]) = 0;
   virtual void add(const std::string& msg) = 0;
   virtual void add(const std::vector<std::string>& v) = 0;
@@ -82,6 +83,7 @@ public:
 class StringEncoder : public Encoder {
 public:
   StringEncoder(char delimititer = char(1));
+  virtual ~StringEncoder() {}
 
   virtual void add(const char msg[]) override;
   virtual void add(const std::string& msg) override;
@@ -110,6 +112,8 @@ private:
 
 class BinaryEncoder : public Encoder {
 public:
+  virtual ~BinaryEncoder() {}
+  
   virtual void add(const char msg[]) override;
   virtual void add(const std::string& msg) override;
   virtual void add(const std::vector<std::string>& v) override;
