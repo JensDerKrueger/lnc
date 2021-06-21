@@ -7,8 +7,8 @@
 class Fractal {
 public:
   Fractal(uint32_t w, uint32_t h,
-          uint32_t fullW, uint32_t fullH,
-          uint32_t offsetX, uint32_t offsetY,
+          int64_t fullW, int64_t fullH,
+          int64_t offsetX, int64_t offsetY,
           cl_device_id clDevice);
   ~Fractal();  
   void compute();
@@ -17,7 +17,7 @@ public:
   uint32_t getHeight() const {return h;}
   const std::vector<uint8_t>& getData() const {return target;}
   
-  void setOffset(uint32_t offsetX, uint32_t offsetY);
+  void setOffset(int64_t offsetX, int64_t offsetY);
   
 private:
   uint32_t w;

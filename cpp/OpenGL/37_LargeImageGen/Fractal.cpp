@@ -1,8 +1,8 @@
 #include "Fractal.h"
 
 Fractal::Fractal(uint32_t w, uint32_t h,
-                 uint32_t fullW, uint32_t fullH,
-                 uint32_t offsetX, uint32_t offsetY,
+                 int64_t fullW, int64_t fullH,
+                 int64_t offsetX, int64_t offsetY,
                  cl_device_id clDevice)
 : w(w)
 , h(h)
@@ -14,26 +14,26 @@ Fractal::Fractal(uint32_t w, uint32_t h,
   "   __global unsigned char* output,          \n" \
   "   const unsigned int w,                    \n" \
   "   const unsigned int h,                    \n" \
-  "   const unsigned int fullW,                \n" \
-  "   const unsigned int fullH,                \n" \
-  "   const unsigned int offsetX,              \n" \
-  "   const unsigned int offsetY)              \n" \
+  "   const long fullW,                        \n" \
+  "   const long fullH,                        \n" \
+  "   const long offsetX,                      \n" \
+  "   const long offsetY)                      \n" \
   "{                                           \n" \
-  "  const float dx = 2.8f / fullW;            \n" \
-  "  const float dy = 2.6f / fullH;            \n" \
+  "  const double dx = 2.8 / fullW;            \n" \
+  "  const double dy = 2.6 / fullH;            \n" \
   "                                            \n" \
-  "  const float xs = -2.1f;                   \n" \
-  "  const float ys = -1.3f;                   \n" \
+  "  const double xs = -2.1;                   \n" \
+  "  const double ys = -1.3;                   \n" \
   "                                            \n" \
   "  const int x = get_global_id(0);           \n" \
   "  const int y = get_global_id(1);           \n" \
   "                                            \n" \
-  "  float cR = xs + dx*(x+offsetX);           \n" \
-  "  float cI = ys + dy*(y+offsetY);           \n" \
-  "  float dR = 0, dI = 0;                     \n" \
+  "  double cR = xs + dx*(x+offsetX);          \n" \
+  "  double cI = ys + dy*(y+offsetY);          \n" \
+  "  double dR = 0, dI = 0;                    \n" \
   "  unsigned int depth = 0;                   \n" \
   "  while (depth < 256 && dR*dR+dI*dI < 4) {  \n" \
-  "    float t = dR;                           \n" \
+  "    double t = dR;                          \n" \
   "    dR = dR*dR-dI*dI+cR;                    \n" \
   "    dI = 2*t*dI+cI;                         \n" \
   "    depth++;                                \n" \
@@ -45,15 +45,15 @@ Fractal::Fractal(uint32_t w, uint32_t h,
   context.setProgramCode(code, false);
   context.setParam(0, sizeof(uint32_t), &w);
   context.setParam(1, sizeof(uint32_t), &h);
-  context.setParam(2, sizeof(uint32_t), &fullW);
-  context.setParam(3, sizeof(uint32_t), &fullH);
-  context.setParam(4, sizeof(uint32_t), &offsetX);
-  context.setParam(5, sizeof(uint32_t), &offsetY);
+  context.setParam(2, sizeof(int64_t), &fullW);
+  context.setParam(3, sizeof(int64_t), &fullH);
+  context.setParam(4, sizeof(int64_t), &offsetX);
+  context.setParam(5, sizeof(int64_t), &offsetY);
 }
 
-void Fractal::setOffset(uint32_t offsetX, uint32_t offsetY) {
-  context.setParam(4, sizeof(uint32_t), &offsetX);
-  context.setParam(5, sizeof(uint32_t), &offsetY);
+void Fractal::setOffset(int64_t offsetX, int64_t offsetY) {
+  context.setParam(4, sizeof(int64_t), &offsetX);
+  context.setParam(5, sizeof(int64_t), &offsetY);
 }
 
 void Fractal::compute() {
