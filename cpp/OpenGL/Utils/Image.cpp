@@ -329,3 +329,24 @@ Image Image::flipVertical() const {
   }
   return result;
 }
+
+
+void Image::generateAlpha(uint8_t alpha) {
+  if (componentCount == 4) {
+    for (size_t i = 0; i<data.size()/4;i++) {
+      data[i*4+3] = alpha;
+    }
+  } else if (componentCount == 3) {
+    std::vector<uint8_t> newData((data.size() / 3) * 4);
+    
+    for (size_t i = 0; i<data.size()/3;i++) {
+      newData[i*4+0] = data[i*3+0];
+      newData[i*4+1] = data[i*3+1];
+      newData[i*4+2] = data[i*3+2];
+      newData[i*4+3] = alpha;
+    }
+    
+    data = newData;
+    componentCount = 4;
+  }
+}
