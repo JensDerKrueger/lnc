@@ -2,145 +2,34 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>WebSocket Multiuser Painter</title>
+    <title>D&amp;D Server</title>
+    <script type="text/javascript" src="dad.js"></script>
     <script type="text/javascript">
-      
-      function deserializeMessage(buffer) {
-        if (buffer instanceof Uint8Array && buffer.length > 0) {
-          let type = buffer[0];
-          switch (type) {
-            case 0 :
-              return InitMessage.deserialize(buffer);
-            case 1 :
-              return PaintMessage.deserialize(buffer);
-            case 2 :
-              return ClearMessage.deserialize(buffer);
-            default:
-              throw new Error("invalid message type");
-          };
-        } else {
-          throw new Error("invalid message buffer");
-        }
-      }
-            
-      class PaintMessage {
-        constructor(posX, posY, r, g, b, a, brushSize, target) {
-          this.posX = posX;
-          this.posY = posY;
-          this.r = r;
-          this.g = g;
-          this.b = b;
-          this.a = a;
-          this.brushSize = brushSize;
-          this.target = target;
-        }
-        
-        serialize() {
-          return new Uint8Array([1, (this.posX >> 8) & 0xff, this.posX & 0xff, (this.posY >> 8) & 0xff, this.posY & 0xff, this.r, this.g, this.b, this.a,
-                                (this.brushSize >> 8) & 0xff, this.brushSize & 0xff, this.target] );
-        }
-                
-        static deserialize(buffer) {
-          if (buffer.length === 12) {
-            return new PaintMessage((buffer[1] << 8) + buffer[2], (buffer[3] << 8) + buffer[4], buffer[5], buffer[6], buffer[7], buffer[8], (buffer[9] << 8) + buffer[10], buffer[11]);
-          } else {
-            throw new Error("invalid message length");
-          }
-        }
-      };
-      
-      class ClearMessage {
-        constructor(r, g, b, a, target) {
-          this.r = r;
-          this.g = g;
-          this.b = b;
-          this.a = a;
-          this.target = target;
-        }
-        
-        serialize() {
-          return new Uint8Array([2, this.r, this.g, this.b, this.a, this.target] );
-        }
-        
-        static deserialize(buffer) {
-          if (buffer.length === 6) {
-            return new ClearMessage(buffer[1], buffer[2], buffer[3], buffer[4], buffer[5]);
-          } else {
-            throw new Error("invalid message length");
-          }
-        }
-      };
-      
-      class InitMessage {
-        constructor(imageData, width, height, layerCount) {
-          this.width = width;
-          this.height = height;
-          this.imageData = imageData;
-          this.layerCount = layerCount;
-        }
-                
-        static deserialize(buffer) {
-          if (buffer.length < 6) {
-            throw new Error("invalid message length");
-          }
-          
-          let width  = (buffer[1] << 8) + buffer[2];
-          let height = (buffer[3] << 8) + buffer[4];
-          let layerCount = buffer[5];
-          
-          return new InitMessage(buffer.slice(6),width,height,layerCount);
-        }
-      };
-      
       var mouseX, mouseY, leftMouseDown=false, rightMouseDown=false;
-      var brushSize = 10;
-      var currentTarget = 2;
+      var shiftPressed = false;
       var canvas, ctx;
-      var socket;
-      var serverWidth;
-      var serverHeight;
-      var h,s,v;
-      var color = {r:255,g:0,b:0,a:255};
-      const eraser = {r:0,g:0,b:0,a:0};
-      
-      var hiddenCanvases = [];
-
-      function HSVtoRGB(h, s, v) {
-        let r, g, b, i, f, p, q, t;
-        i = Math.floor(h * 6);
-        f = h * 6 - i;
-        p = v * (1 - s);
-        q = v * (1 - f * s);
-        t = v * (1 - (1 - f) * s);
-        switch (i % 6) {
-          case 0: r = v, g = t, b = p; break;
-          case 1: r = q, g = v, b = p; break;
-          case 2: r = p, g = v, b = t; break;
-          case 3: r = p, g = q, b = v; break;
-          case 4: r = t, g = p, b = v; break;
-          case 5: r = v, g = p, b = q; break;
-        }
-        return {
-          r: Math.round(r * 255),
-          g: Math.round(g * 255),
-          b: Math.round(b * 255),
-          a: 255
-        };
-      }
-      
-      function createCanvas(width, height) {
-        let c = document.createElement('canvas');
-        c.setAttribute('width', width);
-        c.setAttribute('height', height);
-        return c;
-      }
-      
+            
       function compose() {
+        if (hiddenCanvases.length == 0) return;
+        
+        canvas.width  = window.innerWidth-20;
+        if (Math.round(100.0 * canvas.width / canvas.height) != 
+            Math.round(100.0 * hiddenCanvases[0].width / hiddenCanvases[0].height))  {
+          canvas.height = canvas.width * hiddenCanvases[0].height / hiddenCanvases[0].width;
+          updatePositionMarkers();
+        }
+        
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         for (let l = 0;l<hiddenCanvases.length;++l) {
           let c = hiddenCanvases[l];
+          ctx.globalAlpha = 0.8;
           ctx.drawImage(c, 0,0, canvas.width, canvas.height);
+          ctx.globalAlpha = 1.0;
         }
+        
+        ctx.globalAlpha = 0.8;
+        ctx.drawImage(positionCanvas, 0,0, canvas.width, canvas.height);
+        ctx.globalAlpha = 1.0;
       }
       
       function processBuffer(buffer) {
@@ -164,6 +53,7 @@
               break;
             }
             case InitMessage: {
+              cursors.clear();
               hiddenCanvases = [];
               serverWidth = message.width;
               serverHeight = message.height;
@@ -180,8 +70,18 @@
                 
                 layerCtx.putImageData(initialImageData, 0, 0);
               }
+              
+              positionCanvas = createCanvas(message.width,message.height);
+              activeRealmName = message.name;
+              activeRealm = message.id;
+              
+              for (let i = 0; i < message.cursors.length; ++i) {
+                cursors.set(message.cursors[i].id, [message.cursors[i].name, message.cursors[i].posX, message.cursors[i].posY, message.id]);
+              }
+              updatePositionMarkers();
               compose();
-              document.getElementById("title").innerHTML = "D&D Map Explorer";
+              document.getElementById("realmText").value = activeRealm;
+              document.getElementById("title").innerHTML = "Dungeon Master UI (" + activeRealmName + ")";
               break;
             }
             case ClearMessage: {
@@ -200,14 +100,23 @@
               compose();
               break;
             }
+            case PositionMessage: {
+              if (message.realm == activeRealm)  {
+                cursors.set(message.id, [message.name, message.posX, message.posY, message.realm]);
+                updatePositionMarkers();
+                compose();
+              } else {
+                if (cursors.delete(message.id)) {
+                  updatePositionMarkers();
+                  compose();                
+                }
+              }
+              break;
+            }
           }
         } catch (e) {
           console.log(e)
         }
-      }
-      
-      function rgb(r, g, b){
-        return ["rgb(",r,",",g,",",b,")"].join("");
       }
       
       function overrideLayer(){
@@ -227,30 +136,100 @@
       }
       
       function init() {
+        loadState();
+        
+        let nameText = document.getElementById("nameText");
+        nameText.value = name;
+        nameText.oninput = function() {
+          let nameText = document.getElementById("nameText");
+          name = nameText.value;
+          saveState();
+        }
+        
+        let realmText = document.getElementById("realmText");
+        realmText.value = activeRealm;
+
+        realmText.onchange = function() {
+          let realmText = document.getElementById("realmText");
+          activeRealm = realmText.value;
+          if(socket.readyState == 1)
+            socket.send(new ChangeRealmMessage(activeRealm, 0).serialize());
+          saveState();
+        }
+        
         let hueSlider = document.getElementById("hueSlider");
+        let satSlider = document.getElementById("satSlider");
+        let valueSlider = document.getElementById("valueSlider");
+        
+        hueSlider.value = h*100;
+        satSlider.value = s*100;
+        valueSlider.value = v*100;
+        applyColor();
+        
         hueSlider.oninput = function() {
           h = this.value/100;
           applyColor();
+          saveState();
         }
-        let satSlider = document.getElementById("satSlider");
         satSlider.oninput = function() {
           s = this.value/100;
           applyColor();
+          saveState();
         }
-        let valueSlider = document.getElementById("valueSlider");
         valueSlider.oninput = function() {
           v = this.value/100;
           applyColor();
+          saveState();
         }
-                
+
+        let layerSlider = document.getElementById("layerSlider");
+        layerSlider.value = currentTarget;
+        layerSlider.oninput = function() {
+          currentTarget = this.value;
+          saveState();
+        }
         
-        hueSlider.value = Math.round(Math.random() * 100);
-        satSlider.value = 100;
-        valueSlider.value = 100;
+        let brushSizeSlider = document.getElementById("brushSizeSlider");
+        brushSizeSlider.value = brushSize;
+        brushSizeSlider.oninput = function() {
+          brushSize = this.value;
+          saveState();
+        }
         
-        h = hueSlider.value/100;
-        s = satSlider.value/100;
-        v = valueSlider.value/100;
+        let erase = document.getElementById("erase");
+        erase.onclick = function() {
+          eraseLayer();
+        }
+
+        let fill = document.getElementById("fill");
+        fill.onclick = function() {
+          overrideLayer();
+        }
+        
+        window.addEventListener('resize', function(event) {
+          compose();
+        }, true);
+        
+        window.onkeydown = function(event){
+          switch (event.key) {  
+            case "Shift" :
+              shiftPressed = true;
+              break;
+            default:
+              console.log(event);
+          };
+        };
+
+        window.onkeyup = function(event){
+          switch (event.key) {  
+            case "Shift" : 
+              shiftPressed = false;
+              break;
+            default:
+              console.log(event);
+          };
+        };
+        
         applyColor();
         
         canvas = document.getElementById("drawArea");
@@ -258,7 +237,6 @@
         canvas.onmousedown   = handleMouseDown;
         canvas.onmouseup     = handleMouseUp;
         canvas.oncontextmenu = handleContextMenu;
-        
         
         canvas.addEventListener("touchmove", event => {
           var rect = event.target.getBoundingClientRect();
@@ -268,11 +246,13 @@
           dropPaint(color);
         });
   
+/*
         canvas.addEventListener("wheel", event => {
           const delta = 0.4 * Math.sign(event.deltaY);
           event.preventDefault();
           brushSize = Math.min(Math.max(brushSize-delta, 1), 200);
         });
+*/
         
         ctx = canvas.getContext("2d");
         ctx.globalCompositeOperation = "source-over";
@@ -280,37 +260,24 @@
         ctx.fillStyle = "rgba(0,0,255,0.1)";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         
-        socket = new WebSocket('ws://134.91.11.186:2000');
-        //socket = new WebSocket('ws://134.91.11.162:2000');
-        //socket = new WebSocket('ws://localhost:2000');
+        createSocket();
         
-        socket.onopen = function () {
-          document.getElementById("status").innerHTML += "Connection open<br>";
-        };
-        
-        socket.onmessage = function (msg) {
-          if (typeof msg.data === "string")
-            document.getElementById("status").innerHTML += "Received String Message: " + msg.data +"<br>";
-          else {
-            let reader = new FileReader();
-            reader.readAsArrayBuffer(msg.data);
-            reader.addEventListener("loadend", function(e) {
-              processBuffer(new Uint8Array(e.target.result))
-            });
-          }
-        };
-        
-        socket.onclose = function() {
-          document.getElementById("status").innerHTML += "Connection closed" +"<br>";
-        };
-        
+      }
+
+      function setPosition() {
+        if(socket.readyState == 1) {
+          socket.send(new PositionMessage(activeRealm, 0, serverWidth * mouseX/canvas.width,
+            serverHeight * mouseY/canvas.height,
+            name).serialize());
+        }
       }
 
       function dropPaint(rgba) {
         if(socket.readyState == 1)
           socket.send(new PaintMessage(serverWidth * mouseX/canvas.width,
                                        serverHeight * mouseY/canvas.height,
-                                       rgba.r, rgba.g, rgba.b, rgba.a, Math.round(brushSize), currentTarget).serialize());
+                                       rgba.r, rgba.g, rgba.b, rgba.a, 
+                                       Math.round(brushSize), currentTarget).serialize());
       }
       
       function handleContextMenu() {
@@ -346,17 +313,54 @@
         event.preventDefault();
         if (leftMouseDown) dropPaint(color);
         if (rightMouseDown) dropPaint(eraser);
+        if (shiftPressed) setPosition();
       }
+      
+      
+      function updatePositionMarkers() {
+
+        // TODO: consider resizing "positionCanvas" along with "canvas" and adjusting the coordinates
+        
+        let layerCtx = positionCanvas.getContext('2d');
+        layerCtx.clearRect(0, 0, positionCanvas.width, positionCanvas.height);
+        layerCtx.font = "20px Arial";
+        layerCtx.fillStyle = 'black';
+        for (const [key, value] of cursors.entries()) {
+          layerCtx.beginPath();
+          layerCtx.arc(value[1], value[2], 5, 0, 2 * Math.PI, false);
+          layerCtx.fill();
+          layerCtx.fillText(value[0], value[1]+8, value[2]-8);
+        }
+        
+/*        
+      case PositionMessage: {
+        if (message.realm == activeRealm) {
+          cursors.set(message.id) = [message.name, message.posX, message.posY, message.realm];
+          updatePositionMarkers();
+        }
+        
+  
+        positionCanvas
+        */
+      }
+      
     </script>
   </head>
 
   <body onload="init();" style="background-color:#BBBBBB;">
     <center>
-    <h1 id="title">Connecting to Paint-Server</h1>
+    <h1 id="title">Connecting to D&amp;D Server</h1>
     <div id="hueLabel">
+      <input id="nameText" type="text">
+      <input id="realmText" type="text">
+      <input type="button" value="Change Realm" id="submitRealm"/>
       <input type="range" min="0" max="100" value="1" class="slider" id="hueSlider">
       <input type="range" min="0" max="100" value="100" class="slider" id="satSlider">
       <input type="range" min="0" max="100" value="100" class="slider" id="valueSlider">
+      <input type="button" value="Erase" id="erase"/>
+      <input type="button" value="Fill" id="fill"/>
+      <input type="range" min="1" max="100" value="50" class="slider" id="brushSizeSlider">
+      <input type="range" min="1" max="2" value="2" class="slider" id="layerSlider">
     </div>
     <canvas id="drawArea" width="800" height="600"></canvas>
     <p id="status"></p>

@@ -272,6 +272,7 @@ void StringEncoder::add(double d) {
 void StringEncoder::add(bool b) {
   message += std::to_string(b) + delimititer;
 }
+
 std::string StringEncoder::removeDelim(std::string input) const {
   size_t pos=0;
   while(pos<input.size()) {
@@ -287,12 +288,12 @@ void BinaryEncoder::add(const char msg[]) {
 }
 
 void BinaryEncoder::add(const std::string& msg) {
-  add(uint64_t(msg.length()));
+  add(uint32_t(msg.length()));
   message.insert(message.end(), msg.begin(), msg.end());
 }
 
 void BinaryEncoder::add(const std::vector<std::string>& v) {
-  add(uint64_t(v.size()));
+  add(uint32_t(v.size()));
   for (const std::string& s : v) {
     add(s);
   }
@@ -364,18 +365,18 @@ void BinaryEncoder::add(bool b) {
 BinaryDecoder::BinaryDecoder(const std::vector<uint8_t>& message) : message(message), pos(0) {}
   
 std::vector<std::string> BinaryDecoder::nextStringVector() {
-  uint64_t l = nextUint64();
+  uint32_t l = nextUint32();
   std::vector<std::string> result(l);
-  for (uint64_t i = 0;i<l;++i) {
+  for (uint32_t i = 0;i<l;++i) {
     result[i] = nextString();
   }
   return result;
 }
 
 std::string BinaryDecoder::nextString() {
-  uint64_t l = nextUint64();
+  uint32_t l = nextUint32();
   std::string result;
-  for (uint64_t i = 0;i<l;++i) {
+  for (uint32_t i = 0;i<l;++i) {
     result.push_back(char(nextUint8()));
   }
   return result;

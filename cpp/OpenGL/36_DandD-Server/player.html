@@ -2,10 +2,11 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>WebSocket Multiuser Painter</title>
+    <title>D&amp;D Server</title>
     <script type="text/javascript" src="dad.js"></script>
     <script type="text/javascript">
       var mouseX, mouseY, leftMouseDown=false, rightMouseDown=false;
+      var shiftPressed = false;
       var canvas, ctx;
             
       function compose() {
@@ -15,15 +16,18 @@
         if (Math.round(100.0 * canvas.width / canvas.height) != 
             Math.round(100.0 * hiddenCanvases[0].width / hiddenCanvases[0].height))  {
           canvas.height = canvas.width * hiddenCanvases[0].height / hiddenCanvases[0].width;
+          updatePositionMarkers();
         }
         
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         for (let l = 0;l<hiddenCanvases.length;++l) {
           let c = hiddenCanvases[l];
-          ctx.globalAlpha = 0.8;
           ctx.drawImage(c, 0,0, canvas.width, canvas.height);
-          ctx.globalAlpha = 1.0;
         }
+        
+        ctx.globalAlpha = 0.8;
+        ctx.drawImage(positionCanvas, 0,0, canvas.width, canvas.height);
+        ctx.globalAlpha = 1.0;
       }
       
       function processBuffer(buffer) {
@@ -47,6 +51,7 @@
               break;
             }
             case InitMessage: {
+              cursors.clear();
               hiddenCanvases = [];
               serverWidth = message.width;
               serverHeight = message.height;
@@ -63,8 +68,18 @@
                 
                 layerCtx.putImageData(initialImageData, 0, 0);
               }
+              
+              positionCanvas = createCanvas(message.width,message.height);
+              activeRealmName = message.name;
+              activeRealm = message.id;
+              
+              for (let i = 0; i < message.cursors.length; ++i) {
+                cursors.set(message.cursors[i].id, [message.cursors[i].name, message.cursors[i].posX, message.cursors[i].posY, message.id]);
+              }
+              updatePositionMarkers();
               compose();
-              document.getElementById("title").innerHTML = "Dungeon Master UI";
+              document.getElementById("realmText").value = activeRealm;
+              document.getElementById("title").innerHTML = "You are here: " + activeRealmName;
               break;
             }
             case ClearMessage: {
@@ -81,6 +96,19 @@
               }
               layerCtx.putImageData(sprite, 0,0);
               compose();
+              break;
+            }
+            case PositionMessage: {
+              if (message.realm == activeRealm)  {
+                cursors.set(message.id, [message.name, message.posX, message.posY, message.realm]);
+                updatePositionMarkers();
+                compose();
+              } else {
+                if (cursors.delete(message.id)) {
+                  updatePositionMarkers();
+                  compose();                
+                }
+              }
               break;
             }
           }
@@ -106,61 +134,83 @@
       }
       
       function init() {
+        loadState();
+        
+        let nameText = document.getElementById("nameText");
+        nameText.value = name;
+        nameText.oninput = function() {
+          let nameText = document.getElementById("nameText");
+          name = nameText.value;
+          saveState();
+        }
+        
         let realmText = document.getElementById("realmText");
         realmText.value = activeRealm;
 
-        let submitRealm = document.getElementById("submitRealm");
-        submitRealm.onclick = function() {
+        realmText.onchange = function() {
           let realmText = document.getElementById("realmText");
           activeRealm = realmText.value;
+          if(socket.readyState == 1)
+            socket.send(new ChangeRealmMessage(activeRealm, 0).serialize());
+          saveState();
         }
         
         let hueSlider = document.getElementById("hueSlider");
+        let satSlider = document.getElementById("satSlider");
+        let valueSlider = document.getElementById("valueSlider");
+        
+        hueSlider.value = h*100;
+        satSlider.value = s*100;
+        valueSlider.value = v*100;
+        applyColor();
+        
         hueSlider.oninput = function() {
           h = this.value/100;
           applyColor();
+          saveState();
         }
-        let satSlider = document.getElementById("satSlider");
         satSlider.oninput = function() {
           s = this.value/100;
           applyColor();
+          saveState();
         }
-        let valueSlider = document.getElementById("valueSlider");
         valueSlider.oninput = function() {
           v = this.value/100;
           applyColor();
+          saveState();
         }
-        
-        let layerSlider = document.getElementById("layerSlider");
-        layerSlider.oninput = function() {
-          currentTarget = this.value;
-        }
-        
+
         let brushSizeSlider = document.getElementById("brushSizeSlider");
+        brushSizeSlider.value = brushSize;
         brushSizeSlider.oninput = function() {
           brushSize = this.value;
+          saveState();
         }
-        
+                
         window.addEventListener('resize', function(event) {
           compose();
         }, true);
         
         window.onkeydown = function(event){
-          if (event.keyCode === 8) {  // backspace
-            eraseLayer();
+          switch (event.key) {  
+            case "Shift" :
+              shiftPressed = true;
+              break;
+            default:
+              console.log(event);
           };
-          if (event.keyCode === 46) {  // del
-            overrideLayer();
+        };
+
+        window.onkeyup = function(event){
+          switch (event.key) {  
+            case "Shift" : 
+              shiftPressed = false;
+              break;
+            default:
+              console.log(event);
           };
         };
         
-        hueSlider.value = Math.round(Math.random() * 100);
-        satSlider.value = 100;
-        valueSlider.value = 100;
-        
-        h = hueSlider.value/100;
-        s = satSlider.value/100;
-        v = valueSlider.value/100;
         applyColor();
         
         canvas = document.getElementById("drawArea");
@@ -191,37 +241,24 @@
         ctx.fillStyle = "rgba(0,0,255,0.1)";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         
-        //socket = new WebSocket('ws://134.91.11.186:2000');
-        //socket = new WebSocket('ws://134.91.11.162:2000');
-        socket = new WebSocket('ws://localhost:2000');
+        createSocket();
         
-        socket.onopen = function () {
-          document.getElementById("status").innerHTML += "Connection open<br>";
-        };
-        
-        socket.onmessage = function (msg) {
-          if (typeof msg.data === "string")
-            document.getElementById("status").innerHTML += "Received String Message: " + msg.data +"<br>";
-          else {
-            let reader = new FileReader();
-            reader.readAsArrayBuffer(msg.data);
-            reader.addEventListener("loadend", function(e) {
-              processBuffer(new Uint8Array(e.target.result))
-            });
-          }
-        };
-        
-        socket.onclose = function() {
-          document.getElementById("status").innerHTML += "Connection closed" +"<br>";
-        };
-        
+      }
+
+      function setPosition() {
+        if(socket.readyState == 1) {
+          socket.send(new PositionMessage(activeRealm, 0, serverWidth * mouseX/canvas.width,
+            serverHeight * mouseY/canvas.height,
+            name).serialize());
+        }
       }
 
       function dropPaint(rgba) {
         if(socket.readyState == 1)
           socket.send(new PaintMessage(serverWidth * mouseX/canvas.width,
                                        serverHeight * mouseY/canvas.height,
-                                       rgba.r, rgba.g, rgba.b, rgba.a, Math.round(brushSize), currentTarget).serialize());
+                                       rgba.r, rgba.g, rgba.b, rgba.a, 
+                                       Math.round(brushSize), currentTarget).serialize());
       }
       
       function handleContextMenu() {
@@ -257,21 +294,51 @@
         event.preventDefault();
         if (leftMouseDown) dropPaint(color);
         if (rightMouseDown) dropPaint(eraser);
+        if (shiftPressed) setPosition();
       }
+      
+      
+      function updatePositionMarkers() {
+
+        // TODO: consider resizing "positionCanvas" along with "canvas" and adjusting the coordinates
+        
+        let layerCtx = positionCanvas.getContext('2d');
+        layerCtx.clearRect(0, 0, positionCanvas.width, positionCanvas.height);
+        layerCtx.font = "20px Arial";
+        layerCtx.fillStyle = 'black';
+        for (const [key, value] of cursors.entries()) {
+          layerCtx.beginPath();
+          layerCtx.arc(value[1], value[2], 5, 0, 2 * Math.PI, false);
+          layerCtx.fill();
+          layerCtx.fillText(value[0], value[1]+8, value[2]-8);
+        }
+        
+/*        
+      case PositionMessage: {
+        if (message.realm == activeRealm) {
+          cursors.set(message.id) = [message.name, message.posX, message.posY, message.realm];
+          updatePositionMarkers();
+        }
+        
+  
+        positionCanvas
+        */
+      }
+      
     </script>
   </head>
 
   <body onload="init();" style="background-color:#BBBBBB;">
     <center>
-    <h1 id="title">Connecting to Paint-Server</h1>
+    <h1 id="title">Connecting to D&amp;D Server</h1>
     <div id="hueLabel">
+      <input id="nameText" type="text">
       <input id="realmText" type="text">
       <input type="button" value="Change Realm" id="submitRealm"/>
       <input type="range" min="0" max="100" value="1" class="slider" id="hueSlider">
       <input type="range" min="0" max="100" value="100" class="slider" id="satSlider">
       <input type="range" min="0" max="100" value="100" class="slider" id="valueSlider">
       <input type="range" min="1" max="100" value="50" class="slider" id="brushSizeSlider">
-      <input type="range" min="1" max="2" value="2" class="slider" id="layerSlider">
     </div>
     <canvas id="drawArea" width="800" height="600"></canvas>
     <p id="status"></p>

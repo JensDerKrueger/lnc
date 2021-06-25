@@ -16,18 +16,8 @@ static std::string getAnswer() {
 int main(int argc, char ** argv) {
   typedef std::chrono::high_resolution_clock Clock;
   std::chrono::time_point<Clock> restorePointTime = Clock::now();
-
-  uint16_t width, height;
-  try {
-    const Image background = BMP::load("dungeon.bmp");
-    width = uint16_t(background.width);
-    height = uint16_t(background.height);
-  } catch (...) {
-    width = 800;
-    height = 600;
-  }
   
-  DaDServer server(2000,width,height, {"dungeon.bmp", "mist.bmp", "paint.bmp"});
+  DaDServer server(2000);
   server.start();
 
   std::cout << "Starting ";
@@ -51,7 +41,7 @@ int main(int argc, char ** argv) {
       auto currentTime = Clock::now();
       if (std::chrono::duration_cast<std::chrono::minutes>(currentTime-restorePointTime).count() > 60) {
         restorePointTime = currentTime;
-        server.savePaintLayers();
+        server.saveRealms();
       }
       
     } while (answer != "q");
