@@ -199,7 +199,8 @@ class PositionMessage {
 };
 
 class PaintMessage {
-  constructor(posX, posY, r, g, b, a, brushSize, target) {
+  constructor(realm, posX, posY, r, g, b, a, brushSize, target) {
+    this.realm = realm;
     this.posX = posX;
     this.posY = posY;
     this.r = r;
@@ -235,12 +236,13 @@ class PaintMessage {
     let a = parser.nextUint8();
     let brushSize = parser.nextUint16();
     let target = parser.nextUint8();
-    return new PaintMessage(posX, posY, r, g, b, a, brushSize, target);
+    return new PaintMessage(realm, posX, posY, r, g, b, a, brushSize, target);
   }
 };
 
 class ClearMessage {
-  constructor(r, g, b, a, target) {
+  constructor(realm, r, g, b, a, target) {
+    this.realm = realm;
     this.r = r;
     this.g = g;
     this.b = b;
@@ -267,7 +269,7 @@ class ClearMessage {
     let b = parser.nextUint8();
     let a = parser.nextUint8();
     let target = parser.nextUint8();
-    return new ClearMessage(r, g, b, a, target);
+    return new ClearMessage(realm, r, g, b, a, target);
   }
 };
 

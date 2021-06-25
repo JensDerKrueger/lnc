@@ -35,6 +35,7 @@
           let message = deserializeMessage(buffer);
           switch (message.constructor) {
             case PaintMessage: {
+              if (message.realm != activeRealm) return;
               let layerCtx = hiddenCanvases[message.target].getContext('2d');
               let sprite = layerCtx.createImageData(message.brushSize, message.brushSize);
               for (let y = 0; y < sprite.height; ++y) {
@@ -83,6 +84,7 @@
               break;
             }
             case ClearMessage: {
+              if (message.realm != activeRealm) return;
               let layerCtx = hiddenCanvases[message.target].getContext('2d');
               let sprite = layerCtx.createImageData(hiddenCanvases[message.target].width, hiddenCanvases[message.target].height);
               for (let y = 0; y < hiddenCanvases[message.target].height; ++y) {
@@ -119,12 +121,12 @@
       
       function overrideLayer(){
         if(socket.readyState == 1)
-          socket.send(new ClearMessage(color.r, color.g, color.b, color.a, currentTarget).serialize());
+          socket.send(new ClearMessage(activeRealm, color.r, color.g, color.b, color.a, currentTarget).serialize());
       }
 
       function eraseLayer(){
         if(socket.readyState == 1)
-          socket.send(new ClearMessage(0,0,0,0,currentTarget).serialize());
+          socket.send(new ClearMessage(activeRealm, 0,0,0,0,currentTarget).serialize());
       }
       
       function applyColor() {
@@ -255,7 +257,8 @@
 
       function dropPaint(rgba) {
         if(socket.readyState == 1)
-          socket.send(new PaintMessage(serverWidth * mouseX/canvas.width,
+          socket.send(new PaintMessage(activeRealm,
+                                       serverWidth * mouseX/canvas.width,
                                        serverHeight * mouseY/canvas.height,
                                        rgba.r, rgba.g, rgba.b, rgba.a, 
                                        Math.round(brushSize), currentTarget).serialize());
