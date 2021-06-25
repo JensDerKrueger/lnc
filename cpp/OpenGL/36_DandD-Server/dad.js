@@ -407,3 +407,182 @@ function getCookie(cname) {
   }
   return "";
 }
+
+var mouseX, mouseY, leftMouseDown=false, rightMouseDown=false;
+var shiftPressed = false;
+var canvas, ctx;
+
+function processBuffer(buffer) {
+  try {
+    let message = deserializeMessage(buffer);
+    switch (message.constructor) {
+      case PaintMessage: {
+        if (message.realm != activeRealm) return;
+        let layerCtx = hiddenCanvases[message.target].getContext('2d');
+        let sprite = layerCtx.createImageData(message.brushSize, message.brushSize);
+        for (let y = 0; y < sprite.height; ++y) {
+          for (let x = 0; x < sprite.width; ++x) {
+            let i = (x+y*sprite.width)*4;
+            sprite.data[i + 0] = message.r;
+            sprite.data[i + 1] = message.g;
+            sprite.data[i + 2] = message.b;
+            sprite.data[i + 3] = message.a;
+          }
+        }
+        layerCtx.putImageData(sprite, message.posX, message.posY);
+        compose();
+        break;
+      }
+      case InitMessage: {
+        cursors.clear();
+        hiddenCanvases = [];
+        serverWidth = message.width;
+        serverHeight = message.height;
+        
+        for (let l = 0;l<message.layerCount;++l) {
+          hiddenCanvases.push(createCanvas(message.width,message.height));
+          let layerCtx = hiddenCanvases[hiddenCanvases.length-1].getContext('2d');
+          let initialImageData = layerCtx.createImageData(message.width, message.height);
+          const offset = l * message.width*message.height*4;
+          
+          for (let i = 0;i<message.width*message.height*4;i++) {
+            initialImageData.data[i] = message.imageData[i+offset];
+          }
+          
+          layerCtx.putImageData(initialImageData, 0, 0);
+        }
+        
+        positionCanvas = createCanvas(message.width,message.height);
+        activeRealmName = message.name;
+        activeRealm = message.id;
+        
+        for (let i = 0; i < message.cursors.length; ++i) {
+          cursors.set(message.cursors[i].id, [message.cursors[i].name, message.cursors[i].posX, message.cursors[i].posY, message.id]);
+        }
+        updatePositionMarkers();
+        compose();
+        document.getElementById("realmText").value = activeRealm;
+        document.getElementById("title").innerHTML = "Dungeon Master UI (" + activeRealmName + ")";
+        break;
+      }
+      case ClearMessage: {
+        if (message.realm != activeRealm) return;
+        
+        let layerCtx = hiddenCanvases[message.target].getContext('2d');
+        let sprite = layerCtx.createImageData(hiddenCanvases[message.target].width, hiddenCanvases[message.target].height);
+        for (let y = 0; y < hiddenCanvases[message.target].height; ++y) {
+          for (let x = 0; x < hiddenCanvases[message.target].width; ++x) {
+            let i = (x+y*sprite.width)*4;
+            sprite.data[i + 0] = message.r;
+            sprite.data[i + 1] = message.g;
+            sprite.data[i + 2] = message.b;
+            sprite.data[i + 3] = message.a;
+          }
+        }
+        layerCtx.putImageData(sprite, 0,0);
+        compose();
+        break;
+      }
+      case PositionMessage: {
+        if (message.realm == activeRealm)  {
+          cursors.set(message.id, [message.name, message.posX, message.posY, message.realm]);
+          updatePositionMarkers();
+          compose();
+        } else {
+          if (cursors.delete(message.id)) {
+            updatePositionMarkers();
+            compose();                
+          }
+        }
+        break;
+      }
+    }
+  } catch (e) {
+    console.log(e)
+  }
+}
+
+function overrideLayer(){
+  if(socket.readyState == 1)
+    socket.send(new ClearMessage(activeRealm,color.r, color.g, color.b, color.a, currentTarget).serialize());
+}
+
+function eraseLayer(){
+  if(socket.readyState == 1)
+    socket.send(new ClearMessage(activeRealm,0,0,0,0,currentTarget).serialize());
+}
+
+function applyColor() {
+  let hueLabel = document.getElementById("hueLabel");
+  color = HSVtoRGB(h,s,v);
+  hueLabel.style.backgroundColor = rgb(color.r,color.g,color.b);
+}
+
+
+function setPosition() {
+  if(socket.readyState == 1) {
+    socket.send(new PositionMessage(activeRealm, 0, serverWidth * mouseX/canvas.width,
+      serverHeight * mouseY/canvas.height,
+      name).serialize());
+  }
+}
+
+function dropPaint(rgba) {
+  if(socket.readyState == 1)
+    socket.send(new PaintMessage(activeRealm, serverWidth * mouseX/canvas.width,
+      serverHeight * mouseY/canvas.height,
+      rgba.r, rgba.g, rgba.b, rgba.a, 
+      Math.round(brushSize), currentTarget).serialize());
+}
+
+function handleContextMenu() {
+  event.preventDefault();
+  return false;
+}
+
+function handleMouseDown(event) {
+  if (event.button === 0) {
+    leftMouseDown = true;
+    dropPaint(color);
+  }
+  if (event.button === 2) {
+    rightMouseDown = true;
+    dropPaint(eraser);
+  }
+  
+  event.preventDefault();
+}
+
+function handleMouseUp(event) {
+  if (event.button === 0)
+    leftMouseDown = false;
+  if (event.button === 2)
+    rightMouseDown = false;
+  event.preventDefault();
+}
+
+function handleMouseMove(event) {
+  var rect = event.target.getBoundingClientRect();
+  mouseX = event.clientX - rect.left;
+  mouseY = event.clientY - rect.top;
+  event.preventDefault();
+  if (leftMouseDown) dropPaint(color);
+  if (rightMouseDown) dropPaint(eraser);
+  if (shiftPressed) setPosition();
+}
+
+
+function updatePositionMarkers() {
+  // TODO: consider resizing "positionCanvas" along with "canvas" and adjusting the coordinates
+  
+  let layerCtx = positionCanvas.getContext('2d');
+  layerCtx.clearRect(0, 0, positionCanvas.width, positionCanvas.height);
+  layerCtx.font = "20px Arial";
+  layerCtx.fillStyle = 'black';
+  for (const [key, value] of cursors.entries()) {
+    layerCtx.beginPath();
+    layerCtx.arc(value[1], value[2], 5, 0, 2 * Math.PI, false);
+    layerCtx.fill();
+    layerCtx.fillText(value[0], value[1]+8, value[2]-8);
+  }
+}
