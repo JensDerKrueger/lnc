@@ -27,6 +27,7 @@ public:
   DaDServer(uint16_t port);
   virtual ~DaDServer();
   void saveRealms() const;
+  void reloadRealms();
 
 protected:
   virtual void handleClientMessage(uint32_t id, const std::string& message) override;

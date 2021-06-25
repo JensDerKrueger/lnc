@@ -44,6 +44,10 @@ int main(int argc, char ** argv) {
         server.saveRealms();
       }
       
+      if (answer == "r") {
+        server.reloadRealms();
+      }
+      
     } while (answer != "q");
     std::cout << "Shutting down server ..." << std::endl;
     return EXIT_SUCCESS;

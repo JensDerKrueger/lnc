@@ -225,3 +225,9 @@ void DaDServer::saveRealms() const {
     r->save();
   }
 }
+
+void DaDServer::reloadRealms() {
+  const std::scoped_lock<std::mutex> lock(realmMutex);
+
+  // TODO
+}
