@@ -10,6 +10,7 @@
 
 #include "Realm.h"
 
+
 class DaDServerException : public std::exception {
   public:
   DaDServerException(const std::string& whatStr) : whatStr(whatStr) {}
@@ -23,10 +24,10 @@ class DaDServerException : public std::exception {
 
 class DaDServer : public Server<WebSocketConnection> {
 public:
-  DaDServer(uint16_t port, uint16_t canvasWidth, uint16_t canvasHeight,
-             const std::vector<std::string>& layerImages);
+  DaDServer(uint16_t port);
   virtual ~DaDServer();
-  void savePaintLayers();
+  void saveRealms() const;
+  void reloadRealms();
 
 protected:
   virtual void handleClientMessage(uint32_t id, const std::string& message) override;
@@ -37,25 +38,22 @@ protected:
   virtual void handleError(const std::string& message) override;
 
 private:
-  std::vector<uint8_t> imageMessage;
-  std::mutex imageLock;
-  uint16_t canvasWidth;
-  uint16_t canvasHeight;
-  std::vector<std::string> layerImages;
-  
-  std::map<uint32_t, uint32_t> realmMapping;
+  std::vector<std::shared_ptr<Realm>> realms;
+  std::map<uint32_t, uint32_t> userRealms;
+  std::map<uint32_t, size_t> existingRealms;
+  mutable std::mutex realmMutex;
 
   virtual void printStats();
   void handlePaint(BinaryDecoder& dec, uint32_t realmID, uint32_t id);
   void handleClear(BinaryDecoder& dec, uint32_t realmID, uint32_t id);
-  void handlePos(BinaryDecoder& dec, uint32_t realmID, uint32_t id);
-  void activeRealm(uint32_t realmID, uint32_t id);
+  const std::vector<uint8_t> handleCursorPos(BinaryDecoder& dec, uint32_t realmID, uint32_t id);
+  const std::vector<uint8_t> handleSwitchRealm(uint32_t realmID, uint32_t id);
+  void removeCursor(uint32_t id, uint32_t realmID);
+    
+  bool activeRealm(uint32_t realmID, uint32_t id);
 
   void savePaintLayer(size_t layerIndex);
   void loadPaintLayer(size_t layerIndex);
-
-  size_t initMessageHeaderSize() const;
-  size_t initMessageLayerSize() const;  
 };
 
 

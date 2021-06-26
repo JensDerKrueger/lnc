@@ -1,0 +1,167 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>D&amp;D Server</title>
+    <script type="text/javascript" src="dad.js"></script>
+    <script type="text/javascript">
+      var mouseX, mouseY, leftMouseDown=false, rightMouseDown=false;
+      var shiftPressed = false;
+      var canvas, ctx;
+            
+      function compose() {
+        if (hiddenCanvases.length == 0) return;
+        
+        canvas.width  = window.innerWidth-20;
+        if (Math.round(100.0 * canvas.width / canvas.height) != 
+            Math.round(100.0 * hiddenCanvases[0].width / hiddenCanvases[0].height))  {
+          canvas.height = canvas.width * hiddenCanvases[0].height / hiddenCanvases[0].width;
+          updatePositionMarkers();
+        }
+        
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (let l = 0;l<hiddenCanvases.length;++l) {
+          let c = hiddenCanvases[l];
+          ctx.drawImage(c, 0,0, canvas.width, canvas.height);
+        }
+        
+        ctx.globalAlpha = 0.8;
+        ctx.drawImage(positionCanvas, 0,0, canvas.width, canvas.height);
+        ctx.globalAlpha = 1.0;
+      }
+      
+      function init() {
+        loadState();
+        
+        let nameText = document.getElementById("nameText");
+        nameText.value = name;
+        nameText.oninput = function() {
+          let nameText = document.getElementById("nameText");
+          name = nameText.value;
+          saveState();
+        }
+        
+        let realmText = document.getElementById("realmText");
+        realmText.value = activeRealm;
+
+        realmText.onchange = function() {
+          let realmText = document.getElementById("realmText");
+          activeRealm = realmText.value;
+          if(socket.readyState == 1)
+            socket.send(new ChangeRealmMessage(activeRealm, 0).serialize());
+          saveState();
+        }
+        
+        let hueSlider = document.getElementById("hueSlider");
+        let satSlider = document.getElementById("satSlider");
+        let valueSlider = document.getElementById("valueSlider");
+        
+        hueSlider.value = h*100;
+        satSlider.value = s*100;
+        valueSlider.value = v*100;
+        applyColor();
+        
+        hueSlider.oninput = function() {
+          h = this.value/100;
+          applyColor();
+          saveState();
+        }
+        satSlider.oninput = function() {
+          s = this.value/100;
+          applyColor();
+          saveState();
+        }
+        valueSlider.oninput = function() {
+          v = this.value/100;
+          applyColor();
+          saveState();
+        }
+
+        let brushSizeSlider = document.getElementById("brushSizeSlider");
+        brushSizeSlider.value = brushSize;
+        brushSizeSlider.oninput = function() {
+          brushSize = this.value;
+          saveState();
+        }
+                
+        window.addEventListener('resize', function(event) {
+          compose();
+        }, true);
+        
+        window.onkeydown = function(event){
+          switch (event.key) {  
+            case "Shift" :
+              shiftPressed = true;
+              break;
+            default:
+              console.log(event);
+          };
+        };
+
+        window.onkeyup = function(event){
+          switch (event.key) {  
+            case "Shift" : 
+              shiftPressed = false;
+              break;
+            default:
+              console.log(event);
+          };
+        };
+        
+        applyColor();
+        
+        canvas = document.getElementById("drawArea");
+        canvas.onmousemove   = handleMouseMove;
+        canvas.onmousedown   = handleMouseDown;
+        canvas.onmouseup     = handleMouseUp;
+        canvas.oncontextmenu = handleContextMenu;
+        
+        canvas.addEventListener("touchmove", event => {
+          var rect = event.target.getBoundingClientRect();
+          mouseX = event.touches[0].clientX - rect.left;
+          mouseY = event.touches[0].clientY - rect.top;
+          event.preventDefault();
+          dropPaint(color);
+        });
+        
+        ctx = canvas.getContext("2d");
+        ctx.globalCompositeOperation = "source-over";
+        
+        ctx.fillStyle = "rgba(0,0,255,0.1)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        createSocket();
+      }
+    </script>
+  </head>
+
+  <body onload="init();" style="background-color:#BBBBBB;">
+    <center>
+    <h1 id="title">Connecting to D&amp;D Server</h1>
+    
+      <table>
+        <tr>
+          <td>Character Name</td>
+          <td>Realm Code</td>
+          <td></td>
+          <td>Hue</td>
+          <td>Saturation</td>
+          <td>Value</td>
+          <td>Brush Size</td>
+        </tr>
+        <tr>
+          <td><input id="nameText" type="text"></td>
+          <td><input id="realmText" type="text"> <input type="button" value="Change Realm" id="submitRealm"/></td>
+          <td><div id="hueLabel">Color</div></td>
+          <td><input type="range" min="0" max="100" value="1" class="slider" id="hueSlider"></td>
+          <td><input type="range" min="0" max="100" value="100" class="slider" id="satSlider"></td>
+          <td><input type="range" min="0" max="100" value="100" class="slider" id="valueSlider"></td>
+          <td><input type="range" min="1" max="100" value="50" class="slider" id="brushSizeSlider"></td>
+        </tr>
+      </table>
+    <canvas id="drawArea" width="800" height="600"></canvas>
+    <p id="status"></p>
+    </center>
+  </body>
+</html>
+        
