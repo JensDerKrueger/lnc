@@ -39,7 +39,7 @@ cl_device_id selectOpenCLDevice() {
 }
 
 int main(int argc, char** argv) {
-  Fractal f(4096,4096, selectOpenCLDevice());
+  Fractal f(16384,16384, selectOpenCLDevice());
   
   std::cout << "Starting fractal computation ... " << std::flush;
   auto t1 = Clock::now();
