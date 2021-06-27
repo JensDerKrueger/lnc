@@ -12,7 +12,7 @@ class Image {
     {
     }
 
-    bool save(const std::string& filename);
+    bool save(const std::string& filename, bool ignoreSize=false);
 
   protected:
     unsigned int w;
