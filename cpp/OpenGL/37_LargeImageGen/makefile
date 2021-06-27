@@ -13,7 +13,7 @@ else
 endif
 
 INCLUDES=-I. -I../Utils
-SRC = main.cpp Fractal.cpp OpenClContext.cpp
+SRC = main.cpp Fractal.cpp OpenClContext.cpp MultiresGen.cpp
 OBJ = $(SRC:.cpp=.o)
 TARGET = fractal
 
