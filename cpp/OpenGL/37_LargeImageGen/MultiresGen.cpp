@@ -147,7 +147,9 @@ void MultiresGen::generateHierarchy(TilePositions& tilePositions,
 }
 
 void MultiresGen::generate(cl_device_id dev, const std::string& filename) const {
-  std::fstream file(filename, std::ios::binary | std::ios::in | std::ios::out);
+  std::fstream file(filename, std::ios::binary | std::ios::in | std::ios::out | std::ios::trunc);
+  
+  
   TilePositions tilePositions;
   
   generateHeader(file);
