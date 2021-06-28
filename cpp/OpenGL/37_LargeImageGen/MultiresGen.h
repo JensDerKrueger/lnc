@@ -35,7 +35,7 @@ private:
   const uint32_t realTileDim;
   const size_t totalTileSize;
 
-  void generateHeader(std::fstream& file) const;
+  std::streampos generateHeader(std::fstream& file) const;
   void generateLevelZero(TilePositions& tilePositions, cl_device_id dev, std::fstream& file) const;
   void generateHierarchy(TilePositions& tilePositions, std::fstream& file) const;
   void generateInnerTilesOfLevel(uint32_t level, uint32_t levelSize,
@@ -43,19 +43,36 @@ private:
                                  std::vector<uint8_t>& targetTile,
                                  TilePositions& tilePositions,
                                  std::fstream& file) const;
-  void innerAverage(const TileCoord& coord,
+  
+  void innerAverage(const TileCoord& targetCoord,
                     std::vector<uint8_t>& tempTile,
                     std::vector<uint8_t>& targetTile,
                     TilePositions& tilePositions,
                     std::fstream& file) const;
   
-  void innerAverage(uint32_t offsetX, uint32_t offsetY,
-                    const TileCoord& coord,
+  void innerAverage(uint8_t offsetX, uint8_t offsetY,
+                    const TileCoord& targetCoord,
                     std::vector<uint8_t>& tempTile,
                     std::vector<uint8_t>& targetTile,
                     TilePositions& tilePositions,
                     std::fstream& file) const;
   
+  void fillOverlapOfLevel(uint32_t level, uint32_t levelSize,
+                          std::vector<uint8_t>& tempTile,
+                          std::vector<uint8_t>& targetTile,
+                          TilePositions& tilePositions,
+                          std::fstream& file) const;
+  void fillOverlap(const TileCoord& targetCoord,
+                   std::vector<uint8_t>& tempTile,
+                   std::vector<uint8_t>& targetTile,
+                   TilePositions& tilePositions,
+                   std::fstream& file) const;
+  
+  void storeTilePositions(const TilePositions& tilePositions,
+                          const std::streampos tilePositionsOffsetPos,
+                          std::fstream& file ) const;
+
+
   static Vec3t<uint8_t> applyTransferFunction(uint8_t input);
   static void applyTransferFunction(const std::vector<uint8_t>& inputData,
                                     std::vector<uint8_t>& outputImage);

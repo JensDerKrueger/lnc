@@ -41,18 +41,16 @@ static cl_device_id selectOpenCLDevice() {
 }
 
 int main(int argc, char** argv) {
-
-  cl_device_id dev = selectOpenCLDevice();
-  
+  cl_device_id dev = selectOpenCLDevice();  
   MultiresGen multi(2048,512,2);
   
-  std::cout << "Starting fractal computation ... " << std::flush;
   auto t1 = Clock::now();
-
-  multi.generate(dev, "fractal.dat");
-  
+  multi.generate(dev, "fractal.dat");  
   auto t2 = Clock::now();
+
   std::cout << " done in "
             << std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count()
             << " milliseconds!" << std::endl;
+
+  return EXIT_SUCCESS;
 }
