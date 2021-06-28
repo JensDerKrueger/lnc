@@ -114,7 +114,7 @@ public:
     cl_uint count;
     clGetPlatformIDs(0, NULL, &count);
     DynBuffer<cl_platform_id> platformBuffer{count};
-    clGetPlatformIDs(platformBuffer.currentSize, platformBuffer.data, NULL);
+    clGetPlatformIDs(cl_uint(platformBuffer.currentSize), platformBuffer.data, NULL);
     for (cl_uint i = 0;i<count;++i) {
       result.push_back(PlatformInfo(platformBuffer.data[i]));
     }
@@ -259,8 +259,7 @@ void OpenClContext<T>::setProgramCode(const std::string& code,
   // Set the arguments to our compute kernel
   //
   err = 0;
-
-  int iParam = 0;
+  cl_uint iParam = 0;
 
   if (bHasInput) {
     input = clCreateBuffer(context,  CL_MEM_READ_ONLY,

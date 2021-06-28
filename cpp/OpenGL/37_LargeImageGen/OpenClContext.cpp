@@ -174,7 +174,7 @@ PlatformInfo::PlatformInfo(cl_platform_id platformID)  :
   cl_uint count;
   clGetDeviceIDs(platformID, CL_DEVICE_TYPE_ALL, 0, NULL, &count);
   DynBuffer<cl_device_id> deviceBuffer{count};
-  clGetDeviceIDs(platformID, CL_DEVICE_TYPE_ALL, deviceBuffer.currentSize, deviceBuffer.data, NULL);
+  clGetDeviceIDs(platformID, CL_DEVICE_TYPE_ALL, cl_uint(deviceBuffer.currentSize), deviceBuffer.data, NULL);
 
   for (cl_uint i = 0;i<count;++i) {
     devices.push_back(DeviceInfo(deviceBuffer.data[i]));
