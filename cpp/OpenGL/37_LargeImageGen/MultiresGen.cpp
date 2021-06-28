@@ -36,7 +36,7 @@ void MultiresGen::generateLevelZero(TilePositions& tilePositions,
   std::vector<uint8_t> tile(totalTileSize);
   for (uint32_t tileY = 0; tileY < inputDim/tileDim; ++tileY) {
     
-    std::cout << "\r" << tileY << "/" << inputDim/tileDim << std::flush;
+    std::cout << "\rProcessing level 0 (" << tileY+1 << "/" << inputDim/tileDim << ")" << std::flush;
     
     for (uint32_t tileX = 0; tileX < inputDim/tileDim; ++tileX) {
       f.setOffset(int64_t(tileX)*int64_t(tileDim)-int64_t(overlap),
@@ -187,7 +187,7 @@ void MultiresGen::generateHierarchy(TilePositions& tilePositions,
   uint32_t level{1};
   uint32_t levelSize{inputDim/2};
   while (levelSize >= tileDim) {
-    std::cout << "Processing level " << level << std::endl;
+    std::cout << "\rProcessing level " << level;
     
     generateInnerTilesOfLevel(level, levelSize, tempTile,
                               targetTile, tilePositions, file);
@@ -196,6 +196,7 @@ void MultiresGen::generateHierarchy(TilePositions& tilePositions,
     levelSize /= 2;
     level++;
   }
+  std::cout << std::endl;
 }
 
 void MultiresGen::storeTilePositions(const TilePositions& tilePositions,

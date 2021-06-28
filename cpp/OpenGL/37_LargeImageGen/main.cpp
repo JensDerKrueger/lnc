@@ -48,7 +48,7 @@ int main(int argc, char** argv) {
   multi.generate(dev, "fractal.dat");  
   auto t2 = Clock::now();
 
-  std::cout << " done in "
+  std::cout << "Done in "
             << std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count()
             << " milliseconds!" << std::endl;
 
