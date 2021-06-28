@@ -45,9 +45,9 @@ void MultiresGen::generateLevelZero(TilePositions& tilePositions,
       applyTransferFunction(f.getData(), tile);
             
       // DEBUG
-      std::stringstream bmpFilename;
-      bmpFilename << "tile_" << 0 << "_" << tileX << "_" << tileY << ".bmp";
-      BMP::save(bmpFilename.str(), realTileDim, realTileDim, tile, 4);
+      //std::stringstream bmpFilename;
+      //bmpFilename << "tile_" << 0 << "_" << tileX << "_" << tileY << ".bmp";
+      //BMP::save(bmpFilename.str(), realTileDim, realTileDim, tile, 4);
       // DEBUG END
            
       tilePositions[{tileX,tileY,0}] = int64_t(file.tellg());
@@ -108,7 +108,7 @@ void MultiresGen::innerAverage(const TileCoord& targetCoord,
                                std::fstream& file) const {
   
   // DEBUG
-  std::fill(targetTile.begin(), targetTile.end(), 255);
+  //std::fill(targetTile.begin(), targetTile.end(), 255);
   // DEBUG END
   
   innerAverage(0,0, targetCoord, tempTile, targetTile, tilePositions, file);
@@ -132,9 +132,9 @@ void MultiresGen::generateInnerTilesOfLevel(uint32_t level, uint32_t levelSize,
       innerAverage(coord, tempTile, targetTile, tilePositions, file);
       
       // DEBUG
-      std::stringstream bmpFilename;
-      bmpFilename << "tile_" << level << "_" << tileX << "_" << tileY << "-inner.bmp";
-      BMP::save(bmpFilename.str(), realTileDim, realTileDim, targetTile, 4);
+      //std::stringstream bmpFilename;
+      //bmpFilename << "tile_" << level << "_" << tileX << "_" << tileY << "-inner.bmp";
+      //BMP::save(bmpFilename.str(), realTileDim, realTileDim, targetTile, 4);
       // DEBUG END
       
       file.seekg(pos, file.beg);
@@ -143,11 +143,149 @@ void MultiresGen::generateInnerTilesOfLevel(uint32_t level, uint32_t levelSize,
   }
 }
 
+bool MultiresGen::getTile(int8_t offsetX, int8_t offsetY,
+                          const TileCoord& targetCoord,
+                          std::vector<uint8_t>& tempTile,
+                          TilePositions& tilePositions,
+                          std::fstream& file) const {
+    
+  const TileCoord coord{
+    uint32_t(int64_t(targetCoord.x)+offsetX),
+    uint32_t(int64_t(targetCoord.y)+offsetY),
+    targetCoord.l
+  };
+    
+  if (tilePositions.find(coord) == tilePositions.end()) return false;
+   
+  const std::streampos sourceFilePos = std::streampos(tilePositions[coord]);
+  file.seekg(sourceFilePos, file.beg);
+  file.read((char*)tempTile.data(), std::streamsize(tempTile.size()));
+  
+  return true;
+}
+
 void MultiresGen::fillOverlap(const TileCoord& targetCoord,
                               std::vector<uint8_t>& tempTile,
                               std::vector<uint8_t>& targetTile,
                               TilePositions& tilePositions,
                               std::fstream& file) const {
+  
+  // top tile
+  if (getTile(0, 1, targetCoord, tempTile, tilePositions, file)) {
+    for (uint32_t y = 0; y < (overlap+1)/2; ++y) {
+      for (uint32_t x = 0; x < realTileDim; ++x) {
+        const size_t targetPos = (x+(y+realTileDim-(overlap+1)/2)*realTileDim)*4;
+        const size_t sourcePos = (x+(y+overlap+(overlap+1)/2)*realTileDim)*4;
+        for (uint32_t c = 0; c < 4; ++c) {
+          targetTile[targetPos+c] = tempTile[sourcePos+c];
+        }
+      }
+    }
+  } else {
+    for (uint32_t y = 0; y < (overlap+1)/2; ++y) {
+      for (uint32_t x = 0; x < realTileDim; ++x) {
+        const size_t targetPos = (x+(y+realTileDim-(overlap+1)/2)*realTileDim)*4;
+        const size_t sourcePos = (x+(realTileDim-(overlap+1)/2-1)*realTileDim)*4;
+        for (uint32_t c = 0; c < 4; ++c) {
+          targetTile[targetPos+c] = targetTile[sourcePos+c];
+        }
+      }
+    }
+  }
+  
+  // right tile
+  if (getTile(1, 0, targetCoord, tempTile, tilePositions, file)) {
+    for (uint32_t y = 0; y < realTileDim; ++y) {
+      for (uint32_t x = 0; x < (overlap+1)/2; ++x) {
+        const size_t targetPos = (x+realTileDim-(overlap+1)/2+y*realTileDim)*4;
+        const size_t sourcePos = (x+overlap+(overlap+1)/2+y*realTileDim)*4;
+        for (uint32_t c = 0; c < 4; ++c) {
+          targetTile[targetPos+c] = tempTile[sourcePos+c];
+        }
+      }
+    }
+  } else {
+    for (uint32_t y = 0; y < realTileDim; ++y) {
+      for (uint32_t x = 0; x < (overlap+1)/2; ++x) {
+        const size_t targetPos = (x+realTileDim-(overlap+1)/2+y*realTileDim)*4;
+        const size_t sourcePos = (realTileDim-(overlap+1)/2-1+y*realTileDim)*4;
+        for (uint32_t c = 0; c < 4; ++c) {
+          targetTile[targetPos+c] = targetTile[sourcePos+c];
+        }
+      }
+    }
+  }
+
+  // top right tile
+  if (getTile(1, 1, targetCoord, tempTile, tilePositions, file)) {
+    for (uint32_t y = 0; y < (overlap+1)/2; ++y) {
+      for (uint32_t x = 0; x < (overlap+1)/2; ++x) {
+        const size_t targetPos = (x+realTileDim-(overlap+1)/2+(y+realTileDim-(overlap+1)/2)*realTileDim)*4;
+        const size_t sourcePos = (x+overlap+(overlap+1)/2+(y+overlap+(overlap+1)/2)*realTileDim)*4;
+        for (uint32_t c = 0; c < 4; ++c) {
+          targetTile[targetPos+c] = tempTile[sourcePos+c];
+        }
+      }
+    }
+  } else {
+    for (uint32_t y = 0; y < (overlap+1)/2; ++y) {
+      for (uint32_t x = 0; x < (overlap+1)/2; ++x) {
+        const size_t targetPos = (x+realTileDim-(overlap+1)/2+(y+realTileDim-(overlap+1)/2)*realTileDim)*4;
+        const size_t sourcePos = (realTileDim-(overlap+1)/2-1+(realTileDim-(overlap+1)/2-1)*realTileDim)*4;
+        for (uint32_t c = 0; c < 4; ++c) {
+          targetTile[targetPos+c] = targetTile[sourcePos+c];
+        }
+      }
+    }
+
+  }
+
+  // left tile
+  if (getTile(-1, 0, targetCoord, tempTile, tilePositions, file)) {
+    for (uint32_t y = 0; y < realTileDim; ++y) {
+      for (uint32_t x = 0; x < (overlap+1)/2; ++x) {
+        const size_t targetPos = (x+y*realTileDim)*4;
+        const size_t sourcePos = (x+realTileDim-(overlap*2)+y*realTileDim)*4;
+        for (uint32_t c = 0; c < 4; ++c) {
+          targetTile[targetPos+c] = tempTile[sourcePos+c];
+        }
+      }
+    }
+  } else {
+    for (uint32_t y = 0; y < realTileDim; ++y) {
+      for (uint32_t x = 0; x < (overlap+1)/2; ++x) {
+        const size_t targetPos = (x+y*realTileDim)*4;
+        const size_t sourcePos = ((overlap+1)/2+y*realTileDim)*4;
+        for (uint32_t c = 0; c < 4; ++c) {
+          targetTile[targetPos+c] = targetTile[sourcePos+c];
+        }
+      }
+    }
+  }
+
+  // bottom tile
+  if (getTile(0, -1, targetCoord, tempTile, tilePositions, file)) {
+    for (uint32_t y = 0; y < (overlap+1)/2; ++y) {
+      for (uint32_t x = 0; x < realTileDim; ++x) {
+        const size_t targetPos = (x+y*realTileDim)*4;
+        const size_t sourcePos = (x+(y+realTileDim-(overlap*2))*realTileDim)*4;
+        for (uint32_t c = 0; c < 4; ++c) {
+          targetTile[targetPos+c] = tempTile[sourcePos+c];
+        }
+      }
+    }
+  } else {
+    for (uint32_t y = 0; y < (overlap+1)/2; ++y) {
+      for (uint32_t x = 0; x < realTileDim; ++x) {
+        const size_t targetPos = (x+y*realTileDim)*4;
+        const size_t sourcePos = (x+((overlap+1)/2)*realTileDim)*4;
+        for (uint32_t c = 0; c < 4; ++c) {
+          targetTile[targetPos+c] = targetTile[sourcePos+c];
+        }
+      }
+    }
+  }
+  
 }
 
 void MultiresGen::fillOverlapOfLevel(uint32_t level, uint32_t levelSize,
@@ -166,9 +304,9 @@ void MultiresGen::fillOverlapOfLevel(uint32_t level, uint32_t levelSize,
       fillOverlap(coord, tempTile, targetTile, tilePositions, file);
       
       // DEBUG
-      std::stringstream bmpFilename;
-      bmpFilename << "tile_" << level << "_" << tileX << "_" << tileY << "-complete.bmp";
-      BMP::save(bmpFilename.str(), realTileDim, realTileDim, targetTile, 4);
+      //std::stringstream bmpFilename;
+      //bmpFilename << "tile_" << level << "_" << tileX << "_" << tileY << "-complete.bmp";
+      //BMP::save(bmpFilename.str(), realTileDim, realTileDim, targetTile, 4);
       // DEBUG END
       
       file.seekg(std::streampos(tilePositions[coord]), file.beg);

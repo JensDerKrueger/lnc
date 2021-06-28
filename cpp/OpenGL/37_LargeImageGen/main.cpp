@@ -42,7 +42,7 @@ static cl_device_id selectOpenCLDevice() {
 
 int main(int argc, char** argv) {
   cl_device_id dev = selectOpenCLDevice();  
-  MultiresGen multi(2048,512,2);
+  MultiresGen multi(2048,256,1);
   
   auto t1 = Clock::now();
   multi.generate(dev, "fractal.dat");  

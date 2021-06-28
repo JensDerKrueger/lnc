@@ -67,6 +67,11 @@ private:
                    std::vector<uint8_t>& targetTile,
                    TilePositions& tilePositions,
                    std::fstream& file) const;
+  bool getTile(int8_t offsetX, int8_t offsetY,
+               const TileCoord& targetCoord,
+               std::vector<uint8_t>& tempTile,
+               TilePositions& tilePositions,
+               std::fstream& file) const;
   
   void storeTilePositions(const TilePositions& tilePositions,
                           const std::streampos tilePositionsOffsetPos,
