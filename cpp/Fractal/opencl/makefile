@@ -25,6 +25,5 @@ $(TARGET): $(OBJ)
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@
 
 clean:
-	-cp $(TARGET) $(TARGET)_old
 	-rm -rf $(OBJ) $(TARGET) core
 
