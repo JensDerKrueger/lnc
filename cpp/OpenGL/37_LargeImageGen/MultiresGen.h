@@ -62,6 +62,16 @@ private:
                           std::vector<uint8_t>& targetTile,
                           TilePositions& tilePositions,
                           std::fstream& file) const;
+  void topTileFill(std::fstream &file, const TileCoord &targetCoord, std::vector<uint8_t> &targetTile, std::vector<uint8_t> &tempTile, TilePositions &tilePositions) const;
+  
+  void rightTileFill(std::fstream &file, const TileCoord &targetCoord, std::vector<uint8_t> &targetTile, std::vector<uint8_t> &tempTile, TilePositions &tilePositions) const;
+  
+  void topRightTileFill(std::fstream &file, const TileCoord &targetCoord, std::vector<uint8_t> &targetTile, std::vector<uint8_t> &tempTile, TilePositions &tilePositions) const;
+  
+  void leftTileFill(std::fstream &file, const TileCoord &targetCoord, std::vector<uint8_t> &targetTile, std::vector<uint8_t> &tempTile, TilePositions &tilePositions) const;
+  
+  void bottomTileFill(std::fstream &file, const TileCoord &targetCoord, std::vector<uint8_t> &targetTile, std::vector<uint8_t> &tempTile, TilePositions &tilePositions) const;
+  
   void fillOverlap(const TileCoord& targetCoord,
                    std::vector<uint8_t>& tempTile,
                    std::vector<uint8_t>& targetTile,
@@ -72,6 +82,17 @@ private:
                std::vector<uint8_t>& tempTile,
                TilePositions& tilePositions,
                std::fstream& file) const;
+  void copyRect(std::vector<uint8_t>& source,
+                std::vector<uint8_t>& target,
+                uint32_t sourceX, uint32_t sourceY,
+                uint32_t targetX, uint32_t targetY,
+                uint32_t width, uint32_t height) const;
+  void repeatLine(std::vector<uint8_t>& data,
+                  uint32_t sourceX, uint32_t sourceY,
+                  uint32_t targetX, uint32_t targetY,
+                  uint32_t mulX, uint32_t mulY,
+                  uint32_t width, uint32_t height) const;
+
   
   void storeTilePositions(const TilePositions& tilePositions,
                           const std::streampos tilePositionsOffsetPos,

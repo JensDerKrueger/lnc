@@ -22,8 +22,7 @@ static cl_device_id selectOpenCLDevice() {
   cl_device_id selectedDevice{0};
   size_t selectedDeviceIndex{0};
   do {
-//    std::cout << "Select a device number: ";  std::cin >> selectedDeviceIndex;
-    selectedDeviceIndex = 1;
+    std::cout << "Select a device number: ";  std::cin >> selectedDeviceIndex;
     i = 0;
     for (const PlatformInfo& platform : platforms) {
       for (const DeviceInfo& d : platform.devices) {
@@ -42,7 +41,7 @@ static cl_device_id selectOpenCLDevice() {
 
 int main(int argc, char** argv) {
   cl_device_id dev = selectOpenCLDevice();  
-  MultiresGen multi(2048,256,1);
+  MultiresGen multi(2048,512,1);
   
   auto t1 = Clock::now();
   multi.generate(dev, "fractal.dat");  
