@@ -346,10 +346,10 @@ void MultiresGen::generateHierarchy(TilePositions& tilePositions,
 void MultiresGen::storeTilePositions(const TilePositions& tilePositions,
                                      const std::streampos tilePositionsOffsetPos,
                                      std::fstream& file ) const {
-  std::streampos tilePositionsOffset = file.tellg();
+  int64_t tilePositionsOffset = file.tellg();
   
   uint64_t tileCount = uint64_t(tilePositions.size());
-  file.write((char*)&tileCount, sizeof(uint64_t));
+  file.write((char*)&tileCount, sizeof(tileCount));
   for (const auto& tilePosition : tilePositions) {
     file.write((char*)&tilePosition.first.x, sizeof(tilePosition.first.x));
     file.write((char*)&tilePosition.first.y, sizeof(tilePosition.first.y));
