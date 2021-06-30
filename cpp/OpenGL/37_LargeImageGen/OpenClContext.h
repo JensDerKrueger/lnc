@@ -4,11 +4,13 @@
 #define CL_HPP_TARGET_OPENCL_VERSION 110
 #define CL_TARGET_OPENCL_VERSION 110
 
+#define CL_VERSION_1_2
+
 #ifdef __APPLE__
     #include <OpenCL/opencl.h>
 #else
-    #include "opencl.h"
-    #include "cl.hpp"
+    #include "CL\opencl.h"
+    #include "CL\cl.hpp"
 #endif
 
 #include <exception>
