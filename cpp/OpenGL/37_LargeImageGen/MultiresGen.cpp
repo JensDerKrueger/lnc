@@ -247,7 +247,7 @@ void MultiresGen::topRightTileFill(std::fstream &file, const TileCoord &targetCo
   }
 }
 
-void MultiresGen::  leftTileFill(std::fstream &file, const TileCoord &targetCoord,
+void MultiresGen::leftTileFill(std::fstream &file, const TileCoord &targetCoord,
                                  std::vector<uint8_t> &targetTile, std::vector<uint8_t> &tempTile,
                                  TilePositions &tilePositions) const {
   if (getTile(-1, 0, targetCoord, tempTile, tilePositions, file)) {
@@ -255,7 +255,6 @@ void MultiresGen::  leftTileFill(std::fstream &file, const TileCoord &targetCoor
              realTileDim-(overlap*2), 0,
              0, 0,
              (overlap+1)/2,realTileDim);
-    
   } else {
     repeatLine(targetTile,
                (overlap+1)/2, 0,
