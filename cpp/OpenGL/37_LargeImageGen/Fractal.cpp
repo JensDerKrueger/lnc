@@ -32,6 +32,15 @@ Fractal::Fractal(uint32_t w, uint32_t h,
   "  double cI = ys + dy*(y+offsetY);          \n" \
   "  double dR = 0, dI = 0;                    \n" \
   "  unsigned int depth = 0;                   \n" \
+  "  //Cartenoid Check:                        \n" \
+  "  float xx = cR;                            \n" \
+  "  float yy = cI;                            \n" \
+  "  xx = xx - 0.25f;                          \n" \
+  "  yy = yy * yy;                             \n" \
+  "  float q = xx * xx + yy;                   \n" \
+  "  q = q * (q + xx);                         \n" \
+  "  if (!((q * 4.0f < yy) || ((xx + 1.25f) *  \n" \
+  "       (xx + 1.25f) + yy < 1.0f / 16.0f)))  \n" \
   "  while (depth < 256 && dR*dR+dI*dI < 4) {  \n" \
   "    double t = dR;                          \n" \
   "    dR = dR*dR-dI*dI+cR;                    \n" \
