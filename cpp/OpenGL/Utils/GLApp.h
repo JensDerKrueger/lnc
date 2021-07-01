@@ -119,6 +119,8 @@ protected:
   GLTexture2D pointSpriteHighlight;
   double resumeTime;
   
+  void shaderUpdate();
+
   void closeWindow() {
     glEnv.setClose();
   }
@@ -159,7 +161,6 @@ private:
     }
   }
   
-  void shaderUpdate();
   
   void triangulate(const Vec3& p0,
                    const Vec3& p1, const Vec4& c1,
