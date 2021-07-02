@@ -3,25 +3,7 @@
 DaDServer::DaDServer(uint16_t port) :
 Server(port)
 {
-  const std::scoped_lock<std::mutex> lock(realmMutex);
-
-  std::vector<std::string> files;
-  for (auto& p: std::filesystem::directory_iterator(".")) {
-    try {
-      if (p.path().extension() != ".realm") continue;
-      realms.push_back(std::make_shared<Realm>(p.path().string()));
-      existingRealms[realms.back()->getID()] = realms.size()-1;
-      std::cout << "Loaded file " << p.path().string() << " containing realm " << realms.back()->getName()
-                << " with id " << realms.back()->getID() << " and " << realms.back()->getLayerCount() << " layer." << std::endl;
-    } catch (...) {
-    }
-  }
-
-  if (existingRealms.find(0) == existingRealms.end()) {
-    std::vector<Image> layerImages{Image{800,600,4},Image{800,600,4},Image{800,600,4}};
-    realms.push_back(std::make_shared<Realm>(0, "Lobby", layerImages, "lobby.realm"));
-    existingRealms[realms.back()->getID()] = realms.size()-1;
-  }
+  reloadRealms();
 }
   
 DaDServer::~DaDServer() {
@@ -229,5 +211,26 @@ void DaDServer::saveRealms() const {
 void DaDServer::reloadRealms() {
   const std::scoped_lock<std::mutex> lock(realmMutex);
 
-  // TODO
+  std::vector<std::string> files;
+  for (auto& p: std::filesystem::directory_iterator(".")) {
+    try {
+      if (p.path().extension() != ".realm") continue;
+      
+      std::shared_ptr<Realm> r = std::make_shared<Realm>(p.path().string());
+      
+      if (existingRealms.find(r->getID()) != existingRealms.end()) continue;
+
+      realms.push_back(r);
+      existingRealms[r->getID()] = realms.size()-1;
+      std::cout << "Loaded file " << p.path().string() << " containing realm " << realms.back()->getName()
+                << " with id " << realms.back()->getID() << " and " << realms.back()->getLayerCount() << " layer." << std::endl;
+    } catch (...) {
+    }
+  }
+
+  if (existingRealms.find(0) == existingRealms.end()) {
+    std::vector<Image> layerImages{Image{800,600,4},Image{800,600,4},Image{800,600,4}};
+    realms.push_back(std::make_shared<Realm>(0, "Lobby", layerImages, "lobby.realm"));
+    existingRealms[realms.back()->getID()] = realms.size()-1;
+  }
 }

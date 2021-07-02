@@ -47,7 +47,12 @@ int main(int argc, char ** argv) {
       if (answer == "r") {
         server.reloadRealms();
       }
-      
+
+      if (answer == "s") {
+        restorePointTime = currentTime;
+        server.saveRealms();
+      }
+
     } while (answer != "q");
     std::cout << "Shutting down server ..." << std::endl;
     return EXIT_SUCCESS;

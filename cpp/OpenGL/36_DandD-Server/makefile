@@ -15,7 +15,7 @@ endif
 
 SRC = Realm.cpp DaDServer.cpp main.cpp
 OBJ = $(SRC:.cpp=.o)
-TARGET = socketServer
+TARGET = dadServer
 
 all: $(TARGET)
 
