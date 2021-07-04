@@ -13,7 +13,6 @@ else
 	INCLUDES=-I. -I../Utils -I /opt/homebrew/include -I ../../openmp/include
 endif
 
-
 SRC = HitableList.cpp HitRecord.cpp main.cpp Ray.cpp Camera.cpp Sphere.cpp Dielectric.cpp Metal.cpp Lambertian.cpp
 OBJ = $(SRC:.cpp=.o)
 TARGET = raytrace

@@ -2,14 +2,14 @@ CC=g++
 OSTYPE := $(shell uname)
 
 ifeq ($(OSTYPE),Linux)
-	CFLAGS=-c -Wall -std=c++17 -Wunreachable-code -fopenmp
-	LFLAGS=-lglfw -lGLEW -lGL -L../Utils -lutils -fopenmp
+	CFLAGS=-c -Wall -std=c++17 -Wunreachable-code
+	LFLAGS=-lglfw -lGLEW -lGL -L../Utils -lutils
 	LIBS=
-	INCLUDES=-I. -I../Utils 
+	INCLUDES=-I. -I../Utils
 else
-	CFLAGS=-c -Wall -std=c++17 -Wunreachable-code -Xclang -fopenmp
+	CFLAGS=-c -Wall -std=c++17 -Wunreachable-code -Xclang
 	LFLAGS=-lglfw -lGLEW -framework OpenGL -L../Utils -lutils
-	LIBS=-lomp -L ../../openmp/lib -L /opt/homebrew/lib
+	LIBS=-L /opt/homebrew/lib
 	INCLUDES=-I. -I../Utils -I /opt/homebrew/include
 endif
 

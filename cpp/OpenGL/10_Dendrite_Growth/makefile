@@ -5,7 +5,7 @@ ifeq ($(OSTYPE),Linux)
 	CFLAGS=-c -Wall -std=c++17 -Wunreachable-code -pthread
 	LFLAGS=-lglfw -lGLEW -lGL -L../Utils -lutils -pthread
 	LIBS=
-	INCLUDES=-I. -I../Utils 
+	INCLUDES=-I. -I../Utils
 else
 	CFLAGS=-c -Wall -std=c++17 -Wunreachable-code -Xclang -fopenmp
 	LFLAGS=-lglfw -lGLEW -framework OpenGL -L../Utils -lutils
@@ -28,7 +28,6 @@ release: $(TARGET)
 
 $(TARGET): $(OBJ) ../Utils/libutils.a
 	$(CC) $(INCLUDES) $^ $(LFLAGS) $(LIBS) -o $@
-
 
 %.o: %.cpp
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@
