@@ -2,6 +2,8 @@
 
 ## Mac
 
+All you need to compile the projects an a mac is to download [xcode](https://apps.apple.com/de/app/xcode/id497799835?mt=12). You can either use make to build the projects from the command line or open the xcode-projects when available.
+
 ## Windows
 
 ## Linux
