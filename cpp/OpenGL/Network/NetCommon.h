@@ -7,6 +7,7 @@
 #include <string>
 #include <chrono>
 #include <random>
+#include <climits>
 
 #include "AES.h"
 #include "Sockets.h"
@@ -40,7 +41,7 @@ class MessageException : public std::exception {
 class Tokenizer {
 public:
   Tokenizer(const std::string& message, char delimititer = char(1));
-  
+
   std::string nextString();
   uint8_t nextUint8();
   int8_t nextInt8();
@@ -53,7 +54,7 @@ public:
   float nextFloat();
   double nextDouble();
   bool nextBool();
-  
+
 private:
   char delimititer;
   const std::string message;
@@ -99,21 +100,21 @@ public:
   virtual void add(float f) override;
   virtual void add(double d) override;
   virtual void add(bool b) override;
-  
+
   std::string getEncodedMessage() const {return message;}
   virtual void clear() override {message = "";}
-  
+
 private:
   char delimititer;
   std::string message;
-  
+
   std::string removeDelim(std::string input) const;
 };
 
 class BinaryEncoder : public Encoder {
 public:
   virtual ~BinaryEncoder() {}
-  
+
   virtual void add(const char msg[]) override;
   virtual void add(const std::string& msg) override;
   virtual void add(const std::vector<std::string>& v) override;
@@ -128,10 +129,10 @@ public:
   virtual void add(float f) override;
   virtual void add(double d) override;
   virtual void add(bool b) override;
-  
+
   std::vector<uint8_t> getEncodedMessage() const {return message;}
   virtual void clear() override {message = {};}
-  
+
 private:
   std::vector<uint8_t> message;
 };
@@ -140,7 +141,7 @@ private:
 class BinaryDecoder {
 public:
   BinaryDecoder(const std::vector<uint8_t>& message);
-  
+
   std::vector<std::string> nextStringVector();
   std::string nextString();
   uint8_t nextUint8();
@@ -154,7 +155,7 @@ public:
   float nextFloat();
   double nextDouble();
   bool nextBool();
-  
+
 private:
   std::vector<uint8_t> message;
   size_t pos;

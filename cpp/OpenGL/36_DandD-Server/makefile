@@ -3,7 +3,7 @@ OSTYPE := $(shell uname)
 
 ifeq ($(OSTYPE),Linux)
 	CFLAGS=-c -Wall -std=c++17 -Wunreachable-code -fopenmp
-	LFLAGS=-lglfw -lGLEW -lGL -L../Utils -lutils -L../Network -lutils -fopenmp
+	LFLAGS=-lglfw -lGLEW -lGL -L../Utils -lutils -L../Network -lutils -fopenmp -lstdc++fs
 	LIBS=
 	INCLUDES=-I. -I../Utils -I../Network -I ../../openmp/include
 else
@@ -25,19 +25,19 @@ release: $(TARGET)
 
 ../Utils/libutils.a:
 	cd ../Utils && make $(MAKECMDGOALS)
-	
+
 ../Network/libnetwork.a:
 	cd ../Network && make $(MAKECMDGOALS)
-	
+
 $(TARGET): $(OBJ) ../Network/libnetwork.a ../Utils/libutils.a
 	$(CC) $(INCLUDES) $^ $(LFLAGS) $(LIBS) -o $@
-	
+
 %.o: %.cpp
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@
-	
+
 clean:
 	-rm -rf $(OBJ) $(TARGET) core
-	
+
 mrproper: clean
 	cd ../Network && make clean
 	cd ../Utils && make clean
