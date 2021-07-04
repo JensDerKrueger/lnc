@@ -2,15 +2,15 @@ CC=g++
 OSTYPE := $(shell uname)
 
 ifeq ($(OSTYPE),Linux)
-	CFLAGS=-c -Wall -std=c++17 -Wunreachable-code -fopenmp
+	CFLAGS=-c -Wall -std=c++17 -Wunreachable-code
 	LFLAGS=-fopenmp -L../Network -lnetwork -L../Utils -lutils
 	LIBS=
 	INCLUDES=-I. -I../Network -I../Utils
 else
-	CFLAGS=-c -Wall -std=c++17 -Wunreachable-code -Xclang -fopenmp
+	CFLAGS=-c -Wall -std=c++17 -Wunreachable-code -Xclang
 	LFLAGS=-L../Network -lnetwork -L../Utils -lutils
-	LIBS=-lomp -L ../../openmp/lib -L /opt/homebrew/lib
-	INCLUDES=-I. -I ../../openmp/include -I /opt/homebrew/include -I../Network
+	LIBS=-L /opt/homebrew/lib
+	INCLUDES=-I. -I /opt/homebrew/include -I../Network
 endif
 
 SRC = main.cpp

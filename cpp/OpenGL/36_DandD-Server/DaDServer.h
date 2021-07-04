@@ -4,6 +4,7 @@
 #include <string>
 #include <thread>
 #include <map>
+#include <filesystem>
 
 #include <Server.h>
 #include <bmp.h>
@@ -49,7 +50,7 @@ private:
   const std::vector<uint8_t> handleCursorPos(BinaryDecoder& dec, uint32_t realmID, uint32_t id);
   const std::vector<uint8_t> handleSwitchRealm(uint32_t realmID, uint32_t id);
   void removeCursor(uint32_t id, uint32_t realmID);
-    
+
   bool activeRealm(uint32_t realmID, uint32_t id);
 
   void savePaintLayer(size_t layerIndex);

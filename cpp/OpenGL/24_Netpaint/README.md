@@ -19,7 +19,7 @@ Keys in *Paint Mode*:
 * '1' ... '0' restore color
 * 'l' toggle other painter's labels
 * 'r' reset view
-* 'q' and 'w' change mouse wheel sensitivity 
+* 'q' and 'w' change mouse wheel sensitivity
 * 'p' save screenshot
 * 'ESC' close application
 
@@ -29,4 +29,4 @@ Keys in *Color Chooser Mode*:
 
 ## Demo Server
 
-If you don't want to run your own server, feel free to paint to our public demo server (no offensive content, please). The server is available at lnc.myfirewall.org 
+If you don't want to run your own server, feel free to paint to our public demo server (no offensive content, please). The server is available at `lnc.myfirewall.org`.

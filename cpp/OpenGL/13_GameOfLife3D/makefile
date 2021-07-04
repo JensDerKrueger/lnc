@@ -3,9 +3,9 @@ OSTYPE := $(shell uname)
 
 ifeq ($(OSTYPE),Linux)
 	CFLAGS=-c -Wall -std=c++17 -Wunreachable-code -Wno-deprecated-declarations
-	LFLAGS=-lglfw -lGLEW -lGL -L../Utils -lutils -fopenmp
+	LFLAGS=-lglfw -lGLEW -lGL -L../Utils -lutils
 	LIBS=
-	INCLUDES=-I. -I../Utils 
+	INCLUDES=-I. -I../Utils
 else
 	CFLAGS=-c -Wall -std=c++17 -Wunreachable-code -Xclang -Wno-deprecated-declarations
 	LFLAGS=-lglfw -lGLEW -framework OpenGL -L../Utils -lutils
@@ -24,7 +24,7 @@ release: LFLAGS += -flto
 release: $(TARGET)
 
 ../Utils/libutils.a:
-	cd ../Utils && $(MAKE) $(MAKECMDGOALS) 
+	cd ../Utils && $(MAKE) $(MAKECMDGOALS)
 
 $(TARGET): $(OBJ) ../Utils/libutils.a
 	$(CC) $(INCLUDES) $^ $(LFLAGS) $(LIBS) -o $@
