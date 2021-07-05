@@ -15,7 +15,8 @@ LargeImage::LargeImage(const std::string& filename, size_t cacheSize):
 void LargeImage::load(const std::string& filename) {
   file = std::fstream(filename, std::ios::binary | std::ios::in);
 
-  // TODO: check if file is actually open
+  if (!file.is_open())
+    throw std::runtime_error("Failed to open large image");
   
   file.read((char*)&inputDim, sizeof(inputDim));
   file.read((char*)&tileDim, sizeof(tileDim));
@@ -36,6 +37,10 @@ void LargeImage::load(const std::string& filename) {
   uint64_t tilePositionsOffset;
   file.read((char*)&tilePositionsOffset, sizeof(tilePositionsOffset));
   file.seekg(int64_t(tilePositionsOffset), file.beg);
+  
+  if (tilePositionsOffset == 0)
+    throw std::runtime_error("Failed to load large image (incomplete data)");
+
   loadTilePositions();
 }
 

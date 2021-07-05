@@ -17,12 +17,13 @@ public:
   virtual void draw() override;
   
 private:
+  bool showTiles{false};
   bool mouseDown{false};
   Vec2 mousePixelPos;
   Vec2 mousePos;
   Vec2 mouseStartPos;
   Mat4 userTransformation;
-  LargeImage largeImage{"/Users/lnc/lnc/cpp/OpenGL/37_LargeImageGen/fractal_large.dat",2048};
+  LargeImage largeImage{"/Volumes/LaCie RAID VD 0/fractal_19.dat",2048};
   FontRenderer fr{"helvetica_neue.bmp", "helvetica_neue.pos"};
   std::shared_ptr<FontEngine> fe{nullptr};
   

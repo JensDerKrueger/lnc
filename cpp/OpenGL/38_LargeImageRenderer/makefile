@@ -15,7 +15,7 @@ endif
 
 SRC = LargeImageRenderer.cpp LargeImage.cpp main.cpp
 OBJ = $(SRC:.cpp=.o)
-TARGET = LargeImageRenderer
+TARGET = largeImageRenderer
 
 all: $(TARGET)
 

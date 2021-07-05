@@ -41,10 +41,10 @@ static cl_device_id selectOpenCLDevice() {
 
 int main(int argc, char** argv) {
   cl_device_id dev = selectOpenCLDevice();  
-  MultiresGen multi(1<<16,512,1);
+  MultiresGen multi(1<<19,512,1);
   
   auto t1 = Clock::now();
-  multi.generate(dev, "fractal_large.dat");
+  multi.generate(dev, "/Volumes/LaCie RAID VD 0/fractal_19.dat");
   auto t2 = Clock::now();
 
   std::cout << "Done in "

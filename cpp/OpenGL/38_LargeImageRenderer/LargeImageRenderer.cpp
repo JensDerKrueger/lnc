@@ -1,6 +1,5 @@
 #include "LargeImageRenderer.h"
 
-
 void LargeImageRenderer::init() {
   fe = fr.generateFontEngine();
   glEnv.setTitle("Large Image Renderer");
@@ -48,6 +47,12 @@ void LargeImageRenderer::keyboard(int key, int scancode, int action, int mods) {
       case GLFW_KEY_ESCAPE :
         closeWindow();
         break;
+      case GLFW_KEY_R :
+        userTransformation = {};
+        break;
+      case GLFW_KEY_T :
+        showTiles = !showTiles;
+        break;
     }
   }
 }
@@ -55,13 +60,11 @@ void LargeImageRenderer::keyboard(int key, int scancode, int action, int mods) {
 void LargeImageRenderer::draw() {
   GL(glClear(GL_COLOR_BUFFER_BIT));
   const float scale = 1/glEnv.getFramebufferSize().aspect();
-  const Mat4 drawTransform = userTransformation * ((scale < 1) ? Mat4::scaling(scale, 1, 1) : Mat4::scaling(1, 1/scale, 1));
-
+  const Mat4 drawTransform = userTransformation *
+                             ((scale < 1) ? Mat4::scaling(scale, 1, 1) : Mat4::scaling(1, 1/scale, 1));
   const double floatLevel = computeLevel(drawTransform);
   const uint32_t level = uint32_t(std::clamp<double>(floatLevel, 0.0, largeImage.getLevelCount()-1));
-  
-  std::vector<TileCoord> visibleTiles = computeVisibleTiles(level, drawTransform);
-  
+  std::vector<TileCoord> visibleTiles = computeVisibleTiles(level, drawTransform);  
   setDrawTransform(drawTransform);
   shaderUpdate();
   renderTiles(visibleTiles);
@@ -97,9 +100,10 @@ double LargeImageRenderer::computeLevel(const Mat4& drawTransform) {
 
 std::vector<TileCoord> LargeImageRenderer::computeVisibleTiles(uint32_t level, const Mat4& drawTransform) {
   
-  const Mat4 invDrawTransform = Mat4::inverse(drawTransform);
-  const Vec4 bottomLeftScreenPos = invDrawTransform * Vec4{-1,-1,0,1};
-  const Vec4 topRightScreenPos = invDrawTransform * Vec4{1,1,0,1};
+  const Mat4 invDrawTransform     = Mat4::inverse(drawTransform);
+  const Vec4 bottomLeftScreenPos  = invDrawTransform * Vec4{-1,-1,0,1};
+  const Vec4 topRightScreenPos    = invDrawTransform * Vec4{1,1,0,1};
+  
   const Vec2 startTileCoordsFloat = (bottomLeftScreenPos.xy+1)/2.0f * (largeImage.getLevelTiles(level)-1);
   const Vec2 endTileCoordsFloat   = (topRightScreenPos.xy+1)/2.0f * (largeImage.getLevelTiles(level)-1);
     
@@ -154,5 +158,16 @@ void LargeImageRenderer::renderTile(const TileCoord& tileCoord) {
   simpleTexProg.setTexture("raster",*tex,0);
 
   GL(glDrawArrays(GL_TRIANGLES, 0, GLsizei(data.size()/5)));
+  
+  if (showTiles) {
+    std::vector<float> coords = {
+      topRight.x,      topRight.y, 0.0f, 1,1,1,1,
+      topRight.x,    bottomLeft.y, 0.0f, 1,1,1,1,
+      bottomLeft.x,  bottomLeft.y, 0.0f, 1,1,1,1,
+      bottomLeft.x,    topRight.y, 0.0f, 1,1,1,1,
+    };
+    drawLines(coords, LineDrawType::LOOP);
+  }
+  
 }
 
