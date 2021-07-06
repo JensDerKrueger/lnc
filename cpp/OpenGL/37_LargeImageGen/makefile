@@ -12,7 +12,7 @@ else
   INCLUDES=-I. -I../Utils -I../OpenCL -I/opt/homebrew/include
 endif
 
-SRC = main.cpp Fractal.cpp MultiresGen.cpp
+SRC = main.cpp MultiresGen.cpp
 OBJ = $(SRC:.cpp=.o)
 TARGET = fractal
 

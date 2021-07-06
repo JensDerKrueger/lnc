@@ -13,7 +13,7 @@
 #include <GLTexture2D.h>
 #include <Image.h>
 
-#include "Fractal.h"
+#include <Fractal.h>
 
 
 struct TileCoord {

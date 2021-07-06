@@ -5,6 +5,7 @@
 #include <cstdio>
 
 #include <bmp.h>
+#include <OpenClUtils.h>
 
 LargeImage::LargeImage(const std::string& filename, size_t cacheSize):
   cache(cacheSize)

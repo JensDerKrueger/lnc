@@ -13,7 +13,7 @@ else
 	INCLUDES=-I. -I../Utils -I../OpenCL -I /opt/homebrew/include -I ../../openmp/include
 endif
 
-SRC = LargeImageRenderer.cpp LargeImage.cpp main.cpp Fractal.cpp
+SRC = LargeImageRenderer.cpp LargeImage.cpp main.cpp
 OBJ = $(SRC:.cpp=.o)
 TARGET = largeImageRenderer
 

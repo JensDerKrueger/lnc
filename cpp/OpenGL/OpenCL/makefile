@@ -15,7 +15,7 @@ else
 	INCLUDES=-I. 
 endif
 
-SRC = OpenClContext.cpp OpenClUtils.cpp
+SRC = OpenClContext.cpp OpenClUtils.cpp Fractal.cpp
 OBJ = $(SRC:.cpp=.o)
 TARGET = libopencl.a
 
