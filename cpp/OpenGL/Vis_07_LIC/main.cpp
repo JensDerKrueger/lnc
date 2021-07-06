@@ -13,7 +13,7 @@ public:
   //Flowfield flow = Flowfield::fromFile("four_sector_128.txt");
   Image inputImage = BMP::load("noise.bmp");
   Image licImage{uint32_t(flow.getSizeX()),uint32_t(flow.getSizeY()),3};
-  uint32_t steps = 128;
+  uint32_t steps{50};
 
   virtual void init() override {
     glEnv.setTitle("LIC demo");
@@ -23,7 +23,7 @@ public:
     computeLIC();
   }
   
-  std::vector<Vec2> computeCurve(float x, float y, float z, size_t steps) {
+  std::vector<Vec2> computeCurve(float x, float y, float z) {
     std::vector<Vec2> r;
     
     Vec2 pos{x,y};
@@ -49,13 +49,12 @@ public:
     return r;
   }
 
-  void licStep(Image& image, size_t steps) {
+  void licStep(Image& image) {
     for (uint32_t y = 0; y < image.height;++y) {
       for (uint32_t x = 0; x < image.width;++x) {
         std::vector<Vec2> trace = computeCurve(float(x)/image.width,
                                                float(y)/image.height,
-                                               0.5f,
-                                               steps);
+                                               0.5f);
         float value=0.0f;
         for (size_t i = 0;i<trace.size();++i) {
           const uint32_t u = uint32_t(trace[i].x * inputImage.width + 0.5f) % image.width;
@@ -102,7 +101,7 @@ public:
   
   void computeLIC() {
     for (size_t i = 0;i<3;++i) {
-      licStep(licImage,steps);
+      licStep(licImage);
       equalizeStep(licImage);
       inputImage = licImage;
     }
@@ -119,12 +118,10 @@ public:
         case GLFW_KEY_ESCAPE:
           closeWindow();
           break;
-          
         case GLFW_KEY_H:
           inputImage = licImage;
           computeLIC();
           break;
-
         case GLFW_KEY_D:
           licImage = Image(uint32_t(flow.getSizeX()),uint32_t(flow.getSizeY()),3 );
           flow = Flowfield::genDemo(256, DemoType::DRAIN);          
@@ -143,9 +140,11 @@ public:
         case GLFW_KEY_1:
           inputImage = BMP::load("noise.bmp");                      
           licImage = inputImage;
+          steps = 50;
           break;
         case GLFW_KEY_2:
           inputImage = BMP::load("dots.bmp");
+          steps = 10;
           licImage = inputImage;
           break;
         case GLFW_KEY_KP_ADD:
