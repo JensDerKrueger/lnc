@@ -2,7 +2,7 @@
 
 // set this define to completely disable reading data from files
 // and just use the mandelbrot set computed on the fly
-#define COMPUTE_ONLY
+// #define COMPUTE_ONLY
 
 #include <string>
 #include <exception>
