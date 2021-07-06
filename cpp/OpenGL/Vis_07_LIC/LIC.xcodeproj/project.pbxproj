@@ -203,12 +203,13 @@
 					../Utils,
 					/usr/local/Cellar/glew/2.1.0_1/include,
 					/usr/local/Cellar/glfw/3.3.2/include,
+					/usr/local/include,
 				);
 				LIBRARY_SEARCH_PATHS = (
-					../Network,
 					../Utils,
 					/usr/local/Cellar/glfw/3.3.2/lib/,
 					/usr/local/Cellar/glew/2.1.0_1/lib/,
+					/usr/local/lib,
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.1;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
@@ -221,8 +222,6 @@
 					OpenGL,
 					"-L../Utils",
 					"-lutils",
-					"-L../Network",
-					"-lnetwork",
 				);
 				SDKROOT = macosx;
 			};
@@ -294,12 +293,13 @@
 					../Utils,
 					/usr/local/Cellar/glew/2.1.0_1/include,
 					/usr/local/Cellar/glfw/3.3.2/include,
+					/usr/local/include,
 				);
 				LIBRARY_SEARCH_PATHS = (
-					../Network,
 					../Utils,
 					/usr/local/Cellar/glfw/3.3.2/lib/,
 					/usr/local/Cellar/glew/2.1.0_1/lib/,
+					/usr/local/lib,
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.1;
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -311,8 +311,6 @@
 					OpenGL,
 					"-L../Utils",
 					"-lutils",
-					"-L../Network",
-					"-lnetwork",
 				);
 				SDKROOT = macosx;
 			};
