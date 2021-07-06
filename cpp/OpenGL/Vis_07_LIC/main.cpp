@@ -11,7 +11,8 @@ public:
   Flowfield flow = Flowfield::genDemo(256, DemoType::SATTLE);
   //this field my be a better start for debugging
   //Flowfield flow = Flowfield::fromFile("four_sector_128.txt");
-  Image inputImage = BMP::load("noise.bmp");
+  Image noiseImage = BMP::load("noise.bmp");
+  Image inputImage = noiseImage;
   Image licImage{uint32_t(flow.getSizeX()),uint32_t(flow.getSizeY()),3};
   uint32_t steps{50};
 
@@ -100,6 +101,7 @@ public:
   }
   
   void computeLIC() {
+    inputImage = noiseImage;
     for (size_t i = 0;i<3;++i) {
       licStep(licImage);
       equalizeStep(licImage);
@@ -138,21 +140,23 @@ public:
           computeLIC();
           break;
         case GLFW_KEY_1:
-          inputImage = BMP::load("noise.bmp");                      
-          licImage = inputImage;
+          noiseImage = BMP::load("noise.bmp");
           steps = 50;
+          computeLIC();
           break;
         case GLFW_KEY_2:
-          inputImage = BMP::load("dots.bmp");
+          noiseImage = BMP::load("dots.bmp");
           steps = 10;
-          licImage = inputImage;
+          computeLIC();
           break;
-        case GLFW_KEY_KP_ADD:
+        case GLFW_KEY_8:
           steps *= 2;
+          computeLIC();
           std::cout << "steps set to: "<<steps << "\n";
           break;
-        case GLFW_KEY_KP_SUBTRACT:
+        case GLFW_KEY_9:
           steps /= 2;
+          computeLIC();
           std::cout << "steps set to: "<<steps << "\n";
           break;
 
