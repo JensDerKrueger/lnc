@@ -1,5 +1,9 @@
 #pragma once
 
+// set this define to completely disable reading data from files
+// and just use the mandelbrot set computed on the fly
+#define COMPUTE_ONLY
+
 #include <string>
 #include <exception>
 #include <fstream>
@@ -9,8 +13,8 @@
 #include <GLTexture2D.h>
 #include <Image.h>
 
-
 #include "Fractal.h"
+
 
 struct TileCoord {
   uint32_t x;

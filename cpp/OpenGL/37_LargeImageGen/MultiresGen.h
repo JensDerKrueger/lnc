@@ -6,7 +6,7 @@
 
 #include <Vec3.h>
 
-#include "OpenClContext.h"
+#include <OpenClUtils.h>
 
 struct TileCoord {
   uint32_t x;

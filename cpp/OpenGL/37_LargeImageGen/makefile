@@ -4,16 +4,15 @@ CFLAGS=-c -Wall -std=c++17 -Wunreachable-code
 OSTYPE := $(shell uname)
 ifeq ($(OSTYPE),Linux)
   LIBS=-lOpenCL
-  LFLAGS=-lglfw -lGLEW -lGL  -L../Utils -lutils
-  INCLUDES=-I. -I../Utils
+  LFLAGS=-lglfw -lGLEW -lGL  -L../Utils -lutils -L../OpenCL -lopencl
+  INCLUDES=-I. -I../Utils -I../OpenCL
 else
   LIBS=-framework OpenCL
-  LFLAGS=-lglfw -lGLEW -framework OpenGL -L../Utils -lutils
-  INCLUDES=-I. -I../Utils-I /opt/homebrew/include
+  LFLAGS=-lglfw -lGLEW -framework OpenGL -L../Utils -lutils -L../OpenCL -lopencl
+  INCLUDES=-I. -I../Utils -I../OpenCL -I/opt/homebrew/include
 endif
 
-INCLUDES=-I. -I../Utils
-SRC = main.cpp Fractal.cpp OpenClContext.cpp MultiresGen.cpp
+SRC = main.cpp Fractal.cpp MultiresGen.cpp
 OBJ = $(SRC:.cpp=.o)
 TARGET = fractal
 
@@ -26,7 +25,10 @@ release: $(TARGET)
 ../Utils/libutils.a:
 	cd ../Utils && make $(MAKECMDGOALS)
 
-$(TARGET): $(OBJ) ../Utils/libutils.a
+../OpenCL/libopencl.a:
+	cd ../OpenCL && make $(MAKECMDGOALS)
+  
+$(TARGET): $(OBJ) ../Utils/libutils.a ../OpenCL/libopencl.a
 	$(CC) $(INCLUDES) $^ $(LFLAGS) $(LIBS) -o $@
 
 %.o: %.cpp
@@ -37,3 +39,5 @@ clean:
 
 mrproper: clean
 	cd ../Utils && make clean
+	cd ../OpenCL && make clean
+  

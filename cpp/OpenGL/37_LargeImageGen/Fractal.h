@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "OpenClContext.h"
+#include <OpenClUtils.h>
 
 class Fractal {
 public:

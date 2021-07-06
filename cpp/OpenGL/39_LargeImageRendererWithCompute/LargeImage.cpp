@@ -50,57 +50,21 @@ static void applyTransferFunction(const std::vector<uint8_t>& inputData,
   }
 }
 
-
-static cl_device_id selectOpenCLDevice() {
-  const auto platforms = OpenClContext<unsigned char>::getInfo();
-  size_t i = 0;
-  for (const PlatformInfo& platform : platforms) {
-    for (const DeviceInfo& d : platform.devices) {
-      std::cout << i++ << " -> " << d.name << std::endl;
-    }
-  }
-  
-  // if there is only one device in the system, return that device
-  if (i == 1) {
-    return platforms[0].devices[0].deviceID;
-  }
-  
-  cl_device_id selectedDevice{0};
-  size_t selectedDeviceIndex{0};
-  do {
-    std::cout << "Select a device number: ";  std::cin >> selectedDeviceIndex;
-    i = 0;
-    for (const PlatformInfo& platform : platforms) {
-      for (const DeviceInfo& d : platform.devices) {
-        if (i == selectedDeviceIndex) {
-          selectedDevice =  d.deviceID;
-          std::cout << "Selected " << d.name << std::endl;
-          break;
-        }
-        i++;
-      }
-      if (selectedDevice != 0) break;
-    }
-  } while (selectedDevice == 0);
-  return selectedDevice;
-}
-
 void LargeImage::load(const std::string& filename) {
-
-  /*
-   inputDim = 1u<<31u;
-   tileDim = 512;
-   overlap = 1;
-   */
-  
   file = std::fstream(filename, std::ios::binary | std::ios::in);
 
+#ifdef COMPUTE_ONLY
+  inputDim = 1u<<30u;
+  tileDim = 512;
+  overlap = 1;
+#else
   if (!file.is_open())
     throw std::runtime_error("Failed to open large image");
   
   file.read((char*)&inputDim, sizeof(inputDim));
   file.read((char*)&tileDim, sizeof(tileDim));
   file.read((char*)&overlap, sizeof(overlap));
+#endif
   
   levelLayout.clear();
   uint32_t levelDim{inputDim};
@@ -114,6 +78,7 @@ void LargeImage::load(const std::string& filename) {
   
   tempBuffer.resize(totalTileSize);
   
+#ifndef COMPUTE_ONLY
   uint64_t tilePositionsOffset;
   file.read((char*)&tilePositionsOffset, sizeof(tilePositionsOffset));
   file.seekg(int64_t(tilePositionsOffset), file.beg);
@@ -122,27 +87,32 @@ void LargeImage::load(const std::string& filename) {
     throw std::runtime_error("Failed to load large image (incomplete data)");
 
   loadTilePositions();
-
-  f = std::make_shared<Fractal>(realTileDim,realTileDim,inputDim,inputDim,0,0,selectOpenCLDevice());
+#endif
+  
+  f = std::make_shared<Fractal>(realTileDim,realTileDim,inputDim,inputDim,0,0,selectLastOpenCLDevice());
 }
 
 
 std::shared_ptr<GLTexture2D> LargeImage::getTile(const TileCoord& tileCoord) {
   std::shared_ptr<GLTexture2D> result = cache.getTile(tileCoord);
   if (result != nullptr) return result;
-  
-  if (compute) {
+
+#ifndef COMPUTE_ONLY
+  if (!compute) {
+    const std::streampos sourceFilePos = std::streampos(tilePositions[tileCoord]);
+    file.seekg(sourceFilePos, file.beg);
+    file.read((char*)tempBuffer.data(), std::streamsize(tempBuffer.size()));
+  }
+  else
+#endif
+  {
     f->setResolution(inputDim/(1<<tileCoord.l), inputDim/(1<<tileCoord.l));
     f->setOffset(int64_t(tileCoord.x)*int64_t(tileDim)-int64_t(overlap),
                  int64_t(tileCoord.y)*int64_t(tileDim)-int64_t(overlap));
     f->compute();
     applyTransferFunction(f->getData(), tempBuffer);
-  } else {
-    const std::streampos sourceFilePos = std::streampos(tilePositions[tileCoord]);
-    file.seekg(sourceFilePos, file.beg);
-    file.read((char*)tempBuffer.data(), std::streamsize(tempBuffer.size()));
   }
-   
+
   std::shared_ptr<GLTexture2D> tex = std::make_shared<GLTexture2D>(Image(realTileDim, realTileDim, 4, tempBuffer));
 
   cache.addTile(tileCoord, tex);
@@ -190,10 +160,12 @@ uint32_t LargeImage::getOverlap() const {
 }
 
 void LargeImage::computeFractal(bool compute) {
+#ifndef COMPUTE_ONLY
   if (this->compute != compute) {
     cache.clear();
     this->compute = compute;
   }
+#endif
 }
 
 bool LargeImage::getComputeFractal() const {
