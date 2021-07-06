@@ -13,6 +13,7 @@ public:
   //Flowfield flow = Flowfield::fromFile("four_sector_128.txt");
   Image inputImage = BMP::load("noise.bmp");
   Image licImage{uint32_t(flow.getSizeX()),uint32_t(flow.getSizeY()),3};
+  uint32_t steps = 128;
 
   virtual void init() override {
     glEnv.setTitle("LIC demo");
@@ -40,7 +41,7 @@ public:
     pos = Vec2{x,y};
     for (size_t i = 0;i<steps;++i) {
       const Vec3 v = flow.interpolate(Vec3(pos.x, pos.y, z));
-      pos = pos + Vec2::normalize(Vec2{v.x,v.y}) * delta;
+      pos = pos - Vec2::normalize(Vec2{v.x,v.y}) * delta;
       if (pos.x < 0.0 || pos.x > 1.0 || pos.y < 0.0 || pos.y > 1.0) break;
       r.push_back(pos);
     }
@@ -57,8 +58,8 @@ public:
                                                steps);
         float value=0.0f;
         for (size_t i = 0;i<trace.size();++i) {
-          const uint32_t u = uint32_t(trace[i].x * inputImage.width + 0.5f);
-          const uint32_t v = uint32_t(trace[i].y * inputImage.height + 0.5f);
+          const uint32_t u = uint32_t(trace[i].x * inputImage.width + 0.5f) % image.width;
+          const uint32_t v = uint32_t(trace[i].y * inputImage.height + 0.5f) % image.height;
           value += inputImage.getValue(u,v,0);
         }
         
@@ -101,7 +102,7 @@ public:
   
   void computeLIC() {
     for (size_t i = 0;i<3;++i) {
-      licStep(licImage,100);
+      licStep(licImage,steps);
       equalizeStep(licImage);
       inputImage = licImage;
     }
@@ -123,6 +124,39 @@ public:
           inputImage = licImage;
           computeLIC();
           break;
+
+        case GLFW_KEY_D:
+          licImage = Image(uint32_t(flow.getSizeX()),uint32_t(flow.getSizeY()),3 );
+          flow = Flowfield::genDemo(256, DemoType::DRAIN);          
+          computeLIC();
+          break;
+        case GLFW_KEY_S:
+          licImage = Image(uint32_t(flow.getSizeX()), uint32_t(flow.getSizeY()), 3);
+          flow = Flowfield::genDemo(256, DemoType::SATTLE);
+          computeLIC();
+          break;
+        case GLFW_KEY_C:
+          licImage = Image(uint32_t(flow.getSizeX()), uint32_t(flow.getSizeY()), 3);
+          flow = Flowfield::genDemo(256, DemoType::CRITICAL);
+          computeLIC();
+          break;
+        case GLFW_KEY_1:
+          inputImage = BMP::load("noise.bmp");                      
+          licImage = BMP::load("noise.bmp");
+          break;
+        case GLFW_KEY_2:
+          inputImage = BMP::load("dots.bmp");
+          licImage = BMP::load("dots.bmp");
+          break;
+        case GLFW_KEY_KP_ADD:
+          steps *= 2;
+          std::cout << "steps set to: "<<steps << "\n";
+          break;
+        case GLFW_KEY_KP_SUBTRACT:
+          steps /= 2;
+          std::cout << "steps set to: "<<steps << "\n";
+          break;
+
       }
     }
   }
