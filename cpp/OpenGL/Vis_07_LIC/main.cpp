@@ -142,11 +142,11 @@ public:
           break;
         case GLFW_KEY_1:
           inputImage = BMP::load("noise.bmp");                      
-          licImage = BMP::load("noise.bmp");
+          licImage = inputImage;
           break;
         case GLFW_KEY_2:
           inputImage = BMP::load("dots.bmp");
-          licImage = BMP::load("dots.bmp");
+          licImage = inputImage;
           break;
         case GLFW_KEY_KP_ADD:
           steps *= 2;
