@@ -89,7 +89,20 @@
           brushSize = this.value;
           saveState();
         }
-        
+
+        let modeRadio1 = document.getElementById("mode1");
+        let modeRadio2 = document.getElementById("mode2");
+        let modeRadio3 = document.getElementById("mode3");
+        modeRadio1.onclick = function() {
+          setMode(modeRadio1.value)
+        }
+        modeRadio2.onclick = function() {
+          setMode(modeRadio2.value)
+        }
+        modeRadio3.onclick = function() {
+          setMode(modeRadio3.value)
+        }
+
         let erase = document.getElementById("erase");
         erase.onclick = function() {
           eraseLayer();
@@ -106,23 +119,18 @@
         
         window.onkeydown = function(event){
           switch (event.key) {  
-            case "Shift" :
-              shiftPressed = true;
+            case "1" :
+              setMode("1")
               break;
-            default:
-              console.log(event);
+            case "2" :
+              setMode("2")
+              break;
+            case "3" :
+              setMode("3")
+              break;
           };
         };
 
-        window.onkeyup = function(event){
-          switch (event.key) {  
-            case "Shift" : 
-              shiftPressed = false;
-              break;
-            default:
-              console.log(event);
-          };
-        };
         
         applyColor();
         
@@ -137,7 +145,7 @@
           mouseX = event.touches[0].clientX - rect.left;
           mouseY = event.touches[0].clientY - rect.top;
           event.preventDefault();
-          dropPaint(color);
+          mouseAction();
         });
   
         ctx = canvas.getContext("2d");
@@ -175,10 +183,16 @@
           <td><input type="range" min="0" max="100" value="1" class="slider" id="hueSlider"></td>
           <td><input type="range" min="0" max="100" value="100" class="slider" id="satSlider"></td>
           <td><input type="range" min="0" max="100" value="100" class="slider" id="valueSlider"></td>
-          <td><input type="button" value="Erase" id="erase"/></td>
-          <td><input type="button" value="Fill" id="fill"/></td>
+          <td><input type="button" value="Erase Layer" id="erase"/></td>
+          <td><input type="button" value="Fill Layer" id="fill"/></td>
           <td><input type="range" min="1" max="100" value="50" class="slider" id="brushSizeSlider"></td>
-          <td><input type="range" min="1" max="2" value="2" class="slider" id="layerSlider"></td>
+          <td><input type="range" min="1" max="2" value="2" class="slider" id="layerSlider"><td>
+          <td><input type="radio" id="mode1" name="mode" value="1" checked="1">
+          <td><label for="mode1">Paint</label><td>
+          <td><input type="radio" id="mode2" name="mode" value="2"><td>
+          <td><label for="mode2">Erase</label><td>
+          <td><input type="radio" id="mode3" name="mode" value="3"><td>
+          <td><label for="mode3">Position</label><td>
         </tr>
       </table>
     <canvas id="drawArea" width="800" height="600"></canvas>
