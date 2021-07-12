@@ -15,7 +15,7 @@ endif
 INCLUDES=-I. -I../Utils
 SRC = main.cpp
 OBJ = $(SRC:.cpp=.o)
-TARGET = fractal
+TARGET = compression
 
 all: $(TARGET)
 
