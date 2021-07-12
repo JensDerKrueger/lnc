@@ -5,15 +5,15 @@ ifeq ($(OSTYPE),Linux)
 	CFLAGS=-c -Wall -std=c++17 -Wunreachable-code -fopenmp
 	LFLAGS=-lglfw -lGLEW -lGL -L../Utils -lutils -fopenmp -lstdc++fs
 	LIBS=-lOpenCL
-	INCLUDES=-I. -I../Utils
+	INCLUDES=-I. -I../Utils -I../OpenCL
 else
 	CFLAGS=-c -Wall -std=c++17 -Wunreachable-code -Xclang -fopenmp
-	LFLAGS=-lglfw -lGLEW -framework OpenGL -L../Utils -lutils
+	LFLAGS=-lglfw -lGLEW -framework OpenGL -L../Utils -lutils -L../OpenCL -lopencl
 	LIBS=-lomp -L ../../openmp/lib -L /opt/homebrew/lib -framework OpenCL
-	INCLUDES=-I. -I../Utils -I /opt/homebrew/include -I ../../openmp/include
+	INCLUDES=-I. -I../Utils -I../OpenCL -I /opt/homebrew/include -I ../../openmp/include
 endif
 
-SRC = LargeImageRenderer.cpp LargeImage.cpp main.cpp OpenClContext.cpp Fractal.cpp
+SRC = LargeImageRenderer.cpp LargeImage.cpp main.cpp
 OBJ = $(SRC:.cpp=.o)
 TARGET = largeImageRenderer
 
@@ -25,7 +25,10 @@ release: $(TARGET)
 ../Utils/libutils.a:
 	cd ../Utils && make $(MAKECMDGOALS)
 
-$(TARGET): $(OBJ) ../Utils/libutils.a
+../OpenCL/libopencl.a:
+	cd ../OpenCL && make $(MAKECMDGOALS)
+
+$(TARGET): $(OBJ) ../Utils/libutils.a ../OpenCL/libopencl.a
 	$(CC) $(INCLUDES) $^ $(LFLAGS) $(LIBS) -o $@
 
 %.o: %.cpp
@@ -36,3 +39,5 @@ clean:
 
 mrproper: clean
 	cd ../Utils && make clean
+	cd ../OpenCL && make clean
+

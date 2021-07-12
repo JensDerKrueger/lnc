@@ -2,9 +2,9 @@
 #include <sstream>
 
 #include <bmp.h>
+#include <Fractal.h>
 
 #include "MultiresGen.h"
-#include "Fractal.h"
 
 
 MultiresGen::MultiresGen(uint32_t inputDim, uint32_t tileDim, uint32_t overlap) :

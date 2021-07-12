@@ -10,10 +10,33 @@ var hiddenCanvases = [];
 var positionCanvas;
 var name;
 var cursors = new Map();
-
+var mode="1";
+var mouseX, mouseY, leftMouseDown=false;
+var canvas, ctx;
 
 var color = {r:255,g:0,b:0,a:255};
 const eraser = {r:0,g:0,b:0,a:0};
+
+function setMode(m) {
+  mode = m;
+  
+  let modeRadio1 = document.getElementById("mode1");
+  let modeRadio2 = document.getElementById("mode2");
+  let modeRadio3 = document.getElementById("mode3");
+
+  switch (mode) {
+    case "1":
+      modeRadio1.checked = true;
+      break;
+    case "2":
+      modeRadio2.checked = true;
+      break;
+    case "3":
+      modeRadio3.checked = true;
+      break;
+  }
+
+}
 
 function createCanvas(width, height) {
   let c = document.createElement('canvas');
@@ -408,9 +431,6 @@ function getCookie(cname) {
   return "";
 }
 
-var mouseX, mouseY, leftMouseDown=false, rightMouseDown=false;
-var shiftPressed = false;
-var canvas, ctx;
 
 function processBuffer(buffer) {
   try {
@@ -540,14 +560,24 @@ function handleContextMenu() {
   return false;
 }
 
+function mouseAction() {
+  switch (mode) {
+    case "1":
+      dropPaint(color);
+      break;
+    case "2":
+      dropPaint(eraser);
+      break;
+    case "3":
+      setPosition();
+      break;
+  }
+}
+
 function handleMouseDown(event) {
   if (event.button === 0) {
     leftMouseDown = true;
-    dropPaint(color);
-  }
-  if (event.button === 2) {
-    rightMouseDown = true;
-    dropPaint(eraser);
+    mouseAction();
   }
   
   event.preventDefault();
@@ -556,8 +586,6 @@ function handleMouseDown(event) {
 function handleMouseUp(event) {
   if (event.button === 0)
     leftMouseDown = false;
-  if (event.button === 2)
-    rightMouseDown = false;
   event.preventDefault();
 }
 
@@ -566,9 +594,8 @@ function handleMouseMove(event) {
   mouseX = event.clientX - rect.left;
   mouseY = event.clientY - rect.top;
   event.preventDefault();
-  if (leftMouseDown) dropPaint(color);
-  if (rightMouseDown) dropPaint(eraser);
-  if (shiftPressed) setPosition();
+  
+  if (leftMouseDown) mouseAction();
 }
 
 
@@ -578,11 +605,23 @@ function updatePositionMarkers() {
   let layerCtx = positionCanvas.getContext('2d');
   layerCtx.clearRect(0, 0, positionCanvas.width, positionCanvas.height);
   layerCtx.font = "20px Arial";
-  layerCtx.fillStyle = 'black';
+
+
   for (const [key, value] of cursors.entries()) {
     layerCtx.beginPath();
+
+    let textWidth = layerCtx.measureText(value[0]).width;
+    layerCtx.fillStyle = 'white';
+    layerCtx.fillRect(value[1]+6, value[2]-4, textWidth+4, -22);
+    layerCtx.arc(value[1], value[2], 9, 0, 2 * Math.PI, false);
+    layerCtx.fill();
+    layerCtx.stroke();
+    
+    layerCtx.beginPath();
+    layerCtx.fillStyle = 'black';
     layerCtx.arc(value[1], value[2], 5, 0, 2 * Math.PI, false);
     layerCtx.fill();
     layerCtx.fillText(value[0], value[1]+8, value[2]-8);
+    layerCtx.stroke();
   }
 }

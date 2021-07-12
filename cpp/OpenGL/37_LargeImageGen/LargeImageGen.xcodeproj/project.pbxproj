@@ -8,8 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		5677395325FB7BF000AB2341 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5677394C25FB7BF000AB2341 /* main.cpp */; };
-		A238F50C2681331F00612377 /* OpenClContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A238F5092681331F00612377 /* OpenClContext.cpp */; };
-		A238F50D2681331F00612377 /* Fractal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A238F50A2681331F00612377 /* Fractal.cpp */; };
 		A28C95862687D28400FBAC06 /* MultiresGen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A28C95842687D28400FBAC06 /* MultiresGen.cpp */; };
 /* End PBXBuildFile section */
 
@@ -28,10 +26,6 @@
 /* Begin PBXFileReference section */
 		5677394C25FB7BF000AB2341 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		A231F0FF25EAF61A00CBFC23 /* LargeImageGen */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = LargeImageGen; sourceTree = BUILT_PRODUCTS_DIR; };
-		A238F5082681331F00612377 /* OpenClContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenClContext.h; sourceTree = "<group>"; };
-		A238F5092681331F00612377 /* OpenClContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OpenClContext.cpp; sourceTree = "<group>"; };
-		A238F50A2681331F00612377 /* Fractal.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Fractal.cpp; sourceTree = "<group>"; };
-		A238F50B2681331F00612377 /* Fractal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Fractal.h; sourceTree = "<group>"; };
 		A28C95842687D28400FBAC06 /* MultiresGen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MultiresGen.cpp; sourceTree = "<group>"; };
 		A28C95852687D28400FBAC06 /* MultiresGen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MultiresGen.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -50,10 +44,6 @@
 		A231F0F625EAF61A00CBFC23 = {
 			isa = PBXGroup;
 			children = (
-				A238F50A2681331F00612377 /* Fractal.cpp */,
-				A238F50B2681331F00612377 /* Fractal.h */,
-				A238F5092681331F00612377 /* OpenClContext.cpp */,
-				A238F5082681331F00612377 /* OpenClContext.h */,
 				5677394C25FB7BF000AB2341 /* main.cpp */,
 				A28C95842687D28400FBAC06 /* MultiresGen.cpp */,
 				A28C95852687D28400FBAC06 /* MultiresGen.h */,
@@ -125,8 +115,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A238F50C2681331F00612377 /* OpenClContext.cpp in Sources */,
-				A238F50D2681331F00612377 /* Fractal.cpp in Sources */,
 				5677395325FB7BF000AB2341 /* main.cpp in Sources */,
 				A28C95862687D28400FBAC06 /* MultiresGen.cpp in Sources */,
 			);
@@ -207,12 +195,14 @@
 					../Utils,
 					/usr/local/Cellar/glew/2.1.0_1/include,
 					/usr/local/Cellar/glfw/3.3.2/include,
+					../OpenCl,
 				);
 				LIBRARY_SEARCH_PATHS = (
 					../Network,
 					../Utils,
 					/usr/local/Cellar/glfw/3.3.2/lib/,
 					/usr/local/Cellar/glew/2.1.0_1/lib/,
+					../OpenCL,
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.1;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
@@ -225,6 +215,7 @@
 					OpenCL,
 					"-L../Utils",
 					"-lutils",
+					"-lopencl",
 				);
 				SDKROOT = macosx;
 			};
@@ -296,12 +287,14 @@
 					../Utils,
 					/usr/local/Cellar/glew/2.1.0_1/include,
 					/usr/local/Cellar/glfw/3.3.2/include,
+					../OpenCl,
 				);
 				LIBRARY_SEARCH_PATHS = (
 					../Network,
 					../Utils,
 					/usr/local/Cellar/glfw/3.3.2/lib/,
 					/usr/local/Cellar/glew/2.1.0_1/lib/,
+					../OpenCL,
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.1;
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -313,6 +306,7 @@
 					OpenCL,
 					"-L../Utils",
 					"-lutils",
+					"-lopencl",
 				);
 				SDKROOT = macosx;
 			};

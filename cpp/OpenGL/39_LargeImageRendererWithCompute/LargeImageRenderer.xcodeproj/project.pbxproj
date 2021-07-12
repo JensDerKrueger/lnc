@@ -12,8 +12,6 @@
 		5677395325FB7BF000AB2341 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5677394C25FB7BF000AB2341 /* main.cpp */; };
 		A230C72D268E7EE300BF8F2C /* LargeImageRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A230C72C268E7EE300BF8F2C /* LargeImageRenderer.cpp */; };
 		A28842F02659AFA00041B522 /* LargeImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A28842EE2659AFA00041B522 /* LargeImage.cpp */; };
-		A2D0FC6B2693B1C7004DF8EA /* OpenClContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A2D0FC692693B1C7004DF8EA /* OpenClContext.cpp */; };
-		A2D0FC6E2693B1DA004DF8EA /* Fractal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A2D0FC6C2693B1DA004DF8EA /* Fractal.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -39,10 +37,6 @@
 		A231F0FF25EAF61A00CBFC23 /* LargeImageRenderer */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = LargeImageRenderer; sourceTree = BUILT_PRODUCTS_DIR; };
 		A28842EE2659AFA00041B522 /* LargeImage.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = LargeImage.cpp; sourceTree = "<group>"; };
 		A28842EF2659AFA00041B522 /* LargeImage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LargeImage.h; sourceTree = "<group>"; };
-		A2D0FC692693B1C7004DF8EA /* OpenClContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OpenClContext.cpp; sourceTree = "<group>"; };
-		A2D0FC6A2693B1C7004DF8EA /* OpenClContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenClContext.h; sourceTree = "<group>"; };
-		A2D0FC6C2693B1DA004DF8EA /* Fractal.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Fractal.cpp; sourceTree = "<group>"; };
-		A2D0FC6D2693B1DA004DF8EA /* Fractal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Fractal.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,10 +60,6 @@
 				564297642667A9D0005C2306 /* helvetica_neue.pos */,
 				A230C72C268E7EE300BF8F2C /* LargeImageRenderer.cpp */,
 				A230C72B268E7EE300BF8F2C /* LargeImageRenderer.h */,
-				A2D0FC692693B1C7004DF8EA /* OpenClContext.cpp */,
-				A2D0FC6A2693B1C7004DF8EA /* OpenClContext.h */,
-				A2D0FC6C2693B1DA004DF8EA /* Fractal.cpp */,
-				A2D0FC6D2693B1DA004DF8EA /* Fractal.h */,
 				A231F10025EAF61A00CBFC23 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -138,9 +128,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A2D0FC6B2693B1C7004DF8EA /* OpenClContext.cpp in Sources */,
 				A230C72D268E7EE300BF8F2C /* LargeImageRenderer.cpp in Sources */,
-				A2D0FC6E2693B1DA004DF8EA /* Fractal.cpp in Sources */,
 				A28842F02659AFA00041B522 /* LargeImage.cpp in Sources */,
 				5677395325FB7BF000AB2341 /* main.cpp in Sources */,
 			);
@@ -217,14 +205,16 @@
 				GCC_WARN_UNUSED_PARAMETER = NO;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
+					../OpenCL,
 					../Network,
 					../Utils,
-					/usr/local/Cellar/glew/2.1.0_1/include,
 					/usr/local/Cellar/glfw/3.3.2/include,
+					/usr/local/Cellar/glew/2.1.0_1/include,
 				);
 				LIBRARY_SEARCH_PATHS = (
 					../Network,
 					../Utils,
+					../OpenCL,
 					/usr/local/Cellar/glfw/3.3.2/lib/,
 					/usr/local/Cellar/glew/2.1.0_1/lib/,
 				);
@@ -233,14 +223,11 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
+					"-lopencl",
 					"-lglfw",
 					"-lGLEW",
 					"-framework",
 					OpenGL,
-					"-L../Utils",
-					"-lutils",
-					"-L../Network",
-					"-lnetwork",
 					"-framework",
 					OpenCL,
 				);
@@ -310,14 +297,16 @@
 				GCC_WARN_UNUSED_PARAMETER = NO;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
+					../OpenCL,
 					../Network,
 					../Utils,
-					/usr/local/Cellar/glew/2.1.0_1/include,
 					/usr/local/Cellar/glfw/3.3.2/include,
+					/usr/local/Cellar/glew/2.1.0_1/include,
 				);
 				LIBRARY_SEARCH_PATHS = (
 					../Network,
 					../Utils,
+					../OpenCL,
 					/usr/local/Cellar/glfw/3.3.2/lib/,
 					/usr/local/Cellar/glew/2.1.0_1/lib/,
 				);
@@ -330,10 +319,6 @@
 					"-lGLEW",
 					"-framework",
 					OpenGL,
-					"-L../Utils",
-					"-lutils",
-					"-L../Network",
-					"-lnetwork",
 					"-framework",
 					OpenCL,
 				);
@@ -350,14 +335,26 @@
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include/,
 					../Utils,
+					../OpenCl,
 					/usr/local/Cellar/glew/2.1.0_1/include,
 					/usr/local/Cellar/glfw/3.3.2/include,
 				);
 				LIBRARY_SEARCH_PATHS = (
 					/usr/local/lib,
 					../Utils,
+					../OpenCl,
 					/usr/local/Cellar/glfw/3.3.2/lib/,
 					/usr/local/Cellar/glew/2.1.0_1/lib/,
+				);
+				OTHER_LDFLAGS = (
+					"-lopencl",
+					"-lglfw",
+					"-lGLEW",
+					"-framework",
+					OpenGL,
+					"-framework",
+					OpenCL,
+					"-lutils",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -372,14 +369,26 @@
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include/,
 					../Utils,
+					../OpenCl,
 					/usr/local/Cellar/glew/2.1.0_1/include,
 					/usr/local/Cellar/glfw/3.3.2/include,
 				);
 				LIBRARY_SEARCH_PATHS = (
 					/usr/local/lib,
 					../Utils,
+					../OpenCl,
 					/usr/local/Cellar/glfw/3.3.2/lib/,
 					/usr/local/Cellar/glew/2.1.0_1/lib/,
+				);
+				OTHER_LDFLAGS = (
+					"-lopencl",
+					"-lglfw",
+					"-lGLEW",
+					"-framework",
+					OpenGL,
+					"-framework",
+					OpenCL,
+					"-lutils",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};

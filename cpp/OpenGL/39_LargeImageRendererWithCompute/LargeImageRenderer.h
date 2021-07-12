@@ -23,7 +23,7 @@ private:
   Vec2 mousePos;
   Vec2 mouseStartPos;
   Mat4 userTransformation;
-  LargeImage largeImage{"/Volumes/LaCie RAID VD 0/fractal_19.dat",2048};
+  LargeImage largeImage{"fractal.dat",2048};
   FontRenderer fr{"helvetica_neue.bmp", "helvetica_neue.pos"};
   std::shared_ptr<FontEngine> fe{nullptr};
   
