@@ -13,7 +13,7 @@ else
 endif
 
 INCLUDES=-I. -I../Utils
-SRC = main.cpp
+SRC = Compression.cpp main.cpp
 OBJ = $(SRC:.cpp=.o)
 TARGET = compression
 
