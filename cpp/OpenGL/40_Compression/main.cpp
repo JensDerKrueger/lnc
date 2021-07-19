@@ -3,17 +3,18 @@
 
 #include "Compression.h"
 
-constexpr uint32_t windowBits = 16;
+constexpr uint32_t windowBits = 15;
 constexpr uint32_t lookAheadBits = 8;
 constexpr uint32_t windowSize = 1<<windowBits;
 constexpr uint32_t lookAheadSize = 1<<lookAheadBits;
+constexpr uint32_t minSequenceLength = (9+windowBits+lookAheadBits)/9;
 
 struct LZSSElement {
-  uint16_t position;
-  uint8_t length;
+  uint32_t position;
+  uint32_t length;
   char data;
   
-  LZSSElement(uint16_t position=0, uint8_t length=0, char data=0) :
+  LZSSElement(uint32_t position=0, uint32_t length=0, char data=0) :
     position(position),
     length(length),
     data(data)
@@ -25,32 +26,31 @@ struct LZSSElement {
     data(0)
   {
     if (buffer.getBit()) {
-      position = buffer.get<decltype(position)>();
-      length = buffer.get<decltype(length)>();
+      position = buffer.get<decltype(position)>(windowBits);
+      length = buffer.get<decltype(length)>(lookAheadBits);
     }
     data = buffer.getChar();
   }
 
-  
   void serialize(Compression::OutputBitBuffer& buffer) const {
     if (length == 0) {
       buffer.addBit(0);
       buffer.addChar(data);
     } else {
       buffer.addBit(1);
-      buffer.add(position);
-      buffer.add(length);
+      buffer.add(position, windowBits);
+      buffer.add(length, lookAheadBits);
       buffer.addChar(data);
     }
   }
-  
+
   static void decode(Compression::InputBitBuffer& buffer,
-                          std::vector<char>& output) {
+                     std::vector<char>& output) {
     LZSSElement e{buffer};
     if (e.length) {
       const size_t pos = output.size();
       for (size_t i = 0;i<e.length;++i) {
-        const size_t copySource = size_t(pos-e.position) + i;
+        const size_t copySource = size_t(pos-e.position) + i%e.position;
         output.push_back(output[copySource]);
       }
     }
@@ -62,30 +62,26 @@ struct LZSSElement {
 static LZSSElement search(const std::vector<char>& input, size_t pos) {
   LZSSElement e{0,0,input[pos]};
   
-  size_t searchStart = windowSize >= pos ? 0 : pos-(windowSize-1);
-  size_t searchEnd   = pos;
+  const size_t searchStart{windowSize >= pos ? 0 : pos-(windowSize-1)};
+  const size_t searchEnd{pos};
   
   for (size_t searchPos = searchStart; searchPos < searchEnd; ++searchPos) {
     uint8_t length{0};
+    const size_t maxLength{pos-searchPos};
     
-    while (input[searchPos+length] == input[pos+length] &&
+    while (input[searchPos+length%maxLength] == input[pos+length] &&
            pos+length < input.size()-1 &&
-           length < lookAheadSize-1 &&
-           searchPos+length < pos) {
+           length < lookAheadSize-1) {
       length++;
     }
     
-    if (length > e.length) {
+    if (length > e.length && length >= minSequenceLength) {
       e.length   = length;
       e.position = uint16_t(pos-searchPos);
       e.data     = input[pos+length];
     }
   }
-  
-  if (9*e.length < 9+windowBits+lookAheadBits) {
-    return {0,0,input[pos]};
-  }
-  
+    
   return e;
 }
 
@@ -109,7 +105,10 @@ static void compress(const std::string& sourceFilename, const std::string& targe
   std::ofstream targetFile(targetFilename, std::ios::binary);
   const std::vector<char> source = std::vector<char>((std::istreambuf_iterator<char>(sourceFile)),
                                                       std::istreambuf_iterator<char>());
-  const auto [target, total] = compress(source);
+  auto [target, total] = compress(source);
+  
+  target = Compression::huffmanEncode(target);
+  
   targetFile.write((char*)&total, sizeof(total));
   targetFile.write((char*)target.data(), long(target.size()));
 }
@@ -118,7 +117,7 @@ static void compress(const std::string& sourceFilename, const std::string& targe
 static std::vector<char> decompress(const std::vector<char>& input, uint64_t total) {
   if (input.empty()) return {};
   
-  Compression::InputBitBuffer buffer(input);
+  Compression::InputBitBuffer buffer(Compression::huffmanDecode<char>(input));
   std::vector<char> output;
   for (size_t i = 0;i<total;++i) {
     LZSSElement::decode(buffer, output);
