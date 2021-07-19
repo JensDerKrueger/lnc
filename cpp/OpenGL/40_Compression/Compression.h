@@ -103,7 +103,15 @@ namespace Compression {
         addChar(p[i]);
       }
     }
-    
+
+    template <typename T>
+    void add(T number, uint8_t bits) {
+      for (uint8_t bit = 0;bit<bits;++bit) {
+        addBit(number & 1);
+        number >>= 1;
+      }
+    }
+
   private:
     uint8_t bitInLastByte{0};
   };
@@ -144,6 +152,17 @@ namespace Compression {
         p[i] = getChar();
       }
       return t;
+    }
+    
+    template <typename T>
+    T get(uint8_t bits) {
+      T number{0};
+      T multi{1};
+      for (uint8_t bit = 0;bit<bits;++bit) {
+        number += T(getBit())*multi;
+        multi <<= 1;
+      }
+      return number;
     }
     
     bool isValid() {
