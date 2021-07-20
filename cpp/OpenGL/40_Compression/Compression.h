@@ -5,7 +5,6 @@
 #include <queue>
 #include <map>
 
-
 namespace Compression {
 
   template <typename T>
@@ -25,6 +24,11 @@ namespace Compression {
     NodePtr left;
     NodePtr right;
     
+    InnerNode() :
+    Node{0},
+    left{nullptr},
+    right{nullptr} {}
+
     InnerNode(NodePtr left, NodePtr right) :
     Node{left->frequency + right->frequency},
     left{left},
@@ -188,10 +192,33 @@ namespace Compression {
   NodePtr huffmanCoding(const Histogram<T>& histogram) ;
 
   template <typename T>
-  void buildCodes(const NodePtr node, std::deque<bool>& bits, Codes<T>& codes);
+  void treeToCodes(const NodePtr node, std::deque<bool>& bits, Codes<T>& codes);
 
   template <typename T>
-  Codes<T> buildCodes(const NodePtr node);
+  NodePtr canonicalize(const NodePtr root);
+  
+  template <typename T>
+  std::vector<std::pair<T, uint32_t>> toCanonicalEncoding1(const NodePtr root);
+
+  template <typename T>
+  std::vector<uint32_t> toCanonicalEncoding2(const NodePtr root);
+
+  template <typename T>
+  NodePtr fromCanonicalEncoding1(const std::vector<std::pair<T, uint32_t>>& encoding);
+
+  template <typename T>
+  NodePtr fromCanonicalEncoding2(const std::vector<uint32_t>& encoding);
+
+  template <typename T>
+  NodePtr addToTree(NodePtr root, const std::vector<bool>& path,
+                    const T& element, const size_t current=0);
+
+  std::vector<bool> intToPath(uint32_t currentIndex, uint32_t length);
+
+  uint32_t pathToInt(std::vector<bool> path);
+  
+  template <typename T>
+  Codes<T> treeToCodes(const NodePtr root);
 
   template <typename T>
   void printCodes(const Codes<T>& codes);
@@ -230,7 +257,7 @@ std::vector<char> Compression::huffmanEncode(const std::vector<T>& source) {
   
   const auto [histogram, total] = buildHistogram<T>(source);
   const NodePtr root = huffmanCoding<T>(histogram);
-  const Codes<T> codes = buildCodes<T>(root);
+  const Codes<T> codes = treeToCodes<T>(root);
 
   OutputBitBuffer buffer;
   writeCodebook<T>(root, buffer);
@@ -348,7 +375,7 @@ Compression::NodePtr Compression::huffmanCoding(const Histogram<T>& histogram) {
 }
 
 template <typename T>
-void Compression::buildCodes(const Compression::NodePtr node,
+void Compression::treeToCodes(const Compression::NodePtr node,
                              std::deque<bool>& bits, Codes<T>& codes) {
   const LeafNodePtr<T> leaf = std::dynamic_pointer_cast<LeafNode<T>>(node);
   if (leaf) {
@@ -359,20 +386,20 @@ void Compression::buildCodes(const Compression::NodePtr node,
     const InnerNodePtr inner = std::dynamic_pointer_cast<InnerNode>(node);
     
     bits.push_back(true);
-    buildCodes(inner->left, bits, codes);
+    treeToCodes(inner->left, bits, codes);
     bits.pop_back();
     
     bits.push_back(false);
-    buildCodes(inner->right, bits, codes);
+    treeToCodes(inner->right, bits, codes);
     bits.pop_back();
   }
 }
 
 template <typename T>
-Compression::Codes<T> Compression::buildCodes(const NodePtr node) {
+Compression::Codes<T> Compression::treeToCodes(const NodePtr node) {
   Codes<T> codes;
   std::deque<bool> bits;
-  buildCodes(node, bits, codes);
+  treeToCodes(node, bits, codes);
   return codes;
 }
 
@@ -399,4 +426,100 @@ void Compression::printAvgLength(const Codes<T>& codes,
 
   std::cout << "Average length " << avgLen << std::endl;
   std::cout << "Aprox. size  " << bitCount/8 << std::endl;
+}
+
+
+template <typename T>
+std::vector<std::pair<T, uint32_t>> Compression::toCanonicalEncoding1(const NodePtr root) {
+  const Codes<T> codes = treeToCodes<T>(root);
+  std::vector<std::pair<T, uint32_t>> codeVec;
+  
+  for (const auto& code : codes) {
+    codeVec.push_back({code.first, code.second.size()});
+  }
+    
+  return codeVec;
+}
+
+template <typename T>
+std::vector<uint32_t> Compression::toCanonicalEncoding2(const NodePtr root) {
+  const std::vector<std::pair<T, uint32_t>> enc1 = toCanonicalEncoding1<T>(root);
+  std::vector<uint32_t> result;
+
+  size_t elemIndex{0};
+  size_t maxIndex = 1<<(sizeof(T)*8);
+  for (size_t i = 0;i<maxIndex && elemIndex < enc1.size() ;++i) {
+    const T currentElem = T(i);
+    if (currentElem != enc1[elemIndex].first) {
+      result.push_back(0);
+    } else {
+      result.push_back(enc1[elemIndex++].second);
+    }
+  }
+  
+  return result;
+}
+
+template <typename T>
+Compression::NodePtr Compression::addToTree(Compression::NodePtr node,
+                                            const std::vector<bool>& path,
+                                            const T& element,
+                                            const size_t current) {
+  if (path.size() == current) {
+    return std::make_shared<LeafNode<T>>(element, 0);
+  } else {
+    if (node == nullptr) {
+      node = std::make_shared<InnerNode>();
+    }
+    
+    const InnerNodePtr inner = std::dynamic_pointer_cast<InnerNode>(node);
+    if (path[current]) {
+      inner->right  = addToTree(inner->right, path, element, current+1);
+    } else {
+      inner->left = addToTree(inner->left, path, element, current+1);
+    }
+
+    return node;
+  }
+}
+
+
+template <typename T>
+Compression::NodePtr Compression::fromCanonicalEncoding1(const std::vector<std::pair<T, uint32_t>>& encoding) {
+  Compression::NodePtr root{nullptr};
+  
+  std::vector<std::pair<T, uint32_t>> encoding1 = encoding;
+  
+  std::sort(encoding1.begin(), encoding1.end(),
+                   [](const std::pair<T, uint32_t>& l,
+                      const std::pair<T, uint32_t>& r) {
+                          return std::tie(l.second, l.first) <
+                                 std::tie(r.second, r.first);
+                      }
+  );
+  
+  uint32_t currentIndex{0};
+  for (const auto& element : encoding1) {
+    const std::vector<bool> path = intToPath(currentIndex, element.second);
+    root = addToTree(root, path, element.first);
+    currentIndex = pathToInt(path) + 1;
+  }
+
+  return root;
+}
+
+template <typename T>
+Compression::NodePtr Compression::fromCanonicalEncoding2(const std::vector<uint32_t>& encoding2) {  
+  std::vector<std::pair<T, uint32_t>> encoding1;
+  for (size_t i = 0;i<encoding2.size();++i) {
+    if (encoding2[i] != 0) {
+      encoding1.push_back({T(i),encoding2[i]});
+    }
+  }
+  return fromCanonicalEncoding1(encoding1);
+}
+
+template <typename T>
+Compression::NodePtr Compression::canonicalize(const Compression::NodePtr root) {
+  return fromCanonicalEncoding1(toCanonicalEncoding1<T>(root));
 }
