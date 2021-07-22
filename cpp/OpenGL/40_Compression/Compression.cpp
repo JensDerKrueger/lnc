@@ -23,14 +23,10 @@ namespace Compression {
   }
 
   std::vector<bool> intToPath(uint32_t currentIndex, uint32_t length) {
+    std::bitset<32> binary(currentIndex);
     std::vector<bool> path;
-    while (currentIndex > 0) {
-      path.push_back(currentIndex % 2);
-      currentIndex /= 2;
-    }
-    std::reverse(path.begin(), path.end());
-    for (size_t i = path.size();i<length;++i) {
-      path.push_back(false);
+    for (size_t i = 0;i<length;++i) {
+      path.push_back(binary[length-1-i]);
     }
     return path;
   }
