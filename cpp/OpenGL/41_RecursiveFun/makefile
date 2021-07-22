@@ -13,7 +13,7 @@ else
 	INCLUDES=-I. -I../Utils -I /opt/homebrew/include -I ../../openmp/include
 endif
 
-SRC = RecFun.cpp main.cpp
+SRC = main.cpp
 OBJ = $(SRC:.cpp=.o)
 TARGET = recFun
 
