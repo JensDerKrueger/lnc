@@ -113,6 +113,11 @@ public:
                         e[3+x] * other.e[12+y];
     return result;
   }
+
+  Vec2t<T> operator * ( const Vec2t<T>& other ) const{
+    return (*this * Vec4(other,0.0f,1.0f)).xy;;
+  }
+
   Vec3t<T> operator * ( const Vec3t<T>& other ) const{
     T w = other.x*e[12]+other.y*e[13]+other.z*e[14]+1*e[15];
     return {(other.x*e[0]+other.y*e[1]+other.z*e[2]+1*e[3])/w,
