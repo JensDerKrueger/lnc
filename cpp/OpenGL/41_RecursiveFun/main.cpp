@@ -99,11 +99,10 @@ private:
     }
   }
     
-
   void drawInfoText() {
     std::stringstream ss;
-    ss << "Relax";
-    fe->render(ss.str(), glEnv.getFramebufferSize().aspect(), 0.05f, {0,-0.95f});
+    ss << "Relax with Recursion";
+    fe->render(ss.str(), glEnv.getFramebufferSize().aspect(), 0.1f, {0,0.7f}, Alignment::Center, {1.0f,1.0f,1.0f,1.0f/animationTime});
   }
   
 };
