@@ -5,9 +5,21 @@
 #include <queue>
 #include <map>
 #include <bitset>
+#include <exception>
 
 namespace Compression {
 
+  class Exception : public std::exception {
+    public:
+      Exception(const std::string& whatStr) : whatStr(whatStr) {}
+      virtual const char* what() const throw() {
+        return whatStr.c_str();
+      }
+    private:
+      std::string whatStr;
+  };
+
+  
   template <typename T>
   using Histogram = std::map<T, size_t>;
   
@@ -194,6 +206,9 @@ namespace Compression {
 
   template <typename T>
   void treeToCodes(const NodePtr node, std::deque<bool>& bits, Codes<T>& codes);
+
+  template <typename T>
+  bool checkTree(const NodePtr node);
 
   template <typename T>
   NodePtr canonicalize(const NodePtr root);
@@ -409,6 +424,22 @@ Compression::Codes<T> Compression::treeToCodes(const NodePtr node) {
   treeToCodes(node, bits, codes);
   return codes;
 }
+
+template <typename T>
+bool Compression::checkTree(const NodePtr node) {
+  const LeafNodePtr<T> leaf = std::dynamic_pointer_cast<LeafNode<T>>(node);
+  if (leaf) {
+    return true;
+  }
+
+  const InnerNodePtr inner = std::dynamic_pointer_cast<InnerNode>(node);
+  if (inner) {
+    return checkTree<T>(inner->left) && checkTree<T>(inner->right);
+  }
+
+  return false;
+}
+
 
 template <typename T>
 void Compression::printCodes(const Codes<T>& codes) {
