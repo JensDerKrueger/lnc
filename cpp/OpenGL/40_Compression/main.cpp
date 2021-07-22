@@ -96,6 +96,8 @@ public:
                      const Compression::NodePtr rootPos,
                      std::vector<char>& output) {
     
+    if (rootCodes == nullptr ||rootPos == nullptr) return false;
+    
     const uint16_t code = Compression::decodeElement<uint16_t>(buffer, rootCodes);
     if (code < 256) {
       output.push_back(char(code));
@@ -286,7 +288,8 @@ static std::vector<char> decompress(const std::vector<char>& input) {
   return output;
 }
 
-static void decompress(const std::string& sourceFilename, const std::string& targetFilename) {
+static void decompress(const std::string& sourceFilename,
+                       const std::string& targetFilename) {
   std::ifstream sourceFile(sourceFilename, std::ios::binary);
   std::ofstream targetFile(targetFilename, std::ios::binary);
   
