@@ -6,6 +6,8 @@
 #include <map>
 #include <bitset>
 #include <exception>
+#include <memory>
+#include <algorithm>
 
 namespace Compression {
 
