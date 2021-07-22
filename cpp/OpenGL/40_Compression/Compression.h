@@ -4,6 +4,7 @@
 #include <fstream>
 #include <queue>
 #include <map>
+#include <bitset>
 
 namespace Compression {
 
@@ -237,6 +238,9 @@ namespace Compression {
   NodePtr readCodebook(InputBitBuffer& buffer);
 
   template <typename T>
+  T decodeElement(InputBitBuffer& buffer, const NodePtr root);
+
+  template <typename T>
   std::vector<T> decodeBuffer(InputBitBuffer& buffer, const uint64_t total,
                               const NodePtr root);
 
@@ -288,25 +292,28 @@ Compression::NodePtr Compression::readCodebook(InputBitBuffer& buffer) {
 }
 
 template <typename T>
+T Compression::decodeElement(InputBitBuffer& buffer,
+                             const NodePtr root) {
+  NodePtr current = root;
+  do {
+    const LeafNodePtr<T> leaf = std::dynamic_pointer_cast<LeafNode<T>>(current);
+    if (leaf) {
+      return leaf->data;
+    } else {
+      const InnerNodePtr inner = std::dynamic_pointer_cast<InnerNode>(current);
+      current = buffer.getBit() ? inner->left : inner->right;
+    }
+  } while (true);
+}
+
+template <typename T>
 std::vector<T> Compression::decodeBuffer(InputBitBuffer& buffer,
                                       const uint64_t total,
                                       const NodePtr root) {
   std::vector<T> data(total);
-  
   for (uint64_t i = 0;i<total;++i) {
-    NodePtr current = root;
-    do {
-      const LeafNodePtr<T> leaf = std::dynamic_pointer_cast<LeafNode<T>>(current);
-      if (leaf) {
-        data[i] = leaf->data;
-        break;
-      } else {
-        const InnerNodePtr inner = std::dynamic_pointer_cast<InnerNode>(current);
-        current = buffer.getBit() ? inner->left : inner->right;
-      }
-    } while (true);
+    data[i] = decodeElement<T>(buffer, root);
   }
-  
   return data;
 }
 
@@ -499,10 +506,13 @@ Compression::NodePtr Compression::fromCanonicalEncoding1(const std::vector<std::
   );
   
   uint32_t currentIndex{0};
+  uint32_t lastLength{0};
   for (const auto& element : encoding1) {
+    if (lastLength != 0)
+      currentIndex = (currentIndex + 1) << (element.second-lastLength);
     const std::vector<bool> path = intToPath(currentIndex, element.second);
     root = addToTree(root, path, element.first);
-    currentIndex = pathToInt(path) + 1;
+    lastLength = element.second;
   }
 
   return root;
