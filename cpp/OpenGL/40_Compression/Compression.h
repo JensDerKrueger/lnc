@@ -8,6 +8,7 @@
 #include <exception>
 #include <memory>
 #include <algorithm>
+#include <math.h>
 
 namespace Compression {
 
@@ -269,6 +270,14 @@ namespace Compression {
   void huffmanDecode(const std::string& sourceFilename, const
                      std::string& targetFilename);
 
+  void decompress(const std::string& sourceFilename,
+                  const std::string& targetFilename);
+
+  void compress(const std::string& sourceFilename,
+                const std::string& targetFilename);
+  
+  std::vector<char> decompress(const std::vector<char>& input);
+  std::vector<char> compress(const std::vector<char>& input);
 };
 
 
@@ -566,3 +575,5 @@ template <typename T>
 Compression::NodePtr Compression::canonicalize(const Compression::NodePtr root) {
   return fromCanonicalEncoding1(toCanonicalEncoding1<T>(root));
 }
+
+
