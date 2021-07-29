@@ -134,7 +134,10 @@ namespace BMP {
 
     file.seekg(4, std::ios_base::cur);                   // skip size of bitmap info header
     file.read((char*)&texture.width, sizeof(int32_t));   // get the width of the bitmap
-    file.read((char*)&texture.height, sizeof(int32_t));  // get the height of the bitmap
+    
+    int32_t height;
+    file.read((char*)&height, sizeof(int32_t));  // get the height of the bitmap
+    texture.height = abs(height);
     
     int16_t biPlanes;
     file.read((char*)&biPlanes, sizeof(int16_t));   // get the number of planes
@@ -163,7 +166,7 @@ namespace BMP {
     
     // seek to the actual data
     file.seekg(bfOffBits, std::ios_base::beg);
-
+    
     if (rowPad == 0) {
       file.read((char*)texture.data.data(), biSizeImage);
       if (!file)
@@ -187,7 +190,11 @@ namespace BMP {
         texture.data[i + 2] = temp;
       }
     }
-    return texture;
+    
+    if (height < 0)
+      return texture.flipHorizontal();
+    else
+      return texture;
   }
 
   void blit(const Image& source, const Vec2ui& rawSourceStart, const Vec2ui& rawSourceEnd,
