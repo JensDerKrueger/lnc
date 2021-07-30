@@ -7,31 +7,26 @@
 
 #include <fstream>
 
-static uint8_t paethPredictor(uint8_t a, uint8_t b, uint8_t c) {
-  //a = left, b = above, c = upper left
-  int32_t p = a + b - c;  // initial estimate
-  int32_t pa = abs(p-a); //  distances to a, b, c
-  int32_t pb = abs(p-b);
-  int32_t pc = abs(p-c);
-  // return nearest of a,b,c,
-  // breaking ties in order a,b,c.
+static uint8_t paethPredictor(uint8_t left, uint8_t above, uint8_t upperLeft) {
+  int32_t prediction = left + above - upperLeft;
+  int32_t distanceLeft = abs(prediction-left);
+  int32_t distanceAbove = abs(prediction-above);
+  int32_t distanceUpperLeft = abs(prediction-upperLeft);
 
-  if (pa <= pb && pa <= pc)
-    return a;
+  if (distanceLeft <= distanceAbove &&
+      distanceLeft <= distanceUpperLeft)
+    return left;
   else
-    if (pb <= pc)
-      return b;
+    if (distanceAbove <= distanceUpperLeft)
+      return above;
     else
-      return c;
+      return upperLeft;
 }
-
 
 static size_t pos(uint32_t width, uint32_t height,
            uint32_t x, uint32_t y, uint32_t c) {
   return x+y*width+c*(width*height);
 }
-
-
 
 static Image loadJhk(const std::string& filename) {
   std::ifstream file(filename, std::ios::binary);
@@ -62,9 +57,9 @@ static Image loadJhk(const std::string& filename) {
     for (uint32_t x = 1;x<width;++x) {
       for (uint32_t c = 0;c<componentCount;++c) {
         const uint8_t difference = uint8_t(data[pos(width,height,x,y,c)]);
-        const uint8_t predicted = paethPredictor(uint8_t(data[pos(width,height,x-1,y,c)]),
-                                                 uint8_t(data[pos(width,height,x,y-1,c)]),
-                                                 uint8_t(data[pos(width,height,x-1,y-1,c)]));
+        const uint8_t predicted = paethPredictor(uintData[c+(x-1+y*width)*componentCount],
+                                                 uintData[c+(x+(y-1)*width)*componentCount],
+                                                 uintData[c+(x-1+(y-1)*width)*componentCount]);
         uintData[c+componentCount*(x+y*width)] = difference+predicted;
       }
     }
@@ -128,6 +123,9 @@ static void showUsage(char** argv) {
 }
 
 int main(int argc, char** argv) {
+  
+  
+  
   if (argc != 4) {
     showUsage(argv);
     return EXIT_FAILURE;
@@ -144,8 +142,6 @@ int main(int argc, char** argv) {
   
   return EXIT_SUCCESS;
 }
-
-
 
 /*
  
@@ -178,4 +174,5 @@ int main(int argc, char** argv) {
   
   return EXIT_SUCCESS;
 }
+
 */
