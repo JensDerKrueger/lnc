@@ -789,7 +789,6 @@ namespace Compression {
       
       const NodePtr codeRoot = canonicalize<uint16_t>(huffmanCoding(codeHistogram));
       const NodePtr posRoot = canonicalize<uint8_t>(huffmanCoding(posHistogram));
-
       
       const Codes<uint16_t> codeCodes = treeToCodes<uint16_t>(codeRoot);
       const Codes<uint8_t> posCodes = treeToCodes<uint8_t>(posRoot);
@@ -798,7 +797,7 @@ namespace Compression {
       const std::vector<uint32_t> posCodebook = toCanonicalEncoding2<uint8_t>(posRoot);
       
       auto maxElem = std::max_element(codeCodebook.begin(), codeCodebook.end());
-      uint8_t bitCount = uint8_t(ceil(log2(1+*maxElem)));
+      uint8_t bitCount = uint8_t(ceil(std::log2(1+*maxElem)));
       
       buffer.add(codeCodebook.size()-257, 5);
       buffer.add(bitCount, 8);
@@ -808,7 +807,7 @@ namespace Compression {
       }
       
       maxElem = std::max_element(posCodebook.begin(), posCodebook.end());
-      bitCount = uint8_t(ceil(log2(1+*maxElem)));
+      bitCount = uint8_t(ceil(std::log2(1+*maxElem)));
       
       buffer.add(posCodebook.size()-1, 5);
       buffer.add(bitCount, 8);
