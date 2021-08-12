@@ -1012,17 +1012,17 @@ namespace Compression {
           const uint8_t predicted = paethPredictor(image.getValue(x-1, y, c),
                                                    image.getValue(x, y-1, c),
                                                    image.getValue(x-1, y-1, c));
-          charData[imagePos(image.width,image.height,x,y,c)] = char(realValue-predicted+128);
+          charData[imagePos(image.width,image.height,x,y,c)] = char(realValue-predicted);
         }
       }
     }
     
-    
+    /*
     Image image2{image};
     for (size_t i = 0;i<image.data.size();++i)
       image2.data[i] = uint8_t(charData[i]);
     BMP::save("test.bmp", image2);
-    
+    */
     
     std::ofstream file(filename, std::ios::binary);
     file.write((char*)&image.width, sizeof(image.width));
