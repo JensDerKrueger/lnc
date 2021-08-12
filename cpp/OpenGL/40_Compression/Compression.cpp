@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <array>
 #include <list>
-#include <math.h>
+#include <cmath>
 
 #include "Compression.h"
 
@@ -21,7 +21,7 @@ namespace Compression {
     std::size_t h1 = size_t(t[0]);
     std::size_t h2 = size_t(t[1]);
     std::size_t h3 = size_t(t[2]);
-    return (h1 ^ (h2 * s/(256*3)) ^ (2*h3/(256*3)) ) % s;
+    return (h1 ^ (h2 * s/(256*3)) ^ (2*h3*s/(256*3)) ) % s;
   }
   
   class HashTable {
@@ -702,7 +702,7 @@ namespace Compression {
 
   
   static LZSSElement search(const std::vector<char>& input, const size_t pos,
-                                HashTable& startPosMap) {
+                            HashTable& startPosMap) {
     LZSSElement e{0,0,input[pos]};
     if (pos+2 >= input.size()) {
       updateMap(input, pos, startPosMap, 1);
@@ -732,7 +732,6 @@ namespace Compression {
       }
     }
 
-
     const auto& list = startPosMap.get(searchTripple);
     for (auto iter = list.begin();
               iter != list.end();
@@ -753,7 +752,6 @@ namespace Compression {
       }
     }
  
-    
     if (maxLength < 3) {
       updateMap(input, pos, startPosMap, 1);
       return e;
@@ -763,30 +761,6 @@ namespace Compression {
     return {uint16_t(pos-maxPos),uint16_t(maxLength)};
   }
 
-  static LZSSElement slowSearch(const std::vector<char>& input, size_t pos) {
-    LZSSElement e{0,0,input[pos]};
-    
-    const size_t searchStart{windowSize >= pos ? 0 : pos-(windowSize-1)};
-    const size_t searchEnd{pos};
-    
-    for (size_t searchPos = searchStart; searchPos < searchEnd; ++searchPos) {
-      uint16_t length{0};
-      const size_t maxLength{pos-searchPos};
-      
-      while (pos+length < input.size() &&
-             input[searchPos+length%maxLength] == input[pos+length] &&
-             length < minSequenceLength+lookAheadSize-1) {
-        length++;
-      }
-      
-      if (length >= e.length && length >= minSequenceLength) {
-        e.data     = 0;
-        e.length   = length;
-        e.position = uint16_t(pos-searchPos);
-      }
-    }
-    return e;
-  }
 
     std::vector<char> compress(const std::vector<char>& input) {
       OutputBitBuffer buffer;
@@ -799,14 +773,6 @@ namespace Compression {
       size_t pos{0};
       while (pos < input.size()) {
         LZSSElement element = search(input, pos, startPosMap);
- /*
-        LZSSElement element_test = slowSearch(input, pos);
-        if (element_test.data != element.data ||
-            element_test.position != element.position ||
-            element_test.length != element.length) {
-          std::cout << "found difference" << std::endl;
-        }
- */
                 
         const DeflateCode deflateCode = element.toDeflateCode();
         addToHistogram(deflateCode.code, codeHistogram);
@@ -942,7 +908,6 @@ namespace Compression {
       else
         return upperLeft;
   }
-
   
   static size_t imagePos(uint32_t width, uint32_t height,
                          uint32_t x, uint32_t y, uint32_t c) {
@@ -1016,13 +981,6 @@ namespace Compression {
         }
       }
     }
-    
-    /*
-    Image image2{image};
-    for (size_t i = 0;i<image.data.size();++i)
-      image2.data[i] = uint8_t(charData[i]);
-    BMP::save("test.bmp", image2);
-    */
     
     std::ofstream file(filename, std::ios::binary);
     file.write((char*)&image.width, sizeof(image.width));
