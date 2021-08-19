@@ -25,7 +25,7 @@ tintScale(tintScale)
 }
 
 MosaicMaker::~MosaicMaker() {
-  computeThread.join();
+  if (computeThread.joinable()) computeThread.join();
 }
 
 
