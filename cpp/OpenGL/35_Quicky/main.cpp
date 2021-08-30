@@ -79,7 +79,8 @@ public:
             const Vec2ui targetSize = quicky.getTargetImageSize();
             const float aspect = float(targetSize.x) / float(targetSize.y);
             diff = fabs(imageAspect-aspect);
-                    
+            draw();
+            glEnv.endOfFrame();
           } while (diff < 0.01f && quicky.getCurrentImageIndex() < quicky.getImageCount()-1);
         }
       }
