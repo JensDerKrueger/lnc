@@ -115,10 +115,18 @@ void DaDServer::handlePaint(BinaryDecoder& dec, uint32_t realmID, uint32_t id) {
   try {
     Vec2t<uint16_t> pos;
     pos.x = dec.nextUint16();
-    if (pos.x > realm->getLayerDims().x-1) throw DaDServerException("Invalid posX");
+    if (pos.x > realm->getLayerDims().x-1) {
+      std::stringstream ss;
+      ss << "Invalid posX (pos.y = " << pos.x << " > " << realm->getLayerDims().x-1 << ")";
+      throw DaDServerException(ss.str());
+    }
 
     pos.y = dec.nextUint16();
-    if (pos.y > realm->getLayerDims().y-1) throw DaDServerException("Invalid posY");
+    if (pos.y > realm->getLayerDims().y-1) {
+      std::stringstream ss;
+      ss << "Invalid posY (pos.y = " << pos.y << " > " << realm->getLayerDims().y-1 << ")";
+      throw DaDServerException(ss.str());
+    }
 
     Vec4t<uint8_t> color;
     color.r = dec.nextUint8();
