@@ -315,6 +315,20 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				GCC_WARN_SHADOW = NO;
+				HEADER_SEARCH_PATHS = (
+					../Network,
+					../Utils,
+					/usr/local/Cellar/glew/2.1.0_1/include,
+					/usr/local/Cellar/glfw/3.3.2/include,
+					/usr/local/include/,
+				);
+				LIBRARY_SEARCH_PATHS = (
+					../Network,
+					../Utils,
+					/usr/local/Cellar/glfw/3.3.2/lib/,
+					/usr/local/Cellar/glew/2.1.0_1/lib/,
+					/usr/local/lib,
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -324,6 +338,20 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				GCC_WARN_SHADOW = NO;
+				HEADER_SEARCH_PATHS = (
+					../Network,
+					../Utils,
+					/usr/local/Cellar/glew/2.1.0_1/include,
+					/usr/local/Cellar/glfw/3.3.2/include,
+					/usr/local/include/,
+				);
+				LIBRARY_SEARCH_PATHS = (
+					../Network,
+					../Utils,
+					/usr/local/Cellar/glfw/3.3.2/lib/,
+					/usr/local/Cellar/glew/2.1.0_1/lib/,
+					/usr/local/lib,
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
