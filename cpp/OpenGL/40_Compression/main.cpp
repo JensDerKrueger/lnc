@@ -11,7 +11,6 @@ static void showUsage(char** argv) {
                " e input output" << std::endl;
   std::cout << "\t jhk to bmp " << argv[0] <<
                " d input output" << std::endl;
-
 }
 
 int main(int argc, char** argv) {
