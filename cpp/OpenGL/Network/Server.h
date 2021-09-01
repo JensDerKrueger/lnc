@@ -182,7 +182,8 @@ public:
   virtual void handleClientMessage(uint32_t id, const std::vector<uint8_t>& message) {
     handleClientMessage(id, std::string(message.begin(),message.end()));
   }
-  virtual void handleProtocolMessage(uint32_t id, uint32_t messageID, const std::vector<uint8_t>& message) {}
+  virtual void handleUnknownProtocolMessage(uint32_t id, uint32_t messageID,
+                                            const std::vector<uint8_t>& message) {}
 
   virtual void handleClientDisconnection(uint32_t id) {}
   virtual void handleError(const std::string& message) {}
@@ -317,7 +318,9 @@ void Server<T>::clientFunc() {
               handleClientMessage(client->getID(), std::move(client->binData));
               break;
             case DataResult::PROTOCOL_DATA:
-              handleProtocolMessage(client->getID(), client->protocolDataID, std::move(client->binData));
+              handleUnknownProtocolMessage(client->getID(),
+                                           client->protocolDataID,
+                                           std::move(client->binData));
               break;
             case DataResult::NO_DATA:
               // never hit, silence warning

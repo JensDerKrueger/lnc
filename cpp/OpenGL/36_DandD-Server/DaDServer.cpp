@@ -29,8 +29,10 @@ void DaDServer::handleClientDisconnection(uint32_t id) {
   printStats();
 }
 
-void DaDServer::handleProtocolMessage(uint32_t id, uint32_t messageID, const std::vector<uint8_t>& message) {
-  std::cout << "Protocol Message 0x" << std::hex << messageID << std::dec << " form id " << id << std::endl;
+void DaDServer::handleUnknownProtocolMessage(uint32_t id, uint32_t messageID,
+                                             const std::vector<uint8_t>& message) {
+  std::cout << "Unknown protocol message (0x" << std::hex << messageID
+            << std::dec << ") received form id " << id << std::endl;
 }
 
 void DaDServer::handleError(const std::string& message) {

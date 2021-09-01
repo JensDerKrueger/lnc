@@ -31,11 +31,15 @@ public:
   void reloadRealms();
 
 protected:
-  virtual void handleClientMessage(uint32_t id, const std::string& message) override;
-  virtual void handleClientMessage(uint32_t id, const std::vector<uint8_t>& message) override;
-  virtual void handleClientConnection(uint32_t id, const std::string& address, uint16_t port) override;
+  virtual void handleClientMessage(uint32_t id,
+                                   const std::string& message) override;
+  virtual void handleClientMessage(uint32_t id,
+                                   const std::vector<uint8_t>& message) override;
+  virtual void handleClientConnection(uint32_t id, const std::string& address,
+                                      uint16_t port) override;
   virtual void handleClientDisconnection(uint32_t id) override;
-  virtual void handleProtocolMessage(uint32_t id, uint32_t messageID, const std::vector<uint8_t>& message) override;
+  virtual void handleUnknownProtocolMessage(uint32_t id, uint32_t messageID,
+                                     const std::vector<uint8_t>& message) override;
   virtual void handleError(const std::string& message) override;
 
 private:

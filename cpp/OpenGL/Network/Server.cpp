@@ -496,23 +496,25 @@ DataResult WebSocketConnection::generateResult(bool finalFragment, size_t nextBy
       }
     }
     
-    switch (currentOpcode) {
-      case 0x8:
-        closeWebsocket(extractReasonCode());
-        protocolDataID = 0x8;
-        return DataResult::PROTOCOL_DATA;
-        break;
-      case 0x9:
-        sendPong();
-        protocolDataID =0x9;
-        result = DataResult::PROTOCOL_DATA;
-        break;
-      case 0xA:
-        protocolDataID =0xA;
-        result = DataResult::PROTOCOL_DATA;
-        break;
-      default:
-        break;
+    if (currentOpcode > 7) {
+      protocolDataID = currentOpcode;
+      switch (currentOpcode) {
+        case 0x8:
+          result = DataResult::NO_DATA;
+          closeWebsocket(extractReasonCode());
+          return result;
+          break;
+        case 0x9:
+          result = DataResult::NO_DATA;
+          sendPong();
+          break;
+        case 0xA:
+          result = DataResult::NO_DATA;
+          break;
+        default:
+          result = DataResult::PROTOCOL_DATA;
+          break;
+      }
     }
 
   }
