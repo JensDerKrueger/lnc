@@ -386,32 +386,45 @@ Tesselation Tesselation::genCylinder(const Vec3 &center, const float radius,
 
   for (uint32_t x = 0; x <= steps; x++) {
     const float phi = (2.0f * PI * x) / steps;
-    const Vec3 vertexBottom{radius*std::cos(phi),
-                      0,
-                      radius*std::sin(phi)};
+    const Vec3 vertexBottom{
+      radius*std::cos(phi),
+      -height/2.0f,
+      radius*std::sin(phi)
+    };
     
-    const Vec3 vertexTop{radius*std::cos(phi),
-                         height,
-                         radius*std::sin(phi)};
+    const Vec3 vertexTop{
+      radius*std::cos(phi),
+      height/2.0f,
+      radius*std::sin(phi)
+    };
     
-    const Vec3 normal = {std::cos(phi),
-                         0,
-                         std::sin(phi)};
+    const Vec3 normal = {
+      std::cos(phi),
+      0,
+      std::sin(phi)
+    };
 
-    const Vec3 tangent{-radius*std::sin(phi),
-                       0,
-                       radius*std::cos(phi)};
+    const Vec3 tangent{
+      -radius*std::sin(phi),
+      0,
+      radius*std::cos(phi)
+    };
     
-    const Vec2 textureBottom{static_cast<float>(x)/static_cast<float>(steps),
-                       0};
-    const Vec2 textureTop{static_cast<float>(x)/static_cast<float>(steps),
-                       1};
-    tess.vertices.push_back(vertexBottom.x - center.x);
-    tess.vertices.push_back(vertexBottom.y - center.y/2);
-    tess.vertices.push_back(vertexBottom.z - center.z);
+    const Vec2 textureBottom{
+      static_cast<float>(x)/static_cast<float>(steps),
+      0
+    };
+    const Vec2 textureTop{
+      static_cast<float>(x)/static_cast<float>(steps),
+      1
+    };
+    
+    tess.vertices.push_back(vertexBottom.x + center.x);
+    tess.vertices.push_back(vertexBottom.y + center.y);
+    tess.vertices.push_back(vertexBottom.z + center.z);
 
     tess.vertices.push_back(vertexTop.x + center.x);
-    tess.vertices.push_back(vertexTop.y + center.y/2);
+    tess.vertices.push_back(vertexTop.y + center.y);
     tess.vertices.push_back(vertexTop.z + center.z);
 
     tess.normals.push_back(normal.x);
@@ -454,16 +467,16 @@ Tesselation Tesselation::genCylinder(const Vec3 &center, const float radius,
     for (uint32_t x = 0; x <= steps; x++) {
       const float phi = (2.0f * PI * x) / steps;
       const Vec3 vertex{radius*std::cos(phi),
-                        0,
+                        -height/2.0f,
                         radius*std::sin(phi)};
       
       const Vec3 tangent{-radius*std::sin(phi),
                          0,
                          radius*std::cos(phi)};
       
-      tess.vertices.push_back(vertex.x - center.x);
-      tess.vertices.push_back(vertex.y - center.y/2);
-      tess.vertices.push_back(vertex.z - center.z);
+      tess.vertices.push_back(vertex.x + center.x);
+      tess.vertices.push_back(vertex.y + center.y);
+      tess.vertices.push_back(vertex.z + center.z);
 
       tess.normals.push_back(0);
       tess.normals.push_back(-1);
@@ -478,7 +491,7 @@ Tesselation Tesselation::genCylinder(const Vec3 &center, const float radius,
     }
     
     tess.vertices.push_back(center.x);
-    tess.vertices.push_back(-center.y/2);
+    tess.vertices.push_back(-height/2.0f-center.y/2);
     tess.vertices.push_back(center.z);
 
     tess.normals.push_back(0);
@@ -506,7 +519,7 @@ Tesselation Tesselation::genCylinder(const Vec3 &center, const float radius,
     for (uint32_t x = 0; x <= steps; x++) {
       const float phi = (2.0f * PI * x) / steps;
       const Vec3 vertex{radius*std::cos(phi),
-                        height,
+                        height/2.0f,
                         radius*std::sin(phi)};
       
       const Vec3 tangent{-radius*std::sin(phi),
@@ -514,7 +527,7 @@ Tesselation Tesselation::genCylinder(const Vec3 &center, const float radius,
                          radius*std::cos(phi)};
       
       tess.vertices.push_back(vertex.x + center.x);
-      tess.vertices.push_back(vertex.y + center.y/2);
+      tess.vertices.push_back(vertex.y + center.y);
       tess.vertices.push_back(vertex.z + center.z);
 
       tess.normals.push_back(0);
@@ -530,7 +543,7 @@ Tesselation Tesselation::genCylinder(const Vec3 &center, const float radius,
     }
     
     tess.vertices.push_back(center.x);
-    tess.vertices.push_back(height+center.y/2);
+    tess.vertices.push_back(height/2.0f+center.y);
     tess.vertices.push_back(center.z);
 
     tess.normals.push_back(0);
