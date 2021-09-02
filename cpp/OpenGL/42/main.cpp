@@ -1,4 +1,5 @@
 #include <array>
+#include <vector>
 
 #include <GLApp.h>
 #include <FontRenderer.h>
@@ -8,29 +9,145 @@
 const Vec3 brickScale{7.8f,9.6f,7.8f};
 const float studHeight{1.8f};
 const float studRadius{2.4f};
-const float studSpacing = (brickScale.x-studRadius*2.0f) /2.0f;
+const float studSpacing = brickScale.x-studRadius*2.0f;
+
+
+const std::array<Vec4,111> yak42Colors {{
+  {0.95f,0.95f,0.95f,1.0f},
+  {0.63f,0.65f,0.64f,1.0f},
+  {0.98f,0.91f,0.60f,1.0f},
+  {0.84f,0.77f,0.60f,1.0f},
+  {0.76f,0.85f,0.72f,1.0f},
+  {0.91f,0.73f,0.78f,1.0f},
+  {0.80f,0.52f,0.26f,1.0f},
+  {0.80f,0.56f,0.41f,1.0f},
+  {0.77f,0.16f,0.11f,1.0f},
+  {0.77f,0.44f,0.63f,1.0f},
+  {0.05f,0.41f,0.67f,1.0f},
+  {0.96f,0.80f,0.18f,1.0f},
+  {0.38f,0.28f,0.20f,1.0f},
+  {0.11f,0.16f,0.20f,1.0f},
+  {0.43f,0.43f,0.42f,1.0f},
+  {0.16f,0.50f,0.27f,1.0f},
+  {0.63f,0.77f,0.55f,1.0f},
+  {0.95f,0.81f,0.61f,1.0f},
+  {0.29f,0.59f,0.29f,1.0f},
+  {0.63f,0.37f,0.20f,1.0f},
+  {0.76f,0.79f,0.87f,1.0f},
+  {0.71f,0.82f,0.89f,1.0f},
+  {0.93f,0.77f,0.71f,1.0f},
+  {0.85f,0.53f,0.47f,1.0f},
+  {0.43f,0.60f,0.79f,1.0f},
+  {0.78f,0.76f,0.72f,1.0f},
+  {0.42f,0.20f,0.48f,1.0f},
+  {0.89f,0.61f,0.25f,1.0f},
+  {0.85f,0.52f,0.25f,1.0f},
+  {0.00f,0.56f,0.61f,1.0f},
+  {0.41f,0.36f,0.26f,1.0f},
+  {0.26f,0.33f,0.58f,1.0f},
+  {0.41f,0.45f,0.67f,1.0f},
+  {0.78f,0.82f,0.24f,1.0f},
+  {0.33f,0.65f,0.69f,1.0f},
+  {0.72f,0.84f,0.84f,1.0f},
+  {0.64f,0.74f,0.27f,1.0f},
+  {0.85f,0.89f,0.65f,1.0f},
+  {0.91f,0.67f,0.35f,1.0f},
+  {0.83f,0.44f,0.30f,1.0f},
+  {0.57f,0.22f,0.47f,1.0f},
+  {0.92f,0.72f,0.57f,1.0f},
+  {0.86f,0.74f,0.51f,1.0f},
+  {0.68f,0.48f,0.35f,1.0f},
+  {0.61f,0.64f,0.66f,1.0f},
+  {0.45f,0.53f,0.61f,1.0f},
+  {0.53f,0.49f,0.56f,1.0f},
+  {0.88f,0.60f,0.39f,1.0f},
+  {0.58f,0.54f,0.45f,1.0f},
+  {0.13f,0.23f,0.34f,1.0f},
+  {0.15f,0.27f,0.17f,1.0f},
+  {0.47f,0.53f,0.63f,1.0f},
+  {0.58f,0.56f,0.64f,1.0f},
+  {0.58f,0.53f,0.40f,1.0f},
+  {0.34f,0.35f,0.34f,1.0f},
+  {0.09f,0.11f,0.20f,1.0f},
+  {0.67f,0.68f,0.67f,1.0f},
+  {0.47f,0.56f,0.51f,1.0f},
+  {0.58f,0.47f,0.46f,1.0f},
+  {0.48f,0.18f,0.18f,1.0f},
+  {0.46f,0.42f,0.38f,1.0f},
+  {0.84f,0.66f,0.29f,1.0f},
+  {0.51f,0.54f,0.36f,1.0f},
+  {0.98f,0.84f,0.18f,1.0f},
+  {0.91f,0.67f,0.18f,1.0f},
+  {0.41f,0.25f,0.15f,1.0f},
+  {0.81f,0.38f,0.14f,1.0f},
+  {0.64f,0.64f,0.64f,1.0f},
+  {0.27f,0.40f,0.64f,1.0f},
+  {0.14f,0.28f,0.55f,1.0f},
+  {0.56f,0.26f,0.52f,1.0f},
+  {0.39f,0.37f,0.38f,1.0f},
+  {0.90f,0.89f,0.87f,1.0f},
+  {0.69f,0.56f,0.27f,1.0f},
+  {0.44f,0.58f,0.47f,1.0f},
+  {0.47f,0.71f,0.71f,1.0f},
+  {0.62f,0.76f,0.91f,1.0f},
+  {0.42f,0.51f,0.72f,1.0f},
+  {0.56f,0.30f,0.16f,1.0f},
+  {0.49f,0.36f,0.27f,1.0f},
+  {0.59f,0.44f,0.62f,1.0f},
+  {0.42f,0.38f,0.61f,1.0f},
+  {0.65f,0.66f,0.81f,1.0f},
+  {0.80f,0.38f,0.60f,1.0f},
+  {0.89f,0.68f,0.78f,1.0f},
+  {0.86f,0.56f,0.58f,1.0f},
+  {0.94f,0.84f,0.63f,1.0f},
+  {0.92f,0.72f,0.50f,1.0f},
+  {0.99f,0.92f,0.55f,1.0f},
+  {0.49f,0.73f,0.87f,1.0f},
+  {0.20f,0.17f,0.46f,1.0f},
+  {0.93f,0.93f,0.93f,1.0f},
+  {0.80f,0.33f,0.29f,1.0f},
+  {0.76f,0.87f,0.94f,1.0f},
+  {0.48f,0.71f,0.91f,1.0f},
+  {0.97f,0.95f,0.55f,1.0f},
+  {0.85f,0.52f,0.42f,1.0f},
+  {0.52f,0.71f,0.55f,1.0f},
+  {0.97f,0.95f,0.52f,1.0f},
+  {0.93f,0.91f,0.87f,1.0f},
+  {0.75f,0.72f,0.69f,1.0f},
+  {0.89f,0.68f,0.78f,1.0f},
+  {0.65f,0.65f,0.80f,1.0f},
+  {0.84f,0.45f,0.24f,1.0f},
+  {0.85f,0.87f,0.34f,1.0f},
+  {0.81f,0.89f,0.97f,1.0f},
+  {1.00f,0.96f,0.48f,1.0f},
+  {0.88f,0.64f,0.76f,1.0f},
+  {0.59f,0.41f,0.36f,1.0f},
+  {0.71f,0.52f,0.33f,1.0f},
+  {0.54f,0.53f,0.53f,1.0f},
+}};
+
 
 class YAK42 {
 public:
-  YAK42(const Vec3ui& pos) :
+  YAK42(const Vec3i& pos) :
   pos(pos) {}
     
   virtual ~YAK42() {};
-  virtual void render(GLApp& app) = 0;
+  virtual void render(GLApp& app) const = 0;
   virtual std::vector<Vec2t<uint16_t>> studsTop() = 0;
   virtual std::vector<Vec2t<uint16_t>> studsBottom() = 0;
 
-  Vec3ui getPos() const {return pos;}
+  Vec3i getPos() const {return pos;}
   
 private:
-  Vec3ui pos;
+  Vec3i pos;
   
 };
 
 class SimpleYAK42 : public YAK42 {
 public:
   SimpleYAK42(uint16_t width, uint16_t depth, uint16_t height,
-              uint16_t colorCode, const Vec3ui& pos) :
+              uint16_t colorCode, const Vec3i& pos) :
   YAK42(pos),
   width(width),
   depth(depth),
@@ -40,7 +157,7 @@ public:
     generateGeometry();
   }
   
-  virtual void render(GLApp& app) override {
+  virtual void render(GLApp& app) const override {
     app.drawTriangles(geometry, TrisDrawType::LIST, false, true);
   }
     
@@ -75,17 +192,48 @@ private:
   }
 
   void generateStuds() {
-    Tesselation studTesselation = Tesselation::genCylinder({},
-                                                           studRadius,
-                                                           studHeight,
-                                                           false,
-                                                           true,100);
+    
+    for (uint16_t z = 0; z < depth;++z) {
+      for (uint16_t x = 0; x < width;++x) {
+        
+        const Vec3 relativePos{
+          -0.5f*brickScale.x*width+studSpacing/2.0f+studRadius + (studSpacing+2*studRadius)*x,
+          height/3.0f*brickScale.y/2.0f+studHeight*0.5f,
+          -0.5f*brickScale.z*depth+studSpacing/2.0f+studRadius + (studSpacing+2*studRadius)*z
+        };
+        
+        Tesselation studTesselation = Tesselation::genCylinder(Vec3(getPos())*brickScale+relativePos,
+                                                               studRadius,
+                                                               studHeight,
+                                                               false,
+                                                               true,100);
+        
+        const std::vector<float> vertices   = studTesselation.getVertices();
+        const std::vector<float> normals    = studTesselation.getNormals();
+        const std::vector<uint32_t> indices = studTesselation.getIndices();
+                
+        for (const uint32_t index : indices) {
+          geometry.push_back(vertices[index*3+0]);
+          geometry.push_back(vertices[index*3+1]);
+          geometry.push_back(vertices[index*3+2]);
+
+          geometry.push_back(yak42Colors[colorCode].r);
+          geometry.push_back(yak42Colors[colorCode].g);
+          geometry.push_back(yak42Colors[colorCode].b);
+          geometry.push_back(yak42Colors[colorCode].a);
+
+          geometry.push_back(normals[index*3+0]);
+          geometry.push_back(normals[index*3+1]);
+          geometry.push_back(normals[index*3+2]);
+        }
+      }
+    }
 
   }
   
   void generateBase() {
     Tesselation baseTesselation = Tesselation::genBrick(Vec3(getPos())*brickScale,
-                                                        Vec3(width,height/3,depth)*brickScale);
+                                                        Vec3(width,height/3.0f,depth)*brickScale);
 
     
     const std::vector<float> vertices   = baseTesselation.getVertices();
@@ -97,11 +245,10 @@ private:
       geometry.push_back(vertices[index*3+1]);
       geometry.push_back(vertices[index*3+2]);
 
-      // TODO use color form palette
-      geometry.push_back(1.0f);
-      geometry.push_back(0.0f);
-      geometry.push_back(0.0f);
-      geometry.push_back(1.0f);
+      geometry.push_back(yak42Colors[colorCode].r);
+      geometry.push_back(yak42Colors[colorCode].g);
+      geometry.push_back(yak42Colors[colorCode].b);
+      geometry.push_back(yak42Colors[colorCode].a);
 
       geometry.push_back(normals[index*3+0]);
       geometry.push_back(normals[index*3+1]);
@@ -122,15 +269,36 @@ public:
   
   virtual void init() override {
     fe = fr.generateFontEngine();
-    glEnv.setTitle("Klemmspass");
+    glEnv.setTitle("YAK42");
     GL(glDisable(GL_BLEND));
     GL(glClearColor(0,0,0,0));
     GL(glClearDepth(1.0f));
     
-    GL(glCullFace(GL_FRONT));
+    GL(glCullFace(GL_BACK));
     GL(glEnable(GL_CULL_FACE));
     GL(glEnable(GL_DEPTH_TEST));
     GL(glDepthFunc(GL_LESS));
+    
+    const int32_t pyraHeight{12};
+    const int32_t brickSize{2};
+    
+    for (int32_t y = 0;y<pyraHeight;++y) {
+      const int32_t levelSize{pyraHeight-y};
+      const Vec3i startPos{
+        -pyraHeight/2*brickSize+brickSize/2+y*brickSize/2,
+        -pyraHeight/2,
+        -pyraHeight/2*brickSize+brickSize/2+y*brickSize/2
+      };
+      for (int32_t z = 0;z<levelSize;++z) {
+        for (int32_t x = 0;x<levelSize;++x) {
+          bricks.push_back({brickSize,brickSize,1*3,
+            Rand::rand<uint16_t>(0,yak42Colors.size()),
+            startPos+Vec3i{x*brickSize,y,z*brickSize}
+          });
+        }
+      }
+    }
+
   }
   
   virtual void mouseMove(double xPosition, double yPosition) override {
@@ -161,12 +329,11 @@ public:
   
   virtual void draw() override {
     GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-    
-    
+        
     const Dimensions dim = glEnv.getFramebufferSize();
     
-    const Mat4 rotationX = Mat4::rotationX(animationTime*42);
-    const Mat4 rotationY = Mat4::rotationY(animationTime*100);
+    const Mat4 rotationX = Mat4::rotationX(0);
+    const Mat4 rotationY = Mat4::rotationY(animationTime*50);
     const Mat4 projection{Mat4::perspective(45.0f, dim.aspect(), 0.0001f, 1000.0f)};
     const Mat4 view = Mat4::lookAt({0,0,3}, {0,0,0}, {0,1,0});
         
@@ -183,12 +350,14 @@ private:
   std::shared_ptr<FontEngine> fe{nullptr};
   float animationTime;
   
-  Mat4 globalScale = Mat4::scaling(0.05f,0.05f,0.05f);
+  Mat4 globalScale = Mat4::scaling(0.01f);
   
-  SimpleYAK42 brick{4,2,3,0,{0,0,0}};
+  std::vector<SimpleYAK42> bricks;
   
   void drawBricks() {
-    brick.render(*this);
+    for (const SimpleYAK42& brick : bricks) {
+      brick.render(*this);
+    }
   }
   
 };
