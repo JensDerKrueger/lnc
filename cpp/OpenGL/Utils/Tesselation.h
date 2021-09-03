@@ -18,9 +18,12 @@ class Tesselation {
                                 float minorRadius, uint32_t majorSteps=200,
                                 uint32_t minorSteps=50);
 
+    static Tesselation genDisc(const Vec3 &center, float radius,
+                               const uint32_t steps=50, bool ccw=false);
+
     static Tesselation genCylinder(const Vec3 &center, float radius,
                                    const float height, const bool genBottom,
-                                   const bool genTop, const uint32_t steps=200);
+                                   const bool genTop, const uint32_t steps=50);
 
 		const std::vector<float>& getVertices() const {return vertices;}
 		const std::vector<float>& getNormals() const {return normals;}
@@ -28,6 +31,10 @@ class Tesselation {
 		const std::vector<float>& getTexCoords() const {return texCoords;}
 		const std::vector<uint32_t>& getIndices() const {return indices;}
 		
+    void append(const Tesselation& other,
+                const Vec2& texOffset={0.0f,0.0f},
+                const Vec2& texScale={1.0f,1.0f});
+  
 	private:
 		Tesselation() {}
 

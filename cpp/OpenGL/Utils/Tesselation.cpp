@@ -376,16 +376,83 @@ Tesselation Tesselation::genTorus(const Vec3 &center, float majorRadius, float m
 	return tess;
 }
 
-// can be moved around by center, but the normal to the cylinder plane is always (0, 0, 1)
+Tesselation Tesselation::genDisc(const Vec3 &center, float radius,
+                                 const uint32_t steps, bool ccw) {
+  Tesselation tess{};
+  
+  for (uint32_t x = 0; x <= steps; x++) {
+    const float phi = (2.0f * PI * x) / steps;
+    const Vec3 vertex{radius*std::cos(phi),
+                      0,
+                      radius*std::sin(phi)};
+    
+    const Vec3 tangent{-radius*std::sin(phi),
+                       0,
+                       radius*std::cos(phi)};
+    
+    tess.vertices.push_back(vertex.x + center.x);
+    tess.vertices.push_back(vertex.y + center.y);
+    tess.vertices.push_back(vertex.z + center.z);
 
+    tess.normals.push_back(0);
+    tess.normals.push_back(ccw ? -1 : 1);
+    tess.normals.push_back(0);
+
+    tess.tangents.push_back(0);
+    tess.tangents.push_back(0);
+    tess.tangents.push_back(1);
+
+    tess.texCoords.push_back(std::cos(phi));
+    tess.texCoords.push_back(std::sin(phi));
+  }
+  
+  tess.vertices.push_back(center.x);
+  tess.vertices.push_back(center.y);
+  tess.vertices.push_back(center.z);
+
+  tess.normals.push_back(0);
+  tess.normals.push_back(ccw ? -1 : 1);
+  tess.normals.push_back(0);
+
+  tess.tangents.push_back(0);
+  tess.tangents.push_back(0);
+  tess.tangents.push_back(1);
+
+  tess.texCoords.push_back(0.5f);
+  tess.texCoords.push_back(0.5f);
+  
+  if (ccw) {
+    for (uint32_t x = 0; x < steps; x++) {
+      tess.indices.push_back((x+0) % (steps*2));
+      tess.indices.push_back((x+1) % (steps*2));
+      tess.indices.push_back(tess.vertices.size()/3-1);
+    }
+  } else {
+    for (uint32_t x = 0; x < steps; x++) {
+      tess.indices.push_back(tess.vertices.size()/3-1);
+      tess.indices.push_back((x+1) % (steps*2));
+      tess.indices.push_back((x+0) % (steps*2));
+    }
+  }
+  
+  return tess;
+}
+
+
+// can be moved around by center, but the normal to the cylinder plane is always (0, 0, 1)
 Tesselation Tesselation::genCylinder(const Vec3 &center, const float radius,
                                      const float height, const bool genBottom,
                                      const bool genTop, const uint32_t steps)
 {
   Tesselation tess{};
+  
+  const float texScale = 1.0f / (1+genBottom+genTop);
+  float texOffset = 0.0f;
+  
 
   for (uint32_t x = 0; x <= steps; x++) {
     const float phi = (2.0f * PI * x) / steps;
+
     const Vec3 vertexBottom{
       radius*std::cos(phi),
       -height/2.0f,
@@ -443,127 +510,56 @@ Tesselation Tesselation::genCylinder(const Vec3 &center, const float radius,
     tess.tangents.push_back(tangent.y);
     tess.tangents.push_back(tangent.z);
 
-    tess.texCoords.push_back(textureBottom.x);
+    tess.texCoords.push_back(textureBottom.x*texScale);
     tess.texCoords.push_back(textureBottom.y);
 
-    tess.texCoords.push_back(textureTop.x);
+    tess.texCoords.push_back(textureTop.x*texScale);
     tess.texCoords.push_back(textureTop.y);
   }
 
-  for (uint32_t x = 0; x < steps*2; x++) {
-    tess.indices.push_back((x+0) % (steps*2));
-    tess.indices.push_back((x+1) % (steps*2));
-    tess.indices.push_back((x+2) % (steps*2));
+  for (uint32_t x = 0; x < steps; x++) {
+    tess.indices.push_back(x*2+0);
+    tess.indices.push_back(x*2+1);
+    tess.indices.push_back(x*2+2);
 
-    tess.indices.push_back((x+1) % (steps*2));
-    tess.indices.push_back((x+3) % (steps*2));
-    tess.indices.push_back((x+2) % (steps*2));
+    tess.indices.push_back(x*2+2);
+    tess.indices.push_back(x*2+1);
+    tess.indices.push_back(x*2+3);
   }
 
   if (genBottom) {
-    
-    const size_t offset = tess.vertices.size()/3;
-    
-    for (uint32_t x = 0; x <= steps; x++) {
-      const float phi = (2.0f * PI * x) / steps;
-      const Vec3 vertex{radius*std::cos(phi),
-                        -height/2.0f,
-                        radius*std::sin(phi)};
-      
-      const Vec3 tangent{-radius*std::sin(phi),
-                         0,
-                         radius*std::cos(phi)};
-      
-      tess.vertices.push_back(vertex.x + center.x);
-      tess.vertices.push_back(vertex.y + center.y);
-      tess.vertices.push_back(vertex.z + center.z);
-
-      tess.normals.push_back(0);
-      tess.normals.push_back(-1);
-      tess.normals.push_back(0);
-
-      tess.tangents.push_back(tangent.x);
-      tess.tangents.push_back(tangent.y);
-      tess.tangents.push_back(tangent.z);
-
-      tess.texCoords.push_back(0);
-      tess.texCoords.push_back(0);
-    }
-    
-    tess.vertices.push_back(center.x);
-    tess.vertices.push_back(-height/2.0f-center.y/2);
-    tess.vertices.push_back(center.z);
-
-    tess.normals.push_back(0);
-    tess.normals.push_back(-1);
-    tess.normals.push_back(0);
-
-    tess.tangents.push_back(0);
-    tess.tangents.push_back(0);
-    tess.tangents.push_back(1);
-
-    tess.texCoords.push_back(0);
-    tess.texCoords.push_back(0);
-    
-    for (uint32_t x = 0; x < steps; x++) {
-      tess.indices.push_back(offset+(x+0) % (steps*2));
-      tess.indices.push_back(offset+(x+1) % (steps*2));
-      tess.indices.push_back(tess.vertices.size()/3-1);
-    }
+    Tesselation disc = Tesselation::genDisc(center-Vec3(0,height/2.0f,0),
+                                            radius, steps, true);
+    texOffset += texScale;
+    tess.append(disc,{texOffset,0.0f},{texScale,1.0f});
   }
   
   if (genTop) {
-    
-    const size_t offset = tess.vertices.size()/3;
-    
-    for (uint32_t x = 0; x <= steps; x++) {
-      const float phi = (2.0f * PI * x) / steps;
-      const Vec3 vertex{radius*std::cos(phi),
-                        height/2.0f,
-                        radius*std::sin(phi)};
-      
-      const Vec3 tangent{-radius*std::sin(phi),
-                         0,
-                         radius*std::cos(phi)};
-      
-      tess.vertices.push_back(vertex.x + center.x);
-      tess.vertices.push_back(vertex.y + center.y);
-      tess.vertices.push_back(vertex.z + center.z);
-
-      tess.normals.push_back(0);
-      tess.normals.push_back(1);
-      tess.normals.push_back(0);
-
-      tess.tangents.push_back(tangent.x);
-      tess.tangents.push_back(tangent.y);
-      tess.tangents.push_back(tangent.z);
-
-      tess.texCoords.push_back(0);
-      tess.texCoords.push_back(0);
-    }
-    
-    tess.vertices.push_back(center.x);
-    tess.vertices.push_back(height/2.0f+center.y);
-    tess.vertices.push_back(center.z);
-
-    tess.normals.push_back(0);
-    tess.normals.push_back(1);
-    tess.normals.push_back(0);
-
-    tess.tangents.push_back(0);
-    tess.tangents.push_back(0);
-    tess.tangents.push_back(1);
-
-    tess.texCoords.push_back(0);
-    tess.texCoords.push_back(0);
-    
-    for (uint32_t x = 0; x < steps; x++) {
-      tess.indices.push_back(tess.vertices.size()/3-1);
-      tess.indices.push_back(offset+(x+1) % (steps*2));
-      tess.indices.push_back(offset+(x+0) % (steps*2));
-    }
-
+    Tesselation disc = Tesselation::genDisc(center+Vec3(0,height/2.0f,0),
+                                            radius, steps, false);
+    texOffset += texScale;
+    tess.append(disc,{texOffset,0.0f},{texScale,1.0f});
   }
   
   return tess;
+}
+
+
+void Tesselation::append(const Tesselation& other,
+                         const Vec2& texOffset,
+                         const Vec2& texScale) {
+  const size_t offset = vertices.size()/3;
+
+  vertices.insert(vertices.end(), other.vertices.begin(), other.vertices.end());
+  normals.insert(normals.end(), other.normals.begin(), other.normals.end());
+  tangents.insert(tangents.end(), other.tangents.begin(), other.tangents.end());
+
+  
+  for (size_t i = 0;i< other.texCoords.size();++i) {
+    texCoords.push_back(other.texCoords[i]*texScale[i%2]+texOffset[i%2]);
+  }
+
+  for (const uint32_t index : other.indices) {
+    indices.push_back(offset+index);
+  }
 }
