@@ -325,7 +325,9 @@ Tesselation Tesselation::genBrick(const Vec3& center, const Vec3& size, const Ve
 
 // Torus
 // can be moved around by center, but the normal to the torus plane is always (0, 0, 1)
-Tesselation Tesselation::genTorus(const Vec3 &center, float majorRadius, float minorRadius, uint32_t majorSteps, uint32_t minorSteps) {
+Tesselation Tesselation::genTorus(const Vec3 &center, float majorRadius,
+                                  float minorRadius, uint32_t majorSteps,
+                                  uint32_t minorSteps) {
 	Tesselation tess{};
 
 	for (uint32_t x = 0; x <= majorSteps; x++) {
@@ -423,15 +425,15 @@ Tesselation Tesselation::genDisc(const Vec3 &center, float radius,
   
   if (ccw) {
     for (uint32_t x = 0; x < steps; x++) {
-      tess.indices.push_back((x+0) % (steps*2));
-      tess.indices.push_back((x+1) % (steps*2));
+      tess.indices.push_back(x+0);
+      tess.indices.push_back(x+1);
       tess.indices.push_back(tess.vertices.size()/3-1);
     }
   } else {
     for (uint32_t x = 0; x < steps; x++) {
       tess.indices.push_back(tess.vertices.size()/3-1);
-      tess.indices.push_back((x+1) % (steps*2));
-      tess.indices.push_back((x+0) % (steps*2));
+      tess.indices.push_back(x+1);
+      tess.indices.push_back(x+0);
     }
   }
   
@@ -439,7 +441,8 @@ Tesselation Tesselation::genDisc(const Vec3 &center, float radius,
 }
 
 
-// can be moved around by center, but the normal to the cylinder plane is always (0, 0, 1)
+// can be moved around by center, but the normal
+// to the cylinder plane is always (0, 0, 1)
 Tesselation Tesselation::genCylinder(const Vec3 &center, const float radius,
                                      const float height, const bool genBottom,
                                      const bool genTop, const uint32_t steps)
@@ -449,7 +452,6 @@ Tesselation Tesselation::genCylinder(const Vec3 &center, const float radius,
   const float texScale = 1.0f / (1+genBottom+genTop);
   float texOffset = 0.0f;
   
-
   for (uint32_t x = 0; x <= steps; x++) {
     const float phi = (2.0f * PI * x) / steps;
 
