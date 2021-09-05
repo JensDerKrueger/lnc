@@ -23,7 +23,7 @@ public:
     GL(glEnable(GL_DEPTH_TEST));
     GL(glDepthFunc(GL_LESS));
     
-    const int32_t pyraHeight{14};
+    const int32_t pyraHeight{15};
     const int32_t brickSize{2};
     
     for (int32_t y = 0;y<pyraHeight;++y) {
