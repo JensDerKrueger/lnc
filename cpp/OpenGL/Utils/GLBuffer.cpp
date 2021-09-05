@@ -35,7 +35,8 @@ void GLBuffer::setData(const std::vector<GLuint>& data) {
 	GL(glBufferData(target, elemSize*data.size(), data.data(), GL_STATIC_DRAW));
 }
 
-void GLBuffer::connectVertexAttrib(GLint location, size_t elemCount, size_t offset) const {
+void GLBuffer::connectVertexAttrib(GLint location, size_t elemCount,
+                                   size_t offset, GLuint divisor) const {
     if (type == 0) {
         throw GLException{"Need to call setData before connectVertexAttrib"};
     }
@@ -43,8 +44,10 @@ void GLBuffer::connectVertexAttrib(GLint location, size_t elemCount, size_t offs
 	GL(glBindBuffer(target, bufferID));
 	GL(glEnableVertexAttribArray(location));
 	GL(glVertexAttribPointer(location, GLsizei(elemCount), type, GL_FALSE, GLsizei(stride), (void*)(offset*elemSize)));
+  GL(glVertexAttribDivisor(location, divisor));
 }
 
 void GLBuffer::bind() const {
 	GL(glBindBuffer(target, bufferID));
 }
+
