@@ -13,10 +13,14 @@ void GLArray::bind() const {
 	GL(glBindVertexArray(glId));
 }
 
-void GLArray::connectVertexAttrib(const GLBuffer& buffer, const GLProgram& program, const std::string& variable, size_t elemCount, size_t offset) const {
+void GLArray::connectVertexAttrib(const GLBuffer& buffer,
+                                  const GLProgram& program,
+                                  const std::string& variable,
+                                  size_t elemCount, size_t offset,
+                                  GLuint divisor) const {
 	bind();
 	const GLint location = program.getAttributeLocation(variable.c_str());
-	buffer.connectVertexAttrib(location, elemCount, offset);
+	buffer.connectVertexAttrib(location, elemCount, offset, divisor);
 }
 
 void GLArray::connectIndexBuffer(const GLBuffer& buffer) const {

@@ -14,7 +14,9 @@ public:
 	~GLArray();
 	
 	void bind() const;
-	void connectVertexAttrib(const GLBuffer& buffer, const GLProgram& program, const std::string& variable, size_t elemCount, size_t offset=0) const;
+	void connectVertexAttrib(const GLBuffer& buffer, const GLProgram& program,
+                           const std::string& variable, size_t elemCount,
+                           size_t offset=0, GLuint divisor = 0) const;
 	void connectIndexBuffer(const GLBuffer& buffer) const;
 	
 private:
