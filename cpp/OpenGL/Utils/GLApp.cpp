@@ -414,6 +414,14 @@ void GLApp::setDrawProjection(const Mat4& mat) {
   p = mat;
 }
 
+Mat4 GLApp::getDrawProjection() const {
+  return p;
+}
+
+Mat4 GLApp::getDrawTransform() const {
+  return mv;
+}
+
 void GLApp::setDrawTransform(const Mat4& mat) {
   mv = mat;
   mvi = Mat4::inverse(mv);

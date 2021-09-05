@@ -85,6 +85,10 @@ public:
   void drawPoints(const std::vector<float>& data, float pointSize=1.0f, bool useTex=false);
   void setDrawProjection(const Mat4& mat);
   void setDrawTransform(const Mat4& mat);
+  
+  Mat4 getDrawProjection() const;
+  Mat4 getDrawTransform() const;
+  
   void resetPointTexture(uint32_t resolution=64);
   void setPointTexture(const std::vector<uint8_t>& shape, uint32_t x, uint32_t y, uint32_t components);
   void setPointTexture(const Image& shape);
