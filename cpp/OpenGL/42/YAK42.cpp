@@ -126,28 +126,7 @@ const std::array<Vec4,111> YAK42::colors {{
   {0.54f,0.53f,0.53f,1.0f},
 }};
 
-
-SimpleYAK42::SimpleYAK42(uint16_t width, uint16_t depth, uint16_t height,
-                         uint16_t colorCode, const Vec3i& pos) :
-YAK42(pos),
-width(width),
-depth(depth),
-height(height),
-colorCode(colorCode)
-{
-  generateGeometry();
-}
-
-void SimpleYAK42::render(GLApp& app) const  {
-  app.drawTriangles(geometry, TrisDrawType::LIST, false, true);
-}
-  
-std::vector<Vec2t<uint16_t>> SimpleYAK42::studsTop() {
-  return studsBottom();
-}
-
-std::vector<Vec2t<uint16_t>> SimpleYAK42::studsBottom() {
-  std::vector<Vec2t<uint16_t>> studs(depth*width);
+void SimpleYAK42::generateStudPositions() {
   size_t i = 0;
   for (uint16_t y = 0; y < depth; ++y) {
     for (uint16_t x = 0; x < width; ++x) {
@@ -155,6 +134,30 @@ std::vector<Vec2t<uint16_t>> SimpleYAK42::studsBottom() {
       studs[i++].y = y;
     }
   }
+}
+
+SimpleYAK42::SimpleYAK42(uint16_t width, uint16_t depth, uint16_t height,
+                         uint16_t colorCode, const Vec3i& pos) :
+YAK42(pos,colorCode),
+width(width),
+depth(depth),
+height(height),
+studs(depth*width)
+{
+  generateStudPositions();
+  
+  generateGeometry();
+}
+
+void SimpleYAK42::render(GLApp& app) const  {
+  app.drawTriangles(geometry, TrisDrawType::LIST, false, true);
+}
+  
+std::vector<Vec2t<uint16_t>> SimpleYAK42::studsTop() const {
+  return studs;
+}
+
+std::vector<Vec2t<uint16_t>> SimpleYAK42::studsBottom() const {
   return studs;
 }
 
@@ -162,6 +165,21 @@ void SimpleYAK42::generateGeometry() {
   geometry.clear();
   generateStuds();
   generateBase();
+}
+
+
+Vec3 SimpleYAK42::computeGlobalStudPos(size_t i) const {
+
+  const uint16_t x = studsTop()[i].x;
+  const uint16_t z = studsTop()[i].y;
+  
+  const Vec3 relativePos {
+    -0.5f*brickScale.x*width+studSpacing/2.0f+studRadius + (studSpacing+2*studRadius)*x,
+    height/3.0f*brickScale.y/2.0f+studHeight*0.5f,
+    -0.5f*brickScale.z*depth+studSpacing/2.0f+studRadius + (studSpacing+2*studRadius)*z
+  };  
+  
+  return Vec3(getPos())*brickScale+relativePos;
 }
 
 void SimpleYAK42::generateStuds() {
@@ -191,10 +209,10 @@ void SimpleYAK42::generateStuds() {
         geometry.push_back(vertices[index*3+1]);
         geometry.push_back(vertices[index*3+2]);
 
-        geometry.push_back(colors[colorCode].r);
-        geometry.push_back(colors[colorCode].g);
-        geometry.push_back(colors[colorCode].b);
-        geometry.push_back(colors[colorCode].a);        
+        geometry.push_back(getColor().r);
+        geometry.push_back(getColor().g);
+        geometry.push_back(getColor().b);
+        geometry.push_back(getColor().a);
 
         geometry.push_back(normals[index*3+0]);
         geometry.push_back(normals[index*3+1]);
@@ -209,7 +227,6 @@ void SimpleYAK42::generateBase() {
   Tesselation baseTesselation = Tesselation::genBrick(Vec3(getPos())*brickScale,
                                                       Vec3(width,height/3.0f,depth)*brickScale);
 
-  
   const std::vector<float> vertices   = baseTesselation.getVertices();
   const std::vector<float> normals    = baseTesselation.getNormals();
   const std::vector<uint32_t> indices = baseTesselation.getIndices();
@@ -219,10 +236,10 @@ void SimpleYAK42::generateBase() {
     geometry.push_back(vertices[index*3+1]);
     geometry.push_back(vertices[index*3+2]);
 
-    geometry.push_back(colors[colorCode].r);
-    geometry.push_back(colors[colorCode].g);
-    geometry.push_back(colors[colorCode].b);
-    geometry.push_back(colors[colorCode].a);
+    geometry.push_back(getColor().r);
+    geometry.push_back(getColor().g);
+    geometry.push_back(getColor().b);
+    geometry.push_back(getColor().a);
 
     geometry.push_back(normals[index*3+0]);
     geometry.push_back(normals[index*3+1]);

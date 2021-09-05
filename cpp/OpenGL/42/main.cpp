@@ -6,6 +6,7 @@
 #include <Rand.h>
 
 #include "YAK42.h"
+#include "YAKManager.h"
 
 class YAK42App : public GLApp {
 public:
@@ -22,7 +23,7 @@ public:
     GL(glEnable(GL_DEPTH_TEST));
     GL(glDepthFunc(GL_LESS));
     
-    const int32_t pyraHeight{8};
+    const int32_t pyraHeight{14};
     const int32_t brickSize{2};
     
     for (int32_t y = 0;y<pyraHeight;++y) {
@@ -34,14 +35,13 @@ public:
       };
       for (int32_t z = 0;z<levelSize;++z) {
         for (int32_t x = 0;x<levelSize;++x) {
-          bricks.push_back({brickSize,brickSize,1*3,
-            Rand::rand<uint16_t>(0,YAK42::colors.size()),
-            startPos+Vec3i{x*brickSize,y,z*brickSize}
-          });
+          manager.add(std::make_shared<SimpleYAK42>(brickSize,brickSize,1*3,
+                                              Rand::rand<uint16_t>(0,YAK42::colors.size()),
+                                              startPos+Vec3i{x*brickSize,y,z*brickSize}));
         }
       }
     }
-
+    manager.compile();
   }
   
   virtual void mouseMove(double xPosition, double yPosition) override {
@@ -75,9 +75,11 @@ public:
         
     const Dimensions dim = glEnv.getFramebufferSize();
     
-    const Mat4 rotationX = Mat4::rotationX(-20);
-    const Mat4 rotationY = Mat4::rotationY(animationTime*50);
+    const Mat4 rotationX = Mat4::rotationX(-60);
+    const Mat4 rotationY = Mat4::rotationY(animationTime*60);
     const Mat4 projection{Mat4::perspective(45.0f, dim.aspect(), 0.0001f, 1000.0f)};
+    //const Mat4 projection{Mat4::ortho(-3, 3, -3/dim.aspect(), 3/dim.aspect(), 0.0001f, 1000.0f)};
+
     const Mat4 view = Mat4::lookAt({0,0,3}, {0,0,0}, {0,1,0});
         
     Mat4 model = rotationX*rotationY*globalScale;
@@ -93,14 +95,12 @@ private:
   std::shared_ptr<FontEngine> fe{nullptr};
   float animationTime;
   
-  Mat4 globalScale = Mat4::scaling(0.01f);
+  Mat4 globalScale = Mat4::scaling(0.005f);
   
-  std::vector<SimpleYAK42> bricks;
+  YAKManager manager;
   
   void drawBricks() {
-    for (const SimpleYAK42& brick : bricks) {
-      brick.render(*this);
-    }
+    manager.render(*this);
   }
   
 };
