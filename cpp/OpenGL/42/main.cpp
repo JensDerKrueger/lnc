@@ -23,7 +23,7 @@ public:
     GL(glEnable(GL_DEPTH_TEST));
     GL(glDepthFunc(GL_LESS));
     
-    const int32_t pyraHeight{15};
+    const int32_t pyraHeight{50};
     const int32_t brickSize{2};
     
     for (int32_t y = 0;y<pyraHeight;++y) {
@@ -84,9 +84,10 @@ public:
         
     Mat4 model = rotationX*rotationY*globalScale;
     glViewport(0, 0, GLsizei(dim.width), GLsizei(dim.height));
-    setDrawProjection(projection);
-    setDrawTransform(view*model);
-    drawBricks();
+    
+    manager.setProjection(projection);
+    manager.setModelView(view*model);
+    manager.render();
   }
   
 private:
@@ -98,10 +99,6 @@ private:
   Mat4 globalScale = Mat4::scaling(0.005f);
   
   YAKManager manager;
-  
-  void drawBricks() {
-    manager.render(*this);
-  }
   
 };
 

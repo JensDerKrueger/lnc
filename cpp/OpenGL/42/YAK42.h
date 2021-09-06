@@ -1,8 +1,7 @@
 #pragma once
 
-#include <GLApp.h>
-
 #include <Vec3.h>
+#include <Vec4.h>
 
 class YAK42 {
 public:
@@ -10,7 +9,6 @@ public:
         uint16_t colorCode) : pos(pos), colorCode(colorCode) {}
   virtual ~YAK42() {};
   
-  virtual void render(GLApp& app) const = 0;
   virtual std::vector<Vec2t<uint16_t>> studsTop() const = 0;
   virtual std::vector<Vec2t<uint16_t>> studsBottom() const = 0;
 
@@ -24,12 +22,15 @@ public:
     return colors[colorCode];
   }
   
+  static const Vec3 brickScale;
+  static constexpr float studHeight{1.8f};
+  static constexpr float studRadius{2.4f};
+  static const float studSpacing;
   
 private:
   Vec3i pos;
   uint16_t colorCode;
 
-    
 };
 
 class SimpleYAK42 : public YAK42 {
@@ -41,11 +42,12 @@ public:
   
   virtual ~SimpleYAK42() {};
 
-  virtual void render(GLApp& app) const override;
   virtual std::vector<Vec2t<uint16_t>> studsTop() const override;
   virtual std::vector<Vec2t<uint16_t>> studsBottom() const override;
   
   virtual Vec3 computeGlobalStudPos(size_t i) const override;
+
+  Vec3i getScale() const {return {width,height,depth};}
 
 private:
   uint16_t width;
@@ -56,9 +58,5 @@ private:
   std::vector<Vec2t<uint16_t>> studs;
   
   void generateStudPositions();
-  
-  void generateGeometry();
-  void generateStuds();
-  void generateBase();
-  
+
 };
