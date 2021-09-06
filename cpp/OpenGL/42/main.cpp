@@ -46,14 +46,17 @@ public:
   
   virtual void mouseMove(double xPosition, double yPosition) override {
     Dimensions s = glEnv.getWindowSize();
-    if (xPosition < 0 || xPosition > s.width || yPosition < 0 || yPosition > s.height) return;
+    if (xPosition < 0 || xPosition > s.width ||
+        yPosition < 0 || yPosition > s.height) return;
     mousePos = Vec2{float(xPosition/s.width),float(1.0-yPosition/s.height)};
   }
   
-  virtual void mouseButton(int button, int state, int mods, double xPosition, double yPosition) override {
+  virtual void mouseButton(int button, int state, int mods, double xPosition,
+                           double yPosition) override {
   }
   
-  virtual void mouseWheel(double x_offset, double y_offset, double xPosition, double yPosition) override {
+  virtual void mouseWheel(double x_offset, double y_offset, double xPosition,
+                          double yPosition) override {
   }
   
   virtual void keyboard(int key, int scancode, int action, int mods) override {
