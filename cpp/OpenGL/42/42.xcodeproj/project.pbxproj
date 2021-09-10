@@ -11,6 +11,7 @@
 		564297672667A9F1005C2306 /* helvetica_neue.pos in CopyFiles */ = {isa = PBXBuildFile; fileRef = 564297642667A9D0005C2306 /* helvetica_neue.pos */; };
 		5677395325FB7BF000AB2341 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5677394C25FB7BF000AB2341 /* main.cpp */; };
 		A207512B26E41DB700F670CE /* YAKManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A207512A26E41DB700F670CE /* YAKManager.cpp */; };
+		A20C181B26EAB18600B55CF6 /* YAKTerrain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A20C181A26EAB18600B55CF6 /* YAKTerrain.cpp */; };
 		A286262826E27C270073035F /* YAK42.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A286262626E27C260073035F /* YAK42.cpp */; };
 /* End PBXBuildFile section */
 
@@ -34,6 +35,8 @@
 		5677394C25FB7BF000AB2341 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		A207512926E41DB700F670CE /* YAKManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAKManager.h; sourceTree = "<group>"; };
 		A207512A26E41DB700F670CE /* YAKManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = YAKManager.cpp; sourceTree = "<group>"; };
+		A20C181926EAB18600B55CF6 /* YAKTerrain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAKTerrain.h; sourceTree = "<group>"; };
+		A20C181A26EAB18600B55CF6 /* YAKTerrain.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = YAKTerrain.cpp; sourceTree = "<group>"; };
 		A231F0FF25EAF61A00CBFC23 /* 42 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = 42; sourceTree = BUILT_PRODUCTS_DIR; };
 		A286262626E27C260073035F /* YAK42.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = YAK42.cpp; sourceTree = "<group>"; };
 		A286262726E27C260073035F /* YAK42.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAK42.h; sourceTree = "<group>"; };
@@ -53,6 +56,8 @@
 		A231F0F625EAF61A00CBFC23 = {
 			isa = PBXGroup;
 			children = (
+				A20C181A26EAB18600B55CF6 /* YAKTerrain.cpp */,
+				A20C181926EAB18600B55CF6 /* YAKTerrain.h */,
 				5677394C25FB7BF000AB2341 /* main.cpp */,
 				564297652667A9D0005C2306 /* helvetica_neue.bmp */,
 				564297642667A9D0005C2306 /* helvetica_neue.pos */,
@@ -129,6 +134,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A207512B26E41DB700F670CE /* YAKManager.cpp in Sources */,
+				A20C181B26EAB18600B55CF6 /* YAKTerrain.cpp in Sources */,
 				5677395325FB7BF000AB2341 /* main.cpp in Sources */,
 				A286262826E27C270073035F /* YAK42.cpp in Sources */,
 			);

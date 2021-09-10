@@ -82,7 +82,7 @@ basePosBuffer{GL_ARRAY_BUFFER},
 baseNormalBuffer{GL_ARRAY_BUFFER},
 baseIndexBuffer{GL_ELEMENT_ARRAY_BUFFER}
 {
-  
+  createCommonData();
 }
 
 void YAKManager::add(std::shared_ptr<YAK42> brick) {  
@@ -92,7 +92,6 @@ void YAKManager::add(std::shared_ptr<YAK42> brick) {
 void YAKManager::compile() {
   flagInvisibleObjects();
   generateInstanceData();
-  createCommonData();
 }
 
 void YAKManager::createCommonData() {

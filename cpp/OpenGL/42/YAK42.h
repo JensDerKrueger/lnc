@@ -58,5 +58,4 @@ private:
   std::vector<Vec2t<uint16_t>> studs;
   
   void generateStudPositions();
-
 };

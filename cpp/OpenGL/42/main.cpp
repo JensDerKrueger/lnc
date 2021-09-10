@@ -6,14 +6,19 @@
 #include <Rand.h>
 
 #include "YAK42.h"
+#include "YAKTerrain.h"
 #include "YAKManager.h"
 
 class YAK42App : public GLApp {
 public:
   
+  YAK42App() :
+    GLApp(640,480,1,"YAK42",true,false)
+  {
+  }
+  
   virtual void init() override {
     fe = fr.generateFontEngine();
-    glEnv.setTitle("YAK42");
     GL(glDisable(GL_BLEND));
     GL(glClearColor(0,0,0,0));
     GL(glClearDepth(1.0f));
@@ -23,24 +28,18 @@ public:
     GL(glEnable(GL_DEPTH_TEST));
     GL(glDepthFunc(GL_LESS));
     
-    const int32_t pyraHeight{50};
-    const int32_t brickSize{2};
+    terrain.requestBricks();
     
-    for (int32_t y = 0;y<pyraHeight;++y) {
-      const int32_t levelSize{pyraHeight-y};
-      const Vec3i startPos{
-        -pyraHeight/2*brickSize+brickSize/2+y*brickSize/2,
-        -pyraHeight/2,
-        -pyraHeight/2*brickSize+brickSize/2+y*brickSize/2
-      };
-      for (int32_t z = 0;z<levelSize;++z) {
-        for (int32_t x = 0;x<levelSize;++x) {
-          manager.add(std::make_shared<SimpleYAK42>(brickSize,brickSize,1*3,
-                                              Rand::rand<uint16_t>(0,YAK42::colors.size()),
-                                              startPos+Vec3i{x*brickSize,y,z*brickSize}));
-        }
-      }
+    while (!terrain.bricksReady()) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
+    
+    std::vector<std::shared_ptr<YAK42>> bricks = terrain.getBricks();
+    
+    for (const auto& brick : bricks) {
+      manager.add(brick);
+    }
+    
     manager.compile();
   }
   
@@ -78,14 +77,15 @@ public:
         
     const Dimensions dim = glEnv.getFramebufferSize();
     
-    const Mat4 rotationX = Mat4::rotationX(-60);
-    const Mat4 rotationY = Mat4::rotationY(animationTime*60);
+    const Mat4 rotationX = Mat4::rotationX(-40);
+        
+    const Mat4 trans = Mat4::translation({0,0,animationTime-floor(animationTime)});
     const Mat4 projection{Mat4::perspective(45.0f, dim.aspect(), 0.0001f, 1000.0f)};
     //const Mat4 projection{Mat4::ortho(-3, 3, -3/dim.aspect(), 3/dim.aspect(), 0.0001f, 1000.0f)};
 
-    const Mat4 view = Mat4::lookAt({0,0,3}, {0,0,0}, {0,1,0});
+    const Mat4 view = Mat4::lookAt({0,0,5}, {0,0,0}, {0,1,0});
         
-    Mat4 model = rotationX*rotationY*globalScale;
+    Mat4 model = rotationX*trans*globalScale;
     glViewport(0, 0, GLsizei(dim.width), GLsizei(dim.height));
     
     manager.setProjection(projection);
@@ -102,6 +102,8 @@ private:
   Mat4 globalScale = Mat4::scaling(0.005f);
   
   YAKManager manager;
+  
+  YAKTerrain terrain{{128,256}};
   
 };
 
