@@ -3,6 +3,8 @@
 #include <thread>
 #include <vector>
 
+#include <Grid2D.h>
+
 #include "YAK42.h"
 
 enum class YAKTerrainStatus {
@@ -32,4 +34,9 @@ private:
   std::condition_variable cv;
   
   std::thread generationThread;
+  
+  
+  Grid2D generateHeightfield() const;
+  void generateBricksFromField(const Grid2D& field);
+
 };

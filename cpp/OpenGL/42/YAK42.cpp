@@ -165,5 +165,5 @@ Vec3 SimpleYAK42::computeGlobalStudPos(size_t i) const {
     -0.5f*brickScale.z*depth+studSpacing/2.0f+studRadius + (studSpacing+2*studRadius)*z
   };  
   
-  return Vec3(getPos())*brickScale+relativePos;
+  return getPos()*brickScale+relativePos;
 }

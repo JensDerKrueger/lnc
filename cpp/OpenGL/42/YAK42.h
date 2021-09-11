@@ -12,7 +12,8 @@ public:
   virtual std::vector<Vec2t<uint16_t>> studsTop() const = 0;
   virtual std::vector<Vec2t<uint16_t>> studsBottom() const = 0;
 
-  Vec3i getPos() const {return pos;}
+  Vec3i getIntegerPos() const {return pos;}
+  Vec3 getPos() const {return Vec3{pos}/Vec3{1,3,1};}
 
   virtual Vec3 computeGlobalStudPos(size_t i) const = 0;
   

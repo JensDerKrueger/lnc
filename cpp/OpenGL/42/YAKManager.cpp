@@ -173,7 +173,7 @@ void YAKManager::generateInstanceData() {
       }
       
       // base geometry
-      const Vec3 pos   = Vec3(brick->getPos()) * YAK42::brickScale;
+      const Vec3 pos   = brick->getPos() * YAK42::brickScale;
       const Vec3 scale = Vec3(brick->getScale()) * YAK42::brickScale;
 
       baseInstanceData.push_back(pos.x);
