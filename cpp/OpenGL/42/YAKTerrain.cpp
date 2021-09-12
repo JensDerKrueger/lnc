@@ -72,12 +72,10 @@ void YAKTerrain::generateBricksFromField(const Grid2D& field) {
     for (uint32_t x = 0; x < size.x; ++x) {
       const uint32_t height = uint32_t(field.sample(float(x)/size.x, float(y)/size.y));
       
-      // TODO: handle boundary cases
       const int32_t lh = abs(int32_t(height)-int32_t(field.sample(float(x-1)/size.x, float(y)/size.y)));
       const int32_t rh = abs(int32_t(height)-int32_t(field.sample(float(x+1)/size.x, float(y)/size.y)));
       const int32_t th = abs(int32_t(height)-int32_t(field.sample(float(x)/size.x, float(y-1)/size.y)));
       const int32_t bh = abs(int32_t(height)-int32_t(field.sample(float(x)/size.x, float(y+1)/size.y)));
-
       const int32_t maxHeightDiff = std::max(lh,std::max(rh,std::max(th,bh)));
       
       const uint32_t brickCount = std::max<uint32_t>(1,uint32_t(maxHeightDiff));
