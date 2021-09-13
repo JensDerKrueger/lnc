@@ -58,10 +58,10 @@ void YAKTerrain::computeBricks() {
 }
 
 Grid2D YAKTerrain::generateHeightfield() const {
-  return Grid2D::genRandom(size.x/20,size.y/20)*40+
-         Grid2D::genRandom(size.x/10,size.y/10)*10+
-         Grid2D::genRandom(size.x/5,size.y/5)*5+
-         Grid2D::genRandom(size.x,size.y);
+  return Grid2D::genRandom(size.x/20,size.y/20,0)*40+
+         Grid2D::genRandom(size.x/10,size.y/10,0)*10+
+         Grid2D::genRandom(size.x/5,size.y/5,0)*5+
+         Grid2D::genRandom(size.x,size.y,0);
 }
 
 void YAKTerrain::generateBricksFromField(const Grid2D& field) {

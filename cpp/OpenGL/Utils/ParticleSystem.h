@@ -38,7 +38,7 @@ public:
 		this->extend = extend;
 	}
 	virtual Vec3 getPosition() const {
-		return center-extend/2.0+Vec3(Rand::rand01(),Rand::rand01(),Rand::rand01())*extend;
+		return center-extend/2.0+Vec3(staticRand.rand01(),staticRand.rand01(),staticRand.rand01())*extend;
 	}
 private:
 	Vec3 center;

@@ -37,6 +37,7 @@ public:
   Vec3 normal(const Vec2& pos) const;
 
   static Grid2D genRandom(size_t x, size_t y);
+  static Grid2D genRandom(size_t x, size_t y, uint32_t seed);
   Grid2D operator*(const float& value) const;
   Grid2D operator/(const float& value) const;
   Grid2D operator+(const float& value) const;

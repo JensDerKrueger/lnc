@@ -22,7 +22,7 @@ ParticleSystem::ParticleSystem(	uint32_t particleCount, std::shared_ptr<StartVol
     eruptionType{eruptionType}
 {	
 	for (uint32_t i = 0;i<particleCount;++i) {
-		Particle p{computeStart(), computeDirection(), acceleration, computeColor(color), 1.0f, autorestart ? maxAge*Rand::rand01() : 0, minPos, maxPos, true, grid};
+		Particle p{computeStart(), computeDirection(), acceleration, computeColor(color), 1.0f, autorestart ? maxAge*staticRand.rand01() : 0, minPos, maxPos, true, grid};
 		particles.push_back(p);		
 	}	
 }
@@ -46,7 +46,7 @@ void ParticleSystem::setBounce(bool bounce) {
 void ParticleSystem::restart(size_t count) {	
 	for (Particle& p : particles) {
 		if (p.isDead()) {
-			p.restart(computeStart(), computeDirection(), acceleration, computeColor(color), 1.0f, maxAge*Rand::rand01());
+			p.restart(computeStart(), computeDirection(), acceleration, computeColor(color), 1.0f, maxAge*staticRand.rand01());
 			count--;
 			if (count == 0) break;
 		}
@@ -59,7 +59,7 @@ void ParticleSystem::update(float t) {
 	for (int i = 0; i < int(particles.size());++i) {		
 		particles[i].update(deltaT);
 		if (particles[i].isDead() && getAutoRestart()) {
-			particles[i].restart(computeStart(), computeDirection(), acceleration, computeColor(color), 1.0f, maxAge*Rand::rand01());
+			particles[i].restart(computeStart(), computeDirection(), acceleration, computeColor(color), 1.0f, maxAge*staticRand.rand01());
 		}
 	}	
 }
@@ -85,15 +85,15 @@ Vec3 ParticleSystem::computeDirection() const {
 
 	switch (eruptionType) {
 		case DefaultEruption:
-			return initialSpeedMin + (initialSpeedMax - initialSpeedMin) * Vec3{ Rand::rand01(),Rand::rand01(),Rand::rand01() };
+			return initialSpeedMin + (initialSpeedMax - initialSpeedMin) * Vec3{ staticRand.rand01(),staticRand.rand01(),staticRand.rand01() };
 		case SmoothEruption:
-			radius = (initialSpeedMax - initialSpeedMin).length() * (0.6f + 0.4f * Rand::rand01()) * 0.15f;
+			radius = (initialSpeedMax - initialSpeedMin).length() * (0.6f + 0.4f * staticRand.rand01()) * 0.15f;
 			return Vec3::randomPointInSphere() * radius + Vec3{ 0.0f, 0.15f, 0.0f };
 		case MagicChaoticVulcano:
-			radius = (initialSpeedMax - initialSpeedMin).length() * (0.6f + 0.4f * Rand::rand01()) * 0.1f;
+			radius = (initialSpeedMax - initialSpeedMin).length() * (0.6f + 0.4f * staticRand.rand01()) * 0.1f;
 			return Vec3::randomPointInSphere() * radius + Vec3{ 0.04f * cosf(floorf(t * 3.5f) * 10.0f),
 																0.05f + 0.2f * (1.2f + cosf(floorf(t * 13.0f))) *
-                                                                0.2f * Rand::rand01(),
+                                                                0.2f * staticRand.rand01(),
 																0.04f * sinf(floorf(t * 4.0f) * 20.0f) }
                                                                 *1.0f;
 	}

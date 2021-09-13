@@ -90,7 +90,7 @@ public:
   operator const T*(void) const  {return e.data();}
           
   static Vec2t random() {
-      return Vec2t{T{Rand::rand01()},T{Rand::rand01()}};
+      return Vec2t{T{staticRand.rand01()},T{staticRand.rand01()}};
   }
   
   static Vec2t normalize(const Vec2t& a) {

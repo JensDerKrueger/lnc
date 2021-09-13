@@ -140,10 +140,19 @@ Vec3 Grid2D::normal(float x, float y) const {
     return Vec3::normalize((n1 + n2) / 2.0f);
 }
 
+Grid2D Grid2D::genRandom(size_t x, size_t y, uint32_t seed) {
+  Random myrandom{seed};
+  Grid2D result{x,y};
+  for (size_t i = 0;i<result.data.size();++i) {
+      result.data[i] = myrandom.rand01();
+  }
+  return result;
+}
+
 Grid2D Grid2D::genRandom(size_t x, size_t y) {
     Grid2D result{x,y};
     for (size_t i = 0;i<result.data.size();++i) {
-        result.data[i] = Rand::rand01();
+        result.data[i] = staticRand.rand01();
     }
     return result;
 }

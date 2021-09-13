@@ -53,7 +53,7 @@ public:
   }
 
   std::string getTarget() const {
-      float p = Rand::rand01();
+      float p = staticRand.rand01();
       
       for (const Target& t : targets) {
           p -= t.probability;

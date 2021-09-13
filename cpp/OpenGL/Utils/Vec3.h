@@ -148,12 +148,12 @@ public:
   }
   
   static Vec3t<float> random() {
-    return {Rand::rand01(),Rand::rand01(),Rand::rand01()};
+    return {staticRand.rand01(),staticRand.rand01(),staticRand.rand01()};
   }
   
   static Vec3t<float> randomPointInSphere() {
     while (true) {
-      Vec3t<float> p{Rand::rand11(),Rand::rand11(),Rand::rand11()};
+      Vec3t<float> p{staticRand.rand11(),staticRand.rand11(),staticRand.rand11()};
       if (p.sqlength() > 1) continue;
       return p;
     }
@@ -161,7 +161,7 @@ public:
   
   static Vec3t<float> randomPointInHemisphere() {
     while (true) {
-      Vec3t<float> p{Rand::rand01(),Rand::rand01(),Rand::rand01()};
+      Vec3t<float> p{staticRand.rand01(),staticRand.rand01(),staticRand.rand01()};
       if (p.sqlength() > 1) continue;
       return p;
     }
@@ -169,15 +169,15 @@ public:
   
   static Vec3t<float> randomPointInDisc() {
     while (true) {
-      Vec3t<float> p{Rand::rand11(),Rand::rand11(),0};
+      Vec3t<float> p{staticRand.rand11(),staticRand.rand11(),0};
       if (p.sqlength() > 1) continue;
       return p;
     }
   }
   
   static Vec3t<float> randomUnitVector() {
-    const float a = Rand::rand0Pi();
-    const float z = Rand::rand11();
+    const float a = staticRand.rand0Pi();
+    const float z = staticRand.rand11();
     const float r = sqrt(1.0f - z*z);
     return {r*cosf(a), r*sinf(a), z};
   }

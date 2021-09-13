@@ -104,7 +104,7 @@ void BitMatcher::addOverlay(const std::string& name, uint8_t current, uint8_t ne
 }
 
 OverlayImage::OverlayImage(const std::string& name, uint8_t current, uint8_t next, const std::string& opText, BitMatcher* app) :
-position{Rand::rand<float>(-0.5,0.5),Rand::rand<float>(-0.9f,-0.1f)},
+position{staticRand.rand<float>(-0.5,0.5),staticRand.rand<float>(-0.9f,-0.1f)},
 alpha{1.0f},
 startTime{0.0},
 app(app)
@@ -113,8 +113,8 @@ app(app)
   ss << name << ": " << opText;
   text = ss.str();
 
-  float r = Rand::rand01();
-  float g = Rand::rand01();
+  float r = staticRand.rand01();
+  float g = staticRand.rand01();
   float b = 2.0f-(r*g);
   color = Vec3(r,g,b)*0.8f;
 }

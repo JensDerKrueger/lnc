@@ -240,7 +240,7 @@ public:
   {
     for (size_t i = 0;i<vertexCount;++i) {
       float angle = 2*PI*i/float(vertexCount);
-      float dist = (Rand::rand01() < 0.4)? 0.5f+Rand::rand01()*0.5f : 0.9f+Rand::rand01()*0.1f;
+      float dist = (staticRand.rand01() < 0.4)? 0.5f+staticRand.rand01()*0.5f : 0.9f+staticRand.rand01()*0.1f;
       const Vec2 coord = Vec2{type*size*cosf(angle), type*size*sinf(angle)} * dist;
       addCoord( coord );
       velocity = startVelocity;
@@ -436,11 +436,11 @@ public:
   }
   
   void spawnAsteroid() {
-    float startAngle = Rand::rand01()*360.0f;
-    float startDist = 180.0f+Rand::rand01()*20.0f;
+    float startAngle = staticRand.rand01()*360.0f;
+    float startDist = 180.0f+staticRand.rand01()*20.0f;
     
     const Vec2 startPos{startDist*cosf(startAngle), startDist*sinf(startAngle)};
-    const Vec2 startVelocity{Rand::rand11()*0.5f,Rand::rand11()*0.5f};
+    const Vec2 startVelocity{staticRand.rand11()*0.5f,staticRand.rand11()*0.5f};
     asteroids.push_back(Asteroid{startPos, startVelocity, 3});
   }
   
@@ -508,8 +508,8 @@ public:
       for (size_t i = 0;i<asteroids.size();++i) {
         if (projectile.isAlive()) {
           if (asteroids[i].isHitByLaser(projectile)) {
-            float direction = Rand::rand01()*360.0f;
-            float velocity = 0.4f+Rand::rand01()*0.4f;
+            float direction = staticRand.rand01()*360.0f;
+            float velocity = 0.4f+staticRand.rand01()*0.4f;
             const Vec2 randomVelocity{velocity*cosf(direction), velocity*sinf(direction)};
             
             if (asteroids[i].getType() > 1) {

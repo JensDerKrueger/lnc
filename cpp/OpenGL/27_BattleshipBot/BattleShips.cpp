@@ -204,20 +204,20 @@ std::string BattleShips::generateName() const {
   std::string firstPart;
   std::string secondPart;
   
-  if (otherCallsigns.size() > 0 && Rand::rand01() > 0.5) {
-    firstPart = otherCallsigns[Rand::rand<size_t>(0, otherCallsigns.size())];
-    secondPart = callsignsAddons[Rand::rand<size_t>(0, callsignsAddons.size())];
+  if (otherCallsigns.size() > 0 && staticRand.rand01() > 0.5) {
+    firstPart = otherCallsigns[staticRand.rand<size_t>(0, otherCallsigns.size())];
+    secondPart = callsignsAddons[staticRand.rand<size_t>(0, callsignsAddons.size())];
 
-    if (Rand::rand01() > 0.2) {
+    if (staticRand.rand01() > 0.2) {
       return firstPart + " " + secondPart;
     } else {
       return firstPart;
     }
   } else {
-    firstPart = adjectives[Rand::rand<size_t>(0, adjectives.size())];
-    secondPart = nouns[Rand::rand<size_t>(0, nouns.size())];
+    firstPart = adjectives[staticRand.rand<size_t>(0, adjectives.size())];
+    secondPart = nouns[staticRand.rand<size_t>(0, nouns.size())];
 
-    if (Rand::rand01() > 0.2) {
+    if (staticRand.rand01() > 0.2) {
       return firstPart + " " + secondPart;
     } else {
       return secondPart;
@@ -250,7 +250,7 @@ void BattleShips::rememberNastyPos(const GameGrid& fullOtherBoard) {
 
   nastyPos.insert(nastyPos.end(), newNastyPos.begin(), newNastyPos.end());
   if (nastyPos.size() > MAX_NASTY_POS) {
-    Rand::shuffle(newNastyPos);
+    staticRand.shuffle(newNastyPos);
     nastyPos.resize(MAX_NASTY_POS);
   }
     
@@ -288,5 +288,5 @@ void BattleShips::rememberName(const std::string& str) {
 
 Vec2ui BattleShips::getRandomNastyPos() const {
   if (nastyPos.empty()) return {0,0};
-  return nastyPos[Rand::rand<size_t>(0,nastyPos.size())];
+  return nastyPos[staticRand.rand<size_t>(0,nastyPos.size())];
 }

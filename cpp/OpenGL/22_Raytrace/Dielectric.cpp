@@ -26,7 +26,7 @@ std::optional<std::pair<Vec3,Ray>> Dielectric::scatter(const Ray& rIn, const Hit
 
 	// reflection
 	const float reflectProb {schlick(cosTheta, etaiOverEtat)};
-	if (Rand::rand01() < reflectProb) {
+	if (staticRand.rand01() < reflectProb) {
 		const Vec3 reflected{Vec3::reflect(unitDirection, hitRec.n)};
 		const Ray scattered{hitRec.p, reflected};
 		return std::make_pair(color, scattered);

@@ -218,7 +218,7 @@ Vec2ui GameGrid::guessNextCell() const {
       }
     }
   }
-  const Vec2ui pick = candidates[Rand::rand<size_t>(0,candidates.size())];
+  const Vec2ui pick = candidates[staticRand.rand<size_t>(0,candidates.size())];
   return pick;
 }
 
@@ -251,7 +251,7 @@ std::optional<Vec2ui> GameGrid::guessNextShipCellV(const Vec2ui& pos) const {
 }
 
 Vec2ui GameGrid::guessNextShipCell(const Vec2ui& pos) const {
-  const bool horizontalFirst = Rand::rand01() > 0.5f;
+  const bool horizontalFirst = staticRand.rand01() > 0.5f;
     
   bool searchHorizontal{true};
   if (pos.y > 0 && (getCell(pos.x, pos.y-1) == Cell::Ship || getCell(pos.x, pos.y-1) == Cell::ShipShot)) searchHorizontal = false;

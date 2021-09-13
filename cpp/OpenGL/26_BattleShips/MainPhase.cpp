@@ -16,8 +16,8 @@ void MainPhase::prepare(const ShipPlacement& myShipPlacement) {
   otherBoard = GameGrid{boardSize};
   otherBoard.clearUnknown();
   
-  homeTitle = homeTitles[size_t(Rand::rand01() * homeTitles.size())];
-  guestTitle = guestTitles[size_t(Rand::rand01() * guestTitles.size())];
+  homeTitle = homeTitles[size_t(staticRand.rand01() * homeTitles.size())];
+  guestTitle = guestTitles[size_t(staticRand.rand01() * guestTitles.size())];
   
   waitingForOther = false;
   waitingMessageIndex = 0;
@@ -223,7 +223,7 @@ void MainPhase::animateInternal(double animationTime) {
 
   if (!waitingForOther && myRound > otherRound) {
     waitingForOther = true;
-    waitingMessageIndex = size_t(Rand::rand01() * waitingShotMessages.size());
+    waitingMessageIndex = size_t(staticRand.rand01() * waitingShotMessages.size());
   }
   
   if (myRound <= otherRound) waitingForOther = false;

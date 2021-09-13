@@ -119,9 +119,9 @@ Vec3 randomWalk(const Vec3& pos) {
 
 Vec3 genRandomStartpoint() {
 #ifdef only2D
-    Vec3 current{Rand::rand11(),Rand::rand11(),0};
+    Vec3 current{staticRand.rand11(),staticRand.rand11(),0};
 #else
-    Vec3 current{Rand::rand11(),Rand::rand11(),Rand::rand11()};
+    Vec3 current{staticRand.rand11(),staticRand.rand11(),staticRand.rand11()};
 #endif
     while (checkCollision(current))
         current = genRandomStartpoint();

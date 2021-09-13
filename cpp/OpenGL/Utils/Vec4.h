@@ -139,7 +139,7 @@ public:
   }
       
   static Vec4t<float> random() {
-    return {Rand::rand01(),Rand::rand01(),Rand::rand01(),Rand::rand01()};
+    return {staticRand.rand01(),staticRand.rand01(),staticRand.rand01(),staticRand.rand01()};
   }
 };
 

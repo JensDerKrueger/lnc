@@ -165,7 +165,7 @@ size_t Scene::genRandTetrominoIndex() {
 		for (size_t i = 0;i<tetrominos.size()*3;++i) {
 			nextTetrominos.push_back(i%tetrominos.size());
 		}
-		Rand::shuffle(nextTetrominos);
+		staticRand.shuffle(nextTetrominos);
 	}	
 	size_t v = nextTetrominos.back();
 	nextTetrominos.pop_back();

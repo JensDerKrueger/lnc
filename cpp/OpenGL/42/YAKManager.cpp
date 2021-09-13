@@ -225,7 +225,7 @@ void YAKManager::render() const {
   studShader.setUniform("MVit", modelViewInverseTranspose);
   GL(glDrawElementsInstanced(GL_TRIANGLES, GLsizei(studVertexCount),
                              GL_UNSIGNED_INT, (void*)0, GLsizei(studInstanceCount)));
-
+   
   baseShader.enable();
   baseArray.bind();
   baseShader.setUniform("MVP", modelViewProjection);

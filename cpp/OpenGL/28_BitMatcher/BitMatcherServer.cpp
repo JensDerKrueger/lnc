@@ -21,9 +21,9 @@ BitMatcher::~BitMatcher() {
 }
 
 void BitMatcher::shuffleNumbers() {
-  current = uint8_t(Rand::rand01()*256);
+  current = uint8_t(staticRand.rand01()*256);
   do {
-    target  = uint8_t(Rand::rand01()*256);
+    target  = uint8_t(staticRand.rand01()*256);
   } while (target == current);
 }
 
@@ -143,7 +143,7 @@ size_t BitMatcher::getPlayerIndex(const std::string& name) {
   for (size_t i = 0;i<highscore.size();++i) {
     if (highscore[i].name == name) return i;
   }
-  highscore.push_back({name,0,Rand::rand<uint32_t>(0,op.getOperatorCount())});
+  highscore.push_back({name,0,staticRand.rand<uint32_t>(0,op.getOperatorCount())});
   frontendConnections.updateHighscore(highscore);
   return highscore.size()-1;
 }
@@ -180,9 +180,9 @@ void BitMatcher::startNewChallange() {
 void BitMatcher::assignNewOps() {
   for (size_t i = 0;i<highscore.size();++i) {
     uint32_t oldID = highscore[i].opID;
-    uint32_t newID = Rand::rand<uint32_t>(0,op.getOperatorCount());
+    uint32_t newID = staticRand.rand<uint32_t>(0,op.getOperatorCount());
     while (!op.differInBothOps(oldID, newID)) {
-      newID = Rand::rand<uint32_t>(0,op.getOperatorCount());
+      newID = staticRand.rand<uint32_t>(0,op.getOperatorCount());
     }
     highscore[i].opID = newID;
   }

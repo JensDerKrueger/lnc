@@ -24,9 +24,9 @@ void BoardSetupPhase::run() {
     for (const ShipSize& s : setup) {
       
       for (size_t i = 0;i<100;++i) {
-        Orientation o = Orientation(Rand::rand(0,2));
-        uint32_t x = Rand::rand<uint32_t>(0,boardSize.x);
-        uint32_t y = Rand::rand<uint32_t>(0,boardSize.y);
+        Orientation o = Orientation(staticRand.rand(0,2));
+        uint32_t x = staticRand.rand<uint32_t>(0,boardSize.x);
+        uint32_t y = staticRand.rand<uint32_t>(0,boardSize.y);
         if (myShipPlacement.addShip({s,o,{x,y}})) {
           shipsPlaced++;
           break;

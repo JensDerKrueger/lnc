@@ -85,8 +85,8 @@ HitableList randomSphereScene() {
 	// numerous small spheres
 	for (int32_t a{-11}; a < 11;++a) {
 		for (int32_t b{-11}; b < 11;++b) {
-			const float chooseMat{Rand::rand01()};
-			const Vec3 center{a + 0.9f*Rand::rand01(), 0.2f, b + 0.9f*Rand::rand01()};
+			const float chooseMat{staticRand.rand01()};
+			const Vec3 center{a + 0.9f*staticRand.rand01(), 0.2f, b + 0.9f*staticRand.rand01()};
 			
 			if ((center - Vec3{4.0f, 0.2f, 0.0f}).length() > 0.9f) {
 				if (chooseMat < 0.8f) {
@@ -96,9 +96,9 @@ HitableList randomSphereScene() {
 				} else {
 					if (chooseMat < 0.9f) {
 						// metal
-						const float c{Rand::rand005()};
+						const float c{staticRand.rand005()};
 						const Vec3 color{c,c,c};
-						const float fuzz{Rand::rand051()};
+						const float fuzz{staticRand.rand051()};
 						world.add(std::make_shared<Sphere>(center, 0.2f, std::make_shared<Metal>(color, fuzz)));
 					} else {
 						// glass
@@ -159,8 +159,8 @@ public:
           if (!glEnv.shouldClose()) {
             Vec3 pixelColor{0,0,0};
             for (uint32_t s{0}; s < samplesPerPixel; ++s) {
-              const float u{(i + Rand::rand01()) / (imageWidth-1)};
-              const float v{(j + Rand::rand01()) / (imageHeight-1)};
+              const float u{(i + staticRand.rand01()) / (imageWidth-1)};
+              const float v{(j + staticRand.rand01()) / (imageHeight-1)};
               const Ray r{cam.getRay(u, v)};
               pixelColor = pixelColor + rayColor(r, world, maxDepth);
             }

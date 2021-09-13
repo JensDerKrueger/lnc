@@ -144,7 +144,7 @@ void OpenGLRenderer::clearRows() {
 	for (uint32_t row : clearedRows) {
 		Vec3 coord{pos2Coord(Vec2(width()/2,row), 20.0f)};
 		starter->setStart(coord, Vec3(float(width()),1.0f,1.0f));
-		particleSystem.setInitialSpeed( (viewerPos-coord)*2, (viewerPos-coord)*2+Vec3{Rand::rand01(),Rand::rand01(),Rand::rand01()}*3  );
+		particleSystem.setInitialSpeed( (viewerPos-coord)*2, (viewerPos-coord)*2+Vec3{staticRand.rand01(),staticRand.rand01(),staticRand.rand01()}*3  );
 		particleSystem.restart(particlesPerRow);
 	}
 }

@@ -101,7 +101,7 @@ void PrecomputedParticleSystem::recomputeTrajectories() {
     iMaxAge = 0;
     std::vector<uint32_t> maxAges(particleStart.size());
     for (uint32_t i = 0; i < maxAges.size(); ++i) {
-        float z = Rand::rand01();
+        float z = staticRand.rand01();
         maxAges[i] = uint32_t(maxAge*z);
         iMaxAge = std::max(maxAges[i], iMaxAge);
     }
@@ -112,7 +112,7 @@ void PrecomputedParticleSystem::recomputeTrajectories() {
         particlePositions[i].push_back(particleStart[i]);
         directions[i] = initialSpeedMin +
                                 (initialSpeedMax - initialSpeedMin) *
-                                Vec3{Rand::rand01(),Rand::rand01(),Rand::rand01()};
+                                Vec3{staticRand.rand01(),staticRand.rand01(),staticRand.rand01()};
     }
     
     particleCountPerTimestep.push_back(particleStart.size());

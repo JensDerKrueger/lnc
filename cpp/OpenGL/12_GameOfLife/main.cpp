@@ -44,7 +44,7 @@ void randomizeGrid() {
   std::vector<uint8_t> data(gridTextures[0].getSize());
   
   for (size_t i = 0;i<data.size();i+=3) {
-    data[i] = Rand::rand01() >= 0.5 ? 255 : 0;
+    data[i] = staticRand.rand01() >= 0.5 ? 255 : 0;
   }
   
   gridTextures[0].setData(data);

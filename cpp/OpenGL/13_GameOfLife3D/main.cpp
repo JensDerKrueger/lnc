@@ -164,7 +164,7 @@ void genRandomData() {
   size_t gridSize = currentGrid->getDepth();
   std::vector<GLubyte> noiseData(gridSize*gridSize*gridSize);
   for (size_t i = 0;i<noiseData.size();++i) {
-    noiseData[i] = GLubyte(Rand::rand01()*256);
+    noiseData[i] = GLubyte(staticRand.rand01()*256);
   }
   noiseVolume.setData(noiseData, gridSize,gridSize,gridSize,1);
 }

@@ -83,7 +83,7 @@ void MainPhase::run() {
       app->getClient()->shootAt(nextShot);
     } else {
       app->getClient()->aimAt(findNextAim());
-      alpha = std::min(1.0f, alpha+Rand::rand<float>(0.02f,0.04f));
+      alpha = std::min(1.0f, alpha+staticRand.rand<float>(0.02f,0.04f));
       std::this_thread::sleep_for(std::chrono::milliseconds(status == Status::SEARCHING ? 10 : 2));
     }
   }
@@ -100,7 +100,7 @@ void MainPhase::findNextShot() {
   alpha = 0;
 
   if (status == Status::SEARCHING) {
-    if (Rand::rand01() > 0.7) {
+    if (staticRand.rand01() > 0.7) {
       for (size_t i = 0;i<10;++i) {
         Vec2ui np = app->getRandomNastyPos();
         if (otherBoard.getCell(np.x, np.y) == Cell::Unknown) {

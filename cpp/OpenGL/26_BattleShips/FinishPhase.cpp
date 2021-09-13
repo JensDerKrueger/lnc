@@ -17,8 +17,8 @@ void FinishPhase::prepare(const GameGrid& my, const GameGrid& other, const std::
   encOtherBoard = enc;
   
   title = (status == 1) ? "You win" : "You loose";
-  homeTitle = homeTitles[size_t(Rand::rand01() * homeTitles.size())];
-  guestTitle = guestTitles[size_t(Rand::rand01() * guestTitles.size())];
+  homeTitle = homeTitles[size_t(staticRand.rand01() * homeTitles.size())];
+  guestTitle = guestTitles[size_t(staticRand.rand01() * guestTitles.size())];
 }
 
 void FinishPhase::drawBoard(const GameGrid& board, Mat4 boardTrans) {

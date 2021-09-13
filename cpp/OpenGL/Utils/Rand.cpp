@@ -4,30 +4,49 @@
 constexpr float M_PI = 3.14159265358979323846f;
 #endif
 
-std::random_device Rand::rd{};
-std::mt19937 Rand::gen{rd()};
-std::uniform_real_distribution<float> Rand::dis01{0.0f, 1.0f};
-std::uniform_real_distribution<float> Rand::dis005{0.0f, 0.5f};
-std::uniform_real_distribution<float> Rand::dis051{0.5f, 1.0f};
-std::uniform_real_distribution<float> Rand::dis11{-1.0f, 1.0f};
-std::uniform_real_distribution<float> Rand::disPi{0.0f, 2.0f * float(M_PI)};
+Random::Random() :
+rd{},
+gen{rd()},
+dis01{0.0f, 1.0f},
+dis11{-1.0f, 1.0f},
+disPi{0.0f, 2.0f * float(M_PI)},
+dis005{0.0f, 0.5f},
+dis051{0.5f, 1.0f}
+{
+  
+}
 
-float Rand::rand01() {
+Random::Random(uint32_t seed)  :
+rd{},
+gen{seed},
+dis01{0.0f, 1.0f},
+dis11{-1.0f, 1.0f},
+disPi{0.0f, 2.0f * float(M_PI)},
+dis005{0.0f, 0.5f},
+dis051{0.5f, 1.0f}
+{
+}
+
+
+
+float Random::rand01() {
     return dis01(gen);
 }
 
-float Rand::rand005() {
+float Random::rand005() {
     return dis005(gen);
 }
 
-float Rand::rand051() {
+float Random::rand051() {
     return dis051(gen);
 }
 
-float Rand::rand11() {
+float Random::rand11() {
     return dis11(gen);
 }
 
-float Rand::rand0Pi() {
+float Random::rand0Pi() {
     return disPi(gen);
 }
+
+Random staticRand;

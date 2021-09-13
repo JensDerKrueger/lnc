@@ -188,7 +188,7 @@ void MosaicMaker::generateResultImage() {
     setProgress(y+1);
     for (uint32_t x = 0;x<xBricks;++x) {
       const std::vector<Vec3t<double>> featureTensor = computeFeatureTensor(x,y);
-      const uint32_t minImageDist = minMaxMinImageDist[0] == minMaxMinImageDist[1] ? minMaxMinImageDist[0] : Rand::rand<uint32_t>(minMaxMinImageDist[0],minMaxMinImageDist[1]);
+      const uint32_t minImageDist = minMaxMinImageDist[0] == minMaxMinImageDist[1] ? minMaxMinImageDist[0] : staticRand.rand<uint32_t>(minMaxMinImageDist[0],minMaxMinImageDist[1]);
       const std::vector<size_t> recentBricks = gatherRecentBricks(x,y,minImageDist);
       const size_t index = findBestSmallImage(featureTensor, recentBricks);
       placeSmallImageIntoResult(x,y, index, featureTensor);

@@ -140,7 +140,7 @@ void BattleShips::stateTransition() {
       break;
     case GamePhaseID::Connecting :
       if (client->getInitMessageSend()) {
-        pairingPhase.setSubtitle(pairingMessages[size_t(Rand::rand01() * pairingMessages.size())]);
+        pairingPhase.setSubtitle(pairingMessages[size_t(staticRand.rand01() * pairingMessages.size())]);
         currentPhase = &pairingPhase;
       }
       break;
@@ -161,7 +161,7 @@ void BattleShips::stateTransition() {
         mainPhase.prepare(myShipPlacement);
         myPassword = AESCrypt::genIVString();
         client->sendEncryptedShipPlacement(myShipPlacement.toEncryptedString(myPassword));
-        waitingBoardSetupPhase.setSubtitle(waitingBoardMessages[size_t(Rand::rand01() * waitingBoardMessages.size())]);
+        waitingBoardSetupPhase.setSubtitle(waitingBoardMessages[size_t(staticRand.rand01() * waitingBoardMessages.size())]);
         currentPhase = &waitingBoardSetupPhase;
       }
       break;
