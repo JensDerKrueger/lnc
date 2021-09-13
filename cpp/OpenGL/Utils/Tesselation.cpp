@@ -167,7 +167,7 @@ Tesselation Tesselation::genBrick(const Vec3& center, const Vec3& size, const Ve
 		// back
 		F.x, F.y, F.z,
 		E.x, E.y, E.z,
-		H.x, G.y, H.z,
+		H.x, H.y, H.z,
 		G.x, G.y, G.z,
 
 		// left
