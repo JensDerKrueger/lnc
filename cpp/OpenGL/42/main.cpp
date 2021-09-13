@@ -20,6 +20,8 @@ public:
   virtual void init() override {
     fe = fr.generateFontEngine();
     GL(glDisable(GL_BLEND));
+    GL(glBlendFunc(GL_ONE, GL_ONE));
+    GL(glBlendEquation(GL_FUNC_ADD));
     GL(glClearColor(0,0,0,0));
     GL(glClearDepth(1.0f));
     
@@ -29,18 +31,13 @@ public:
     GL(glDepthFunc(GL_LESS));
     
     terrain.requestBricks();
-    
     while (!terrain.bricksReady()) {
       std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
+    manager.push(terrain.getBricks());    
+
     
-    std::vector<std::shared_ptr<YAK42>> bricks = terrain.getBricks();
-    
-    for (const auto& brick : bricks) {
-      manager.add(brick);
-    }
-    
-    manager.compile();
+
   }
   
   virtual void mouseMove(double xPosition, double yPosition) override {
@@ -52,10 +49,19 @@ public:
   
   virtual void mouseButton(int button, int state, int mods, double xPosition,
                            double yPosition) override {
+    if (state != GLFW_PRESS) return;
+    
+    if (button == GLFW_MOUSE_BUTTON_LEFT) {
+      terrain.requestBricks();
+    } else {
+      manager.pop();
+    }
   }
   
   virtual void mouseWheel(double x_offset, double y_offset, double xPosition,
                           double yPosition) override {
+    
+      
   }
   
   virtual void keyboard(int key, int scancode, int action, int mods) override {
@@ -70,6 +76,8 @@ public:
   
   virtual void animate(double animationTime) override {
     this->animationTime = float(animationTime);
+    
+    if (terrain.bricksReady()) manager.push(terrain.getBricks());
   }
   
   virtual void draw() override {

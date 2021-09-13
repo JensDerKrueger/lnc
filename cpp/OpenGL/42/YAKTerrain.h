@@ -6,6 +6,7 @@
 #include <Grid2D.h>
 
 #include "YAK42.h"
+#include "YAKManager.h"
 
 enum class YAKTerrainStatus {
   Idle,
@@ -21,21 +22,19 @@ public:
     
   void requestBricks();
   bool bricksReady();
-  std::vector<std::shared_ptr<YAK42>> getBricks();
+  std::vector<ManagedYAK> getBricks();
   
 private:
-  std::vector<std::shared_ptr<YAK42>> brickData;
   Vec2ui size;
   YAKTerrainStatus status{YAKTerrainStatus::Idle};  
-  
-  void computeBricks();
-  
+    
   std::mutex statusMutex;
   std::condition_variable cv;
-  
   std::thread generationThread;
   
+  StaticYAKCuller culler;
   
+  void computeBricks();
   Grid2D generateHeightfield() const;
   void generateBricksFromField(const Grid2D& field);
 

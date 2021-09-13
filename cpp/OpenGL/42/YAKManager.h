@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <vector>
+#include <deque>
 
 #include <Mat4.h>
 #include <GLProgram.h>
@@ -19,14 +20,37 @@ public:
   std::vector<bool> studVisible;
 };
 
+class StaticYAKCuller {
+public:
+  void add(std::shared_ptr<YAK42> brick);
+  void add(const ManagedYAK& brick);
+  void cull();
+  
+  std::vector<ManagedYAK> get();
+  
+private:
+  std::vector<ManagedYAK> mangedBricks;
+  
+};
+
+struct InstanceData {  
+  GLArray studArray{};
+  GLBuffer studInstanceBuffer{GL_ARRAY_BUFFER};
+  GLArray baseArray{};
+  GLBuffer baseInstanceBuffer{GL_ARRAY_BUFFER};
+  
+  size_t studInstanceCount;
+  size_t baseInstanceCount;
+};
+
 class YAKManager {
 public:
   YAKManager();
   ~YAKManager() {}
   
-  void add(std::shared_ptr<YAK42> brick);
+  void push(const std::vector<ManagedYAK>& bricks);
+  void pop();
   
-  void compile();
   void render() const;
 
   void setProjection(const Mat4& projection) {
@@ -38,33 +62,26 @@ public:
   }
   
 private:
-  std::vector<ManagedYAK> mangedBricks;
+  std::deque<std::shared_ptr<InstanceData>> mangedBricks;
 
-  void flagInvisibleObjects();
-  void generateInstanceData();
+  void generateInstanceData(const std::vector<ManagedYAK>& bricks);
   void createCommonData();
   
   GLProgram studShader;
-  GLArray studArray;
-  GLBuffer studInstanceBuffer;
 
   GLBuffer studPosBuffer;
   GLBuffer studNormalBuffer;
   GLBuffer studIndexBuffer;
 
   GLProgram baseShader;
-  GLArray baseArray;
-  GLBuffer baseInstanceBuffer;
   
   GLBuffer basePosBuffer;
   GLBuffer baseNormalBuffer;
   GLBuffer baseIndexBuffer;
-  
+    
   size_t studVertexCount;
-  size_t studInstanceCount;
   size_t baseVertexCount;
-  size_t baseInstanceCount;
-  
+
   Mat4 projection;
   Mat4 modelView;
   

@@ -40,7 +40,7 @@ static const std::string baseVertexShaderString{
   "    vec3 actualPos = vPos*vInstanceScale + vInstancePos;\n"
   "    gl_Position = MVP * vec4(actualPos, 1.0);\n"
   "    pos = (MV * vec4(actualPos, 1.0)).xyz;\n"
-  "    color = vInstanceColor;\n"
+  "    color = vec4(vInstanceColor.x, vInstanceColor.y, vInstanceColor.z, 0.1);\n"
   "    normal = (MVit * vec4(vNormal, 0.0)).xyz;\n"
   "}\n"
 };
@@ -68,16 +68,13 @@ ManagedYAK::ManagedYAK(std::shared_ptr<YAK42> brick) :
 }
 
 
+
 YAKManager::YAKManager() :
 studShader{GLProgram::createFromString(studVertexShaderString, fragmentShaderString)},
-studArray{},
-studInstanceBuffer{GL_ARRAY_BUFFER},
 studPosBuffer{GL_ARRAY_BUFFER},
 studNormalBuffer{GL_ARRAY_BUFFER},
 studIndexBuffer{GL_ELEMENT_ARRAY_BUFFER},
 baseShader{GLProgram::createFromString(baseVertexShaderString, fragmentShaderString)},
-baseArray{},
-baseInstanceBuffer{GL_ARRAY_BUFFER},
 basePosBuffer{GL_ARRAY_BUFFER},
 baseNormalBuffer{GL_ARRAY_BUFFER},
 baseIndexBuffer{GL_ELEMENT_ARRAY_BUFFER}
@@ -85,13 +82,12 @@ baseIndexBuffer{GL_ELEMENT_ARRAY_BUFFER}
   createCommonData();
 }
 
-void YAKManager::add(std::shared_ptr<YAK42> brick) {  
-  mangedBricks.push_back({brick});
+void YAKManager::push(const std::vector<ManagedYAK>& bricks) {
+  generateInstanceData(bricks);
 }
 
-void YAKManager::compile() {
-  flagInvisibleObjects();
-  generateInstanceData();
+void YAKManager::pop() {
+  if (!mangedBricks.empty()) mangedBricks.pop_front();
 }
 
 void YAKManager::createCommonData() {
@@ -103,14 +99,10 @@ void YAKManager::createCommonData() {
                                                          true, 20);
 
   studShader.enable();
-  studArray.bind();
   studPosBuffer.setData(studTesselation.getVertices(), 3);
   studNormalBuffer.setData(studTesselation.getNormals(), 3);
   studIndexBuffer.setData(studTesselation.getIndices());
 
-  studArray.connectVertexAttrib(studPosBuffer, studShader, "vPos", 3);
-  studArray.connectVertexAttrib(studNormalBuffer, studShader, "vNormal", 3);
-  studArray.connectIndexBuffer(studIndexBuffer);
 
   studVertexCount = studTesselation.getIndices().size();
   
@@ -120,31 +112,26 @@ void YAKManager::createCommonData() {
 
   
   baseShader.enable();
-  baseArray.bind();
   basePosBuffer.setData(baseTesselation.getVertices(), 3);
   baseNormalBuffer.setData(baseTesselation.getNormals(), 3);
   baseIndexBuffer.setData(baseTesselation.getIndices());
 
-  baseArray.connectVertexAttrib(basePosBuffer, baseShader, "vPos", 3);
-  baseArray.connectVertexAttrib(baseNormalBuffer, baseShader, "vNormal", 3);
-  baseArray.connectIndexBuffer(baseIndexBuffer);
-  
   baseVertexCount = baseTesselation.getIndices().size();
 }
 
-void YAKManager::flagInvisibleObjects() {
-  // TODO: Later
-}
-
-void YAKManager::generateInstanceData() {
+void YAKManager::generateInstanceData(const std::vector<ManagedYAK>& bricks) {
+  mangedBricks.push_back(std::make_shared<InstanceData>());
   
-  studInstanceCount = 0;
-  baseInstanceCount = 0;
   std::vector<float> studsInstanceData;
   std::vector<float> baseInstanceData;
+
+  std::shared_ptr<InstanceData> newInstance = mangedBricks.back();
   
-  
-  for (const ManagedYAK& managedBrick : mangedBricks) {
+  newInstance->studInstanceCount = 0;
+  newInstance->baseInstanceCount = 0;  
+    
+  for (const ManagedYAK& managedBrick : bricks) {
+
     if (managedBrick.visible) {
       
       const auto brick = std::dynamic_pointer_cast<SimpleYAK42>(managedBrick.brick);
@@ -168,7 +155,7 @@ void YAKManager::generateInstanceData() {
           studsInstanceData.push_back(color.b);
           studsInstanceData.push_back(color.a);
           
-          studInstanceCount++;
+          newInstance->studInstanceCount++;
         }
       }
       
@@ -189,28 +176,38 @@ void YAKManager::generateInstanceData() {
       baseInstanceData.push_back(color.b);
       baseInstanceData.push_back(color.a);
       
-      baseInstanceCount++;
+      newInstance->baseInstanceCount++;
     }
   }
   
   studShader.enable();
-  studArray.bind();
-  studInstanceBuffer.setData(studsInstanceData, 7);
-  studArray.connectVertexAttrib(studInstanceBuffer, studShader, "vInstancePos",
+  newInstance->studArray.bind();
+  
+
+  newInstance->studInstanceBuffer.setData(studsInstanceData, 7);
+  newInstance->studArray.connectVertexAttrib(newInstance->studInstanceBuffer, studShader, "vInstancePos",
                                 3,0,1);
-  studArray.connectVertexAttrib(studInstanceBuffer, studShader, "vInstanceColor",
+  newInstance->studArray.connectVertexAttrib(newInstance->studInstanceBuffer, studShader, "vInstanceColor",
                                 4,3,1);
 
-  
+  newInstance->studArray.connectVertexAttrib(studPosBuffer, studShader, "vPos", 3);
+  newInstance->studArray.connectVertexAttrib(studNormalBuffer, studShader, "vNormal", 3);
+  newInstance->studArray.connectIndexBuffer(studIndexBuffer);
+
   baseShader.enable();
-  baseArray.bind();
-  baseInstanceBuffer.setData(baseInstanceData, 10);
-  baseArray.connectVertexAttrib(baseInstanceBuffer, baseShader, "vInstancePos",
+  newInstance->baseArray.bind();
+  
+  newInstance->baseInstanceBuffer.setData(baseInstanceData, 10);
+  newInstance->baseArray.connectVertexAttrib(newInstance->baseInstanceBuffer, baseShader, "vInstancePos",
                                 3,0,1);
-  baseArray.connectVertexAttrib(baseInstanceBuffer, baseShader, "vInstanceScale",
+  newInstance->baseArray.connectVertexAttrib(newInstance->baseInstanceBuffer, baseShader, "vInstanceScale",
                                 3,3,1);
-  baseArray.connectVertexAttrib(baseInstanceBuffer, baseShader, "vInstanceColor",
+  newInstance->baseArray.connectVertexAttrib(newInstance->baseInstanceBuffer, baseShader, "vInstanceColor",
                                 4,6,1);
+
+  newInstance->baseArray.connectVertexAttrib(basePosBuffer, baseShader, "vPos", 3);
+  newInstance->baseArray.connectVertexAttrib(baseNormalBuffer, baseShader, "vNormal", 3);
+  newInstance->baseArray.connectIndexBuffer(baseIndexBuffer);
 
 }
 
@@ -219,20 +216,43 @@ void YAKManager::render() const {
   const Mat4 modelViewInverseTranspose = Mat4::transpose(Mat4::inverse(modelView));
   
   studShader.enable();
-  studArray.bind();
   studShader.setUniform("MVP", modelViewProjection);
   studShader.setUniform("MV", modelView);
   studShader.setUniform("MVit", modelViewInverseTranspose);
-  GL(glDrawElementsInstanced(GL_TRIANGLES, GLsizei(studVertexCount),
-                             GL_UNSIGNED_INT, (void*)0, GLsizei(studInstanceCount)));
+
+  for (const auto& instance : mangedBricks) {
+    instance->studArray.bind();
+    GL(glDrawElementsInstanced(GL_TRIANGLES, GLsizei(studVertexCount),
+                               GL_UNSIGNED_INT, (void*)0, GLsizei(instance->studInstanceCount)));
+  }
    
   baseShader.enable();
-  baseArray.bind();
   baseShader.setUniform("MVP", modelViewProjection);
   baseShader.setUniform("MV", modelView);
   baseShader.setUniform("MVit", modelViewInverseTranspose);
-  GL(glDrawElementsInstanced(GL_TRIANGLES, GLsizei(baseVertexCount),
-                             GL_UNSIGNED_INT, (void*)0, GLsizei(baseInstanceCount)));
+  for (const auto& instance : mangedBricks) {
+    instance->baseArray.bind();
+    GL(glDrawElementsInstanced(GL_TRIANGLES, GLsizei(baseVertexCount),
+                               GL_UNSIGNED_INT, (void*)0, GLsizei(instance->baseInstanceCount)));
+  }
 
 }
 
+
+void StaticYAKCuller::add(std::shared_ptr<YAK42> brick) {
+  mangedBricks.push_back({brick});
+}
+
+void StaticYAKCuller::add(const ManagedYAK& brick) {
+  mangedBricks.push_back(brick);
+}
+
+void StaticYAKCuller::cull() {
+ // TODO: später mehr dazu
+}
+
+std::vector<ManagedYAK> StaticYAKCuller::get() {
+  std::vector<ManagedYAK> temp;
+  std::swap(temp, mangedBricks);
+  return temp;
+}
