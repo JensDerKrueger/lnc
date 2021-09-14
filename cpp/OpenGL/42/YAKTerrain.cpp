@@ -18,11 +18,12 @@ YAKTerrain::~YAKTerrain() {
   generationThread.join();
 }
 
-void YAKTerrain::requestBricks() {
+void YAKTerrain::requestBricks(const Vec3i& offset) {
   if (status != YAKTerrainStatus::Idle) return;
   
   {
     std::lock_guard<std::mutex> lk(statusMutex);
+    brickOffset = offset;
     status = YAKTerrainStatus::Computing;
   }
   cv.notify_one();
@@ -82,12 +83,13 @@ void YAKTerrain::generateBricksFromField(const Grid2D& field) {
       const uint32_t brickCount = std::max<uint32_t>(1,uint32_t(maxHeightDiff));
       for (uint32_t i = 0;i<brickCount;++i) {
         auto brick = std::make_shared<SimpleYAK42>(brickSize.x,brickSize.y,brickSize.z,
-                                                 height,
-                                                 Vec3i{
-                                                    (int32_t(x)-int32_t(size.x)/2)*brickSize.x,
-                                                    int32_t(height-i)*brickSize.z,
-                                                    (int32_t(y)-int32_t(size.x)/2)*brickSize.y
-                                                  });
+                                                   height,
+                                                   brickOffset+
+                                                   Vec3i{
+                                                      (int32_t(x)-int32_t(size.x)/2)*brickSize.x,
+                                                      int32_t(height-i)*brickSize.z,
+                                                      (int32_t(y)-int32_t(size.x)/2)*brickSize.y
+                                                    });
         ManagedYAK managedBrick(brick);
         if (i > 0) managedBrick.hideAllStuds();
         culler.add(managedBrick);

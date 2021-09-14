@@ -52,7 +52,8 @@ public:
     if (state != GLFW_PRESS) return;
     
     if (button == GLFW_MOUSE_BUTTON_LEFT) {
-      terrain.requestBricks();
+      brickOffset.z -= 256*2;
+      terrain.requestBricks(brickOffset);
     } else {
       manager.pop();
     }
@@ -87,11 +88,8 @@ public:
     
     const Mat4 rotationX = Mat4::rotationX(-40);
         
-    const float alpha = animationTime/40-floor(animationTime/40);
-    const float translation = (1-alpha) * -10 + alpha * 7;
-    
-    const Mat4 trans = Mat4::translation({0,0,translation});
-    const Mat4 projection{Mat4::perspective(45.0f, dim.aspect(), 0.0001f, 1000.0f)};
+    const Mat4 trans = Mat4::translation({0,0,animationTime});
+    const Mat4 projection{Mat4::perspective(45.0f, dim.aspect(), 0.01f, 1000.0f)};
     //const Mat4 projection{Mat4::ortho(-3, 3, -3/dim.aspect(), 3/dim.aspect(), 0.0001f, 1000.0f)};
 
     const Mat4 view = Mat4::lookAt({0,0,7}, {0,0,0}, {0,1,0});
@@ -114,6 +112,7 @@ private:
   
   YAKManager manager;
   
+  Vec3i brickOffset;
   YAKTerrain terrain{{128,256}};
   
 };

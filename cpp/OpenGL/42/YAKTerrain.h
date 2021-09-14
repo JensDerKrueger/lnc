@@ -20,12 +20,13 @@ public:
   YAKTerrain(const Vec2ui& size);
   ~YAKTerrain();
     
-  void requestBricks();
+  void requestBricks(const Vec3i& offset=Vec3i{0,0,0});
   bool bricksReady();
   std::vector<ManagedYAK> getBricks();
   
 private:
   Vec2ui size;
+  Vec3i brickOffset;
   YAKTerrainStatus status{YAKTerrainStatus::Idle};  
     
   std::mutex statusMutex;
