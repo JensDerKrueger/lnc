@@ -5,14 +5,14 @@ OSTYPE := $(shell uname)
 
 ifeq ($(OSTYPE),Linux)
 	CFLAGS=-c -Wall -std=c++17 -Wunreachable-code
-	LFLAGS--lstdc++fs
+	LFLAGS=-lstdc++fs
 	LIBS=-lOpenCL
 	INCLUDES=-I.
 else
 	CFLAGS=-c -Wall -std=c++17 -Wunreachable-code -Xclang -fopenmp
 	LFLAGS=
 	LIBS=-framework OpenCL
-	INCLUDES=-I. 
+	INCLUDES=-I.
 endif
 
 SRC = OpenClContext.cpp OpenClUtils.cpp Fractal.cpp
@@ -28,8 +28,7 @@ $(TARGET): $(OBJ)
 	$(AR) $(ARFLAGS) $@ $^
 
 %.o: %.cpp
-	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@
+	$(CC) $(CFLAGS) $(INCLUDES) $(LIBS) $^ -o $@
 
 clean:
 	-rm -rf $(OBJ) $(TARGET) core
-
