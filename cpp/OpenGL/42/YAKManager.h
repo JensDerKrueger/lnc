@@ -18,6 +18,10 @@ public:
   std::shared_ptr<YAK42> brick;
   bool visible;
   std::vector<bool> studVisible;
+  
+  void hideAllStuds() {
+    std::fill(studVisible.begin(),studVisible.end(),false);
+  }
 };
 
 class StaticYAKCuller {
