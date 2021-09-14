@@ -1,7 +1,7 @@
 TOPTARGETS := all clean release
 
 UTILSDIR := Utils/.
-FIRSTDIR := LibML/. Network/.
+FIRSTDIR := LibML/. Network/. OpenCL/.
 
 SUBDIRS := $(wildcard */.)
 SUBDIRS := $(filter-out VS/. $(UTILSDIR) $(FIRSTDIR),$(SUBDIRS))

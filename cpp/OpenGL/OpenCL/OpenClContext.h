@@ -13,7 +13,7 @@
     #include "CL\cl.hpp"
 #else
     #include "CL/opencl.h"
-    #include "CL/cl.hpp"
+    #include "CL/cl.h"
 #endif
 
 #include <exception>
