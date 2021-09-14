@@ -52,7 +52,7 @@ public:
     if (state != GLFW_PRESS) return;
     
     if (button == GLFW_MOUSE_BUTTON_LEFT) {
-      brickOffset.z -= 256*2;
+      brickOffset.z -= int32_t(terrain.getSize().y)*terrain.getBrickSize().y;
       terrain.requestBricks(brickOffset);
     } else {
       manager.pop();
@@ -113,7 +113,7 @@ private:
   YAKManager manager;
   
   Vec3i brickOffset;
-  YAKTerrain terrain{{128,256}};
+  YAKTerrain terrain{{128,128}};
   
 };
 

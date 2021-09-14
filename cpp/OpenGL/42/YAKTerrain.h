@@ -24,8 +24,12 @@ public:
   bool bricksReady();
   std::vector<ManagedYAK> getBricks();
   
+  Vec2ui getSize() const {return size;}
+  Vec3i getBrickSize() const {return brickSize;}
+  
 private:
   Vec2ui size;
+  const Vec3i brickSize{2,2,3};
   Vec3i brickOffset;
   YAKTerrainStatus status{YAKTerrainStatus::Idle};  
     
