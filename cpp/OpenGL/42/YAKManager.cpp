@@ -82,7 +82,7 @@ baseIndexBuffer{GL_ELEMENT_ARRAY_BUFFER}
   createCommonData();
 }
 
-void YAKManager::push(const std::vector<ManagedYAK>& bricks) {
+void YAKManager::push(const std::pair<std::vector<ManagedYAK>,AABB>& bricks) {
   generateInstanceData(bricks);
 }
 
@@ -119,18 +119,19 @@ void YAKManager::createCommonData() {
   baseVertexCount = baseTesselation.getIndices().size();
 }
 
-void YAKManager::generateInstanceData(const std::vector<ManagedYAK>& bricks) {
+void YAKManager::generateInstanceData(const std::pair<std::vector<ManagedYAK>,AABB>& bricks) {
   mangedBricks.push_back(std::make_shared<InstanceData>());
   
   std::vector<float> studsInstanceData;
   std::vector<float> baseInstanceData;
 
   std::shared_ptr<InstanceData> newInstance = mangedBricks.back();
+  newInstance->aabb = bricks.second;
   
   newInstance->studInstanceCount = 0;
   newInstance->baseInstanceCount = 0;  
     
-  for (const ManagedYAK& managedBrick : bricks) {
+  for (const ManagedYAK& managedBrick : bricks.first) {
 
     if (managedBrick.visible) {
       
@@ -208,7 +209,6 @@ void YAKManager::generateInstanceData(const std::vector<ManagedYAK>& bricks) {
   newInstance->baseArray.connectVertexAttrib(basePosBuffer, baseShader, "vPos", 3);
   newInstance->baseArray.connectVertexAttrib(baseNormalBuffer, baseShader, "vNormal", 3);
   newInstance->baseArray.connectIndexBuffer(baseIndexBuffer);
-
 }
 
 void YAKManager::render() const {
@@ -235,7 +235,41 @@ void YAKManager::render() const {
     GL(glDrawElementsInstanced(GL_TRIANGLES, GLsizei(baseVertexCount),
                                GL_UNSIGNED_INT, (void*)0, GLsizei(instance->baseInstanceCount)));
   }
+}
 
+bool YAKManager::autoPop(const Mat4& modelView,
+                         const std::array<Vec3, 8>& frustumPoints) {
+  
+  if (mangedBricks.empty()) return false;
+  
+  bool reject = false;
+  const AABB& aabb = mangedBricks.front()->aabb;
+  const std::array<Vec3, 2> arrayAABB = {aabb.maxVec, aabb.minVec};
+  
+  static const std::array<Vec3ui, 6> pointsToSide = {
+    Vec3ui{4,5,0},
+    Vec3ui{0,3,7},
+    Vec3ui{0,1,2},
+    Vec3ui{7,3,2},
+    Vec3ui{2,1,5},
+    Vec3ui{7,6,4}
+  };
+  
+  for (size_t side = 0;side<6; ++side) {
+    const Vec3 corner = arrayAABB[side/3];
+    const Vec3 p0 = frustumPoints[pointsToSide[side][0]];
+    const Vec3 p1 = frustumPoints[pointsToSide[side][1]];
+    const Vec3 p2 = frustumPoints[pointsToSide[side][2]];
+    const Vec3 normal = Vec3::cross(p0-p1,p0-p2);
+    const float d = Vec3::dot(p0-corner,normal);
+    if (d < 0) {
+      reject = true;
+      break;
+    }
+  }
+    
+  if (reject) pop();
+  return reject;
 }
 
 
@@ -249,10 +283,15 @@ void StaticYAKCuller::add(const ManagedYAK& brick) {
 
 void StaticYAKCuller::cull() {
  // TODO: später mehr dazu
+  
+  aabb = mangedBricks.begin()->brick->computeAABB();
+  for (const auto& managedBrick : mangedBricks) {
+    aabb.merge(managedBrick.brick->computeAABB());
+  }
 }
 
-std::vector<ManagedYAK> StaticYAKCuller::get() {
+std::pair<std::vector<ManagedYAK>,AABB> StaticYAKCuller::get() {
   std::vector<ManagedYAK> temp;
   std::swap(temp, mangedBricks);
-  return temp;
+  return std::make_pair(temp,aabb);
 }

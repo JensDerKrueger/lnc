@@ -3,6 +3,22 @@
 #include <Vec3.h>
 #include <Vec4.h>
 
+struct AABB {
+  AABB(const Vec3& minVec = Vec3{}, const Vec3& maxVec = Vec3{}) :
+  minVec(minVec),
+  maxVec(maxVec)
+  {}
+  
+  Vec3 minVec;
+  Vec3 maxVec;
+  
+  void merge(const AABB& other) {
+    minVec = Vec3::minV(minVec, other.minVec);
+    maxVec = Vec3::maxV(maxVec, other.maxVec);
+  }
+  
+};
+
 class YAK42 {
 public:
   YAK42(const Vec3i& pos,
@@ -16,6 +32,7 @@ public:
   Vec3 getPos() const {return Vec3{pos}/Vec3{1,3,1};}
 
   virtual Vec3 computeGlobalStudPos(size_t i) const = 0;
+  virtual AABB computeAABB() const = 0;
   
   static const std::array<Vec4,111> colors;
  
@@ -47,7 +64,8 @@ public:
   virtual std::vector<Vec2t<uint16_t>> studsBottom() const override;
   
   virtual Vec3 computeGlobalStudPos(size_t i) const override;
-
+  virtual AABB computeAABB() const override;
+  
   Vec3i getScale() const {return {width,height,depth};}
 
 private:

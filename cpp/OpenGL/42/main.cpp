@@ -30,13 +30,15 @@ public:
     GL(glEnable(GL_DEPTH_TEST));
     GL(glDepthFunc(GL_LESS));
     
+    const Dimensions dim = glEnv.getFramebufferSize();
+    GL(glViewport(0, 0, GLsizei(dim.width), GLsizei(dim.height)));
+
+    
     terrain.requestBricks();
     while (!terrain.bricksReady()) {
       std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
-    manager.push(terrain.getBricks());    
-
-    
+    manager.push(terrain.getBricks());
 
   }
   
@@ -65,6 +67,12 @@ public:
       
   }
   
+  
+  virtual void resize(int width, int height) override {
+    GL(glViewport(0, 0, GLsizei(width), GLsizei(height)));
+  }
+    
+  
   virtual void keyboard(int key, int scancode, int action, int mods) override {
     if (action == GLFW_PRESS) {
       switch (key) {
@@ -78,25 +86,32 @@ public:
   virtual void animate(double animationTime) override {
     this->animationTime = float(animationTime);
     
+    const Mat4 globalScale = Mat4::scaling(0.005f);
+    const Dimensions dim = glEnv.getFramebufferSize();
+    const Mat4 rotationX = Mat4::rotationX(-40);
+    const Mat4 trans = Mat4::translation({0,0,this->animationTime});
+
+
+    projection = Mat4::perspective(45.0f, dim.aspect(), 0.01f, 1000.0f);
+    view       = Mat4::lookAt({0,0,7}, {0,0,0}, {0,1,0});
+    model      = rotationX*trans*globalScale;
+    
+    std::array<Vec3, 8> frustumPoints; // TODO
+    
     if (terrain.bricksReady()) manager.push(terrain.getBricks());
+    
+    
+    
+    if (manager.autoPop(view*model, frustumPoints)) {
+      brickOffset.z -= int32_t(terrain.getSize().y)*terrain.getBrickSize().y;
+      terrain.requestBricks(brickOffset);
+    }
   }
   
   virtual void draw() override {
     GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
         
-    const Dimensions dim = glEnv.getFramebufferSize();
-    
-    const Mat4 rotationX = Mat4::rotationX(-40);
         
-    const Mat4 trans = Mat4::translation({0,0,animationTime});
-    const Mat4 projection{Mat4::perspective(45.0f, dim.aspect(), 0.01f, 1000.0f)};
-    //const Mat4 projection{Mat4::ortho(-3, 3, -3/dim.aspect(), 3/dim.aspect(), 0.0001f, 1000.0f)};
-
-    const Mat4 view = Mat4::lookAt({0,0,7}, {0,0,0}, {0,1,0});
-        
-    Mat4 model = rotationX*trans*globalScale;
-    glViewport(0, 0, GLsizei(dim.width), GLsizei(dim.height));
-    
     manager.setProjection(projection);
     manager.setModelView(view*model);
     manager.render();
@@ -108,7 +123,9 @@ private:
   std::shared_ptr<FontEngine> fe{nullptr};
   float animationTime;
   
-  Mat4 globalScale = Mat4::scaling(0.005f);
+  Mat4 view;
+  Mat4 model;
+  Mat4 projection;
   
   YAKManager manager;
   
@@ -122,6 +139,10 @@ private:
 INT WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow) {
 #else
 int main(int argc, char** argv) {
+  
+  
+  
+  
 #endif
   try {
     YAK42App myApp;

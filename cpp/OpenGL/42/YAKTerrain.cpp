@@ -34,7 +34,7 @@ bool YAKTerrain::bricksReady() {
   return status == YAKTerrainStatus::Ready;
 }
 
-std::vector<ManagedYAK> YAKTerrain::getBricks() {
+std::pair<std::vector<ManagedYAK>, AABB> YAKTerrain::getBricks() {
   std::unique_lock<std::mutex> lk(statusMutex);
   if (status != YAKTerrainStatus::Ready) return {};
   status = YAKTerrainStatus::Idle;
@@ -61,13 +61,15 @@ void YAKTerrain::computeBricks() {
 }
 
 Grid2D YAKTerrain::generateHeightfield() const {
-  return Grid2D::genRandom(size.x/20,size.y/20)*40+
-         Grid2D::genRandom(size.x/10,size.y/10)*10+
-         Grid2D::genRandom(size.x/5,size.y/5)*5+
-         Grid2D::genRandom(size.x,size.y);
+  return Grid2D::genRandom(size.x/20,size.y/20,0)*40+
+         Grid2D::genRandom(size.x/10,size.y/10,0)*10+
+         Grid2D::genRandom(size.x/5,size.y/5,0)*5+
+         Grid2D::genRandom(size.x,size.y,0);
 }
 
 void YAKTerrain::generateBricksFromField(const Grid2D& field) {
+    
+  
   for (uint32_t y = 0; y < size.y; ++y) {
     for (uint32_t x = 0; x < size.x; ++x) {
       const uint32_t height = uint32_t(field.sample(float(x)/size.x, float(y)/size.y));
@@ -80,14 +82,22 @@ void YAKTerrain::generateBricksFromField(const Grid2D& field) {
       
       const uint32_t brickCount = std::max<uint32_t>(1,uint32_t(maxHeightDiff));
       for (uint32_t i = 0;i<brickCount;++i) {
-        auto brick = std::make_shared<SimpleYAK42>(brickSize.x,brickSize.y,brickSize.z,
+
+        const Vec3i relativeIntegerPos{
+          (int32_t(x)-int32_t(size.x)/2)*brickSize.x,
+          int32_t(height-i)*brickSize.z,
+          (int32_t(y)-int32_t(size.x)/2)*brickSize.y
+        };
+        
+        const Vec3i integerPos = brickOffset+relativeIntegerPos;
+        
+        auto brick = std::make_shared<SimpleYAK42>(brickSize.x,
+                                                   brickSize.y,
+                                                   brickSize.z,
                                                    height,
-                                                   brickOffset+
-                                                   Vec3i{
-                                                      (int32_t(x)-int32_t(size.x)/2)*brickSize.x,
-                                                      int32_t(height-i)*brickSize.z,
-                                                      (int32_t(y)-int32_t(size.x)/2)*brickSize.y
-                                                    });
+                                                   integerPos);
+
+        
         ManagedYAK managedBrick(brick);
         if (i > 0) managedBrick.hideAllStuds();
         culler.add(managedBrick);

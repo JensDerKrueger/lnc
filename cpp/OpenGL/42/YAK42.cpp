@@ -9,7 +9,6 @@
 const Vec3 YAK42::brickScale{7.8f,9.6f,7.8f};
 const float YAK42::studSpacing = brickScale.x-studRadius*2.0f;
 
-
 const std::array<Vec4,111> YAK42::colors {{
   {0.95f,0.95f,0.95f,1.0f},
   {0.63f,0.65f,0.64f,1.0f},
@@ -167,3 +166,13 @@ Vec3 SimpleYAK42::computeGlobalStudPos(size_t i) const {
   
   return getPos()*brickScale+relativePos;
 }
+
+AABB SimpleYAK42::computeAABB() const {  
+  const Vec3 centerPos = getPos() * YAK42::brickScale;
+  const Vec3 size = Vec3(getScale()) * YAK42::brickScale;
+
+  AABB aabb{centerPos - size, centerPos + size};
+  aabb.maxVec.y += studHeight;
+  return aabb;
+}
+

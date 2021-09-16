@@ -24,7 +24,7 @@ public:
 
   void requestBricks(const Vec3i& offset=Vec3i{0,0,0});
   bool bricksReady();
-  std::vector<ManagedYAK> getBricks();
+  std::pair<std::vector<ManagedYAK>, AABB> getBricks();
 
   Vec2ui getSize() const {return size;}
   Vec3i getBrickSize() const {return brickSize;}

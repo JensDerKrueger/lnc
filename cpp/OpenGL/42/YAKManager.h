@@ -30,9 +30,10 @@ public:
   void add(const ManagedYAK& brick);
   void cull();
   
-  std::vector<ManagedYAK> get();
+  std::pair<std::vector<ManagedYAK>,AABB> get();
   
 private:
+  AABB aabb;
   std::vector<ManagedYAK> mangedBricks;
   
 };
@@ -45,6 +46,7 @@ struct InstanceData {
   
   size_t studInstanceCount;
   size_t baseInstanceCount;
+  AABB aabb;
 };
 
 class YAKManager {
@@ -52,8 +54,9 @@ public:
   YAKManager();
   ~YAKManager() {}
   
-  void push(const std::vector<ManagedYAK>& bricks);
+  void push(const std::pair<std::vector<ManagedYAK>,AABB>& bricks);
   void pop();
+  bool autoPop(const Mat4& modelView, const std::array<Vec3, 8>& frustumPoints);
   
   void render() const;
 
@@ -68,7 +71,7 @@ public:
 private:
   std::deque<std::shared_ptr<InstanceData>> mangedBricks;
 
-  void generateInstanceData(const std::vector<ManagedYAK>& bricks);
+  void generateInstanceData(const std::pair<std::vector<ManagedYAK>,AABB>& bricks);
   void createCommonData();
   
   GLProgram studShader;
