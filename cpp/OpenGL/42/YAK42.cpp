@@ -169,9 +169,9 @@ Vec3 SimpleYAK42::computeGlobalStudPos(size_t i) const {
 
 AABB SimpleYAK42::computeAABB() const {  
   const Vec3 centerPos = getPos() * YAK42::brickScale;
-  const Vec3 size = Vec3(getScale()) * YAK42::brickScale;
+  const Vec3 halfSize  = Vec3(getScale())/Vec3(2.0f,6.0f,2.0f) * YAK42::brickScale;
 
-  AABB aabb{centerPos - size, centerPos + size};
+  AABB aabb{centerPos - halfSize, centerPos + halfSize};
   aabb.maxVec.y += studHeight;
   return aabb;
 }
