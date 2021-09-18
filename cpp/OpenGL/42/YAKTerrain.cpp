@@ -68,8 +68,6 @@ Grid2D YAKTerrain::generateHeightfield() const {
 }
 
 void YAKTerrain::generateBricksFromField(const Grid2D& field) {
-    
-  
   for (uint32_t y = 0; y < size.y; ++y) {
     for (uint32_t x = 0; x < size.x; ++x) {
       const uint32_t height = uint32_t(field.sample(float(x)/size.x, float(y)/size.y));
