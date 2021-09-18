@@ -237,41 +237,74 @@ void YAKManager::render() const {
   }
 }
 
-bool YAKManager::autoPop(const Mat4& modelView,
-                         const std::array<Vec3, 8>& frustumPoints) {
-  
+bool YAKManager::autoPop() {
   if (mangedBricks.empty()) return false;
   
-  bool reject = false;
   const AABB& aabb = mangedBricks.front()->aabb;
-  const std::array<Vec3, 2> arrayAABB = {aabb.maxVec, aabb.minVec};
+  const std::array<Vec3, 8> bboxPoints {
+    Vec3(aabb.minVec.x,aabb.minVec.y,aabb.minVec.z),
+    Vec3(aabb.maxVec.x,aabb.minVec.y,aabb.minVec.z),
+    Vec3(aabb.minVec.x,aabb.maxVec.y,aabb.minVec.z),
+    Vec3(aabb.maxVec.x,aabb.maxVec.y,aabb.minVec.z),
+    Vec3(aabb.minVec.x,aabb.minVec.y,aabb.maxVec.z),
+    Vec3(aabb.maxVec.x,aabb.minVec.y,aabb.maxVec.z),
+    Vec3(aabb.minVec.x,aabb.maxVec.y,aabb.maxVec.z),
+    Vec3(aabb.maxVec.x,aabb.maxVec.y,aabb.maxVec.z)
+  };
+  const Mat4 mvp = projection*modelView;
   
-  static const std::array<Vec3ui, 6> pointsToSide = {
-    Vec3ui{4,5,0},
-    Vec3ui{0,3,7},
-    Vec3ui{0,1,2},
-    Vec3ui{7,3,2},
-    Vec3ui{2,1,5},
-    Vec3ui{7,6,4}
+  /*
+  // quick check if a box point is in the frustum, may be faster
+  for (const Vec3& point : bboxPoints) {
+    const Vec3 transPoint = mvp * point;
+    if (transPoint.x >= -1 && transPoint.x <= 1 &&
+        transPoint.y >= -1 && transPoint.y <= 1 &&
+        transPoint.z >= -1 && transPoint.z <= 1)
+      return false;
+  }
+  */
+
+  std::array<Vec4, 8> planeCoefficients {
+    Vec4{ // Right plane coefficients
+      mvp[12] - mvp[ 0],mvp[13] - mvp[1],mvp[14] - mvp[2],mvp[15] - mvp[3]
+    },
+    Vec4{ // Left plane coefficients
+      mvp[12] + mvp[ 0],mvp[13] + mvp[1],mvp[14] + mvp[2],mvp[15] + mvp[3]
+    },
+    Vec4{ // Bottom plane coefficients
+      mvp[12] + mvp[4],mvp[13] + mvp[5],mvp[14] + mvp[6],mvp[15] + mvp[7]
+    },
+    Vec4{ // Top plane coefficients
+      mvp[12] - mvp[4],mvp[13] - mvp[5],mvp[14] - mvp[6],mvp[15] - mvp[7]
+    },
+    Vec4{ // Far plane coefficients
+      mvp[12] - mvp[8],mvp[13] - mvp[9],mvp[14] - mvp[10],mvp[15] - mvp[11]
+    },
+    Vec4{ // Near plane coefficients
+      mvp[12] + mvp[8],mvp[13] + mvp[9],mvp[14] + mvp[10],mvp[15] + mvp[11]
+    }
   };
   
-  for (size_t side = 0;side<6; ++side) {
-    const Vec3 corner = arrayAABB[side/3];
-    const Vec3 p0 = frustumPoints[pointsToSide[side][0]];
-    const Vec3 p1 = frustumPoints[pointsToSide[side][1]];
-    const Vec3 p2 = frustumPoints[pointsToSide[side][2]];
-    const Vec3 normal = Vec3::cross(p0-p1,p0-p2);
-    const float d = Vec3::dot(p0-corner,normal);
-    if (d < 0) {
-      reject = true;
-      break;
+  for (size_t f = 0; f < 6; f++ ) {
+    planeCoefficients[f] = planeCoefficients[f] / planeCoefficients[f].xyz.length();
+    bool allOut = true;
+    for(size_t p = 0; p < bboxPoints.size(); p++ ) {
+      if (planeCoefficients[f][0] * bboxPoints[p].x +
+          planeCoefficients[f][1] * bboxPoints[p].y +
+          planeCoefficients[f][2] * bboxPoints[p].z +
+          planeCoefficients[f][3] > 0 ) {
+        allOut = false;
+        break;
+      }
+    }
+    if (allOut) {
+      pop();
+      return true;
     }
   }
-    
-  if (reject) pop();
-  return reject;
+  
+  return false;
 }
-
 
 void StaticYAKCuller::add(std::shared_ptr<YAK42> brick) {
   mangedBricks.push_back({brick});
