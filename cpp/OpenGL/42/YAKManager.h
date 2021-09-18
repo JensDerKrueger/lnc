@@ -55,8 +55,7 @@ public:
   ~YAKManager() {}
   
   void push(const std::pair<std::vector<ManagedYAK>,AABB>& bricks);
-  void pop();
-  bool autoPop(const Mat4& modelView, const std::array<Vec3, 8>& frustumPoints);
+  bool autoPop();
   
   void render() const;
 
@@ -73,7 +72,8 @@ private:
 
   void generateInstanceData(const std::pair<std::vector<ManagedYAK>,AABB>& bricks);
   void createCommonData();
-  
+  void pop();
+
   GLProgram studShader;
 
   GLBuffer studPosBuffer;
