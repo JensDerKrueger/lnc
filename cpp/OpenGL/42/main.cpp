@@ -34,7 +34,21 @@ public:
     GL(glViewport(0, 0, GLsizei(dim.width), GLsizei(dim.height)));
 
     
-    terrain.requestBricks();
+    terrain.requestBricks(brickOffset);
+    while (!terrain.bricksReady()) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+    manager.push(terrain.getBricks());
+
+    brickOffset.z -= int32_t(terrain.getSize().y)*terrain.getBrickSize().y;
+    terrain.requestBricks(brickOffset);
+    while (!terrain.bricksReady()) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+    manager.push(terrain.getBricks());
+
+    brickOffset.z -= int32_t(terrain.getSize().y)*terrain.getBrickSize().y;
+    terrain.requestBricks(brickOffset);
     while (!terrain.bricksReady()) {
       std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
@@ -54,10 +68,7 @@ public:
     if (state != GLFW_PRESS) return;
     
     if (button == GLFW_MOUSE_BUTTON_LEFT) {
-      brickOffset.z -= int32_t(terrain.getSize().y)*terrain.getBrickSize().y;
-      terrain.requestBricks(brickOffset);
     } else {
-      manager.pop();
     }
   }
   
@@ -91,18 +102,22 @@ public:
     const Mat4 rotationX = Mat4::rotationX(-40);
     const Mat4 trans = Mat4::translation({0,0,this->animationTime});
 
+    const float zNear  = 0.01f;
+    const float zFar   = 1000.0f;
+    const float fovY   = 45.0f;
+    const float aspect = dim.aspect();
 
-    projection = Mat4::perspective(45.0f, dim.aspect(), 0.01f, 1000.0f);
-    view       = Mat4::lookAt({0,0,7}, {0,0,0}, {0,1,0});
+    projection = Mat4::perspective(fovY, aspect, zNear, zFar);    
+    view       = Mat4::lookAt({0,0,5}, {0,0,0}, {0,1,0});
     model      = rotationX*trans*globalScale;
-    
-    std::array<Vec3, 8> frustumPoints; // TODO
-    
+         
     if (terrain.bricksReady()) manager.push(terrain.getBricks());
     
-    
-    
-    if (manager.autoPop(view*model, frustumPoints)) {
+    manager.setProjection(projection);
+    manager.setModelView(view*model);
+
+    if (manager.autoPop()) {
+      std::cout << "pop" << std::endl;
       brickOffset.z -= int32_t(terrain.getSize().y)*terrain.getBrickSize().y;
       terrain.requestBricks(brickOffset);
     }
@@ -110,10 +125,6 @@ public:
   
   virtual void draw() override {
     GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-        
-        
-    manager.setProjection(projection);
-    manager.setModelView(view*model);
     manager.render();
   }
   
@@ -130,7 +141,7 @@ private:
   YAKManager manager;
   
   Vec3i brickOffset;
-  YAKTerrain terrain{{128,128}};
+  YAKTerrain terrain{{120,50}};
   
 };
 
@@ -139,10 +150,6 @@ private:
 INT WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow) {
 #else
 int main(int argc, char** argv) {
-  
-  
-  
-  
 #endif
   try {
     YAK42App myApp;
