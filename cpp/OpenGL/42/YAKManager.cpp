@@ -252,17 +252,6 @@ bool YAKManager::autoPop() {
     Vec3(aabb.maxVec.x,aabb.maxVec.y,aabb.maxVec.z)
   };
   const Mat4 mvp = projection*modelView;
-  
-  /*
-  // quick check if a box point is in the frustum, may be faster
-  for (const Vec3& point : bboxPoints) {
-    const Vec3 transPoint = mvp * point;
-    if (transPoint.x >= -1 && transPoint.x <= 1 &&
-        transPoint.y >= -1 && transPoint.y <= 1 &&
-        transPoint.z >= -1 && transPoint.z <= 1)
-      return false;
-  }
-  */
 
   std::array<Vec4, 8> planeCoefficients {
     Vec4{ // Right plane coefficients
@@ -286,7 +275,6 @@ bool YAKManager::autoPop() {
   };
   
   for (size_t f = 0; f < 6; f++ ) {
-    planeCoefficients[f] = planeCoefficients[f] / planeCoefficients[f].xyz.length();
     bool allOut = true;
     for(size_t p = 0; p < bboxPoints.size(); p++ ) {
       if (planeCoefficients[f][0] * bboxPoints[p].x +
