@@ -280,7 +280,7 @@ bool YAKManager::autoPop() {
       if (planeCoefficients[f][0] * bboxPoints[p].x +
           planeCoefficients[f][1] * bboxPoints[p].y +
           planeCoefficients[f][2] * bboxPoints[p].z +
-          planeCoefficients[f][3] > 0 ) {
+          planeCoefficients[f][3] > 0) {
         allOut = false;
         break;
       }
@@ -289,8 +289,7 @@ bool YAKManager::autoPop() {
       pop();
       return true;
     }
-  }
-  
+  }  
   return false;
 }
 

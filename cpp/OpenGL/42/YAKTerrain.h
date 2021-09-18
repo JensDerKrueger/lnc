@@ -2,6 +2,7 @@
 
 #include <thread>
 #include <vector>
+#include <array>
 #include <mutex>
 #include <condition_variable>
 
@@ -34,15 +35,19 @@ private:
   const Vec3i brickSize{2,2,3};
   Vec3i brickOffset;
   YAKTerrainStatus status{YAKTerrainStatus::Idle};
+  Grid2D lastField;
 
   std::mutex statusMutex;
   std::condition_variable cv;
   std::thread generationThread;
+  std::vector<size_t> colorMapping;
 
   StaticYAKCuller culler;
 
   void computeBricks();
   Grid2D generateHeightfield() const;
   void generateBricksFromField(const Grid2D& field);
+  uint32_t sampleField(const Grid2D& field,
+                       const float normX, const float normY) const;
 
 };

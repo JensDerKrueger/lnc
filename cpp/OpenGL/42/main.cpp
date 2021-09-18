@@ -33,27 +33,15 @@ public:
     const Dimensions dim = glEnv.getFramebufferSize();
     GL(glViewport(0, 0, GLsizei(dim.width), GLsizei(dim.height)));
 
-    
-    terrain.requestBricks(brickOffset);
-    while (!terrain.bricksReady()) {
-      std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    const size_t tileCount = 4;
+    for (size_t t = 0;t<tileCount;++t) {
+      terrain.requestBricks(brickOffset);
+      while (!terrain.bricksReady()) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+      }
+      manager.push(terrain.getBricks());
+      brickOffset.z -= int32_t(terrain.getSize().y)*terrain.getBrickSize().y;
     }
-    manager.push(terrain.getBricks());
-
-    brickOffset.z -= int32_t(terrain.getSize().y)*terrain.getBrickSize().y;
-    terrain.requestBricks(brickOffset);
-    while (!terrain.bricksReady()) {
-      std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    }
-    manager.push(terrain.getBricks());
-
-    brickOffset.z -= int32_t(terrain.getSize().y)*terrain.getBrickSize().y;
-    terrain.requestBricks(brickOffset);
-    while (!terrain.bricksReady()) {
-      std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    }
-    manager.push(terrain.getBricks());
-
   }
   
   virtual void mouseMove(double xPosition, double yPosition) override {
@@ -74,16 +62,13 @@ public:
   
   virtual void mouseWheel(double x_offset, double y_offset, double xPosition,
                           double yPosition) override {
-    
-      
   }
   
   
   virtual void resize(int width, int height) override {
     GL(glViewport(0, 0, GLsizei(width), GLsizei(height)));
   }
-    
-  
+      
   virtual void keyboard(int key, int scancode, int action, int mods) override {
     if (action == GLFW_PRESS) {
       switch (key) {
@@ -100,7 +85,7 @@ public:
     const Mat4 globalScale = Mat4::scaling(0.005f);
     const Dimensions dim = glEnv.getFramebufferSize();
     const Mat4 rotationX = Mat4::rotationX(-40);
-    const Mat4 trans = Mat4::translation({0,0,this->animationTime});
+    const Mat4 trans = Mat4::translation({0,0,this->animationTime*2});
 
     const float zNear  = 0.01f;
     const float zFar   = 1000.0f;
@@ -117,9 +102,8 @@ public:
     manager.setModelView(view*model);
 
     if (manager.autoPop()) {
-      std::cout << "pop" << std::endl;
-      brickOffset.z -= int32_t(terrain.getSize().y)*terrain.getBrickSize().y;
       terrain.requestBricks(brickOffset);
+      brickOffset.z -= int32_t(terrain.getSize().y)*terrain.getBrickSize().y;
     }
   }
   
