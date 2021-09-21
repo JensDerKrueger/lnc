@@ -116,7 +116,6 @@ Grid2D YAKTerrain::generateHeightfield() {
 }
 
 uint32_t YAKTerrain::sampleField(float normX, float normY) const {
-  normY = 1.0f-normY;  
   return uint32_t(heightfield.sample(normX, normY/2.0f));
 }
 

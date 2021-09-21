@@ -40,7 +40,7 @@ public:
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
       }
       manager.push(terrain.getBricks());
-      brickOffset.z -= int32_t(terrain.getSize().y)*terrain.getBrickSize().y;
+      brickOffset.z += int32_t(terrain.getSize().y)*terrain.getBrickSize().y;
     }
   }
   
@@ -84,8 +84,6 @@ public:
     
     const Mat4 globalScale = Mat4::scaling(0.005f);
     const Dimensions dim = glEnv.getFramebufferSize();
-    const Mat4 rotationX = Mat4::rotationX(-40);
-    const Mat4 trans = Mat4::translation({0,0,this->animationTime});
 
     const float zNear  = 0.01f;
     const float zFar   = 1000.0f;
@@ -93,8 +91,8 @@ public:
     const float aspect = dim.aspect();
 
     projection = Mat4::perspective(fovY, aspect, zNear, zFar);    
-    view       = Mat4::lookAt({0,0,5}, {0,0,0}, {0,1,0});
-    model      = rotationX*trans*globalScale;
+    view       = Mat4::lookAt({0,4,-4+this->animationTime}, {0,0,this->animationTime}, {0,1,0});
+    model      = globalScale;
          
     if (terrain.bricksReady()) manager.push(terrain.getBricks());
     
@@ -103,7 +101,7 @@ public:
 
     if (manager.autoPop()) {
       terrain.requestBricks(brickOffset);
-      brickOffset.z -= int32_t(terrain.getSize().y)*terrain.getBrickSize().y;
+      brickOffset.z += int32_t(terrain.getSize().y)*terrain.getBrickSize().y;
     }
   }
   
