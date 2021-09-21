@@ -47,7 +47,7 @@ public:
   Grid2D operator/(const Grid2D& other) const;
   Grid2D operator*(const Grid2D& other) const;
   Grid2D operator-(const Grid2D& other) const;
-  void normalize(const float maxVal = 0);
+  void normalize(const float maxVal = 1);
 
   Vec2t<size_t> maxValue() const;
   Vec2t<size_t> minValue() const;
@@ -63,4 +63,6 @@ private:
   size_t height;
   std::vector<float> data{};
   size_t index(size_t x, size_t y) const;
+  
+  std::pair<size_t,size_t> findMaxSize(const Grid2D& other) const;
 };
