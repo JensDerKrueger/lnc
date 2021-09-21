@@ -186,6 +186,7 @@ Grid2D Grid2D::operator/(const float& value) const {
 }
 
 Grid2D Grid2D::operator-(const Grid2D& other) const {
+  // TODO: add check if aspect ratio matches, throw exception otherwise
     if (other.width > width) {
         Grid2D result{other.width,other.height};
         size_t i=0;
@@ -216,6 +217,7 @@ Grid2D Grid2D::operator-(const Grid2D& other) const {
 }
 
 Grid2D Grid2D::operator*(const Grid2D& other) const {
+  // TODO: add check if aspect ratio matches, throw exception otherwise
     if (other.width > width) {
         Grid2D result{other.width,other.height};
         size_t i=0;
@@ -246,6 +248,7 @@ Grid2D Grid2D::operator*(const Grid2D& other) const {
 }
 
 Grid2D Grid2D::operator/(const Grid2D& other) const {
+  // TODO: add check if aspect ratio matches, throw exception otherwise
     if (other.width > width) {
         Grid2D result{other.width,other.height};
         size_t i=0;
@@ -276,6 +279,8 @@ Grid2D Grid2D::operator/(const Grid2D& other) const {
 }
 
 Grid2D Grid2D::operator+(const Grid2D& other) const {
+  // TODO: add check if aspect ratio matches, throw exception otherwise
+  
     if (other.width > width) {
         Grid2D result{other.width,other.height};
         size_t i=0;
@@ -305,7 +310,7 @@ Grid2D Grid2D::operator+(const Grid2D& other) const {
     }
 }
     
-void Grid2D::normalize() {
+void Grid2D::normalize(const float maxVal) {
     if (data.empty()) return;
     
     float minValue = data[0];
@@ -315,7 +320,7 @@ void Grid2D::normalize() {
         maxValue = std::max(maxValue, data[i]);
     }
     
-    const float scale = 1.0f/(maxValue-minValue);
+    const float scale = maxVal/(maxValue-minValue);
     for (size_t i = 0;i<data.size();++i) {
         data[i] = (data[i]-minValue) * scale;
     }

@@ -47,7 +47,7 @@ public:
   Grid2D operator/(const Grid2D& other) const;
   Grid2D operator*(const Grid2D& other) const;
   Grid2D operator-(const Grid2D& other) const;
-  void normalize();
+  void normalize(const float maxVal = 0);
 
   Vec2t<size_t> maxValue() const;
   Vec2t<size_t> minValue() const;
