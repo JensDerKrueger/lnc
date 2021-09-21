@@ -35,19 +35,23 @@ private:
   const Vec3i brickSize{2,2,3};
   Vec3i brickOffset;
   YAKTerrainStatus status{YAKTerrainStatus::Idle};
-  Grid2D lastField;
+  Grid2D heightfield;
 
   std::mutex statusMutex;
   std::condition_variable cv;
   std::thread generationThread;
-  std::vector<size_t> colorMapping;
+  float heightScale;
+  std::vector<Vec2ui> previousRiverBed;
+  float rPos;
 
   StaticYAKCuller culler;
 
   void computeBricks();
-  Grid2D generateHeightfield() const;
-  void generateBricksFromField(const Grid2D& field);
-  uint32_t sampleField(const Grid2D& field,
-                       const float normX, const float normY) const;
-
+  Grid2D generateNewHeightfield() const;
+  void initFirstPreviousHalfHeightField(size_t w, size_t h);
+  void combineNewFieldWithPreviousHalf(Grid2D& newField) const;
+  Grid2D generateHeightfield();
+  void generateBricksFromField();
+  uint32_t sampleField(float normX, float normY) const;
+  uint16_t colorMapping(uint32_t height, uint32_t maxGradient) const;
 };

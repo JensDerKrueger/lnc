@@ -4,12 +4,10 @@
 
 YAKTerrain::YAKTerrain(const Vec2ui& size) :
 size{size},
-lastField{1,1},
+heightfield{1,1},
 generationThread{&YAKTerrain::computeBricks, this},
-colorMapping{31,32,10,2,11,27,6,19,12,1,14,25,31,32,10,2,11,27,6,19,12,1,14,25,31,32,10,2,11,27,6,19,12,1,14,25}
+heightScale(40.0f)
 {
-  
-  
 }
 
 YAKTerrain::~YAKTerrain() {
@@ -54,8 +52,8 @@ void YAKTerrain::computeBricks() {
       if (this->status == YAKTerrainStatus::Terminate) return;
     }
 
-    const Grid2D heightfield = generateHeightfield();
-    generateBricksFromField(heightfield);
+    heightfield = generateHeightfield();
+    generateBricksFromField();
       
     {
       std::unique_lock<std::mutex> lk(statusMutex);
@@ -64,22 +62,95 @@ void YAKTerrain::computeBricks() {
   }  while (true);
 }
 
-Grid2D YAKTerrain::generateHeightfield() const {
-  Grid2D g = Grid2D::genRandom(size.x/20,size.y/10)*40+
-             Grid2D::genRandom(size.x/10,size.y/5)*10+
-             Grid2D::genRandom(size.x/4,size.y/2)*4;
-    
-  g.normalize();
-  return g*colorMapping.size();
+
+Grid2D YAKTerrain::generateNewHeightfield() const {
+  Grid2D newField = Grid2D::genRandom(size.x/20,size.y/10)*40+
+                    Grid2D::genRandom(size.x/10,size.y/5)*10+
+                    Grid2D::genRandom(size.x/4 ,size.y/2)*4+
+                    Grid2D::genRandom(size.x,size.y);
+        
+  newField.normalize(heightScale);
+  return newField;
 }
 
-uint32_t YAKTerrain::sampleField(const Grid2D& field,
-                                 const float normX, const float normY) const {
-  return uint32_t(normY*lastField.sample(normX, normY/2.0f)+
-                  (1-normY)*field.sample(normX, normY/2.0f+0.5f));
+void YAKTerrain::initFirstPreviousHalfHeightField(size_t w, size_t h) {
+  heightfield = Grid2D(w,h);
+  rPos = w/2;
 }
 
-void YAKTerrain::generateBricksFromField(const Grid2D& field) {
+void YAKTerrain::combineNewFieldWithPreviousHalf(Grid2D& newField) const {
+  for (size_t y = 0; y < newField.getHeight()/2 ; ++y) {
+    const float alpha = float(y) / (newField.getHeight()/2-1);
+    for (size_t x = 0; x < newField.getWidth(); ++x) {
+      const float c = newField.getValue(x, y);
+      const float l = heightfield.getValue(x, y + newField.getHeight()/2);
+      newField.setValue(x, y, alpha*c + (1-alpha)*l);
+    }
+  }
+}
+
+
+Grid2D YAKTerrain::generateHeightfield() {
+  Grid2D newField = generateNewHeightfield();
+  
+  if (heightfield.getWidth() !=newField.getWidth() ||
+      heightfield.getHeight() !=newField.getHeight())
+    initFirstPreviousHalfHeightField(newField.getWidth(), newField.getHeight());
+  
+  combineNewFieldWithPreviousHalf(newField);
+  
+
+  // TODO make this look better
+  for (size_t y = 0; y < newField.getHeight()/2+1 ; ++y) {
+    const size_t irPos = size_t(rPos);
+    newField.setValue(irPos-2,y,0);
+    newField.setValue(irPos-1,y,0);
+    newField.setValue(irPos,y,0);
+    newField.setValue(irPos+1,y,0);
+    newField.setValue(irPos+2,y,0);
+    rPos = std::clamp<float>(float(rPos) + staticRand.rand11()*2,2,newField.getWidth()-3);
+  }
+
+  
+  return newField;
+}
+
+uint32_t YAKTerrain::sampleField(float normX, float normY) const {
+  normY = 1.0f-normY;  
+  return uint32_t(heightfield.sample(normX, normY/2.0f));
+}
+
+uint16_t YAKTerrain::colorMapping(uint32_t height, uint32_t maxGradient) const {
+  static std::vector<uint16_t> colorMapping {
+    10,10,10,29,  // water
+    2,            // beach
+    64,           // earth
+    18,15,50,62,18,15,50,62, // forrest
+    78,79,71,56,67,25,72,  // rocks
+    91,91,91,93 // ice cap
+  };
+
+  static std::vector<uint16_t> colorMappingHill {
+    10,10,10,29,  // water
+    52,           // beach
+    44,           // earth
+    65,78,43,19,78,103,109,28, // forrest
+    78,79,71,56,67,25,72,  // rocks
+    91,91,91,93 // ice cap
+  };
+
+  
+  const size_t normHeightIndex = std::min(colorMapping.size()-1, size_t((height/heightScale)*colorMapping.size()-1));
+
+  if (maxGradient/3 > heightScale) {
+    return colorMappingHill[normHeightIndex];
+  } else {
+    return colorMapping[normHeightIndex];
+  }
+}
+
+
+void YAKTerrain::generateBricksFromField() {
   for (uint32_t y = 0; y < size.y; ++y) {
     
     const float centerY = float(y)/float(size.y-1);
@@ -92,14 +163,22 @@ void YAKTerrain::generateBricksFromField(const Grid2D& field) {
       const float rightX  = (float(x)+1)/(size.x-1);
       const float leftX   = (float(x)-1)/(size.x-1);
             
-      const uint32_t height = sampleField(field, centerX, centerY);
+      const uint32_t height = sampleField(centerX, centerY);
       
-      const int32_t lh = abs(int32_t(height)-int32_t(sampleField(field, leftX, centerY)));
-      const int32_t rh = abs(int32_t(height)-int32_t(sampleField(field, rightX, centerY)));
-      const int32_t fh = abs(int32_t(height)-int32_t(sampleField(field, centerX, frontY)));
-      const int32_t bh = abs(int32_t(height)-int32_t(sampleField(field, centerX, backY)));
-      const int32_t maxHeightDiff = std::max(lh,std::max(rh,std::max(fh,bh)));
-      const uint32_t brickCount = std::max<uint32_t>(1,uint32_t(maxHeightDiff));
+      const float leftHeight  = sampleField(leftX, centerY);
+      const float rigthHeight = sampleField(rightX, centerY);
+      const float frontHeight = sampleField(centerX, frontY);
+      const float backHeight  = sampleField(centerX, backY);
+            
+      const uint32_t maxGradient = uint32_t(100*fabs(std::max((leftHeight-rigthHeight)/2.0f,
+                                                          (frontHeight-backHeight)/2.0f)));
+      
+      const int32_t leftHeightBrickDiff  = abs(int32_t(height)-int32_t(leftHeight));
+      const int32_t rightHeightBrickDiff = abs(int32_t(height)-int32_t(rigthHeight));
+      const int32_t frontHeightBrickDiff = abs(int32_t(height)-int32_t(frontHeight));
+      const int32_t backHeightBrickDiff  = abs(int32_t(height)-int32_t(backHeight));
+      const int32_t maxHeightBrickDiff = std::max(leftHeightBrickDiff,std::max(rightHeightBrickDiff,std::max(frontHeightBrickDiff,backHeightBrickDiff)));
+      const uint32_t brickCount = std::max<uint32_t>(1,uint32_t(maxHeightBrickDiff));
       
       for (uint32_t i = 0;i<brickCount;++i) {
 
@@ -114,7 +193,7 @@ void YAKTerrain::generateBricksFromField(const Grid2D& field) {
         auto brick = std::make_shared<SimpleYAK42>(brickSize.x,
                                                    brickSize.y,
                                                    brickSize.z,
-                                                   colorMapping[height%colorMapping.size()],
+                                                   colorMapping(height,maxGradient),
                                                    integerPos);
 
         
@@ -124,7 +203,5 @@ void YAKTerrain::generateBricksFromField(const Grid2D& field) {
       }
     }
   }
-  
-  lastField = field;
   culler.cull();
 }
