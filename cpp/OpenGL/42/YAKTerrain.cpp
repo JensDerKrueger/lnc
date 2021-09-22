@@ -89,6 +89,21 @@ void YAKTerrain::combineNewFieldWithPreviousHalf(Grid2D& newField) const {
   }
 }
 
+void YAKTerrain::addRiver(Grid2D& newField) {
+  for (size_t y = 0; y < newField.getHeight()/2+1 ; ++y) {
+    const int32_t irPos = int32_t(rPos);
+    for (int32_t w = -30; w < 30; ++w) {
+      const int32_t curentPos = irPos+w;
+      if (curentPos < 0) continue;
+      if (curentPos > int32_t(newField.getWidth()-1)) break;
+      const float val = newField.getValue(uint32_t(curentPos),y);
+      const float height = fabs(sinf(w/15.0f)*15.0f);
+      if (val < height) continue;
+      newField.setValue(uint32_t(curentPos),y,height);
+    }
+    rPos = std::clamp<float>(float(rPos) + staticRand.rand11()*2,2,newField.getWidth()-3);
+  }
+}
 
 Grid2D YAKTerrain::generateHeightfield() {
   Grid2D newField = generateNewHeightfield();
@@ -98,18 +113,7 @@ Grid2D YAKTerrain::generateHeightfield() {
     initFirstPreviousHalfHeightField(newField.getWidth(), newField.getHeight());
   
   combineNewFieldWithPreviousHalf(newField);
-  
-
-  // TODO make this look better
-  for (size_t y = 0; y < newField.getHeight()/2+1 ; ++y) {
-    const size_t irPos = size_t(rPos);
-    newField.setValue(irPos-2,y,0);
-    newField.setValue(irPos-1,y,0);
-    newField.setValue(irPos,y,0);
-    newField.setValue(irPos+1,y,0);
-    newField.setValue(irPos+2,y,0);
-    rPos = std::clamp<float>(float(rPos) + staticRand.rand11()*2,2,newField.getWidth()-3);
-  }
+  addRiver(newField);
 
   
   return newField;

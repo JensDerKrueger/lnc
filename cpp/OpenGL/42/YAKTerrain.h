@@ -54,4 +54,5 @@ private:
   void generateBricksFromField();
   uint32_t sampleField(float normX, float normY) const;
   uint16_t colorMapping(uint32_t height, uint32_t maxGradient) const;
+  void addRiver(Grid2D& newField);
 };

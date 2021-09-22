@@ -52,8 +52,8 @@ static const std::string fragmentShaderString{
   "in vec3 normal;\n"
   "out vec4 FragColor;\n"
   "void main() {\n"
-  "    vec3 nnormal = normalize(normal);"
-  "    vec3 nlightDir = normalize(vec3(0.0,0.0,0.0)-pos);"
+  "    vec3 nnormal = normalize(normal);\n"
+  "    vec3 nlightDir = normalize(vec3(0.0,0.0,0.0)-pos);\n"
   "    FragColor = color*abs(dot(nlightDir,nnormal));\n"
   "}\n"
 };

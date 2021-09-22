@@ -91,7 +91,7 @@ public:
     const float aspect = dim.aspect();
 
     projection = Mat4::perspective(fovY, aspect, zNear, zFar);    
-    view       = Mat4::lookAt({0,4,-4+this->animationTime}, {0,0,this->animationTime}, {0,1,0});
+    view       = Mat4::lookAt({0,3,-4+this->animationTime}, {0,0.1,this->animationTime}, {0,1,0});
     model      = globalScale;
          
     if (terrain.bricksReady()) manager.push(terrain.getBricks());
