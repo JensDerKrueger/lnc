@@ -35,8 +35,9 @@ static const std::string fragmentShaderString {
   "void main() {\n"
   "    vec3 nnormal = normalize(normal);\n"
   "    vec3 nlightDir = normalize(lightPosViewSpace-pos);\n"
-  "    vec4 texValue = texture(torusTexture, texCoords);\n"
-  "    FragColor = color*texValue*dot(nlightDir,nnormal);\n"
+  "    vec4 combinedColor = color*texture(torusTexture, texCoords);\n"
+  "    float light = clamp(dot(nlightDir,normal) + 0.2,0.0,1.0);"
+  "    FragColor = vec4(combinedColor.rgb*light, combinedColor.a);\n"
   "}\n"
 };
 
