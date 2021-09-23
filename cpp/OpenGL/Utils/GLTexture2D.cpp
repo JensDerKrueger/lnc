@@ -250,6 +250,11 @@ void GLTexture2D::setPixel(const std::vector<GLubyte>& data, uint32_t x, uint32_
   glTexSubImage2D(GL_TEXTURE_2D,0,GLint(x),GLint(y),1,1, format[2], format[0], data.data());
 }
 
+void GLTexture2D::generateMipmap() {
+  GL(glBindTexture(GL_TEXTURE_2D, id));
+  GL(glGenerateMipmap(GL_TEXTURE_2D));
+}
+
 Image GLTexture2D::getImage() {
   return {width, height, componentCount, getDataByte()};
 }

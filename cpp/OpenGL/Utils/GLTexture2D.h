@@ -31,6 +31,8 @@ public:
   
   void setPixel(const std::vector<GLubyte>& data, uint32_t x, uint32_t y);
   
+  void generateMipmap();
+  
   uint32_t getHeight() const {return height;}
   uint32_t getWidth() const {return width;}
   uint32_t getComponentCount() const {return componentCount;}
