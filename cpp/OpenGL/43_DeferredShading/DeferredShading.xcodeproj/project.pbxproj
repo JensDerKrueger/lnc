@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		563A5C6926FBAE250056BEDC /* Torus.bmp in CopyFiles */ = {isa = PBXBuildFile; fileRef = 563A5C6826FBAE140056BEDC /* Torus.bmp */; };
+		563A5C6C26FBE1150056BEDC /* DeferredShader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 563A5C6A26FBE1150056BEDC /* DeferredShader.cpp */; };
 		5677395325FB7BF000AB2341 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5677394C25FB7BF000AB2341 /* main.cpp */; };
 /* End PBXBuildFile section */
 
@@ -26,6 +27,8 @@
 
 /* Begin PBXFileReference section */
 		563A5C6826FBAE140056BEDC /* Torus.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; path = Torus.bmp; sourceTree = "<group>"; };
+		563A5C6A26FBE1150056BEDC /* DeferredShader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DeferredShader.cpp; sourceTree = "<group>"; };
+		563A5C6B26FBE1150056BEDC /* DeferredShader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DeferredShader.h; sourceTree = "<group>"; };
 		5677394C25FB7BF000AB2341 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		A231F0FF25EAF61A00CBFC23 /* DeferredShading */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = DeferredShading; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -46,6 +49,8 @@
 			children = (
 				5677394C25FB7BF000AB2341 /* main.cpp */,
 				563A5C6826FBAE140056BEDC /* Torus.bmp */,
+				563A5C6A26FBE1150056BEDC /* DeferredShader.cpp */,
+				563A5C6B26FBE1150056BEDC /* DeferredShader.h */,
 				A231F10025EAF61A00CBFC23 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -115,6 +120,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5677395325FB7BF000AB2341 /* main.cpp in Sources */,
+				563A5C6C26FBE1150056BEDC /* DeferredShader.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

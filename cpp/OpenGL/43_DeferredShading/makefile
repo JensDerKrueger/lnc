@@ -13,7 +13,7 @@ else
 	INCLUDES=-I. -I../Utils -I /opt/homebrew/include -I ../../openmp/include
 endif
 
-SRC = main.cpp
+SRC = DeferredShader.cpp main.cpp
 OBJ = $(SRC:.cpp=.o)
 TARGET = deferredShading
 

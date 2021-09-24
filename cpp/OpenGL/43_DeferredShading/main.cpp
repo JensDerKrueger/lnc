@@ -1,54 +1,68 @@
 #include <array>
 
 #include <GLApp.h>
+
 #include <bmp.h>
 #include <Tesselation.h>
 
-static const std::string vertexShaderString {
-  "#version 410\n"
-  "uniform mat4 MVP;\n"
-  "uniform mat4 MV;\n"
-  "uniform mat4 MVit;\n"
-  "layout (location = 0) in vec3 vPos;\n"
-  "layout (location = 1) in vec3 vNormal;\n"
-  "layout (location = 2) in vec2 vTexCoords;\n"
-  "out vec3 normal;\n"
-  "out vec3 pos;\n"
-  "out vec2 texCoords;\n"
-  "void main() {\n"
-  "    gl_Position = MVP * vec4(vPos, 1.0);\n"
-  "    pos = (MV * vec4(vPos, 1.0)).xyz;\n"
-  "    texCoords = vTexCoords;\n"
-  "    normal = (MVit * vec4(vNormal, 0.0)).xyz;\n"
-  "}\n"
-};
+#include "DeferredShader.h"
 
-static const std::string fragmentShaderString {
-  "#version 410\n"
-  "uniform sampler2D torusTexture;"
-  "uniform vec4 color;\n"
-  "uniform vec3 lightPosViewSpace;\n"
-  "in vec3 pos;\n"
-  "in vec3 normal;\n"
-  "in vec2 texCoords;\n"
-  "out vec4 FragColor;\n"
-  "void main() {\n"
-  "    vec3 nnormal = normalize(normal);\n"
-  "    vec3 nlightDir = normalize(lightPosViewSpace-pos);\n"
-  "    vec4 combinedColor = color*texture(torusTexture, texCoords);\n"
-  "    float light = clamp(dot(nlightDir,normal) + 0.2,0.0,1.0);"
-  "    FragColor = vec4(combinedColor.rgb*light, combinedColor.a);\n"
-  "}\n"
-};
+static const std::string vertexShaderString {R"(#version 410
+uniform mat4 MVP;
+uniform mat4 MV;
+uniform mat4 MVit;
+layout (location = 0) in vec3 vPos;
+layout (location = 1) in vec3 vNormal;
+layout (location = 2) in vec2 vTexCoords;
+out vec3 normal;
+out vec3 pos;
+out vec2 texCoords;
+void main() {
+    gl_Position = MVP * vec4(vPos, 1.0);
+    pos = (MV * vec4(vPos, 1.0)).xyz;
+    texCoords = vTexCoords;
+    normal = (MVit * vec4(vNormal, 0.0)).xyz;
+})"};
+
+static const std::string fragmentShaderString {R"(#version 410
+uniform sampler2D torusTexture;
+uniform vec3 color;
+in vec3 pos;
+in vec3 normal;
+in vec2 texCoords;
+layout(location = 0) out vec3 outColor;
+layout(location = 1) out vec4 outPos;
+layout(location = 2) out vec3 outNormal;
+void main() {
+    vec3 nnormal = normalize(normal);
+    vec3 texValue = texture(torusTexture, texCoords).rgb;
+    outColor  = color*texValue;
+    outPos    = vec4(pos,1);
+    outNormal = nnormal;
+})"};
+
+static const std::string dsFragmentShaderString {R"(#version 410
+uniform sampler2D offscreenTexture0;
+uniform sampler2D offscreenTexture1;
+uniform sampler2D offscreenTexture2;
+uniform vec3 lightPosViewSpace;
+in vec2 texCoords;
+layout(location = 0) out vec4 FragColor;
+void main() {
+    vec4 pos    = textureLod(offscreenTexture1, texCoords,0);
+    vec3 color  = textureLod(offscreenTexture0, texCoords,0).rgb;
+    vec3 normal = textureLod(offscreenTexture2, texCoords,0).rgb;
+    vec3 nlightDir = normalize(lightPosViewSpace-pos.xyz);
+    FragColor = vec4(color.rgb*dot(nlightDir,normal), pos.a);
+})"};
 
 struct TorusParams {
   Mat4 model;
-  Vec4 color;
+  Vec3 color;
 };
 
 class DeferredShadingApp : public GLApp {
 public:
-  
   DeferredShadingApp() :
     GLApp(640,480,1,"Deferred Shading Demo",true,false),
     torusShader{GLProgram::createFromString(vertexShaderString, fragmentShaderString)},
@@ -56,31 +70,35 @@ public:
     torusNormalBuffer{GL_ARRAY_BUFFER},
     torusTexBuffer{GL_ARRAY_BUFFER},
     torusIndexBuffer{GL_ELEMENT_ARRAY_BUFFER},
-    torusTexture{GL_LINEAR, GL_LINEAR}
+    torusTexture{GL_LINEAR, GL_LINEAR},
+    deferredShader(dsFragmentShaderString, {
+      {3,GLDataType::BYTE,false},
+      {4,GLDataType::HALF,false},
+      {3,GLDataType::HALF,false}
+    })
   {
   }
   
   virtual void init() override {
     GL(glDisable(GL_BLEND));
-    GL(glClearColor(0.2f,0.2f,0.8f,0));
+    GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
     GL(glClearDepth(1.0f));
-    
     GL(glCullFace(GL_BACK));
     GL(glEnable(GL_CULL_FACE));
     GL(glEnable(GL_DEPTH_TEST));
-    GL(glDepthFunc(GL_LESS));
+    GL(glDepthFunc(GL_LESS));    
     
     const Dimensions dim = glEnv.getFramebufferSize();
     GL(glViewport(0, 0, GLsizei(dim.width), GLsizei(dim.height)));
     
     const Tesselation torus = Tesselation::genTorus({0,0,0}, 0.8f, 0.3f);
-    
+        
+    torusArray.bind();
     torusPosBuffer.setData(torus.getVertices(), 3);
     torusNormalBuffer.setData(torus.getNormals(), 3);
     torusTexBuffer.setData(torus.getTexCoords(),2);
     torusIndexBuffer.setData(torus.getIndices());
-
-    torusArray.bind();
+    
     torusArray.connectVertexAttrib(torusPosBuffer, torusShader, "vPos",3);
     torusArray.connectVertexAttrib(torusNormalBuffer, torusShader, "vNormal",3);
     torusArray.connectVertexAttrib(torusTexBuffer, torusShader, "vTexCoords",3);
@@ -91,30 +109,10 @@ public:
     Image torusImage{BMP::load("Torus.bmp")};
     torusTexture.setData(torusImage.data, torusImage.width, torusImage.height, torusImage.componentCount);
   }
-  
-  virtual void mouseMove(double xPosition, double yPosition) override {
-    Dimensions s = glEnv.getWindowSize();
-    if (xPosition < 0 || xPosition > s.width ||
-        yPosition < 0 || yPosition > s.height) return;
-    mousePos = Vec2{float(xPosition/s.width),float(1.0-yPosition/s.height)};
-  }
-  
-  virtual void mouseButton(int button, int state, int mods, double xPosition,
-                           double yPosition) override {
-    if (state != GLFW_PRESS) return;
-    
-    if (button == GLFW_MOUSE_BUTTON_LEFT) {
-    } else {
-    }
-  }
-  
-  virtual void mouseWheel(double x_offset, double y_offset, double xPosition,
-                          double yPosition) override {
-  }
-  
-  
+      
   virtual void resize(int width, int height) override {
     GL(glViewport(0, 0, GLsizei(width), GLsizei(height)));
+    deferredShader.resize(uint32_t(width), uint32_t(height));
   }
       
   virtual void keyboard(int key, int scancode, int action, int mods) override {
@@ -142,63 +140,58 @@ public:
         
     torusParams[0].model = Mat4::rotationY(this->animationTime*80) *
                            Mat4::rotationX(this->animationTime*70);
-    torusParams[0].color = Vec4{
+    torusParams[0].color = Vec3{
       fabs(sinf(this->animationTime*0.3f)),
       fabs(sinf(this->animationTime*0.8f)),
-      fabs(sinf(this->animationTime*0.1f)),
-      1.0f
+      fabs(sinf(this->animationTime*0.1f))
     };
     
     torusParams[1].model = torusParams[0].model *
                            Mat4::rotationZ(this->animationTime*100) *
                            Mat4::translation({2,0,0}) * Mat4::scaling(0.2f);
-    torusParams[1].color = Vec4{
+    torusParams[1].color = Vec3{
       fabs(sinf(this->animationTime*0.4f)),
       fabs(sinf(this->animationTime*0.1f)),
-      fabs(sinf(this->animationTime*0.9f)),
-      1.0f
+      fabs(sinf(this->animationTime*0.9f))
     };
 
     torusParams[2].model = torusParams[0].model *
                            Mat4::rotationZ(this->animationTime*100) *
                            Mat4::translation({-2,0,0}) * Mat4::scaling(0.2f);
-    torusParams[2].color = Vec4{
+    torusParams[2].color = Vec3{
       fabs(sinf(this->animationTime*0.1f)),
       fabs(sinf(this->animationTime*0.7f)),
-      fabs(sinf(this->animationTime*0.4f)),
-      1.0f
+      fabs(sinf(this->animationTime*0.4f))
     };
 
     torusParams[3].model = torusParams[0].model *
                            Mat4::rotationZ(this->animationTime*100) *
                            Mat4::translation({0,2,0}) * Mat4::scaling(0.2f);
-    torusParams[3].color = Vec4{
+    torusParams[3].color = Vec3{
       fabs(sinf(this->animationTime*0.8f)),
       fabs(sinf(this->animationTime*0.3f)),
-      fabs(sinf(this->animationTime*0.1f)),
-      1.0f
+      fabs(sinf(this->animationTime*0.1f))
     };
 
     torusParams[4].model = torusParams[0].model *
                            Mat4::rotationZ(this->animationTime*100) *
                            Mat4::translation({0,-2,0}) * Mat4::scaling(0.2f);
-    torusParams[4].color = Vec4{
+    torusParams[4].color = Vec3{
       fabs(sinf(this->animationTime*0.7f)),
       fabs(sinf(this->animationTime*0.8f)),
-      fabs(sinf(this->animationTime*0.9f)),
-      1.0f
+      fabs(sinf(this->animationTime*0.9f))
     };
+    
   }
   
   virtual void draw() override {
+    deferredShader.startFirstPass();
+    GL(glDisable(GL_BLEND));
+    GL(glClearColor(0,0,0,0));
     GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-    
-    torusArray.bind();
     torusShader.enable();
-    const Vec3 lightPosViewSpace = view * Vec3{0,3,-4};
-    torusShader.setUniform("lightPosViewSpace", lightPosViewSpace);
-    torusShader.setTexture("torusTexture",torusTexture,1);
-
+    torusArray.bind();
+    torusShader.setTexture("torusTexture",torusTexture,0);
     for (const auto& param : torusParams) {
       const Mat4 modelView = view*param.model;
       const Mat4 modelViewProjection = projection*modelView;
@@ -210,7 +203,16 @@ public:
       torusShader.setUniform("color", param.color);
       GL(glDrawElements(GL_TRIANGLES, vertexCount, GL_UNSIGNED_INT, (void*)0));
     }
+    deferredShader.endFirstPass();
 
+    const Dimensions dim = glEnv.getFramebufferSize();
+    deferredShader.startSecondPass(dim.width, dim.height);
+    GL(glClearColor(0.2f,0.2f,0.8f,0));
+    GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+    GL(glEnable(GL_BLEND));
+    const Vec3 lightPosViewSpace = view * Vec3{0,3,-4};
+    deferredShader.getProgram().setUniform("lightPosViewSpace", lightPosViewSpace);
+    deferredShader.endSecondPass();
   }
   
 private:
@@ -229,6 +231,8 @@ private:
   GLBuffer    torusIndexBuffer;
   GLsizei     vertexCount;
   GLTexture2D torusTexture;
+
+  DeferredShader deferredShader;
 
 };
 
