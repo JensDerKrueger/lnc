@@ -5,7 +5,7 @@
 #include <bmp.h>
 #include <Tesselation.h>
 
-#include "DeferredShader.h"
+#include <DeferredShader.h>
 
 static const std::string vertexShaderString {R"(#version 410
 uniform mat4 MVP;
@@ -25,7 +25,6 @@ void main() {
 })"};
 
 static const std::string fragmentShaderString {R"(#version 410
-uniform sampler2D torusTexture;
 uniform vec3 color;
 in vec3 pos;
 in vec3 normal;
@@ -35,8 +34,7 @@ layout(location = 1) out vec4 outPos;
 layout(location = 2) out vec3 outNormal;
 void main() {
     vec3 nnormal = normalize(normal);
-    vec3 texValue = texture(torusTexture, texCoords).rgb;
-    outColor  = color*texValue;
+    outColor  = color;
     outPos    = vec4(pos,1);
     outNormal = nnormal;
 })"};
@@ -48,12 +46,28 @@ uniform sampler2D offscreenTexture2;
 uniform vec3 lightPosViewSpace;
 in vec2 texCoords;
 layout(location = 0) out vec4 FragColor;
+ivec2 kernel[4] = ivec2[4](ivec2(1,0), ivec2(-1,0), ivec2(0,1), ivec2(0,-1));
+
+uniform float quantLevel;
+
 void main() {
     vec4 pos    = textureLod(offscreenTexture1, texCoords,0);
     vec3 color  = textureLod(offscreenTexture0, texCoords,0).rgb;
     vec3 normal = textureLod(offscreenTexture2, texCoords,0).rgb;
     vec3 nlightDir = normalize(lightPosViewSpace-pos.xyz);
-    FragColor = vec4(color.rgb*dot(nlightDir,normal), pos.a);
+
+    float dist = 0;
+    float count = 0;
+    for (int j = 0;j<4;++j) {
+      for (int i = 0;i<4;++i) {
+        vec4 nPos   = texelFetch(offscreenTexture1, ivec2(gl_FragCoord) + kernel[i]*j,0);
+        dist += abs(pos.z-nPos.z);
+        count++;
+      }
+    }
+    bool border = dist/count > 0.1;
+    vec3 quantColor = vec3(ivec3(color.rgb*clamp(dot(nlightDir,normal)+0.3,0,1)*quantLevel)/quantLevel);
+    FragColor = border ? vec4(0,0,0,1) : vec4(quantColor, pos.a);
 })"};
 
 struct TorusParams {
@@ -70,9 +84,8 @@ public:
     torusNormalBuffer{GL_ARRAY_BUFFER},
     torusTexBuffer{GL_ARRAY_BUFFER},
     torusIndexBuffer{GL_ELEMENT_ARRAY_BUFFER},
-    torusTexture{GL_LINEAR, GL_LINEAR},
     deferredShader(dsFragmentShaderString, {
-      {3,GLDataType::BYTE,false},
+      {3,GLDataType::BYTE,true},
       {4,GLDataType::HALF,false},
       {3,GLDataType::HALF,false}
     })
@@ -105,11 +118,14 @@ public:
     torusArray.connectIndexBuffer(torusIndexBuffer);
     
     vertexCount = GLsizei(torus.getIndices().size());
-    
-    Image torusImage{BMP::load("Torus.bmp")};
-    torusTexture.setData(torusImage.data, torusImage.width, torusImage.height, torusImage.componentCount);
   }
       
+  virtual void mouseWheel(double x_offset, double y_offset, double xPosition,
+                          double yPosition) override {
+    
+    quantLevel += y_offset;
+  }
+  
   virtual void resize(int width, int height) override {
     GL(glViewport(0, 0, GLsizei(width), GLsizei(height)));
     deferredShader.resize(uint32_t(width), uint32_t(height));
@@ -136,7 +152,7 @@ public:
     const float aspect = dim.aspect();
 
     projection = Mat4::perspective(fovY, aspect, zNear, zFar);    
-    view       = Mat4::lookAt({0,0,-8}, {0,0,0}, {0,1,0});
+    view       = Mat4::lookAt({0,0,-6}, {0,0,0}, {0,1,0});
         
     torusParams[0].model = Mat4::rotationY(this->animationTime*80) *
                            Mat4::rotationX(this->animationTime*70);
@@ -191,7 +207,6 @@ public:
     GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
     torusShader.enable();
     torusArray.bind();
-    torusShader.setTexture("torusTexture",torusTexture,0);
     for (const auto& param : torusParams) {
       const Mat4 modelView = view*param.model;
       const Mat4 modelViewProjection = projection*modelView;
@@ -212,6 +227,8 @@ public:
     GL(glEnable(GL_BLEND));
     const Vec3 lightPosViewSpace = view * Vec3{0,3,-4};
     deferredShader.getProgram().setUniform("lightPosViewSpace", lightPosViewSpace);
+    deferredShader.getProgram().setUniform("quantLevel", quantLevel);
+    
     deferredShader.endSecondPass();
   }
   
@@ -230,10 +247,11 @@ private:
   GLBuffer    torusTexBuffer;
   GLBuffer    torusIndexBuffer;
   GLsizei     vertexCount;
-  GLTexture2D torusTexture;
 
   DeferredShader deferredShader;
 
+  float quantLevel{5};
+  
 };
 
 #ifdef _WIN32
