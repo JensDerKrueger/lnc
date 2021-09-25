@@ -61,8 +61,20 @@ public:
   void setUniform(GLint id, const Vec4& value) const;
   void setUniform(GLint id, int value) const;
   void setUniform(GLint id, const Vec2i& value) const;
+  void setUniform(GLint id, const Vec3i& value) const;
+  void setUniform(GLint id, const Vec4i& value) const;
 	void setUniform(GLint id, const Mat4& value, bool transpose=false) const;
-	
+
+  void setUniform(GLint id, const std::vector<float>& value) const;
+  void setUniform(GLint id, const std::vector<Vec2>& value) const;
+  void setUniform(GLint id, const std::vector<Vec3>& value) const;
+  void setUniform(GLint id, const std::vector<Vec4>& value) const;
+  void setUniform(GLint id, const std::vector<int>& value) const;
+  void setUniform(GLint id, const std::vector<Vec2i>& value) const;
+  void setUniform(GLint id, const std::vector<Vec3i>& value) const;
+  void setUniform(GLint id, const std::vector<Vec4i>& value) const;
+  void setUniform(GLint id, const std::vector<Mat4>& value, bool transpose=false) const;
+  
   void setTexture(GLint id, const GLTexture1D& texture, GLuint unit=0) const;
   void setTexture(GLint id, const GLTexture2D& texture, GLuint unit=0) const;
 	void setTexture(GLint id, const GLTexture3D& texture, GLuint unit=0) const;

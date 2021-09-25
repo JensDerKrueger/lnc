@@ -136,11 +136,58 @@ void GLProgram::setUniform(GLint id, const Vec2i& value) const {
   GL(glUniform2iv(id, 1, value));
 }
 
+void GLProgram::setUniform(GLint id, const Vec3i& value) const {
+  GL(glUniform3iv(id, 1, value));
+}
+
+void GLProgram::setUniform(GLint id, const Vec4i& value) const {
+  GL(glUniform4iv(id, 1, value));
+}
+
 void GLProgram::setUniform(GLint id, const Mat4& value, bool transpose) const {
-	// since OpenGL matrices are usuall expcted
+	// since OpenGL matrices are usuall expected
   // column major but our matrices are row major
   // hence, we invert the transposition flag
   GL(glUniformMatrix4fv(id, 1, !transpose, value));
+}
+
+void GLProgram::setUniform(GLint id, const std::vector<float>& value) const {
+  GL(glUniform1fv(id, value.size(), value.data()));
+}
+
+void GLProgram::setUniform(GLint id, const std::vector<Vec2>& value) const {
+  GL(glUniform2fv(id, value.size(), (GLfloat*)value.data()));
+}
+
+void GLProgram::setUniform(GLint id, const std::vector<Vec3>& value) const {
+  GL(glUniform3fv(id, value.size(), (GLfloat*)value.data()));
+}
+
+void GLProgram::setUniform(GLint id, const std::vector<Vec4>& value) const {
+  GL(glUniform4fv(id, value.size(), (GLfloat*)value.data()));
+}
+
+void GLProgram::setUniform(GLint id, const std::vector<int>& value) const {
+  GL(glUniform1iv(id, value.size(), (GLint*)value.data()));
+}
+
+void GLProgram::setUniform(GLint id, const std::vector<Vec2i>& value) const {
+  GL(glUniform2iv(id, value.size(), (GLint*)value.data()));
+}
+
+void GLProgram::setUniform(GLint id, const std::vector<Vec3i>& value) const {
+  GL(glUniform3iv(id, value.size(), (GLint*)value.data()));
+}
+
+void GLProgram::setUniform(GLint id, const std::vector<Vec4i>& value) const {
+  GL(glUniform4iv(id, value.size(), (GLint*)value.data()));
+}
+
+void GLProgram::setUniform(GLint id, const std::vector<Mat4>& value, bool transpose) const {
+  // since OpenGL matrices are usuall expected
+  // column major but our matrices are row major
+  // hence, we invert the transposition flag
+  GL(glUniformMatrix4fv(id, value.size(), !transpose, (GLfloat*)value.data()));
 }
 
 void GLProgram::setTexture(GLint id, const GLTexture1D& texture, GLuint unit) const {
