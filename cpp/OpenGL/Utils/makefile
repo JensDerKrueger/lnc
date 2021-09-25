@@ -15,7 +15,7 @@ else
 	INCLUDES=-I. -I../Utils -I ../../openmp/include -I /opt/homebrew/include
 endif
 
-SRC = SHA2.cpp SHA1.cpp MD5.cpp Image.cpp GLApp.cpp ArcBall.cpp GLTexture3D.cpp GLDebug.cpp GLFramebuffer.cpp GLDepthBuffer.cpp Grid2D.cpp GLTexture1D.cpp FontRenderer.cpp bmp.cpp PrecomputedParticleSystem.cpp PlanarMirror.cpp FresnelVisualizer.cpp GLArray.cpp ParticleSystem.cpp AbstractParticleSystem.cpp GLTexture2D.cpp Tesselation.cpp GLBuffer.cpp GLEnv.cpp GLProgram.cpp Rand.cpp OBJFile.cpp
+SRC = SHA2.cpp SHA1.cpp MD5.cpp Image.cpp GLApp.cpp ArcBall.cpp GLTexture3D.cpp GLDebug.cpp GLFramebuffer.cpp GLDepthBuffer.cpp Grid2D.cpp GLTexture1D.cpp FontRenderer.cpp bmp.cpp PrecomputedParticleSystem.cpp PlanarMirror.cpp FresnelVisualizer.cpp GLArray.cpp ParticleSystem.cpp AbstractParticleSystem.cpp GLTexture2D.cpp Tesselation.cpp GLBuffer.cpp GLEnv.cpp GLProgram.cpp Rand.cpp OBJFile.cpp DeferredShader.cpp
 OBJ = $(SRC:.cpp=.o)
 TARGET = libutils.a
 
