@@ -7,8 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		564297662667A9F1005C2306 /* helvetica_neue.bmp in CopyFiles */ = {isa = PBXBuildFile; fileRef = 564297652667A9D0005C2306 /* helvetica_neue.bmp */; };
-		564297672667A9F1005C2306 /* helvetica_neue.pos in CopyFiles */ = {isa = PBXBuildFile; fileRef = 564297642667A9D0005C2306 /* helvetica_neue.pos */; };
 		5677395325FB7BF000AB2341 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5677394C25FB7BF000AB2341 /* main.cpp */; };
 		A230C72D268E7EE300BF8F2C /* LargeImageRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A230C72C268E7EE300BF8F2C /* LargeImageRenderer.cpp */; };
 		A28842F02659AFA00041B522 /* LargeImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A28842EE2659AFA00041B522 /* LargeImage.cpp */; };
@@ -21,22 +19,20 @@
 			dstPath = "";
 			dstSubfolderSpec = 7;
 			files = (
-				564297662667A9F1005C2306 /* helvetica_neue.bmp in CopyFiles */,
-				564297672667A9F1005C2306 /* helvetica_neue.pos in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		564297642667A9D0005C2306 /* helvetica_neue.pos */ = {isa = PBXFileReference; lastKnownFileType = text; path = helvetica_neue.pos; sourceTree = "<group>"; };
-		564297652667A9D0005C2306 /* helvetica_neue.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; path = helvetica_neue.bmp; sourceTree = "<group>"; };
 		5677394C25FB7BF000AB2341 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		A230C72B268E7EE300BF8F2C /* LargeImageRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LargeImageRenderer.h; sourceTree = "<group>"; };
 		A230C72C268E7EE300BF8F2C /* LargeImageRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LargeImageRenderer.cpp; sourceTree = "<group>"; };
 		A231F0FF25EAF61A00CBFC23 /* LargeImageRenderer */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = LargeImageRenderer; sourceTree = BUILT_PRODUCTS_DIR; };
 		A28842EE2659AFA00041B522 /* LargeImage.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = LargeImage.cpp; sourceTree = "<group>"; };
 		A28842EF2659AFA00041B522 /* LargeImage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LargeImage.h; sourceTree = "<group>"; };
+		A2929C822700FD3E00638ED9 /* helvetica_neue.pos */ = {isa = PBXFileReference; lastKnownFileType = text; name = helvetica_neue.pos; path = ../Utils/helvetica_neue.pos; sourceTree = "<group>"; };
+		A2929C832700FD3E00638ED9 /* helvetica_neue.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; name = helvetica_neue.bmp; path = ../Utils/helvetica_neue.bmp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -56,10 +52,10 @@
 				A28842EE2659AFA00041B522 /* LargeImage.cpp */,
 				A28842EF2659AFA00041B522 /* LargeImage.h */,
 				5677394C25FB7BF000AB2341 /* main.cpp */,
-				564297652667A9D0005C2306 /* helvetica_neue.bmp */,
-				564297642667A9D0005C2306 /* helvetica_neue.pos */,
 				A230C72C268E7EE300BF8F2C /* LargeImageRenderer.cpp */,
 				A230C72B268E7EE300BF8F2C /* LargeImageRenderer.h */,
+				A2929C832700FD3E00638ED9 /* helvetica_neue.bmp */,
+				A2929C822700FD3E00638ED9 /* helvetica_neue.pos */,
 				A231F10025EAF61A00CBFC23 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -331,6 +327,7 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_ASSET_PATHS = "../Utils/helvetica_neue.bmp ../Utils/helvetica_neue.pos";
 				GCC_WARN_SHADOW = NO;
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include/,
@@ -365,6 +362,7 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_ASSET_PATHS = "../Utils/helvetica_neue.bmp ../Utils/helvetica_neue.pos";
 				GCC_WARN_SHADOW = NO;
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include/,

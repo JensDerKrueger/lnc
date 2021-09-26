@@ -14,10 +14,14 @@ else
 endif
 
 SRC = LargeImageRenderer.cpp LargeImage.cpp main.cpp
+RES = helvetica_neue.pos helvetica_neue.bmp
 OBJ = $(SRC:.cpp=.o)
 TARGET = largeImageRenderer
 
-all: $(TARGET)
+all: $(TARGET) $(RES)
+
+$(RES):
+	cp ../Utils/$@ $@
 
 release: CFLAGS += -O3 -DNDEBUG
 release: $(TARGET)
@@ -32,7 +36,7 @@ $(TARGET): $(OBJ) ../Utils/libutils.a
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@
 
 clean:
-	-rm -rf $(OBJ) $(TARGET) core
+	-rm -rf $(OBJ) $(TARGET) $(RES) core
 
 mrproper: clean
 	cd ../Utils && make clean
