@@ -76,7 +76,7 @@ int main(int argc, char ** argv) {
       prog.setUniform(mvpLocation, mvp);
       prog.setUniform(mLocation, m);
       prog.setUniform(mitLocation, Mat4::inverse(m), true);
-      prog.setUniform(lpLocation, {0,1,1});
+      prog.setUniform(lpLocation, Vec3{0,1,1});
               
       glDrawElements(GL_TRIANGLES, sphere.getIndices().size(), GL_UNSIGNED_INT, (void*)0);
 

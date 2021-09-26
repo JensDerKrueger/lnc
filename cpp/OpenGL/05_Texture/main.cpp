@@ -92,7 +92,7 @@ int main(int argc, char ** argv) {
     prog.setUniform(mLocation, m);
     prog.setUniform(mitLocation, Mat4::inverse(m), true);
     prog.setUniform(invVLocation, Mat4::inverse(v));
-    prog.setUniform(lpLocation, {0,1,1});
+    prog.setUniform(lpLocation, Vec3{0,1,1});
     prog.setTexture(texLocation,checkerTex,0);
     prog.setTexture(texLocation2,checkerTex2,1);
             

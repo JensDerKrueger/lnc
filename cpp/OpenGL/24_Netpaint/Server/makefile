@@ -8,7 +8,7 @@ ifeq ($(OSTYPE),Linux)
 	INCLUDES=-I. -I../../Utils -I../../Network -I ../../openmp/include
 else
 	CFLAGS=-c -Wall -std=c++17 -Wunreachable-code -Xclang -fopenmp
-	LFLAGS=-framework OpenGL -L../../Network -lnetwork
+	LFLAGS=-framework OpenGL -L../../Network -lnetwork -lGLEW
 	LIBS=-lomp -L ../../../openmp/lib -L /opt/homebrew/lib
 	INCLUDES=-I. -I ../../../openmp/include -I /opt/homebrew/include -I../../Network -I../../Utils
 endif

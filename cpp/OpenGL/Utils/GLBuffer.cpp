@@ -44,7 +44,7 @@ void GLBuffer::connectVertexAttrib(GLint location, size_t elemCount,
 	GL(glBindBuffer(target, bufferID));
 	GL(glEnableVertexAttribArray(location));
 	GL(glVertexAttribPointer(location, GLsizei(elemCount), type, GL_FALSE, GLsizei(stride), (void*)(offset*elemSize)));
-  GL(glVertexAttribDivisor(location, divisor));
+  if (divisor != 0) GL(glVertexAttribDivisor(location, divisor));
 }
 
 void GLBuffer::bind() const {
