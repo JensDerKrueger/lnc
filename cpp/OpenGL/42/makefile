@@ -15,15 +15,19 @@ endif
 
 SRC = YAKTerrain.cpp YAKManager.cpp YAK42.cpp main.cpp
 OBJ = $(SRC:.cpp=.o)
+RES = helvetica_neue.pos helvetica_neue.bmp
 TARGET = 42
 
-all: $(TARGET)
+all: $(TARGET) $(RES)
 
 release: CFLAGS += -O3 -DNDEBUG
 release: $(TARGET)
 
 ../Utils/libutils.a:
 	cd ../Utils && make $(MAKECMDGOALS)
+
+$(RES):
+	cp ../Utils/$@ $@
 
 $(TARGET): $(OBJ) ../Utils/libutils.a
 	$(CC) $(INCLUDES) $^ $(LFLAGS) $(LIBS) -o $@
@@ -32,7 +36,8 @@ $(TARGET): $(OBJ) ../Utils/libutils.a
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@
 
 clean:
-	-rm -rf $(OBJ) $(TARGET) core
+	-rm -rf $(OBJ) $(TARGET) $(RES) core
 
 mrproper: clean
 	cd ../Utils && make clean
+	

@@ -7,9 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		564297662667A9F1005C2306 /* helvetica_neue.bmp in CopyFiles */ = {isa = PBXBuildFile; fileRef = 564297652667A9D0005C2306 /* helvetica_neue.bmp */; };
-		564297672667A9F1005C2306 /* helvetica_neue.pos in CopyFiles */ = {isa = PBXBuildFile; fileRef = 564297642667A9D0005C2306 /* helvetica_neue.pos */; };
 		5677395325FB7BF000AB2341 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5677394C25FB7BF000AB2341 /* main.cpp */; };
+		A2929C802700FC2600638ED9 /* helvetica_neue.bmp in CopyFiles */ = {isa = PBXBuildFile; fileRef = A2929C7F2700FC1C00638ED9 /* helvetica_neue.bmp */; };
+		A2929C812700FC2600638ED9 /* helvetica_neue.pos in CopyFiles */ = {isa = PBXBuildFile; fileRef = A2929C7E2700FC1C00638ED9 /* helvetica_neue.pos */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -19,18 +19,18 @@
 			dstPath = "";
 			dstSubfolderSpec = 7;
 			files = (
-				564297662667A9F1005C2306 /* helvetica_neue.bmp in CopyFiles */,
-				564297672667A9F1005C2306 /* helvetica_neue.pos in CopyFiles */,
+				A2929C802700FC2600638ED9 /* helvetica_neue.bmp in CopyFiles */,
+				A2929C812700FC2600638ED9 /* helvetica_neue.pos in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		564297642667A9D0005C2306 /* helvetica_neue.pos */ = {isa = PBXFileReference; lastKnownFileType = text; path = helvetica_neue.pos; sourceTree = "<group>"; };
-		564297652667A9D0005C2306 /* helvetica_neue.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; path = helvetica_neue.bmp; sourceTree = "<group>"; };
 		5677394C25FB7BF000AB2341 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		A231F0FF25EAF61A00CBFC23 /* RecFun */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = RecFun; sourceTree = BUILT_PRODUCTS_DIR; };
+		A2929C7E2700FC1C00638ED9 /* helvetica_neue.pos */ = {isa = PBXFileReference; lastKnownFileType = text; name = helvetica_neue.pos; path = ../Utils/helvetica_neue.pos; sourceTree = "<group>"; };
+		A2929C7F2700FC1C00638ED9 /* helvetica_neue.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; name = helvetica_neue.bmp; path = ../Utils/helvetica_neue.bmp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -48,8 +48,8 @@
 			isa = PBXGroup;
 			children = (
 				5677394C25FB7BF000AB2341 /* main.cpp */,
-				564297652667A9D0005C2306 /* helvetica_neue.bmp */,
-				564297642667A9D0005C2306 /* helvetica_neue.pos */,
+				A2929C7F2700FC1C00638ED9 /* helvetica_neue.bmp */,
+				A2929C7E2700FC1C00638ED9 /* helvetica_neue.pos */,
 				A231F10025EAF61A00CBFC23 /* Products */,
 			);
 			sourceTree = "<group>";

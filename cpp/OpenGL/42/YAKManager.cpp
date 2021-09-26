@@ -2,62 +2,61 @@
 
 #include <Tesselation.h>
 
-static const std::string studVertexShaderString{
-  "#version 410\n"
-  "uniform mat4 MVP;\n"
-  "uniform mat4 MV;\n"
-  "uniform mat4 MVit;\n"
-  "layout (location = 0) in vec3 vPos;\n"
-  "layout (location = 1) in vec3 vNormal;\n"
-  "layout (location = 2) in vec3 vInstancePos;\n"
-  "layout (location = 3) in vec4 vInstanceColor;\n"
-  "out vec4 color;\n"
-  "out vec3 normal;\n"
-  "out vec3 pos;\n"
-  "void main() {\n"
-  "    vec3 actualPos = vPos + vInstancePos;\n"
-  "    gl_Position = MVP * vec4(actualPos, 1.0);\n"
-  "    pos = (MV * vec4(actualPos, 1.0)).xyz;\n"
-  "    color = vInstanceColor;\n"
-  "    normal = (MVit * vec4(vNormal, 0.0)).xyz;\n"
-  "}\n"
+static const std::string studVertexShaderString{R"(#version 410
+uniform mat4 MVP;
+uniform mat4 MV;
+uniform mat4 MVit;
+layout (location = 0) in vec3 vPos;
+layout (location = 1) in vec3 vNormal;
+layout (location = 2) in vec3 vInstancePos;
+layout (location = 3) in vec4 vInstanceColor;
+out vec4 color;
+out vec3 normal;
+out vec3 pos;
+void main() {
+    vec3 actualPos = vPos + vInstancePos;
+    gl_Position = MVP * vec4(actualPos, 1.0);
+    pos = (MV * vec4(actualPos, 1.0)).xyz;
+    color = vInstanceColor;
+    normal = (MVit * vec4(vNormal, 0.0)).xyz;
+})"
 };
 
-static const std::string baseVertexShaderString{
-  "#version 410\n"
-  "uniform mat4 MVP;\n"
-  "uniform mat4 MV;\n"
-  "uniform mat4 MVit;\n"
-  "layout (location = 0) in vec3 vPos;\n"
-  "layout (location = 1) in vec3 vNormal;\n"
-  "layout (location = 2) in vec3 vInstancePos;\n"
-  "layout (location = 3) in vec3 vInstanceScale;\n"
-  "layout (location = 4) in vec4 vInstanceColor;\n"
-  "out vec4 color;\n"
-  "out vec3 normal;\n"
-  "out vec3 pos;\n"
-  "void main() {\n"
-  "    vec3 actualPos = vPos*vInstanceScale + vInstancePos;\n"
-  "    gl_Position = MVP * vec4(actualPos, 1.0);\n"
-  "    pos = (MV * vec4(actualPos, 1.0)).xyz;\n"
-  "    color = vec4(vInstanceColor.x, vInstanceColor.y, vInstanceColor.z, 0.1);\n"
-  "    normal = (MVit * vec4(vNormal, 0.0)).xyz;\n"
-  "}\n"
+static const std::string baseVertexShaderString{R"(#version 410
+uniform mat4 MVP;
+uniform mat4 MV;
+uniform mat4 MVit;
+layout (location = 0) in vec3 vPos;
+layout (location = 1) in vec3 vNormal;
+layout (location = 2) in vec3 vInstancePos;
+layout (location = 3) in vec3 vInstanceScale;
+layout (location = 4) in vec4 vInstanceColor;
+out vec4 color;
+out vec3 normal;
+out vec3 pos;
+void main() {
+    vec3 actualPos = vPos*vInstanceScale + vInstancePos;
+    gl_Position = MVP * vec4(actualPos, 1.0);
+    pos = (MV * vec4(actualPos, 1.0)).xyz;
+    color = vec4(vInstanceColor.x, vInstanceColor.y, vInstanceColor.z, 0.1);
+    normal = (MVit * vec4(vNormal, 0.0)).xyz;
+})"
 };
 
-static const std::string fragmentShaderString{
-  "#version 410\n"
-  "in vec4 color;\n"
-  "in vec3 pos;\n"
-  "in vec3 normal;\n"
-  "out vec4 FragColor;\n"
-  "void main() {\n"
-  "    vec3 nnormal = normalize(normal);\n"
-  "    vec3 nlightDir = normalize(vec3(0.0,0.0,0.0)-pos);\n"
-  "    FragColor = color*abs(dot(nlightDir,nnormal));\n"
-  "}\n"
-};
-
+static const std::string fragmentShaderString{R"(#version 410
+  in vec4 color;
+  in vec3 pos;
+  in vec3 normal;
+  out vec4 FragColor;
+  layout(location = 0) out vec3 outColor;
+  layout(location = 1) out vec4 outPos;
+  layout(location = 2) out vec3 outNormal;
+  void main() {
+      vec3 nnormal = normalize(normal);
+      outColor  = color.xyz;
+      outPos    = vec4(pos,1);
+      outNormal = nnormal;
+  })"};
 
 ManagedYAK::ManagedYAK(std::shared_ptr<YAK42> brick) :
   brick(brick),
