@@ -263,7 +263,10 @@ const std::vector<GLubyte>& GLTexture2D::getDataByte() {
   GL(glPixelStorei(GL_PACK_ALIGNMENT, 1));
   GL(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
   GL(glBindTexture(GL_TEXTURE_2D, id));
-  GL(glGetTexImage(GL_TEXTURE_2D, 0, format, type, data.data()));
+  
+  std::array<GLenum,3> format = dataTypeToGL(GLDataType::BYTE, componentCount);
+  data.resize(componentCount*width*height);
+  GL(glGetTexImage(GL_TEXTURE_2D, 0, format[2], format[0], data.data()));
   return data;
 }
 
@@ -271,7 +274,10 @@ const std::vector<GLhalf>& GLTexture2D::getDataHalf() {
   GL(glPixelStorei(GL_PACK_ALIGNMENT, 1));
   GL(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
   GL(glBindTexture(GL_TEXTURE_2D, id));
-  GL(glGetTexImage(GL_TEXTURE_2D, 0, format, type, hdata.data()));
+
+  std::array<GLenum,3> format = dataTypeToGL(GLDataType::HALF, componentCount);
+  hdata.resize(componentCount*width*height);
+  GL(glGetTexImage(GL_TEXTURE_2D, 0, format[2], format[0], hdata.data()));
   return hdata;
 }
 
@@ -279,6 +285,9 @@ const std::vector<GLfloat>& GLTexture2D::getDataFloat() {
   GL(glPixelStorei(GL_PACK_ALIGNMENT, 1));
   GL(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
   GL(glBindTexture(GL_TEXTURE_2D, id));
-  GL(glGetTexImage(GL_TEXTURE_2D, 0, format, type, fdata.data()));
+
+  std::array<GLenum,3> format = dataTypeToGL(GLDataType::FLOAT, componentCount);
+  hdata.resize(componentCount*width*height);
+  GL(glGetTexImage(GL_TEXTURE_2D, 0, format[2], format[0], fdata.data()));
   return fdata;
 }
