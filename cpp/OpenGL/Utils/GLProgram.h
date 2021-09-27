@@ -11,6 +11,7 @@
 #include "Vec3.h"
 #include "Vec4.h"
 #include "Mat4.h"
+#include "GLDepthTexture.h"
 #include "GLTexture1D.h"
 #include "GLTexture2D.h"
 #include "GLTexture3D.h"
@@ -51,6 +52,7 @@ public:
   void setUniform(const std::string& id, const Vec2i& value) const;
   void setUniform(const std::string& id, const Mat4& value, bool transpose=false) const;
   
+  void setTexture(const std::string& id, const GLDepthTexture& texture, GLuint unit=0) const;
   void setTexture(const std::string& id, const GLTexture1D& texture, GLuint unit=0) const;
   void setTexture(const std::string& id, const GLTexture2D& texture, GLuint unit=0) const;
   void setTexture(const std::string& id, const GLTexture3D& texture, GLuint unit=0) const;
@@ -75,6 +77,7 @@ public:
   void setUniform(GLint id, const std::vector<Vec4i>& value) const;
   void setUniform(GLint id, const std::vector<Mat4>& value, bool transpose=false) const;
   
+  void setTexture(GLint id, const GLDepthTexture& texture, GLuint unit=0) const;
   void setTexture(GLint id, const GLTexture1D& texture, GLuint unit=0) const;
   void setTexture(GLint id, const GLTexture2D& texture, GLuint unit=0) const;
 	void setTexture(GLint id, const GLTexture3D& texture, GLuint unit=0) const;
