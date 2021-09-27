@@ -7,6 +7,7 @@
 #include "GLTexture2D.h"
 #include "GLTexture3D.h"
 #include "GLDepthBuffer.h"
+#include "GLDepthTexture.h"
 
 class GLFramebuffer {
 public:
@@ -14,6 +15,12 @@ public:
   ~GLFramebuffer();
 
   const GLint getId() const;
+
+  void bind(const GLDepthTexture& d);
+  void bind(const GLTexture2D& t, const GLDepthTexture& d);
+  void bind(const GLTexture2D& t0, const GLTexture2D& t1, const GLDepthTexture& d);
+  void bind(const GLTexture2D& t0, const GLTexture2D& t1, const GLTexture2D& t2, const GLDepthTexture& d);
+  void bind(const GLTexture2D& t0, const GLTexture2D& t1, const GLTexture2D& t2, const GLTexture2D& t3, const GLDepthTexture& d);
 
   void bind(const GLTexture2D& t, const GLDepthBuffer& d);
   void bind(const GLTexture2D& t0, const GLTexture2D& t1, const GLDepthBuffer& d);

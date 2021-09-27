@@ -45,6 +45,47 @@ void GLFramebuffer::bind(const GLTexture2D& t0, const GLTexture2D& t1, const GLT
   setBuffers(4, t0.getWidth(), t0.getHeight());
 }
 
+
+void GLFramebuffer::bind(const GLDepthTexture& d) {
+  GL(glBindFramebuffer(GL_FRAMEBUFFER, id));
+  GL(glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, d.getId(),0));
+  setBuffers(0, d.getWidth(), d.getHeight());
+}
+
+void GLFramebuffer::bind(const GLTexture2D& t, const GLDepthTexture& d) {
+  GL(glBindFramebuffer(GL_FRAMEBUFFER, id));
+  GL(glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, d.getId(),0));
+  GL(glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, t.getId(), 0));
+  setBuffers(1, t.getWidth(), t.getHeight());
+}
+
+void GLFramebuffer::bind(const GLTexture2D& t0, const GLTexture2D& t1, const GLDepthTexture& d) {
+  GL(glBindFramebuffer(GL_FRAMEBUFFER, id));
+  GL(glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, d.getId(),0));
+  GL(glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, t0.getId(), 0));
+  GL(glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, t1.getId(), 0));
+  setBuffers(2, t0.getWidth(), t0.getHeight());
+}
+
+void GLFramebuffer::bind(const GLTexture2D& t0, const GLTexture2D& t1, const GLTexture2D& t2, const GLDepthTexture& d) {
+  GL(glBindFramebuffer(GL_FRAMEBUFFER, id));
+  GL(glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, d.getId(),0));
+  GL(glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, t0.getId(), 0));
+  GL(glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, t1.getId(), 0));
+  GL(glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, t2.getId(), 0));
+  setBuffers(3, t0.getWidth(), t0.getHeight());
+}
+
+void GLFramebuffer::bind(const GLTexture2D& t0, const GLTexture2D& t1, const GLTexture2D& t2, const GLTexture2D& t3, const GLDepthTexture& d) {
+  GL(glBindFramebuffer(GL_FRAMEBUFFER, id));
+  GL(glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, d.getId(),0));
+  GL(glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, t0.getId(), 0));
+  GL(glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, t1.getId(), 0));
+  GL(glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, t2.getId(), 0));
+  GL(glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, t3.getId(), 0));
+  setBuffers(4, t0.getWidth(), t0.getHeight());
+}
+
 void GLFramebuffer::bind(const GLTexture2D& t) {
   GL(glBindFramebuffer(GL_FRAMEBUFFER, id));
   GL(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0));
@@ -146,7 +187,7 @@ void GLFramebuffer::bind(const GLTexture3D& t0, size_t slice0, const GLTexture3D
   setBuffers(4, t0.getWidth(), t0.getHeight());
 }
 
-void GLFramebuffer::unbind2D() {
+void GLFramebuffer::unbind3D() {
   GL(glDrawBuffer(GL_NONE));
   GL(glBindFramebuffer(GL_FRAMEBUFFER, id));
   GL(glFramebufferTexture3D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_3D, 0, 0, 0));
@@ -156,9 +197,10 @@ void GLFramebuffer::unbind2D() {
   GL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 }
 
-void GLFramebuffer::unbind3D() {
+void GLFramebuffer::unbind2D() {
   GL(glDrawBuffer(GL_NONE));
   GL(glBindFramebuffer(GL_FRAMEBUFFER, id));
+  GL(glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, 0, 0));
   GL(glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, 0, 0));
   GL(glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, 0, 0));
   GL(glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, 0, 0));
@@ -176,6 +218,9 @@ const GLint GLFramebuffer::getId() const {
 
 void GLFramebuffer::setBuffers(size_t count, size_t width, size_t height) {
   switch (count) {
+    case 0:
+      glDrawBuffer(GL_NONE);
+      break;
     case 1 : {
       GLenum DrawBuffers[1] = {GL_COLOR_ATTACHMENT0};
       GL(glDrawBuffers(1, DrawBuffers));
