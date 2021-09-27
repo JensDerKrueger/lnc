@@ -13,14 +13,11 @@ uniform mat4 MV;
 uniform mat4 MVit;
 layout (location = 0) in vec3 vPos;
 layout (location = 1) in vec3 vNormal;
-layout (location = 2) in vec2 vTexCoords;
 out vec3 normal;
 out vec3 pos;
-out vec2 texCoords;
 void main() {
     gl_Position = MVP * vec4(vPos, 1.0);
     pos = (MV * vec4(vPos, 1.0)).xyz;
-    texCoords = vTexCoords;
     normal = (MVit * vec4(vNormal, 0.0)).xyz;
 })"};
 
@@ -82,7 +79,6 @@ public:
     torusShader{GLProgram::createFromString(vertexShaderString, fragmentShaderString)},
     torusPosBuffer{GL_ARRAY_BUFFER},
     torusNormalBuffer{GL_ARRAY_BUFFER},
-    torusTexBuffer{GL_ARRAY_BUFFER},
     torusIndexBuffer{GL_ELEMENT_ARRAY_BUFFER},
     deferredShader(dsFragmentShaderString, {
       {3,GLDataType::BYTE,true},
@@ -109,12 +105,10 @@ public:
     torusArray.bind();
     torusPosBuffer.setData(torus.getVertices(), 3);
     torusNormalBuffer.setData(torus.getNormals(), 3);
-    torusTexBuffer.setData(torus.getTexCoords(),2);
     torusIndexBuffer.setData(torus.getIndices());
     
     torusArray.connectVertexAttrib(torusPosBuffer, torusShader, "vPos",3);
     torusArray.connectVertexAttrib(torusNormalBuffer, torusShader, "vNormal",3);
-    torusArray.connectVertexAttrib(torusTexBuffer, torusShader, "vTexCoords",3);
     torusArray.connectIndexBuffer(torusIndexBuffer);
     
     vertexCount = GLsizei(torus.getIndices().size());
@@ -244,7 +238,6 @@ private:
   GLArray     torusArray;
   GLBuffer    torusPosBuffer;
   GLBuffer    torusNormalBuffer;
-  GLBuffer    torusTexBuffer;
   GLBuffer    torusIndexBuffer;
   GLsizei     vertexCount;
 
