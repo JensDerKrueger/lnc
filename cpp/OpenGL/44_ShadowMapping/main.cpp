@@ -1,11 +1,9 @@
 #include <array>
 
 #include <GLApp.h>
-
-#include <bmp.h>
 #include <Tesselation.h>
 
-static const std::string vertexShaderString {R"(#version 410
+static const std::string sceneVertexShader {R"(#version 410
 uniform mat4 MVP;
 uniform mat4 MV;
 uniform mat4 MVit;
@@ -19,8 +17,9 @@ void main() {
     normal = (MVit * vec4(vNormal, 0.0)).xyz;
 })"};
 
-static const std::string fragmentShaderString {R"(#version 410
+static const std::string sceneFragmentShader {R"(#version 410
 uniform vec3 color;
+uniform float ambient=0.2;
 uniform vec3 lightPosViewSpace;
 in vec3 pos;
 in vec3 normal;
@@ -28,18 +27,18 @@ out vec4 FragColor;
 void main() {
     vec3 nnormal = normalize(normal);
     vec3 nlightDir = normalize(lightPosViewSpace-pos);
-    float light = clamp(dot(nlightDir,normal) + 0.2,0.0,1.0);
+    float light = clamp(clamp(dot(nlightDir,normal),0.0,1.0)+ambient,0.0,1.0);
     FragColor = vec4(color.rgb*light, 1);
 })"};
 
-static const std::string lightProbeVertexShaderString {R"(#version 410
+static const std::string lightProbeVertexShader {R"(#version 410
 uniform mat4 MVP;
 layout (location = 0) in vec3 vPos;
 void main() {
     gl_Position = MVP * vec4(vPos, 1.0);
 })"};
 
-static const std::string lightProbeFragmentShaderString {R"(#version 410
+static const std::string lightProbeFragmentShader {R"(#version 410
 out vec4 FragColor;
 void main() {
     FragColor = vec4(1,1,1,1);
@@ -49,8 +48,10 @@ class ShadowMappingDemo : public GLApp {
 public:
   ShadowMappingDemo() :
     GLApp(640,480,1,"Shadow Mapping Demo",true,false),
-    sceneProgram{GLProgram::createFromString(vertexShaderString, fragmentShaderString)},
-    lightProbeProgram{GLProgram::createFromString(lightProbeVertexShaderString, lightProbeFragmentShaderString)},
+    sceneProgram{GLProgram::createFromString(sceneVertexShader,
+                                             sceneFragmentShader)},
+    lightProbeProgram{GLProgram::createFromString(lightProbeVertexShader,
+                                                  lightProbeFragmentShader)},
     torusPosBuffer{GL_ARRAY_BUFFER},
     torusNormalBuffer{GL_ARRAY_BUFFER},
     torusIndexBuffer{GL_ELEMENT_ARRAY_BUFFER},
@@ -64,7 +65,6 @@ public:
   
   virtual void init() override {
     GL(glDisable(GL_BLEND));
-    GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
     GL(glClearDepth(1.0f));
     
     GL(glCullFace(GL_BACK));
@@ -84,7 +84,6 @@ public:
     torusArray.connectVertexAttrib(torusNormalBuffer, sceneProgram, "vNormal",3);
     torusArray.connectIndexBuffer(torusIndexBuffer);
     torusVertexCount = GLsizei(torus.getIndices().size());
-    
     
     const Tesselation plane = Tesselation::genRectangle({0,0,-2}, 6, 6);
     planeArray.bind();
@@ -147,7 +146,8 @@ public:
     };
     
     const Vec3 lightPos = Vec3{1,4,0};
-    lightModel = Mat4::rotationY(this->animationTime*50) * Mat4::translation(lightPos);
+    lightModel = Mat4::rotationY(this->animationTime*50) *
+                 Mat4::translation(lightPos);
   }
   
   virtual void draw() override {
@@ -156,7 +156,7 @@ public:
     GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
     
     sceneProgram.enable();
-    sceneProgram.setUniform("lightPosViewSpace", view * lightModel * Vec3{0,0,0});
+    sceneProgram.setUniform("lightPosViewSpace", view*lightModel*Vec3{0,0,0});
 
     torusArray.bind();
     
@@ -168,7 +168,8 @@ public:
     sceneProgram.setUniform("MV",   modelView);
     sceneProgram.setUniform("MVit", modelViewInverseTranspose);
     sceneProgram.setUniform("color", torusColor);
-    GL(glDrawElements(GL_TRIANGLES, torusVertexCount, GL_UNSIGNED_INT, (void*)0));
+    GL(glDrawElements(GL_TRIANGLES, torusVertexCount, GL_UNSIGNED_INT,
+                      (void*)0));
 
     planeArray.bind();
     modelView = view*planeModel;
@@ -179,13 +180,14 @@ public:
     sceneProgram.setUniform("MV",   modelView);
     sceneProgram.setUniform("MVit", modelViewInverseTranspose);
     sceneProgram.setUniform("color", Vec3{0.5,0.5,0.5});
-    GL(glDrawElements(GL_TRIANGLES, planeVertexCount, GL_UNSIGNED_INT, (void*)0));
+    GL(glDrawElements(GL_TRIANGLES, planeVertexCount, GL_UNSIGNED_INT,
+                      (void*)0));
 
     lightProbeProgram.enable();
     lightArray.bind();
     lightProbeProgram.setUniform("MVP",  projection*view*lightModel);
-    GL(glDrawElements(GL_TRIANGLES, lightVertexCount, GL_UNSIGNED_INT, (void*)0));
-
+    GL(glDrawElements(GL_TRIANGLES, lightVertexCount, GL_UNSIGNED_INT,
+                      (void*)0));
   }
   
 private:
@@ -222,7 +224,8 @@ private:
 
 #ifdef _WIN32
 #include <Windows.h>
-INT WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow) {
+INT WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine,
+            INT nCmdShow) {
 #else
 int main(int argc, char** argv) {
 #endif
