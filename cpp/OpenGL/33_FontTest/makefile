@@ -5,7 +5,7 @@ ifeq ($(OSTYPE),Linux)
 	CFLAGS=-c -Wall -std=c++17 -Wunreachable-code
 	LFLAGS=-lglfw -lGLEW -lGL -L../Utils -lutils
 	LIBS=
-	INCLUDES=-I. -I../Utils 
+	INCLUDES=-I. -I../Utils
 else
 	CFLAGS=-c -Wall -std=c++17 -Wunreachable-code -Xclang
 	LFLAGS=-lglfw -lGLEW -framework OpenGL -L../Utils -lutils
@@ -14,13 +14,17 @@ else
 endif
 
 SRC = main.cpp
+RES = helvetica_neue.pos helvetica_neue.bmp
 OBJ = $(SRC:.cpp=.o)
 TARGET = fontTest
 
-all: $(TARGET)
+all: $(TARGET) $(RES)
+
+$(RES):
+	cp ../Utils/$@ $@
 
 release: CFLAGS += -O3 -DNDEBUG
-release: $(TARGET)
+release: $(TARGET) $(RES)
 
 ../Utils/libutils.a:
 	cd ../Utils && make $(MAKECMDGOALS)
@@ -28,12 +32,11 @@ release: $(TARGET)
 $(TARGET): $(OBJ) ../Utils/libutils.a
 	$(CC) $(INCLUDES) $^ $(LFLAGS) $(LIBS) -o $@
 
-
 %.o: %.cpp
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@
 
 clean:
-	-rm -rf $(OBJ) $(TARGET) core
+	-rm -rf $(OBJ) $(TARGET) $(RES) core
 
 mrproper: clean
 	cd ../Utils && make clean

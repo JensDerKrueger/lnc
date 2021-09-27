@@ -27,7 +27,7 @@ release: $(TARGET)
 
 ../OpenCL/libopencl.a:
 	cd ../OpenCL && make $(MAKECMDGOALS)
-  
+
 $(TARGET): $(OBJ) ../Utils/libutils.a ../OpenCL/libopencl.a
 	$(CC) $(INCLUDES) $^ $(LFLAGS) $(LIBS) -o $@
 
@@ -40,4 +40,4 @@ clean:
 mrproper: clean
 	cd ../Utils && make clean
 	cd ../OpenCL && make clean
-  
+

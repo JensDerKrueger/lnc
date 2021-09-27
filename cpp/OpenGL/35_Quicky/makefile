@@ -14,13 +14,17 @@ else
 endif
 
 SRC = Quicky.cpp main.cpp
+RES = helvetica_neue.pos helvetica_neue.bmp
 OBJ = $(SRC:.cpp=.o)
 TARGET = quicky
 
-all: $(TARGET)
+all: $(TARGET) $(RES)
+
+$(RES):
+	cp ../Utils/$@ $@
 
 release: CFLAGS += -O3 -DNDEBUG
-release: $(TARGET)
+release: $(TARGET) $(RES)
 
 ../Utils/libutils.a:
 	cd ../Utils && make $(MAKECMDGOALS)
@@ -32,7 +36,7 @@ $(TARGET): $(OBJ) ../Utils/libutils.a
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@
 
 clean:
-	-rm -rf $(OBJ) $(TARGET) core
+	-rm -rf $(OBJ) $(TARGET) $(RES) core
 
 mrproper: clean
 	cd ../Utils && make clean

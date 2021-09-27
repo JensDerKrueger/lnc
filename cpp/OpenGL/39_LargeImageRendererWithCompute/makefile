@@ -24,7 +24,7 @@ $(RES):
 	cp ../Utils/$@ $@
 
 release: CFLAGS += -O3 -DNDEBUG
-release: $(TARGET)
+release: $(TARGET) $(RES)
 
 ../Utils/libutils.a:
 	cd ../Utils && make $(MAKECMDGOALS)
@@ -44,4 +44,3 @@ clean:
 mrproper: clean
 	cd ../Utils && make clean
 	cd ../OpenCL && make clean
-
