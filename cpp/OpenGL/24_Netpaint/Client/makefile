@@ -22,10 +22,10 @@ all: $(RES) $(TARGET)
 
 $(RES):
 	cp ../../Utils/$@ $@
-	
+
 release: CFLAGS += -O3 -Os -flto -DNDEBUG
 release: LFLAGS += -flto
-release: $(TARGET)
+release: $(TARGET) $(RES)
 
 ../../Utils/libutils.a:
 	cd ../../Utils && make $(MAKECMDGOALS)
@@ -45,4 +45,4 @@ clean:
 mrproper: clean
 	cd ../../Network && make clean
 	cd ../../Utils && make clean
-	
+

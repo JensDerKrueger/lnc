@@ -21,7 +21,7 @@ TARGET = 42
 all: $(TARGET) $(RES)
 
 release: CFLAGS += -O3 -DNDEBUG
-release: $(TARGET)
+release: $(TARGET) $(RES)
 
 ../Utils/libutils.a:
 	cd ../Utils && make $(MAKECMDGOALS)
@@ -40,4 +40,3 @@ clean:
 
 mrproper: clean
 	cd ../Utils && make clean
-	

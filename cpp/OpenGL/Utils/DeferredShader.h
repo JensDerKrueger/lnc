@@ -2,6 +2,7 @@
 
 #include <string>
 #include <array>
+#include <memory>
 
 #include "GLProgram.h"
 #include "GLFramebuffer.h"
@@ -19,15 +20,15 @@ struct MRTInfo {
                                               genMip ? GL_LINEAR_MIPMAP_LINEAR
                                                      : GL_LINEAR);
     }
-  
+
   void resize(const uint32_t width, const uint32_t height) {
     texture->setEmpty(width, height, componentCount, type);
   }
-  
+
   void generateMipmap() {
     if (genMip) texture->generateMipmap();
   }
-  
+
   std::shared_ptr<GLTexture2D> texture;
   uint32_t componentCount;
   GLDataType type;
@@ -40,20 +41,20 @@ public:
                  const std::vector<MRTInfo>& offscreenTextures);
 
   void resize(const uint32_t width, const uint32_t height);
-  
+
   void startFirstPass();
   void endFirstPass();
-  
+
   void startSecondPass(const uint32_t framebufferWidth,
                        const uint32_t framebufferHeight);
   void endSecondPass();
-  
+
   GLProgram& getProgram() {return program;}
-  
+
 private:
   uint32_t width;
   uint32_t height;
-  
+
   GLProgram program;
   GLFramebuffer framebuffer;
   GLArray     fullScreenArray;
