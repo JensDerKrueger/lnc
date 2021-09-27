@@ -10,6 +10,7 @@
 #include "GLDebug.h"
 
 enum class GLDataType {BYTE, HALF, FLOAT};
+enum class GLDepthDataType {DEPTH16, DEPTH24, DEPTH32};
 enum class CursorMode {NORMAL, HIDDEN, FIXED};
 
 class GLException : public std::exception {
