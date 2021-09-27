@@ -6,7 +6,7 @@
 
 class GLDepthTexture {
 public:
-  GLDepthTexture(GLint magFilter=GL_NEAREST, GLint minFilter=GL_NEAREST,
+  GLDepthTexture(GLint magFilter=GL_LINEAR, GLint minFilter=GL_LINEAR,
                  GLint wrapX=GL_CLAMP_TO_EDGE, GLint wrapY=GL_CLAMP_TO_EDGE) {
     GL(glGenTextures(1, &id));
     GL(glBindTexture(GL_TEXTURE_2D, id));
@@ -14,6 +14,8 @@ public:
     GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapY));
     GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter));
     GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter));
+    GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE));
+    GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LESS));
   }
   
   ~GLDepthTexture() {
