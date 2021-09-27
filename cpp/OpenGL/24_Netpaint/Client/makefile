@@ -14,11 +14,15 @@ else
 endif
 
 SRC = ../PainterCommon.cpp MyClient.cpp Painter.cpp main.cpp
+RES = helvetica_neue.pos helvetica_neue.bmp helvetica_neue.inc
 OBJ = $(SRC:.cpp=.o)
 TARGET = netPaint
 
-all: $(TARGET)
+all: $(RES) $(TARGET)
 
+$(RES):
+	cp ../../Utils/$@ $@
+	
 release: CFLAGS += -O3 -Os -flto -DNDEBUG
 release: LFLAGS += -flto
 release: $(TARGET)
@@ -36,8 +40,9 @@ $(TARGET): $(OBJ) ../../Network/libnetwork.a ../../Utils/libutils.a
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@
 
 clean:
-	-rm -rf $(OBJ) $(TARGET) core
+	-rm -rf $(OBJ) $(TARGET) $(RES) core
 
 mrproper: clean
 	cd ../../Network && make clean
 	cd ../../Utils && make clean
+	

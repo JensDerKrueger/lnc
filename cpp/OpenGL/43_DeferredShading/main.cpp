@@ -123,7 +123,7 @@ public:
   virtual void mouseWheel(double x_offset, double y_offset, double xPosition,
                           double yPosition) override {
     
-    quantLevel += y_offset;
+    quantLevel += float(y_offset);
   }
   
   virtual void resize(int width, int height) override {

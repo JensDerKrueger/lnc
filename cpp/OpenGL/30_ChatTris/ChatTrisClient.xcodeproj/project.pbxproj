@@ -23,8 +23,8 @@
 		5677396E25FB7C4B00AB2341 /* BackgroundAlbedo.bmp in CopyFiles */ = {isa = PBXBuildFile; fileRef = 5677396225FB7C4B00AB2341 /* BackgroundAlbedo.bmp */; };
 		5677396F25FB7C4B00AB2341 /* brickFragment.glsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 5677396325FB7C4B00AB2341 /* brickFragment.glsl */; };
 		5677397225FB7C8800AB2341 /* start.bmp in CopyFiles */ = {isa = PBXBuildFile; fileRef = 5677397125FB7C8800AB2341 /* start.bmp */; };
-		5677397625FB7D7F00AB2341 /* helvetica_neue.pos in CopyFiles */ = {isa = PBXBuildFile; fileRef = 5677397425FB7D7F00AB2341 /* helvetica_neue.pos */; };
-		5677397725FB7D7F00AB2341 /* helvetica_neue.bmp in CopyFiles */ = {isa = PBXBuildFile; fileRef = 5677397525FB7D7F00AB2341 /* helvetica_neue.bmp */; };
+		56D61B212701BF6A005955F2 /* helvetica_neue.pos in CopyFiles */ = {isa = PBXBuildFile; fileRef = 56D61B1F2701BF6A005955F2 /* helvetica_neue.pos */; };
+		56D61B222701BF6A005955F2 /* helvetica_neue.bmp in CopyFiles */ = {isa = PBXBuildFile; fileRef = 56D61B202701BF6A005955F2 /* helvetica_neue.bmp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -34,8 +34,8 @@
 			dstPath = "";
 			dstSubfolderSpec = 7;
 			files = (
-				5677397625FB7D7F00AB2341 /* helvetica_neue.pos in CopyFiles */,
-				5677397725FB7D7F00AB2341 /* helvetica_neue.bmp in CopyFiles */,
+				56D61B212701BF6A005955F2 /* helvetica_neue.pos in CopyFiles */,
+				56D61B222701BF6A005955F2 /* helvetica_neue.bmp in CopyFiles */,
 				5677397225FB7C8800AB2341 /* start.bmp in CopyFiles */,
 				5677396425FB7C4B00AB2341 /* BrickAlbedo.bmp in CopyFiles */,
 				5677396525FB7C4B00AB2341 /* fractalFragment.glsl in CopyFiles */,
@@ -75,8 +75,8 @@
 		5677396225FB7C4B00AB2341 /* BackgroundAlbedo.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; path = BackgroundAlbedo.bmp; sourceTree = "<group>"; };
 		5677396325FB7C4B00AB2341 /* brickFragment.glsl */ = {isa = PBXFileReference; lastKnownFileType = text; path = brickFragment.glsl; sourceTree = "<group>"; };
 		5677397125FB7C8800AB2341 /* start.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; path = start.bmp; sourceTree = "<group>"; };
-		5677397425FB7D7F00AB2341 /* helvetica_neue.pos */ = {isa = PBXFileReference; lastKnownFileType = text; path = helvetica_neue.pos; sourceTree = "<group>"; };
-		5677397525FB7D7F00AB2341 /* helvetica_neue.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; path = helvetica_neue.bmp; sourceTree = "<group>"; };
+		56D61B1F2701BF6A005955F2 /* helvetica_neue.pos */ = {isa = PBXFileReference; lastKnownFileType = text; name = helvetica_neue.pos; path = ../Utils/helvetica_neue.pos; sourceTree = "<group>"; };
+		56D61B202701BF6A005955F2 /* helvetica_neue.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; name = helvetica_neue.bmp; path = ../Utils/helvetica_neue.bmp; sourceTree = "<group>"; };
 		A231F0FF25EAF61A00CBFC23 /* ChatTris */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ChatTris; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -94,8 +94,8 @@
 		A231F0F625EAF61A00CBFC23 = {
 			isa = PBXGroup;
 			children = (
-				5677397525FB7D7F00AB2341 /* helvetica_neue.bmp */,
-				5677397425FB7D7F00AB2341 /* helvetica_neue.pos */,
+				56D61B202701BF6A005955F2 /* helvetica_neue.bmp */,
+				56D61B1F2701BF6A005955F2 /* helvetica_neue.pos */,
 				5677397125FB7C8800AB2341 /* start.bmp */,
 				5677396225FB7C4B00AB2341 /* BackgroundAlbedo.bmp */,
 				5677395B25FB7C4B00AB2341 /* backgroundFragment.glsl */,
@@ -389,6 +389,20 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				GCC_WARN_SHADOW = NO;
+				HEADER_SEARCH_PATHS = (
+					../Network,
+					../Utils,
+					/usr/local/Cellar/glew/2.1.0_1/include,
+					/usr/local/Cellar/glfw/3.3.2/include,
+					/usr/local/include/,
+				);
+				LIBRARY_SEARCH_PATHS = (
+					../Network,
+					../Utils,
+					/usr/local/Cellar/glfw/3.3.2/lib/,
+					/usr/local/Cellar/glew/2.1.0_1/lib/,
+					/usr/local/lib,
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -398,6 +412,20 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				GCC_WARN_SHADOW = NO;
+				HEADER_SEARCH_PATHS = (
+					../Network,
+					../Utils,
+					/usr/local/Cellar/glew/2.1.0_1/include,
+					/usr/local/Cellar/glfw/3.3.2/include,
+					/usr/local/include/,
+				);
+				LIBRARY_SEARCH_PATHS = (
+					../Network,
+					../Utils,
+					/usr/local/Cellar/glfw/3.3.2/lib/,
+					/usr/local/Cellar/glew/2.1.0_1/lib/,
+					/usr/local/lib,
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

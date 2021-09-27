@@ -17,8 +17,11 @@ SRC = mainClient.cpp BitMatcherClient.cpp
 OBJ = $(SRC:.cpp=.o)
 TARGET = bitMatcherClient
 
-all: $(TARGET)
+all: $(RES) $(TARGET)
 
+$(RES):
+	cp ../Utils/$@ $@
+	
 release: CFLAGS += -O3 -Os -flto -DNDEBUG
 release: LFLAGS += -flto
 release: $(TARGET)
@@ -36,7 +39,7 @@ $(TARGET): $(OBJ) ../Network/libnetwork.a ../Utils/libutils.a
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@
 	
 clean:
-	-rm -rf $(OBJ) $(TARGET) core
+	-rm -rf $(OBJ) $(TARGET) $(RES) core
 	
 mrproper: clean
 	cd ../Network && make clean

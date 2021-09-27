@@ -9,7 +9,7 @@ ifeq ($(OSTYPE),Linux)
 	LIBS=-lOpenCL
 	INCLUDES=-I.
 else
-	CFLAGS=-c -Wall -std=c++17 -Wunreachable-code -Xclang -fopenmp
+	CFLAGS=-c -Wall -std=c++17 -Wunreachable-code -Xclang -fopenmp -Wno-unused-command-line-argument
 	LFLAGS=
 	LIBS=-framework OpenCL
 	INCLUDES=-I.
