@@ -190,6 +190,12 @@ void GLProgram::setUniform(GLint id, const std::vector<Mat4>& value, bool transp
   GL(glUniformMatrix4fv(id, value.size(), !transpose, (GLfloat*)value.data()));
 }
 
+void GLProgram::setTexture(GLint id, const GLDepthTexture& texture, GLuint unit) const {
+  GL(glActiveTexture(GL_TEXTURE0 + unit));
+  GL(glBindTexture(GL_TEXTURE_2D, texture.getId()));
+  GL(glUniform1i(id, unit));
+}
+
 void GLProgram::setTexture(GLint id, const GLTexture1D& texture, GLuint unit) const {
   GL(glActiveTexture(GL_TEXTURE0 + unit));
   GL(glBindTexture(GL_TEXTURE_1D, texture.getId()));
@@ -318,6 +324,9 @@ void GLProgram::setUniform(const std::string& id, const Mat4& value, bool transp
   setUniform(getUniformLocation(id), value, transpose);
 }
 
+void GLProgram::setTexture(const std::string& id, const GLDepthTexture& texture, GLuint unit) const {
+  setTexture(getUniformLocation(id), texture, unit);
+}
 
 void GLProgram::setTexture(const std::string& id, const GLTexture1D& texture, GLuint unit) const {
   setTexture(getUniformLocation(id), texture, unit);
