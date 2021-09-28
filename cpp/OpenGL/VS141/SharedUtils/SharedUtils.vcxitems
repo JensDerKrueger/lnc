@@ -1,0 +1,146 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="Globals">
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <ItemsProjectGuid>{7b9827e2-7bcb-425e-8058-61aa115f1352}</ItemsProjectGuid>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ProjectCapability Include="SourceItemsFromImports" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\Utils\AbstractParticleSystem.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\Utils\ArcBall.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\Utils\bmp.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\Utils\DeferredShader.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\Utils\FontRenderer.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\Utils\FresnelVisualizer.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\Utils\GLApp.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\Utils\GLArray.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\Utils\GLBuffer.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\Utils\GLDebug.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\Utils\GLDepthBuffer.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\Utils\GLEnv.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\Utils\GLFramebuffer.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\Utils\GLProgram.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\Utils\GLTexture1D.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\Utils\GLTexture2D.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\Utils\GLTexture3D.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\Utils\Grid2D.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\Utils\Image.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\Utils\MD5.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\Utils\OBJFile.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\Utils\ParticleSystem.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\Utils\PlanarMirror.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\Utils\PrecomputedParticleSystem.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\Utils\Rand.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\Utils\SHA1.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\Utils\SHA2.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\Utils\Tesselation.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)glew.c" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)utils_unitybuild.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Utils\AbstractParticleSystem.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Utils\ArcBall.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Utils\bmp.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Utils\Camera.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Utils\ColorConversion.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Utils\DeferredShader.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Utils\FontRenderer.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Utils\FresnelVisualizer.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Utils\GLApp.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Utils\GLArray.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Utils\GLBuffer.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Utils\GLDebug.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Utils\GLDepthBuffer.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Utils\GLEnv.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Utils\GLFramebuffer.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Utils\GLProgram.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Utils\GLTexture1D.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Utils\GLTexture2D.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Utils\GLTexture3D.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Utils\Grid2D.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Utils\Image.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Utils\Mat3.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Utils\Mat4.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Utils\MD5.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Utils\OBJFile.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Utils\ParticleSystem.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Utils\PlanarMirror.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Utils\PrecomputedParticleSystem.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Utils\Quaternion.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Utils\Rand.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Utils\SHA1.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Utils\SHA2.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Utils\Tesselation.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Utils\Vec2.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Utils\Vec3.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Utils\Vec4.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)GL\eglew.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)GL\glew.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)GL\glxew.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)GL\wglew.h" />
+  </ItemGroup>
+</Project>

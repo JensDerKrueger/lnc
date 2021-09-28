@@ -1,26 +1,31 @@
 #include "PlanarMirror.h"
+namespace SimpleShaders
+{
+	static std::string vsString{
+	"#version 410\n"
+	"uniform mat4 MVP;\n"
+	"in vec3 vPos;\n"
+	"void main() {\n"
+	"	gl_Position = MVP * vec4(vPos, 1.0);\n"
+	"}" };
 
-static std::string vsString{
-"#version 410\n"
-"uniform mat4 MVP;\n"
-"in vec3 vPos;\n"
-"void main() {\n"
-"	gl_Position = MVP * vec4(vPos, 1.0);\n"
-"}"};
-
-static std::string fsString{
-"#version 410\n"
-"out vec4 FragColor;\n"
-"void main() {\n"
-"    FragColor = vec4(0.3,0.3,0.0,0.5);\n"
-"}\n"};
+	static std::string fsString{
+	"#version 410\n"
+	"out vec4 FragColor;\n"
+	"void main() {\n"
+	"    FragColor = vec4(0.3,0.3,0.0,0.5);\n"
+	"}\n" };
+}
 
 PlanarMirror::PlanarMirror(const Vec3& a, const Vec3& b, const Vec3& c, const Vec3& d) :
 	mirrorTess{Tesselation::genRectangle(a,b,c,d)},
 	vbMirror{GL_ARRAY_BUFFER},
 	ibMirror{GL_ELEMENT_ARRAY_BUFFER},
 	arMirror{},
-	prog(GLProgram::createFromString(vsString, fsString)),
+	prog(GLProgram::createFromString(
+		SimpleShaders::vsString, 
+		SimpleShaders::fsString)
+	),
 	mvpLoc{prog.getUniformLocation("MVP")}
 {	
 	vbMirror.setData(mirrorTess.getVertices(),3);

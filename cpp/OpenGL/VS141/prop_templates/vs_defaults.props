@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <OutDir>$(SolutionDir)bin\$(PlatformTarget)-$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)tmp\$(TargetName)\$(PlatformTarget)-$(Configuration)\</IntDir>
+    <_PropertySheetDisplayName>vs_defaults</_PropertySheetDisplayName>
+    <LibraryPath>..\..\VS141\lib\$(Platform);$(SolutionDir)bin\$(PlatformTarget)-$(Configuration)\;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>..\..\Utils;..\..\VS141\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup />
+</Project>

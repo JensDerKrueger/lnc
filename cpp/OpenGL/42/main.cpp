@@ -1,3 +1,7 @@
+#ifdef _WIN32
+#include <Windows.h>
+#endif
+
 #include <array>
 #include <vector>
 
@@ -54,7 +58,7 @@ public:
   }
   
   virtual void init() override {
-    fe = fr.generateFontEngine();
+//    fe = fr.generateFontEngine();
     GL(glDisable(GL_BLEND));
     GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
     GL(glBlendEquation(GL_FUNC_ADD));
@@ -166,8 +170,8 @@ public:
   
 private:
   Vec2 mousePos;
-  FontRenderer fr{"helvetica_neue.bmp", "helvetica_neue.pos"};
-  std::shared_ptr<FontEngine> fe{nullptr};
+  //FontRenderer fr{"helvetica_neue.bmp", "helvetica_neue.pos"}; //bam im bin
+  //std::shared_ptr<FontEngine> fe{nullptr};
   float animationTime;
   
   Mat4 view;
@@ -184,14 +188,32 @@ private:
 
 };
 
+
 #ifdef _WIN32
-#include <Windows.h>
+
+void printGLVersionInfos()
+{
+	//GL_EXTENSIONS weglassen -> glewInit wirft exception!
+	for (GLenum id : { GL_VENDOR, GL_RENDERER, GL_VERSION, GL_SHADING_LANGUAGE_VERSION })
+	{
+		const char* uStr = reinterpret_cast<const char*>(glGetString(id));
+		if (uStr && *uStr)
+		{
+			OutputDebugString(uStr);
+			OutputDebugString("\n");
+		}
+	}
+}
+
 INT WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow) {
 #else
 int main(int argc, char** argv) {
 #endif
   try {
     YAK42App myApp;
+#ifdef _WIN32
+	printGLVersionInfos();
+#endif
     myApp.run();
   }
   catch (const GLException& e) {

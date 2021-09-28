@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.1622
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "YAK42", "YAK42.vcxproj", "{4849E83D-0A70-44D3-B310-25B1081F4553}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SharedUtils", "..\..\VS141\SharedUtils\SharedUtils.vcxitems", "{7B9827E2-7BCB-425E-8058-61AA115F1352}"
+EndProject
+Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		..\..\VS141\SharedUtils\SharedUtils.vcxitems*{4849e83d-0a70-44d3-b310-25b1081f4553}*SharedItemsImports = 4
+		..\..\VS141\SharedUtils\SharedUtils.vcxitems*{7b9827e2-7bcb-425e-8058-61aa115f1352}*SharedItemsImports = 9
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4849E83D-0A70-44D3-B310-25B1081F4553}.Debug|x64.ActiveCfg = Debug|x64
+		{4849E83D-0A70-44D3-B310-25B1081F4553}.Debug|x64.Build.0 = Debug|x64
+		{4849E83D-0A70-44D3-B310-25B1081F4553}.Release|x64.ActiveCfg = Release|x64
+		{4849E83D-0A70-44D3-B310-25B1081F4553}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A4051F1D-8EE2-4E12-843C-0BE70FC96DDE}
+	EndGlobalSection
+EndGlobal
