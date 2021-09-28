@@ -190,30 +190,12 @@ private:
 
 
 #ifdef _WIN32
-
-void printGLVersionInfos()
-{
-	//GL_EXTENSIONS weglassen -> glewInit wirft exception!
-	for (GLenum id : { GL_VENDOR, GL_RENDERER, GL_VERSION, GL_SHADING_LANGUAGE_VERSION })
-	{
-		const char* uStr = reinterpret_cast<const char*>(glGetString(id));
-		if (uStr && *uStr)
-		{
-			OutputDebugString(uStr);
-			OutputDebugString("\n");
-		}
-	}
-}
-
 INT WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow) {
 #else
 int main(int argc, char** argv) {
 #endif
   try {
     YAK42App myApp;
-#ifdef _WIN32
-	printGLVersionInfos();
-#endif
     myApp.run();
   }
   catch (const GLException& e) {
