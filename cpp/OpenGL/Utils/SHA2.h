@@ -70,8 +70,8 @@
         void transform( const unsigned char* message, unsigned int block_nb ) override;
     };
 
-        constexpr const unsigned int SHA384_512_BLOCK_SIZE = ( 1024 / 8 );
-        constexpr const unsigned int SHA512_DIGEST_SIZE = ( 512 / 8 );
+    constexpr const unsigned int SHA384_512_BLOCK_SIZE = ( 1024 / 8 );
+    constexpr const unsigned int SHA512_DIGEST_SIZE = ( 512 / 8 );
     constexpr const unsigned int SHA384_DIGEST_SIZE = ( 384 / 8 );
 
     class SHA512 : public SHA2<SHA384_512_BLOCK_SIZE,SHA512_DIGEST_SIZE, unsigned long long>
