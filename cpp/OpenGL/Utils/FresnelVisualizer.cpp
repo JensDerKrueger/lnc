@@ -2,7 +2,7 @@
 
 #include "FresnelVisualizer.h"
 
-static std::string vsString{
+static std::string vsFresnel{
 "#version 410\n"
 "uniform mat4 MV;\n"
 "uniform mat4 MVit;\n"
@@ -17,9 +17,9 @@ static std::string vsString{
 "	normal = MVit * vec4(normalize(vNorm),0.0);\n"
 "   tang   = MVit * vec4(normalize(vTan),0.0);\n"
 "   binorm = MVit * vec4(cross(normalize(vNorm),normalize(vTan)),0.0);\n"
-"}"};
+"}" };
 
-static std::string gsString{
+static std::string gsFresnel{
 "#version 410 core\n"
 "\n"
 "layout(points) in;\n"
@@ -51,28 +51,28 @@ static std::string gsString{
 "}\n"
 };
 
-static std::string fsString{
+static std::string fsFresnel{
 "#version 410\n"
 "in vec4 color;\n"
 "out vec4 FragColor;\n"
 "void main() {\n"
 "    FragColor = color;\n"
-"}\n"};
+"}\n" };
 
 
 FresnelVisualizer::FresnelVisualizer(const GLBuffer& pos, const GLBuffer& norm, const GLBuffer& tang, uint32_t count, uint32_t start) :
 	visArray{},
-	visProg(GLProgram::createFromString(vsString, fsString, gsString)),
-	pLoc{visProg.getUniformLocation("P")},
-	mvLoc{visProg.getUniformLocation("MV")},
-	mvitLoc{visProg.getUniformLocation("MVit")},
+	visProg(GLProgram::createFromString(vsFresnel, fsFresnel, gsFresnel)),
+	pLoc{ visProg.getUniformLocation("P") },
+	mvLoc{ visProg.getUniformLocation("MV") },
+	mvitLoc{ visProg.getUniformLocation("MVit") },
 	count(count),
 	start(start)
-{	
+{
 	visArray.bind();
-	visArray.connectVertexAttrib(pos,  visProg, "vPos",3);
-	visArray.connectVertexAttrib(norm, visProg, "vNorm",3);
-	visArray.connectVertexAttrib(tang, visProg, "vTan",3);
+	visArray.connectVertexAttrib(pos, visProg, "vPos", 3);
+	visArray.connectVertexAttrib(norm, visProg, "vNorm", 3);
+	visArray.connectVertexAttrib(tang, visProg, "vTan", 3);
 }
 
 void FresnelVisualizer::render(const Mat4& mv, const Mat4& p) const {
@@ -82,8 +82,8 @@ void FresnelVisualizer::render(const Mat4& mv, const Mat4& p) const {
 	visArray.bind();
 
 	// setup transformations
-	visProg.enable();      
-				
+	visProg.enable();
+
 	visProg.setUniform(pLoc, p);
 	visProg.setUniform(mvLoc, mv);
 	visProg.setUniform(mvitLoc, Mat4::inverse(mv), true);

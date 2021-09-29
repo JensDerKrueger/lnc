@@ -1,3 +1,7 @@
+#ifdef _WIN32
+#include <Windows.h>
+#endif
+
 #include <array>
 #include <vector>
 
@@ -166,7 +170,7 @@ public:
   
 private:
   Vec2 mousePos;
-  FontRenderer fr{"helvetica_neue.bmp", "helvetica_neue.pos"};
+  FontRenderer fr{"helvetica_neue.bmp", "helvetica_neue.pos"}; //bam im bin
   std::shared_ptr<FontEngine> fe{nullptr};
   float animationTime;
   
@@ -184,8 +188,8 @@ private:
 
 };
 
+
 #ifdef _WIN32
-#include <Windows.h>
 INT WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow) {
 #else
 int main(int argc, char** argv) {

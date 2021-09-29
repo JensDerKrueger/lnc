@@ -371,7 +371,7 @@ std::string sha224(std::string input)
     ctx.init();
     ctx.update((unsigned char*)input.c_str(), (unsigned int)input.length());
     ctx.final(digest);
- 
+	
     char buf[2*SHA224::DIGEST_SIZE+1];
     buf[2*SHA224::DIGEST_SIZE] = 0;
     for (int i = 0; i < SHA224::DIGEST_SIZE; i++)

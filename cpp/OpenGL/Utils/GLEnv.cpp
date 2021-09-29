@@ -9,6 +9,14 @@ typedef std::chrono::high_resolution_clock Clock;
 #include "GLEnv.h"
 #include "GLDebug.h"
 
+#ifdef _WIN32
+//choose graphicscard instead of embedded intel-graphics.
+extern "C" {
+	_declspec(dllexport) unsigned long NvOptimusEnablement = 0x00000001;
+	_declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
+}
+#endif
+
 
 void GLEnv::checkGLError(const std::string& id) {
   GLenum e = glGetError();
@@ -64,6 +72,8 @@ GLEnv::GLEnv(uint32_t w, uint32_t h, uint32_t s, const std::string& title, bool 
   }
   
   setSync(sync);
+
+
 }
 
 GLEnv::~GLEnv() {
