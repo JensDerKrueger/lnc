@@ -4,7 +4,7 @@ UTILSDIR := Utils/.
 FIRSTDIR := LibML/. Network/. OpenCL/.
 
 SUBDIRS := $(wildcard */.)
-SUBDIRS := $(filter-out VS/. $(UTILSDIR) $(FIRSTDIR),$(SUBDIRS))
+SUBDIRS := $(filter-out VS141/. VS/. $(UTILSDIR) $(FIRSTDIR),$(SUBDIRS))
 
 $(TOPTARGETS): $(SUBDIRS)
 
