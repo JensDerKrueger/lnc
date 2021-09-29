@@ -375,7 +375,7 @@ std::string sha224(std::string input)
     char buf[2*SHA224::DIGEST_SIZE+1];
     buf[2*SHA224::DIGEST_SIZE] = 0;
     for (int i = 0; i < SHA224::DIGEST_SIZE; i++)
-        sprintf_s(buf+i*2, sizeof(buf), "%02x", digest[i]);
+        sprintf(buf+i*2, "%02x", digest[i]);
     return std::string(buf);
 }
  
@@ -392,7 +392,7 @@ std::string sha256(std::string input)
     char buf[2*SHA256::DIGEST_SIZE+1];
     buf[2*SHA256::DIGEST_SIZE] = 0;
     for (int i = 0; i < SHA256::DIGEST_SIZE; i++)
-        sprintf_s(buf+i*2, sizeof(buf), "%02x", digest[i]);
+        sprintf(buf+i*2, "%02x", digest[i]);
     return std::string(buf);
 }
  
@@ -408,7 +408,7 @@ std::string sha384(std::string input)
     char buf[2*SHA384::DIGEST_SIZE+1];
     buf[2*SHA384::DIGEST_SIZE] = 0;
     for (int i = 0; i < SHA384::DIGEST_SIZE; i++)
-        sprintf_s(buf+i*2, sizeof(buf), "%02x", digest[i]);
+        sprintf(buf+i*2, "%02x", digest[i]);
     return std::string(buf);
 }
  
@@ -424,7 +424,7 @@ std::string sha512(std::string input)
     char buf[2*SHA512::DIGEST_SIZE+1];
     buf[2*SHA512::DIGEST_SIZE] = 0;
     for (int i = 0; i < SHA512::DIGEST_SIZE; i++)
-        sprintf_s(buf+i*2, sizeof(buf), "%02x", digest[i]);
+        sprintf(buf+i*2, "%02x", digest[i]);
     return std::string(buf);
 }
 

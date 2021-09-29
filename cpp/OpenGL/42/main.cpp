@@ -58,7 +58,7 @@ public:
   }
   
   virtual void init() override {
-//    fe = fr.generateFontEngine();
+    fe = fr.generateFontEngine();
     GL(glDisable(GL_BLEND));
     GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
     GL(glBlendEquation(GL_FUNC_ADD));
@@ -170,8 +170,8 @@ public:
   
 private:
   Vec2 mousePos;
-  //FontRenderer fr{"helvetica_neue.bmp", "helvetica_neue.pos"}; //bam im bin
-  //std::shared_ptr<FontEngine> fe{nullptr};
+  FontRenderer fr{"helvetica_neue.bmp", "helvetica_neue.pos"}; //bam im bin
+  std::shared_ptr<FontEngine> fe{nullptr};
   float animationTime;
   
   Mat4 view;
