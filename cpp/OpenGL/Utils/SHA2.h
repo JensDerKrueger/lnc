@@ -52,22 +52,22 @@
     class SHA256 : public SHA2<SHA224_256_BLOCK_SIZE,SHA256_DIGEST_SIZE, unsigned int>
     {
     public:
-        void init() override;
-        void update( const unsigned char* message, unsigned int len ) override;
-        void final() override;
+      void init() override;
+      void update( const unsigned char* message, unsigned int len ) override;
+      void final() override;
     protected:
-        void transform( const unsigned char* message, unsigned int block_nb ) override;
+      void transform( const unsigned char* message, unsigned int block_nb ) override;
     };
 
 
     class SHA224 : public SHA2<SHA224_256_BLOCK_SIZE,SHA224_DIGEST_SIZE, unsigned int>
     {
     public:
-        void init() override;
-        void update( const unsigned char* message, unsigned int len ) override;
-        void final() override;
+      void init() override;
+      void update( const unsigned char* message, unsigned int len ) override;
+      void final() override;
     protected:
-        void transform( const unsigned char* message, unsigned int block_nb ) override;
+      void transform( const unsigned char* message, unsigned int block_nb ) override;
     };
 
     constexpr const unsigned int SHA384_512_BLOCK_SIZE = ( 1024 / 8 );
@@ -77,21 +77,21 @@
     class SHA512 : public SHA2<SHA384_512_BLOCK_SIZE,SHA512_DIGEST_SIZE, unsigned long long>
     {
     public:
-        void init() override;
-        void update( const unsigned char* message, unsigned int len ) override;
-        void final() override;
+      void init() override;
+      void update( const unsigned char* message, unsigned int len ) override;
+      void final() override;
     protected:
-        void transform( const unsigned char* message, unsigned int block_nb );
+      void transform( const unsigned char* message, unsigned int block_nb ) override;
     };
 
     class SHA384 : public SHA2<SHA384_512_BLOCK_SIZE,SHA384_DIGEST_SIZE, unsigned long long>
     {
     public:
-        void init();
-        void update( const unsigned char* message, unsigned int len );
-        void final();
+      void init()  override;
+      void update( const unsigned char* message, unsigned int len )  override;
+      void final() override;
     protected:
-        void transform( const unsigned char* message, unsigned int block_nb ) override;
+      void transform( const unsigned char* message, unsigned int block_nb ) override;
     };
 
     std::string sha224( std::string input );
