@@ -6,7 +6,7 @@ static const std::string sceneVertexShader {R"(#version 410
 uniform mat4 M;
 uniform mat4 V;
 uniform mat4 P;
-uniform mat4 worldToLight;
+uniform mat4 worldToShadow;
 layout (location = 0) in vec3 vPos;
 layout (location = 1) in vec3 vNormal;
 out vec3 normal;
@@ -17,7 +17,7 @@ void main() {
     mat4 MVP  = P*MV;
     mat4 MVit = transpose(inverse(MV));
     gl_Position = MVP * vec4(vPos, 1.0);
-    shadowPos = worldToLight * M * vec4(vPos, 1.0);
+    shadowPos = worldToShadow * M * vec4(vPos, 1.0);
     pos = (MV * vec4(vPos, 1.0)).xyz;
     normal = (MVit * vec4(vNormal, 0.0)).xyz;
 })"};
@@ -98,6 +98,7 @@ public:
   virtual void init() override {
     GL(glDisable(GL_BLEND));
     GL(glClearDepth(1.0f));
+    GL(glClearColor(0,0,1,0));
     
     GL(glCullFace(GL_BACK));
     GL(glEnable(GL_CULL_FACE));
@@ -216,19 +217,10 @@ public:
     
     const Dimensions dim = glEnv.getFramebufferSize();
     GL(glViewport(0, 0, GLsizei(dim.width), GLsizei(dim.height)));
-
-    GL(glClearColor(0,0,1,0));
     GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-    
-    const Mat4 textureMatrix {
-      0.5f, 0.0f, 0.0f, 0.5f,
-      0.0f, 0.5f, 0.0f, 0.5f,
-      0.0f, 0.0f, 0.5f, 0.5f,
-      0.0f, 0.0f, 0.0f, 1.0f
-    };
-    
+        
     sceneProgram.enable();
-    sceneProgram.setUniform("worldToLight", textureMatrix*lightProjection*lightView);
+    sceneProgram.setUniform("worldToShadow", cliptToTextureMatrix*lightProjection*lightView);
     sceneProgram.setTexture("shadowMap", shadowMap);
     renderScene(sceneProgram, view, projection, true);
 
@@ -273,6 +265,13 @@ private:
   GLProgram shadowProgram;
   GLFramebuffer framebuffer;
   GLDepthTexture shadowMap;
+  const Mat4 cliptToTextureMatrix {
+    0.5f, 0.0f, 0.0f, 0.5f,
+    0.0f, 0.5f, 0.0f, 0.5f,
+    0.0f, 0.0f, 0.5f, 0.5f,
+    0.0f, 0.0f, 0.0f, 1.0f
+  };
+
 };
 
 #ifdef _WIN32
