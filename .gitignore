@@ -10,6 +10,3 @@ cpp/**/VS/**/tmp/*
 cpp/**/VS/**/x64/*
 cpp/**/VS/**/*.glsl
 cpp/**/VS/**/*.obj
-/cpp/OpenGL/42/VS/helvetica_neue.pos
-/cpp/OpenGL/42/VS/helvetica_neue.inc
-/cpp/OpenGL/42/VS/helvetica_neue.bmp
