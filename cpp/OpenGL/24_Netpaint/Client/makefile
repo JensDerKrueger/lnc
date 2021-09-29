@@ -14,7 +14,7 @@ else
 endif
 
 SRC = ../PainterCommon.cpp MyClient.cpp Painter.cpp main.cpp
-RES = helvetica_neue.pos helvetica_neue.bmp helvetica_neue.inc
+RES = helvetica_neue.pos helvetica_neue.bmp
 OBJ = $(SRC:.cpp=.o)
 TARGET = netPaint
 
