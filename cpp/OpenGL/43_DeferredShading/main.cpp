@@ -6,6 +6,7 @@
 #include <Tesselation.h>
 
 #include <DeferredShader.h>
+#include <MeshRenderer.h>
 
 static const std::string vertexShaderString {R"(#version 410
 uniform mat4 MVP;
@@ -77,9 +78,6 @@ public:
   DeferredShadingApp() :
     GLApp(640,480,1,"Deferred Shading Demo",true,false),
     torusShader{GLProgram::createFromString(vertexShaderString, fragmentShaderString)},
-    torusPosBuffer{GL_ARRAY_BUFFER},
-    torusNormalBuffer{GL_ARRAY_BUFFER},
-    torusIndexBuffer{GL_ELEMENT_ARRAY_BUFFER},
     deferredShader(dsFragmentShaderString, {
       {3,GLDataType::BYTE,true},
       {4,GLDataType::HALF,false},
@@ -100,18 +98,8 @@ public:
     const Dimensions dim = glEnv.getFramebufferSize();
     GL(glViewport(0, 0, GLsizei(dim.width), GLsizei(dim.height)));
     
-    const Tesselation torus = Tesselation::genTorus({0,0,0}, 0.8f, 0.3f);
-        
-    torusArray.bind();
-    torusPosBuffer.setData(torus.getVertices(), 3);
-    torusNormalBuffer.setData(torus.getNormals(), 3);
-    torusIndexBuffer.setData(torus.getIndices());
-    
-    torusArray.connectVertexAttrib(torusPosBuffer, torusShader, "vPos",3);
-    torusArray.connectVertexAttrib(torusNormalBuffer, torusShader, "vNormal",3);
-    torusArray.connectIndexBuffer(torusIndexBuffer);
-    
-    vertexCount = GLsizei(torus.getIndices().size());
+    torus.init(Tesselation::genTorus({0,0,0}, 0.8f, 0.3f), true);
+    torus.connect(torusShader);
   }
       
   virtual void mouseWheel(double x_offset, double y_offset, double xPosition,
@@ -200,7 +188,6 @@ public:
     GL(glClearColor(0,0,0,0));
     GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
     torusShader.enable();
-    torusArray.bind();
     for (const auto& param : torusParams) {
       const Mat4 modelView = view*param.model;
       const Mat4 modelViewProjection = projection*modelView;
@@ -210,7 +197,8 @@ public:
       torusShader.setUniform("MV",   modelView);
       torusShader.setUniform("MVit", modelViewInverseTranspose);
       torusShader.setUniform("color", param.color);
-      GL(glDrawElements(GL_TRIANGLES, vertexCount, GL_UNSIGNED_INT, (void*)0));
+
+      torus.render();
     }
     deferredShader.endFirstPass();
 
@@ -233,18 +221,11 @@ private:
   Mat4 projection;
 
   std::array<TorusParams,5> torusParams;
-
   GLProgram   torusShader;
-  GLArray     torusArray;
-  GLBuffer    torusPosBuffer;
-  GLBuffer    torusNormalBuffer;
-  GLBuffer    torusIndexBuffer;
-  GLsizei     vertexCount;
-
+  MeshRenderer torus;
   DeferredShader deferredShader;
 
   float quantLevel{5};
-  
 };
 
 #ifdef _WIN32

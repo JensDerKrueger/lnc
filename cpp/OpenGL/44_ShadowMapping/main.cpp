@@ -1,6 +1,6 @@
 #include <GLApp.h>
 #include <GLFramebuffer.h>
-#include <Tesselation.h>
+#include <MeshRenderer.h>
 
 static const std::string sceneVertexShader {R"(#version 410
 uniform mat4 M;
@@ -81,14 +81,6 @@ public:
                                              sceneFragmentShader)},
     lightProbeProgram{GLProgram::createFromString(lightProbeVertexShader,
                                                   lightProbeFragmentShader)},
-    torusPosBuffer{GL_ARRAY_BUFFER},
-    torusNormalBuffer{GL_ARRAY_BUFFER},
-    torusIndexBuffer{GL_ELEMENT_ARRAY_BUFFER},
-    planePosBuffer{GL_ARRAY_BUFFER},
-    planeNormalBuffer{GL_ARRAY_BUFFER},
-    planeIndexBuffer{GL_ELEMENT_ARRAY_BUFFER},
-    lightPosBuffer{GL_ARRAY_BUFFER},
-    lightIndexBuffer{GL_ELEMENT_ARRAY_BUFFER},
     shadowProgram{GLProgram::createFromString(shadowVertexShader,
                                               shadowFragmentShader)}
   {
@@ -107,34 +99,15 @@ public:
     
     const Dimensions dim = glEnv.getFramebufferSize();
     GL(glViewport(0, 0, GLsizei(dim.width), GLsizei(dim.height)));
-    
-    const Tesselation torus = Tesselation::genTorus({0,0,0}, 0.8f, 0.3f);
-    torusArray.bind();
-    torusPosBuffer.setData(torus.getVertices(), 3);
-    torusNormalBuffer.setData(torus.getNormals(), 3);
-    torusIndexBuffer.setData(torus.getIndices());
-    torusArray.connectVertexAttrib(torusPosBuffer, sceneProgram, "vPos",3);
-    torusArray.connectVertexAttrib(torusNormalBuffer, sceneProgram, "vNormal",3);
-    torusArray.connectIndexBuffer(torusIndexBuffer);
-    torusVertexCount = GLsizei(torus.getIndices().size());
-    
-    const Tesselation plane = Tesselation::genRectangle({0,0,-2}, 6, 6);
-    planeArray.bind();
-    planePosBuffer.setData(plane.getVertices(), 3);
-    planeNormalBuffer.setData(plane.getNormals(), 3);
-    planeIndexBuffer.setData(plane.getIndices());
-    planeArray.connectVertexAttrib(planePosBuffer, sceneProgram, "vPos",3);
-    planeArray.connectVertexAttrib(planeNormalBuffer, sceneProgram, "vNormal",3);
-    planeArray.connectIndexBuffer(planeIndexBuffer);
-    planeVertexCount = GLsizei(plane.getIndices().size());
 
-    const Tesselation light = Tesselation::genSphere({0,0,0}, 0.1f, 10, 10);
-    lightArray.bind();
-    lightPosBuffer.setData(light.getVertices(), 3);
-    lightIndexBuffer.setData(light.getIndices());
-    lightArray.connectVertexAttrib(lightPosBuffer, lightProbeProgram, "vPos",3);
-    lightArray.connectIndexBuffer(lightIndexBuffer);
-    lightVertexCount = GLsizei(light.getIndices().size());
+    torus.init(Tesselation::genTorus({0,0,0}, 0.8f, 0.3f),true);
+    torus.connect(sceneProgram);
+
+    plane.init(Tesselation::genRectangle({0,0,-2}, 6, 6),true);
+    plane.connect(sceneProgram);
+
+    light.init(Tesselation::genSphere({0,0,0}, 0.1f, 10, 10));
+    light.connect(lightProbeProgram);
 
     const float zNear  = 0.01f;
     const float zFar   = 1000.0f;
@@ -189,31 +162,28 @@ public:
   void renderScene(const GLProgram& program, const Mat4& viewMatrix,
                    const Mat4& projectionMatrix, bool setLightParameter) {
     program.enable();
-    if (setLightParameter) program.setUniform("lightPosViewSpace", view*lightModel*Vec3{0,0,0});
+    if (setLightParameter)
+      program.setUniform("lightPosViewSpace", view*lightModel*Vec3{0,0,0});
     
-    torusArray.bind();
     program.setUniform("M", torusModel);
     program.setUniform("V", viewMatrix);
     program.setUniform("P", projectionMatrix);
-    if (setLightParameter) program.setUniform("color", torusColor);
-    GL(glDrawElements(GL_TRIANGLES, torusVertexCount, GL_UNSIGNED_INT,
-                      (void*)0));
-    
-    planeArray.bind();
+    if (setLightParameter)
+      program.setUniform("color", torusColor);
+    torus.render();
+
     program.setUniform("M", planeModel);
-    if (setLightParameter) program.setUniform("color", Vec3{0.5,0.5,0.5});
-    GL(glDrawElements(GL_TRIANGLES, planeVertexCount, GL_UNSIGNED_INT,
-                      (void*)0));
+    if (setLightParameter)
+      program.setUniform("color", Vec3{0.5,0.5,0.5});
+    plane.render();
   }
   
   virtual void draw() override {
-        
     framebuffer.bind(shadowMap);
     GL(glViewport(0, 0, GLsizei(shadowMap.getWidth() ), GLsizei(shadowMap.getHeight())));
     GL(glClear(GL_DEPTH_BUFFER_BIT));
     renderScene(shadowProgram, lightView, lightProjection, false);
     framebuffer.unbind2D();
-    
     
     const Dimensions dim = glEnv.getFramebufferSize();
     GL(glViewport(0, 0, GLsizei(dim.width), GLsizei(dim.height)));
@@ -225,42 +195,28 @@ public:
     renderScene(sceneProgram, view, projection, true);
 
     lightProbeProgram.enable();
-    lightArray.bind();
     lightProbeProgram.setUniform("MVP",  projection*view*lightModel);
-    GL(glDrawElements(GL_TRIANGLES, lightVertexCount, GL_UNSIGNED_INT,
-                      (void*)0));
+    light.render();
   }
   
 private:
   Mat4 view;
   Mat4 projection;
   
-  GLProgram   sceneProgram;
-  GLProgram   lightProbeProgram;
+  GLProgram    sceneProgram;
+  GLProgram    lightProbeProgram;
 
-  Vec3        torusColor;
-  Mat4        torusModel;
-  GLArray     torusArray;
-  GLBuffer    torusPosBuffer;
-  GLBuffer    torusNormalBuffer;
-  GLBuffer    torusIndexBuffer;
-  GLsizei     torusVertexCount;
+  Vec3         torusColor;
+  Mat4         torusModel;
+  MeshRenderer torus;
 
-  Mat4        planeModel;
-  GLArray     planeArray;
-  GLBuffer    planePosBuffer;
-  GLBuffer    planeNormalBuffer;
-  GLBuffer    planeIndexBuffer;
-  GLsizei     planeVertexCount;
+  Mat4         planeModel;
+  MeshRenderer plane;
 
-  Mat4        lightView;
-  Mat4        lightProjection;
-  Mat4        lightModel;
-  
-  GLArray     lightArray;
-  GLBuffer    lightPosBuffer;
-  GLBuffer    lightIndexBuffer;
-  GLsizei     lightVertexCount;
+  Mat4         lightView;
+  Mat4         lightProjection;
+  Mat4         lightModel;
+  MeshRenderer light;
 
   GLProgram shadowProgram;
   GLFramebuffer framebuffer;
