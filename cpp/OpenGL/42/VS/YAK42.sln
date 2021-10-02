@@ -7,8 +7,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "YAK42", "YAK42.vcxproj", "{
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SharedUtils", "..\..\VS141\SharedUtils\SharedUtils.vcxitems", "{7B9827E2-7BCB-425E-8058-61AA115F1352}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SharedGlfw", "..\..\VS141\SharedGlfw\SharedGlfw.vcxitems", "{038E936F-5F16-4949-A1F9-BAA8932ED23E}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		..\..\VS141\SharedGlfw\SharedGlfw.vcxitems*{038e936f-5f16-4949-a1f9-baa8932ed23e}*SharedItemsImports = 9
+		..\..\VS141\SharedGlfw\SharedGlfw.vcxitems*{4849e83d-0a70-44d3-b310-25b1081f4553}*SharedItemsImports = 4
 		..\..\VS141\SharedUtils\SharedUtils.vcxitems*{4849e83d-0a70-44d3-b310-25b1081f4553}*SharedItemsImports = 4
 		..\..\VS141\SharedUtils\SharedUtils.vcxitems*{7b9827e2-7bcb-425e-8058-61aa115f1352}*SharedItemsImports = 9
 	EndGlobalSection
