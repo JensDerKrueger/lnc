@@ -10,11 +10,13 @@ typedef std::chrono::high_resolution_clock Clock;
 #include "GLDebug.h"
 
 #ifdef _WIN32
+#ifndef _GLFW_USE_HYBRID_HPG
 //choose graphicscard instead of embedded intel-graphics.
 extern "C" {
 	_declspec(dllexport) unsigned long NvOptimusEnablement = 0x00000001;
 	_declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 }
+#endif
 #endif
 
 

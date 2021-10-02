@@ -126,6 +126,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Utils\Mat3.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Utils\Mat4.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Utils\MD5.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Utils\MeshRenderer.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Utils\OBJFile.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Utils\ParticleSystem.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Utils\PlanarMirror.h" />
