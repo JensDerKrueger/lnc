@@ -3,7 +3,8 @@
 **/*.a
 **/*.user
 .vs/
-
+xcuserdata/
+xcshareddata/
 
 cpp/**/VS/**/bin/*
 cpp/**/VS/**/tmp/*

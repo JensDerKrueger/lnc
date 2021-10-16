@@ -88,5 +88,6 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Utils\Vec3.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Utils\Vec4.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Utils\DeferredShader.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Utils\MeshRenderer.h" />
   </ItemGroup>
 </Project>
