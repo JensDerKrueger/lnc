@@ -33,12 +33,6 @@ const std::array<std::string, 76> v2BasicCommands {
   "CHR$","LEFT$","RIGHT$","MID$","GO"
 };
 
-/*
- π - Pi = 3.14159265
- TI - Timer Ticks since Power-On (1 Tick = 1/60 Second)
- TI$ - Timer since Power-On in Hour/Minute/Second Format
-*/
-
 class PRGException : public std::exception {
   public:
   PRGException(const std::string& whatStr) : whatStr(whatStr) {}
@@ -148,6 +142,10 @@ static std::vector<std::string> readPlaintext(const std::string& filename) {
       data.push_back(line);
     }
     file.close();
+  } else {
+    std::stringstream ss;
+    ss << "unable to read input file " << filename;
+    throw PRGException(ss.str());
   }
   return data;
 }
@@ -298,17 +296,6 @@ static void writePRG(const std::string& filename,
 
 
 int main(int argc, char** argv) {
-  
-  std::ofstream file{"test.txt"};
-  if (file.is_open()){
-    size_t i = 1;
-    for (const std::string& line : simonsBasicCommands) {
-      file << i++ << " " << line << "\n";
-    }
-    file.close();
-  }
-
-  
   if (argc != 3) {
     showUsage(argc,argv);
     return EXIT_FAILURE;
