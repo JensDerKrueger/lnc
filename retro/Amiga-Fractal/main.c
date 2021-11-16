@@ -131,7 +131,7 @@ void computeFractalFast() {
         float r2=0.0f, i2=0.0f;
         cr += dr;
 
-        while (r2*r2+i2*i2 < 4 && iter < MAX_ITER) {
+        while (r2+i2 < 4 && iter < MAX_ITER) {
           zi = (zr+zr)*zi + ci;
           zr = r2 - i2 + cr;
           r2 = zr * zr;
