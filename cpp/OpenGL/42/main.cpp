@@ -6,7 +6,6 @@
 #include <vector>
 
 #include <GLApp.h>
-#include <FontRenderer.h>
 #include <DeferredShader.h>
 #include <Rand.h>
 
@@ -48,7 +47,7 @@ class YAK42App : public GLApp {
 public:
   
   YAK42App() :
-    GLApp(640,480,1,"YAK42",true,false),
+    GLApp(640,480,1,"YAK42 - Terrain Demo",true,false),
     deferredShader(dsFragmentShaderString, {
       {3,GLDataType::BYTE,true},
       {4,GLDataType::HALF,false},
@@ -58,7 +57,6 @@ public:
   }
   
   virtual void init() override {
-    fe = fr.generateFontEngine();
     GL(glDisable(GL_BLEND));
     GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
     GL(glBlendEquation(GL_FUNC_ADD));
@@ -102,8 +100,7 @@ public:
   
   virtual void mouseWheel(double x_offset, double y_offset, double xPosition,
                           double yPosition) override {
-    
-    focalDepth += y_offset;
+    focalDepth += float(y_offset);
   }
   
   
@@ -134,7 +131,9 @@ public:
     const float aspect = dim.aspect();
 
     projection = Mat4::perspective(fovY, aspect, zNear, zFar);    
-    view       = Mat4::lookAt({0,3,-4+this->animationTime/4}, {0,0.1f,this->animationTime/4}, {0,1,0});
+    view       = Mat4::lookAt({0,3,-3+this->animationTime/4},
+                              {0,0.1f,this->animationTime/4},
+                              {0,1,0});
     model      = globalScale;
          
     if (terrain.bricksReady()) manager.push(terrain.getBricks());
@@ -170,8 +169,6 @@ public:
   
 private:
   Vec2 mousePos;
-  FontRenderer fr{"helvetica_neue.bmp", "helvetica_neue.pos"}; //bam im bin
-  std::shared_ptr<FontEngine> fe{nullptr};
   float animationTime;
   
   Mat4 view;
@@ -184,7 +181,7 @@ private:
   YAKTerrain terrain{{120,50}};
   
   DeferredShader deferredShader;
-  float focalDepth{6};
+  float focalDepth{3.6f};
 
 };
 
