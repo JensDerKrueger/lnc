@@ -187,7 +187,7 @@ void GLFramebuffer::bind(const GLTexture3D& t0, size_t slice0, const GLTexture3D
   setBuffers(4, t0.getWidth(), t0.getHeight());
 }
 
-void GLFramebuffer::unbind3D() {
+void GLFramebuffer::unbind2D() {
   GL(glDrawBuffer(GL_NONE));
   GL(glBindFramebuffer(GL_FRAMEBUFFER, id));
   GL(glFramebufferTexture3D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_3D, 0, 0, 0));
@@ -197,7 +197,7 @@ void GLFramebuffer::unbind3D() {
   GL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 }
 
-void GLFramebuffer::unbind2D() {
+void GLFramebuffer::unbind3D() {
   GL(glDrawBuffer(GL_NONE));
   GL(glBindFramebuffer(GL_FRAMEBUFFER, id));
   GL(glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, 0, 0));
