@@ -163,8 +163,6 @@ public:
     deferredShader.getProgram().setUniform("focalDepth", focalDepth);
     
     deferredShader.endSecondPass();
-
-    
   }
   
 private:

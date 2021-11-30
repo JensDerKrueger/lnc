@@ -1,9 +1,22 @@
-from math import gcd, copysign;
+from math import gcd;
 
-class Fraction():	
+class Fraction():
 	def __init__(self,n,d):
+		self.__n = n
+		self.__d = d
+		self.__cancelDown()
+		
+	def __cancelDown(self):
+		if self.__n == 0:
+			self.__d = 1
+			return
+		
+		s = -1 if self.__n*self.__d < 0 else 1
+		n = abs(self.__n)
+		d = abs(self.__d)
+		
 		g = gcd(n,d)
-		self.__n = n//g
+		self.__n = s * n//g
 		self.__d = d//g
 		
 	def __mul__(self, other):
@@ -26,7 +39,7 @@ class Fraction():
 		n = self.__n
 		d = self.__d
 		
-		if copysign(1, n) * copysign(1, d) < 0:
+		if n*d < 0:
 			signChar = "-"
 			n = abs(n)
 			d = abs(d)
@@ -45,6 +58,13 @@ class Fraction():
 		else:
 			return signChar + ordStr + str(n) + "/" + str(d)
 
+	def isValid(self):
+		return self.__d != 0
 
+print(Fraction(3,4) + (1,2))
 
-print (Fraction(3,4) + Fraction(1,4) - Fraction(30,4))
+a = Fraction(1,2)
+b = Fraction(1,0)
+
+print(a.isValid())
+print(b.isValid())
