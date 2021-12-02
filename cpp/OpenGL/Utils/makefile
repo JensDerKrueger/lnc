@@ -20,7 +20,7 @@ SHA2.cpp SHA1.cpp MD5.cpp \
 Image.cpp bmp.cpp OBJFile.cpp \
 GLApp.cpp GLBuffer.cpp GLEnv.cpp GLProgram.cpp GLArray.cpp GLTexture2D.cpp GLTexture1D.cpp GLTexture3D.cpp GLDebug.cpp GLFramebuffer.cpp GLDepthBuffer.cpp \
 ArcBall.cpp Grid2D.cpp FontRenderer.cpp PlanarMirror.cpp FresnelVisualizer.cpp Tesselation.cpp Rand.cpp DeferredShader.cpp \
-ParticleSystem.cpp AbstractParticleSystem.cpp PrecomputedParticleSystem.cpp
+ParticleSystem.cpp AbstractParticleSystem.cpp PrecomputedParticleSystem.cpp Timer.cpp
 
 OBJ = $(SRC:.cpp=.o)
 TARGET = libutils.a
