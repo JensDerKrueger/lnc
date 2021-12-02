@@ -16,48 +16,10 @@
 
 #include <Timer.h>
 
-class mengerPredicate {
-private:
-  const size_t mengerDepth;
-  std::vector<std::vector<uint8_t>> base3Digits;
-
-public:
-  mengerPredicate(const size_t mengerDepth) : mengerDepth(mengerDepth) {
-    // precalculate the base 3 representation of all indices in the sponge
-    // store only digit 1, so we can sum it up
-    const size_t mengerSize = std::pow(3, mengerDepth);
-    base3Digits.resize(mengerSize);
-    for (size_t number = 0; number < mengerSize; ++number) {
-      base3Digits[number].resize(mengerDepth);
-
-      auto remains = number;
-      for (size_t digit = 0; digit < mengerDepth; ++digit) {
-        const auto divstep = std::div(remains, 3);
-        if (divstep.rem == 1) {
-          base3Digits[number][digit] = 1;
-        }
-        remains = divstep.quot;
-      }
-    }
-  }
-
-  bool contains(const size_t x, const size_t y, const size_t z) const {
-    for (size_t digit = 0; digit < mengerDepth; ++digit) {
-      // at every level there must be at most one "1" digit
-      const uint8_t countDigitOne =
-          base3Digits[x][digit] + base3Digits[y][digit] + base3Digits[z][digit];
-      if (countDigitOne > 1) {
-        return false;
-      }
-    }
-    return true;
-  }
-};
-
 
 class VoxelGrid {
 public:
-  VoxelGrid(size_t w, size_t h, size_t d) :
+  VoxelGrid(uint32_t w, uint32_t h, uint32_t d) :
   w{w},
   h{h},
   d{d},
@@ -67,20 +29,14 @@ public:
   }
   
   virtual ~VoxelGrid() {}
-  virtual void fill(uint8_t method) = 0;
+  virtual void fill() = 0;
 
-  bool getVoxel(size_t x, size_t y, size_t z) const {
+  bool getVoxel(uint32_t x, uint32_t y, uint32_t z) const {
     return data[x+y*w+z*w*h];
   }
 
-  void setVoxel(size_t x, size_t y, size_t z, bool value) {
-    if (x < w && y < d && z < h)
-      data[x+y*w+z*w*h] = value;
-    else {
-      std::cerr << "setVoxel index (" << x << ", " << y << ", " << z
-                << ") out of range (" << w-1 << ", " << d-1 << ", " << h-1 << ")\n";
-      exit(-1);
-    }
+  void setVoxel(uint32_t x, uint32_t y, uint32_t z, bool value) {
+    data[x+y*w+z*w*h] = value;
   }
 
   void clear(bool value) {
@@ -89,12 +45,11 @@ public:
   
   std::string toString() const {
     std::stringstream ss;
-    
-    
+        
     size_t i = 0;
-    for (size_t z = 0;z<d;++z) {
-      for (size_t y = 0;y<h;++y) {
-        for (size_t x = 0;x<w;++x) {
+    for (uint32_t z = 0;z<d;++z) {
+      for (uint32_t y = 0;y<h;++y) {
+        for (uint32_t x = 0;x<w;++x) {
           ss << (data[i++] ? "X" : " ");
         }
         ss << "\n";
@@ -104,100 +59,45 @@ public:
 
     return ss.str();
   }
-    
+  
+  Vec3ui getSize() const {
+    return {w,h,d};
+  }
   
  private:
-  size_t w,h,d;
+  uint32_t w,h,d;
   std::vector<bool> data;
 };
 
 class CubicVoxelGrid : public VoxelGrid {
 public:
-  CubicVoxelGrid(size_t s) :
+  CubicVoxelGrid(uint32_t s) :
   VoxelGrid(s,s,s) {}
   
 };
   
 class MengerSponge : public CubicVoxelGrid {
 public:
-  MengerSponge(size_t depth) :
-    CubicVoxelGrid(size_t(pow3(depth))),
+  MengerSponge(uint32_t depth) :
+    CubicVoxelGrid(uint32_t(pow3(depth))),
     depth(depth)
   {
-    
   }
 
   virtual ~MengerSponge() {}
   
-  
-  virtual void fill(uint8_t method) override {
-
-    switch (method) {
-      case 0 :
-        construct(0,0,0,depth);
-        break;
-      case 1 :
-        {
-          clear(true);
-          for (size_t currentDepth = 1;currentDepth<depth+1;++currentDepth) {
-            for (size_t z = 0;z<pow3(currentDepth-1);++z) {
-              for (size_t y = 0;y<pow3(currentDepth-1);++y) {
-                for (size_t x = 0;x<pow3(currentDepth-1);++x) {
-                  mengerIterration(x,y,z,pow3(depth-currentDepth));
-                }
-              }
-            }
-          }
-        }
-        break;
-      case 2 :
-        {
-          const size_t mengerSize = std::pow(3, depth);
-          mengerPredicate predicate(depth);
-
-          for (size_t x = 0; x < mengerSize; ++x) {
-            for (size_t y = 0; y < mengerSize; ++y) {
-              for (size_t z = 0; z < mengerSize; ++z) {
-                setVoxel(x, y, z, predicate.contains(x, y, z));
-              }
-            }
-          }
-        }
-        break;
-    }
-    
+  virtual void fill() override {
+    construct(0,0,0,depth);
   }
   
 private:
-  size_t depth;
+  uint32_t depth;
   
-  size_t pow3(size_t exp) const {
+  uint32_t pow3(uint32_t exp) const {
     // TODO: improve me
-    return size_t(pow(3,exp));
+    return uint32_t(pow(3,exp));
   }
-  
-  const std::array< Vec3ui ,7> negativeOffsets = {
-    Vec3ui{1,1,0},Vec3ui{1,0,1},
-    Vec3ui{0,1,1},Vec3ui{1,1,1},Vec3ui{2,1,1},
-    Vec3ui{1,2,1},Vec3ui{1,1,2}
-  };
-  
-  void mengerIterration(size_t x, size_t y,size_t z, size_t delta) {
-    for (const Vec3ui& p : negativeOffsets) {
-      removeCube(x*3+p.x, y*3+p.y, z*3+p.z, delta);
-    }
-  }
-  
-  void removeCube(size_t x, size_t y,size_t z, size_t delta) {
-    for (size_t dz = 0;dz<delta;++dz) {
-      for (size_t dy = 0;dy<delta;++dy) {
-        for (size_t dx = 0;dx<delta;++dx) {
-          setVoxel(x*delta+dx, y*delta+dy, z*delta+dz, false);
-        }
-      }
-    }
-  }
-  
+ 
   const std::array< Vec3ui ,20> offsets = {
     Vec3ui{0,0,0},Vec3ui{1,0,0},Vec3ui{2,0,0},
     Vec3ui{0,1,0},              Vec3ui{2,1,0},
@@ -212,7 +112,7 @@ private:
     Vec3ui{0,2,2},Vec3ui{1,2,2},Vec3ui{2,2,2}
   };
 
-  void construct(size_t x, size_t y,size_t z, size_t depth) {
+  void construct(uint32_t x, uint32_t y,uint32_t z, uint32_t depth) {
     if (depth == 0) {
       setVoxel(x,y,z,true);
     } else {
@@ -250,22 +150,25 @@ void main() {
     }
     color /= 5;
     normal /= 5;
-    vec3 nlightDir = normalize(vec3(0,1,4));
 
-    FragColor = vec4(color.rgb*clamp(dot(nlightDir,normal)+0.3,0,1), pos.a);
+
+    vec3 nlightDir = normalize(vec3(0,0,1));
+
+    FragColor = vec4(color.rgb*clamp(dot(nlightDir,normal),0,1), pos.a);
 })"};
 
 class YAK42App : public GLApp {
 public:
   
-  YAK42App() :
-    GLApp(640,480,1,"YAK Fractal",true,false),
+  YAK42App(uint32_t spongeDepth) :
+    GLApp(800,600,1,"YAK Fractal",true,false),
     deferredShader(dsFragmentShaderString, {
       {3,GLDataType::BYTE,true},
       {4,GLDataType::HALF,false},
       {3,GLDataType::HALF,true}
     }),
-    sponge{6}
+    sponge{spongeDepth},
+    spongeDepth{spongeDepth}
   {
   }
   
@@ -284,17 +187,37 @@ public:
     const Dimensions dim = glEnv.getFramebufferSize();
     GL(glViewport(0, 0, GLsizei(dim.width), GLsizei(dim.height)));
 
-    Timer t;
-    sponge.fill(0);
-    std::cout << t.stop() << std::endl;
-
-    t.start();
-    sponge.fill(1);
-    std::cout << t.stop() << std::endl;
-
-    t.start();
-    sponge.fill(2);
-    std::cout << t.stop() << std::endl;
+    sponge.fill();
+    
+    const Vec3ui spongeSize = sponge.getSize();
+    
+    StaticYAKCuller culler;
+    
+    for (uint32_t z = 0;z<spongeSize.z;++z) {
+      for (uint32_t y = 0;y<spongeSize.y;++y) {
+        for (uint32_t x = 0;x<spongeSize.x;++x) {
+          if (sponge.getVoxel(x, y, z)) {
+            
+            const int32_t sx = int32_t(x) - int32_t(spongeSize.x/2);
+            const int32_t sy = int32_t(y) - int32_t(spongeSize.y/2);
+            const int32_t sz = int32_t(z) - int32_t(spongeSize.z/2);
+            
+            auto brick = std::make_shared<SimpleYAK42>(1,
+                                                       1,
+                                                       3,
+                                                       1,
+                                                       Vec3i{sx,sy*3,sz});
+            
+            ManagedYAK managedBrick(brick);
+            managedBrick.hideAllStuds();
+            culler.add(managedBrick);
+          }
+        }
+      }
+    }
+    culler.cull();
+    manager.push(culler.get());
+    
   }
   
     
@@ -322,7 +245,7 @@ public:
   virtual void animate(double animationTime) override {
     this->animationTime = float(animationTime);
     
-    const Mat4 globalScale = Mat4::scaling(0.005f);
+    const Mat4 globalScale = Mat4::scaling(0.002f/spongeDepth);
     const Dimensions dim = glEnv.getFramebufferSize();
 
     const float zNear  = 0.01f;
@@ -331,15 +254,17 @@ public:
     const float aspect = dim.aspect();
 
     projection = Mat4::perspective(fovY, aspect, zNear, zFar);    
-    view       = Mat4::lookAt({0,2,2},
+    view       = Mat4::lookAt({0,0,2},
                               {0,0,0},
                               {0,1,0});
     Mat4 rot   = Mat4::rotationY(float(animationTime)*50.0f);
     model      = globalScale*rot;
+    
+    manager.setProjection(projection);
+    manager.setModelView(view*model);
   }
   
   virtual void draw() override {
-    
     deferredShader.startFirstPass();
     GL(glDisable(GL_BLEND));
     GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
@@ -348,7 +273,7 @@ public:
 
     const Dimensions dim = glEnv.getFramebufferSize();
     deferredShader.startSecondPass(dim.width, dim.height);
-    GL(glClearColor(0.2f,0.2f,0.8f,0));
+    GL(glClearColor(0.2f,0.2f,0.2f,0));
     GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
     GL(glEnable(GL_BLEND));
     deferredShader.getProgram().setUniform("focalDepth", focalDepth);
@@ -372,6 +297,7 @@ private:
   float focalDepth{3.6f};
 
   MengerSponge sponge;
+  uint32_t spongeDepth;
 
 };
 
@@ -382,7 +308,7 @@ INT WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 int main(int argc, char** argv) {
 #endif
   try {
-    YAK42App myApp;
+    YAK42App myApp{5};
     myApp.run();
   }
   catch (const GLException& e) {
