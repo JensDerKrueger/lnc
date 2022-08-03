@@ -8,6 +8,9 @@ class Tesselation {
 		static Tesselation genSphere(const Vec3& center, const float radius,
                                  const uint32_t sectorCount,
                                  const uint32_t stackCount);
+    static Tesselation genGrid(const Vec3& center, const float width,
+                               const float height, const uint32_t subDivU=10,
+                               const uint32_t subDivV=10);
 		static Tesselation genRectangle(const Vec3& center, const float width,
                                     const float height);
 		static Tesselation genRectangle(const Vec3& a, const Vec3& b,

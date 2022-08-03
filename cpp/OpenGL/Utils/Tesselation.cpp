@@ -85,6 +85,69 @@ Tesselation Tesselation::genSphere(const Vec3& center, const float radius, const
 }
 
 
+Tesselation Tesselation::genGrid(const Vec3& center, const float width,
+                                 const float height, const uint32_t subDivU,
+                                 const uint32_t subDivV) {
+  
+  Tesselation grid{};
+  
+
+  const size_t vertCount = (subDivU+1) * (subDivV+1);
+  const size_t indCount  = subDivU * subDivV * 6;
+
+  const Vec3 u{width/2.0f,0.0,0.0};
+  const Vec3 v{0.0,height/2.0f,0.0,};
+  const Vec3 normal{Vec3::normalize(Vec3::cross(u,v))};
+  const Vec3 tangent{Vec3::normalize(u)};
+
+  grid.vertices = std::vector<float>(vertCount*3);
+  grid.normals = std::vector<float>(vertCount*3);
+  grid.tangents = std::vector<float>(vertCount*3);
+  grid.texCoords = std::vector<float>(vertCount*2);
+
+  for (size_t y = 0;y<subDivV+1;++y){
+    for (size_t x = 0;x<subDivU+1;++x){
+      const size_t i{x + y * (subDivU+1)};
+      float normX{float(x) / subDivU};
+      float normY{float(y) / subDivV};
+
+      grid.vertices[i*3+0] = center.x - width/2.0f + normX * width;
+      grid.vertices[i*3+1] = center.y - height/2.0f + normY * height;
+      grid.vertices[i*3+2] = center.z;
+
+      grid.normals[i*3+0] = normal.x;
+      grid.normals[i*3+1] = normal.y;
+      grid.normals[i*3+2] = normal.z;
+
+      grid.tangents[i*3+0] = tangent.x;
+      grid.tangents[i*3+1] = tangent.y;
+      grid.tangents[i*3+2] = tangent.z;
+
+      grid.texCoords[i*2+0] = normX;
+      grid.texCoords[i*2+1] = normY;
+    }
+  }
+
+  grid.indices = std::vector<uint32_t>(indCount);
+  
+  for (size_t y = 0;y<subDivV;++y){
+    for (size_t x = 0;x<subDivU;++x){
+      const size_t i{x + y * subDivU};
+      const size_t j{x + y * (subDivU+1)};
+      
+      grid.indices[i*6+0] = j;
+      grid.indices[i*6+1] = j+1;
+      grid.indices[i*6+2] = j+subDivU+1;
+      grid.indices[i*6+3] = j+subDivU+1;
+      grid.indices[i*6+4] = j+1;
+      grid.indices[i*6+5] = j+subDivU+2;
+    }
+  }
+  
+  return grid;
+}
+
+
 Tesselation Tesselation::genRectangle(const Vec3& center, const float width, const float height) {
 	const Vec3 u{width/2.0f,0.0,0.0};
 	const Vec3 v{0.0,height/2.0f,0.0,};	
