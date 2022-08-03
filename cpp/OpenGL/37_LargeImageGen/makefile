@@ -8,7 +8,7 @@ ifeq ($(OSTYPE),Linux)
   INCLUDES=-I. -I../Utils -I../OpenCL
 else
   LIBS=-framework OpenCL
-  LFLAGS=-lglfw -lGLEW -framework OpenGL -L../Utils -lutils -L../OpenCL -lopencl
+  LFLAGS=-lglfw -lGLEW -framework OpenGL -L../Utils -lutils -L../OpenCL -lopencl -L /opt/homebrew/lib
   INCLUDES=-I. -I../Utils -I../OpenCL -I/opt/homebrew/include
 endif
 
