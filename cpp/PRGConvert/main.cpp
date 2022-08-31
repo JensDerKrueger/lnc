@@ -312,7 +312,7 @@ int main(int argc, char** argv) {
       writeText(target, plainText);
     } else {
       std::cout << "Converting text file " << source
-                << " PRG file " << target << std::endl;
+                << " to PRG file " << target << std::endl;
       const std::vector<std::string> plainText = readPlaintext(source);
       writePRG(target, plainText);
     }
