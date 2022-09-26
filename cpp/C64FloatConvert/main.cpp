@@ -30,7 +30,6 @@ int main(int argc, char ** argv) {
   } else {
     exponent = 0;
     while (fractionPart < 1) {
-      std::cout << exponent << std::endl;
       fractionPart *= double(2);
       exponent--;
     }
