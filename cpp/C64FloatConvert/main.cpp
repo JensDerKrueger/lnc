@@ -38,9 +38,6 @@ int main(int argc, char ** argv) {
   // integer part
   std::bitset<32> bits(integerPart);
   bits = (bits<<(31-exponent));
-  
-  // sign bit
-  bits[31] = sign;
 
   // fractional part
   const size_t intBits = (exponent > 0) ? size_t(exponent) : 0;
@@ -48,7 +45,10 @@ int main(int argc, char ** argv) {
     bits[31-i] = bits[31-i] | int(fractionPart);
     fractionPart = (fractionPart-double(int(fractionPart))) * 2.0;
   }
-  
+
+  // sign bit
+  bits[31] = sign;
+
   // convert 32-bit bitset to 4 seperate bytes
   std::array<std::bitset<8>,4> mantissa;
   size_t j = 4;
