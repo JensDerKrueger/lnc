@@ -8,18 +8,25 @@
 class GLIPApp : public GLApp {
 public:
     
-  GLIPApp() : GLApp(512, 512, 4, "Raycaster") {}
+  GLIPApp() : GLApp(512, 512, 1, "Raycaster") {}
 
   virtual void animate(double animationTime) override {
     const Mat4 m{ rotation * Mat4::scaling(volumeExtend)};
     mvp = p * v * m;
   }
-  
-  virtual void init() override {
+
+  void loadVolume() {
+    volume = QVis{filenames[currentFile]}.volume;
+    volumeExtend = volume.scale*Vec3{float(volume.width),float(volume.height),float(volume.depth)}/volume.maxSize;
+
     volumeTex.setData(volume.data,
                       uint32_t(volume.width),
                       uint32_t(volume.height),
                       uint32_t(volume.depth), 1);
+  }
+
+  virtual void init() override {
+    loadVolume();
 
     cubeArray.bind();
     vbCube.setData(cube.getVertices(), 3);
@@ -47,7 +54,7 @@ public:
   void renderRayEntryTex() {
     GL(glCullFace(GL_BACK));
     framebuffer.bind( frontFaceTexture );
-    GL(glClearColor(0,0,0.0,0));
+    GL(glClearColor(2,2,2,2));
     GL(glClear(GL_COLOR_BUFFER_BIT));
 
     progCubeFront.enable();
@@ -73,7 +80,7 @@ public:
     progCubeBack.setUniform("mvp", mvp);
     progCubeBack.setUniform("smoothStepStart", stepStart);
     progCubeBack.setUniform("smoothStepWidth", stepWidth);
-    progCubeBack.setUniform("sampleCount", float(volume.maxSize));
+    progCubeBack.setUniform("sampleCount", float(volume.maxSize*3));
 
     const GLsizei indexCount = GLsizei(cube.getIndices().size());
     GL(glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, (void*)0));
@@ -95,6 +102,15 @@ public:
       switch (key) {
         case GLFW_KEY_ESCAPE :
           closeWindow();
+          break;
+        case GLFW_KEY_V:
+          currentFile = (currentFile + 1) % filenames.size();
+          loadVolume();
+          break;
+        case GLFW_KEY_R:
+          rotation = Mat4{};
+          stepStart = 0.12f;
+          stepWidth = 0.1f;
           break;
       }
     }
@@ -141,8 +157,8 @@ private:
   GLArray cubeArray;
   GLProgram progCubeFront{GLProgram::createFromFile("cubeVS.glsl", "frontFS.glsl")};
   GLProgram progCubeBack{GLProgram::createFromFile("cubeVS.glsl", "backFS.glsl")};
-  Volume volume = QVis{"bonsai.dat"}.volume;
-  Vec3 volumeExtend = volume.scale*Vec3{float(volume.width),float(volume.height),float(volume.depth)}/volume.maxSize;
+  Volume volume;
+  Vec3 volumeExtend;
   GLTexture3D volumeTex{GL_LINEAR, GL_LINEAR,GL_CLAMP_TO_BORDER,GL_CLAMP_TO_BORDER,GL_CLAMP_TO_BORDER};
   
   ArcBall arcball{{512, 512}};
@@ -151,6 +167,8 @@ private:
   Mat4 p;
   Mat4 v{Mat4::lookAt({ 0, 0, 2 }, { 0, 0, 0 }, { 0, 1, 0 })};
 
+  std::vector<std::string> filenames{"c60.dat","bonsai.dat","Engine.dat"};
+  size_t currentFile{0};
   float stepStart{0.12f};
   float stepWidth{0.1f};
   bool leftMouseDown{false};
