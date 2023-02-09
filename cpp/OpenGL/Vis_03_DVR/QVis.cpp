@@ -12,16 +12,16 @@ QVis::QVis(const std::string& filename) {
 void QVis::load(const std::string& filename) {
   std::ifstream datfile(filename);
   if (!datfile) throw QVisFileException{std::string("Unable to read file ")+filename};
-  
+
   bool needsConversion{false};
-  
+
   std::filesystem::path p{filename};
-  
+
   std::string rawFilename;
   std::string line;
   while (std::getline(datfile, line)) {
     QVisDatLine l{line};
-    
+
     if (l.id == "objectfilename") {
       if (p.parent_path().string().empty())
         rawFilename = l.value;
@@ -61,30 +61,30 @@ void QVis::load(const std::string& filename) {
       }
     }
   }
-  
+
   datfile.close();
-  
+
   if (rawFilename.empty())
     throw QVisFileException{"object filename not found"};
-  
-  std::ifstream rawFile( rawFilename, std::ios::binary );  
-  
+
+  std::ifstream rawFile( rawFilename, std::ios::binary );
+
   if (needsConversion) {
     // if it's not 8bit, we assume 16bit
-    std::vector<uint16_t> data(volume.width*volume.height*volume.depth);
+    const std::vector<uint16_t> data(volume.width*volume.height*volume.depth);
     rawFile.read((char*)data.data(), std::streamsize(volume.width*volume.height*volume.depth*2));
     uint16_t minVal = data[0], maxVal = data[0];
-    
+
     for (uint16_t val : data ) {
       minVal = std::min(minVal, val);
       maxVal = std::max(maxVal, val);
     }
     volume.data.resize(data.size());
-    
+
     for (size_t i = 0;i<data.size();++i) {
       volume.data[i] = uint8_t(((data[i]-minVal)*255) / (1+maxVal-minVal));
     }
-    
+
   } else {
     volume.data = std::vector<uint8_t>(std::istreambuf_iterator<char>(rawFile), {});
   }
@@ -105,10 +105,10 @@ std::vector<std::string> QVis::tokenize(const std::string& str) const {
 QVisDatLine::QVisDatLine(const std::string input) {
   std::size_t found = input.find_first_of(":");
   if (found==std::string::npos) return;
-  
+
   id    = input.substr(0,found);
   value = input.substr(found+1);
-  
+
   trim(id);
   trim(value);
 
@@ -117,18 +117,19 @@ QVisDatLine::QVisDatLine(const std::string input) {
 }
 
 void QVisDatLine::ltrim(std::string &s) {
-    s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) {
-        return !std::isspace(ch);
-    }));
+  s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) {
+    return !std::isspace(ch);
+  }));
 }
 
 void QVisDatLine::rtrim(std::string &s) {
-    s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) {
-        return !std::isspace(ch);
-    }).base(), s.end());
+  s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) {
+    return !std::isspace(ch);
+  }).base(), s.end());
 }
 
 void QVisDatLine::trim(std::string &s) {
-    ltrim(s);
-    rtrim(s);
+  ltrim(s);
+  rtrim(s);
 }
+
